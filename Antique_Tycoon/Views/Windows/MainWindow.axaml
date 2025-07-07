@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Antique_Tycoon.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Antique_Tycoon.Views.Windows.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="古玩大亨"
+        WindowState="Maximized">
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Tab" Command="{Binding KeyPressedCommand}" CommandParameter="{Binding $self.Gesture}" />
+  </Window.KeyBindings>
+  <TransitioningContentControl
+    Content="{Binding CurrentPage}">
+    <TransitioningContentControl.PageTransition>
+      <CompositePageTransition>
+        <PageSlide Orientation="Horizontal" Duration="0:0:0.4"/>
+        <CrossFade Duration="0:0:0.2"/>
+      </CompositePageTransition>
+    </TransitioningContentControl.PageTransition>
+  </TransitioningContentControl>
+</Window>

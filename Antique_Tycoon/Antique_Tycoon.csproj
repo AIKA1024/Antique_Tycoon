@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <TrimMode>full</TrimMode>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <AssemblyName>Antique_Tycoon</AssemblyName>
+        <ApplicationIcon>Assets\Logo.ico</ApplicationIcon>
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <PublishAot>false</PublishAot>
+        <UseNativeAot>false</UseNativeAot>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <PublishAot>true</PublishAot>
+        <UseNativeAot>true</UseNativeAot>
+    </PropertyGroup>
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <AvaloniaResource Remove="Assets\SFX\MCButtonPressed.mp3" />
+      <AvaloniaResource Remove="Assets\SFX\Sheep\Sheep_Bleating" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.3.2" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.2" />
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.2">
+            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="HotAvalonia" Version="3.0.0" PrivateAssets="All" Publish="True" />
+        <PackageReference Include="LibVLCSharp" Version="3.9.3" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+        <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Views\Widgets\PlayerUI.axaml.cs">
+            <DependentUpon>PlayerUI.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Windows\MainWindow.axaml.cs">
+            <DependentUpon>GameWindow.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Assets\SFX\Sheep\Sheep_Bleating">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Assets\SFX\MCButtonPressed.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+</Project>

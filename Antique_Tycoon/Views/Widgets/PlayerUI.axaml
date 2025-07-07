@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Antique_Tycoon.ViewModels"
+             xmlns:c="using:Antique_Tycoon.Views.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
+             x:DataType="vm:PlayerUIViewModel">
+  <UserControl.Styles>
+    <Style Selector="Grid.Invisible">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+  </UserControl.Styles>
+  <Design.DataContext>
+    <vm:PlayerUIViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*"
+        Classes.Invisible="{Binding IsVisible}">
+    <c:PlayerCard Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+    <c:PlayerCard Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" />
+    <c:PlayerCard Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+    <c:PlayerCard Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+    <Grid.Transitions>
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+      </Transitions>
+    </Grid.Transitions>
+  </Grid>
+</UserControl>

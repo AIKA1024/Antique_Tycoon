@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Antique_Tycoon.Views.Pages.CreateRoomPage">
+  <Grid RowDefinitions="50,*">
+    <c:MCTitleBar Content="创建新房间"/>
+    <Grid Grid.Row="1" ColumnDefinitions="*,2*">
+      <Border Grid.Column="0"
+              BorderThickness="2"
+              Background="#313233"
+              BorderBrush="#1E1E1F">
+        <Grid RowDefinitions="*,*">
+          <Border Grid.Row="0" Padding="16" BorderBrush="#1E1E1F" BorderThickness="0 0 0 2">
+            <Grid RowDefinitions="4*,*" RowSpacing="8">
+              <Image HorizontalAlignment="Stretch" Stretch="Fill" Source="../../Assets/Map.jpg" />
+              <c:MCButton Grid.Row="1"
+                          FontSize="32"
+                          Content="创建" Padding="0 12"/>
+            </Grid>
+          </Border>
+        </Grid>
+      </Border>
+      <StackPanel Grid.Column="1">
+        <StackPanel.Styles>
+          <Style Selector="Border.Item">
+            <Setter Property="Background" Value="#48494A"/>
+            <Setter Property="Padding" Value="32 16"/>
+            <Setter Property="BorderThickness" Value="0 0 0 2"/>
+            <Setter Property="BorderBrush" Value="#323334"/>
+            <Style Selector="^>StackPanel>TextBlock">
+              <Setter Property="Foreground" Value="#FFFFFF"/>
+            </Style>
+          </Style>
+          <Style Selector="Border.Item:nth-child(n+1)">
+            <Setter Property="BorderThickness" Value="0 2 0 0"/>
+            <Setter Property="BorderBrush" Value="#5A5B5C"/>
+          </Style>
+        </StackPanel.Styles>
+        <Border Classes="Item">
+          <StackPanel Spacing="8">
+            <TextBlock Text="房间名称" FontWeight="Black"/>
+            <TextBox Classes="MCTextbox" Text="卢本伟的房间"/>
+          </StackPanel>
+        </Border>
+        <Border Classes="Item">
+          <StackPanel Spacing="8">
+            <TextBlock Text="初始金额" FontWeight="Black"/>
+            <TextBox Classes="MCTextbox" Text="20000" />
+          </StackPanel>
+        </Border>
+        <Border Classes="Item">
+          <StackPanel Spacing="8">
+            <TextBlock Text="地图" FontWeight="Black"/>
+            <TextBlock Text="暂时只有默认地图"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

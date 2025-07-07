@@ -1,0 +1,33 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Antique_Tycoon.App"
+             RequestedThemeVariant="Default">
+  <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+  <Application.Styles>
+    <StyleInclude Source="Views/Controls/MCButton.axaml"/>
+    <StyleInclude Source="Views/Controls/MCTitleBar.axaml"/>
+    <StyleInclude Source="Views/Styles/TextBox.axaml"/>
+    
+  </Application.Styles>
+  <Application.Resources>
+    <Path x:Key="BackPath" x:Shared="False" Fill="Black" Stretch="None">
+      <Path.Data>
+        <GeometryGroup>
+          <RectangleGeometry Rect="10,0,2,2" />
+          <RectangleGeometry Rect="8,2,2,2" />
+          <RectangleGeometry Rect="6,4,2,2" />
+          <RectangleGeometry Rect="4,6,2,2" />
+          <RectangleGeometry Rect="2,8,2,2" />
+          <RectangleGeometry Rect="4,10,2,2" />
+          <RectangleGeometry Rect="6,12,2,2" />
+          <RectangleGeometry Rect="8,14,2,2" />
+          <RectangleGeometry Rect="10,16,2,2" />
+        </GeometryGroup>
+      </Path.Data>
+    </Path>
+  </Application.Resources>
+</Application>

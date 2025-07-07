@@ -1,0 +1,68 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <!-- Add Controls for Previewer Here -->
+    </Border>
+  </Design.PreviewWith>
+
+  <Style Selector="TextBox.MCTextbox">
+    <Setter Property="Cursor" Value="Ibeam" />
+    <Setter Property="Background" Value="#313233" />
+    <Setter Property="BorderBrush" Value="#1E1E1F" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="CaretBrush" Value="#3C8527" />
+    <Setter Property="Foreground" Value="#FFFFFF" />
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="SelectionBrush" Value="#C3C3C3" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel Background="{TemplateBinding Background}">
+          <Rectangle VerticalAlignment="Top" Height="4" Fill="#242425" />
+          <Border BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  Padding="{TemplateBinding Padding}">
+            <ScrollViewer Name="PART_ScrollViewer" HorizontalScrollBarVisibility="Hidden"
+                          VerticalScrollBarVisibility="Hidden">
+              <Panel>
+                <TextBlock Name="PART_Watermark"
+                           Opacity="0.5"
+                           Text="{TemplateBinding Watermark}"
+                           TextAlignment="{TemplateBinding TextAlignment}"
+                           TextWrapping="{TemplateBinding TextWrapping}"
+                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                  <TextBlock.IsVisible>
+                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                      <Binding ElementName="PART_TextPresenter" Path="PreeditText"
+                               Converter="{x:Static StringConverters.IsNullOrEmpty}" />
+                      <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text"
+                               Converter="{x:Static StringConverters.IsNullOrEmpty}" />
+                    </MultiBinding>
+                  </TextBlock.IsVisible>
+                </TextBlock>
+                <TextPresenter Name="PART_TextPresenter"
+                               Text="{TemplateBinding Text, Mode=TwoWay}"
+                               CaretBlinkInterval="{TemplateBinding CaretBlinkInterval}"
+                               CaretIndex="{TemplateBinding CaretIndex}"
+                               SelectionStart="{TemplateBinding SelectionStart}"
+                               SelectionEnd="{TemplateBinding SelectionEnd}"
+                               TextAlignment="{TemplateBinding TextAlignment}"
+                               TextWrapping="{TemplateBinding TextWrapping}"
+                               LineHeight="{TemplateBinding LineHeight}"
+                               LetterSpacing="{TemplateBinding LetterSpacing}"
+                               PasswordChar="{TemplateBinding PasswordChar}"
+                               RevealPassword="{TemplateBinding RevealPassword}"
+                               SelectionBrush="{TemplateBinding SelectionBrush}"
+                               SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                               CaretBrush="{TemplateBinding CaretBrush}"
+                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+              </Panel>
+            </ScrollViewer>
+          </Border>
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

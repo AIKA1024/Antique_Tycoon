@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Antique_Tycoon.Views.Controls.PlayerCard">
+  <Border CornerRadius="8" Background="#eccc68" Padding="32">
+    <Grid ColumnDefinitions="Auto,*">
+      <StackPanel>
+        <Image Width="64" Source="../../Assets/Avatars/Steve.png" HorizontalAlignment="Left" />
+        <TextBlock Text="这是名字" HorizontalAlignment="Left"/>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Margin="32 0 0 0">
+        <TextBlock Text="现金：xxx"/>
+        <TextBlock Text="地产：xxx"/>
+        <TextBlock Text="古玩：xxx"/>
+        <TextBlock Text="助手：xxx"/>
+      </StackPanel>
+    </Grid>
+  </Border>
+</UserControl>

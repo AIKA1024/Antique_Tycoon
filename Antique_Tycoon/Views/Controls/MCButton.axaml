@@ -1,0 +1,79 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Antique_Tycoon.Views.Controls">
+  <Design.PreviewWith>
+    <c:MCButton Content="Button"/>
+  </Design.PreviewWith>
+
+  <Style Selector="c|MCButton">
+    <Setter Property="IsPlaySound" Value="True"/>
+    <Setter Property="Padding" Value="64 16"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="Background" Value="#C6C6C6"/>
+    <Setter Property="Foreground" Value="#4C4C4C"/>
+    <Setter Property="BorderThickness" Value="1.5"/>
+    <Setter Property="BorderBrush" Value="#131313"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border
+          Background="{TemplateBinding Background}"
+          BorderThickness="{TemplateBinding BorderThickness}"
+          BorderBrush="{TemplateBinding BorderBrush}">
+          <Panel>
+            <ContentPresenter
+              Padding="{TemplateBinding Padding}"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Content="{TemplateBinding Content}"
+              Foreground="{TemplateBinding Foreground}"
+              FontSize="{TemplateBinding FontSize}"
+              FontFamily="{TemplateBinding FontFamily}"/>
+            <Rectangle Fill="#F7F7F7" HorizontalAlignment="Left" Width="2"/>
+            <Rectangle Fill="#F7F7F7" VerticalAlignment="Top" Height="2"/>
+            <Rectangle Fill="#656465" HorizontalAlignment="Right" Width="2"/>
+            <Rectangle Fill="#656465" VerticalAlignment="Bottom" Height="2"/>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    
+    <Style Selector="^:not(.Back.ore):pointerover">
+      <Setter Property="BorderBrush" Value="#FFFFFF"/>
+      <Setter Property="Background" Value="#E6218306"/>
+      <Setter Property="Foreground" Value="#FFFFFF"/>
+    </Style>
+  </Style>
+  
+  <Style Selector="c|MCButton.Back">
+    <Setter Property="Padding" Value="14 14 18 18"></Setter>
+    <Setter Property="Content" Value="{DynamicResource BackPath}"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <ContentPresenter
+            ZIndex="1"
+            Padding="{TemplateBinding Padding}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Content="{TemplateBinding Content}"
+            Foreground="{TemplateBinding Foreground}"
+            FontSize="{TemplateBinding FontSize}"
+            FontFamily="{TemplateBinding FontFamily}"/>
+          <Border x:Name="Border" Background="White" Opacity="0"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:pointerover Border#Border">
+      <Setter Property="Opacity" Value="0.3"/>
+    </Style>
+    <Style Selector="^:pressed Border#Border">
+      <Setter Property="Background" Value="Black"/>
+      <Setter Property="Opacity" Value="0.1"/>
+    </Style>
+  </Style>
+  
+  <Style Selector="c|MCButton.ore">
+    <Setter Property="Background" Value="#3C8527"/>
+    
+  </Style>
+</Styles>
