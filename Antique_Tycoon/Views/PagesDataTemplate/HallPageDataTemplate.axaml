@@ -2,6 +2,12 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="using:Antique_Tycoon.Views.Controls"
                     xmlns:vm="using:Antique_Tycoon.ViewModels">
+  <Design.PreviewWith>
+    <ContentControl>
+        <vm:HallPageViewModel />
+      </ContentControl>
+  </Design.PreviewWith>
+  
   <DataTemplate x:Key="HallPageDataTemplate" DataType="vm:HallPageViewModel">
     <Grid RowDefinitions="50,*" RowSpacing="8">
       <c:MCTitleBar Grid.Row="0" Content="游戏"/>

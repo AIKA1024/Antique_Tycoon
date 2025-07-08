@@ -2,9 +2,15 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:vm="using:Antique_Tycoon.ViewModels">
+  <Design.PreviewWith>
+    <ContentControl>
+      <vm:CreateRoomPageViewModel />
+    </ContentControl>
+  </Design.PreviewWith>
+
   <DataTemplate x:Key="CreateRoomPageDataTemplate" DataType="vm:CreateRoomPageViewModel">
     <Grid RowDefinitions="50,*">
-      <c:MCTitleBar Content="创建新房间" />
+      <c:MCTitleBar Content="{Binding RoomName}" />
       <Grid Grid.Row="1" ColumnDefinitions="*,2*">
         <Border Grid.Column="0"
                 BorderThickness="2"
@@ -13,9 +19,12 @@
           <Grid RowDefinitions="*,*">
             <Border Grid.Row="0" Padding="16" BorderBrush="#1E1E1F" BorderThickness="0 0 0 2">
               <Grid RowDefinitions="4*,*" RowSpacing="8">
-                <Image HorizontalAlignment="Stretch" Stretch="Fill" Source="../../Assets/Map.jpg" />
+                <Image
+                  HorizontalAlignment="Stretch"
+                  Stretch="Fill"
+                  Source="{Binding Cover}" />
                 <c:MCButton Grid.Row="1"
-                            FontSize="32"
+                            FontSize="26"
                             Content="创建" Padding="0 12" />
               </Grid>
             </Border>

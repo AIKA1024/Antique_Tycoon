@@ -15,10 +15,8 @@
   </Application.Styles>
   <Application.Resources>
     <ResourceDictionary>
-      <!-- <ResourceInclude Source="Views/PagesDataTemplate/AllPageDataTemplate.axaml"/> -->
       <ResourceDictionary.MergedDictionaries>
         <MergeResourceInclude Source="Views/PagesDataTemplate/AllPageDataTemplate.axaml" />
-        <!-- <MergeResourceInclude Source="Views/PagesDataTemplate/CreateRoomPageDataTemplate.axaml"/> -->
       </ResourceDictionary.MergedDictionaries>
       <Path x:Key="BackPath" x:Shared="False" Fill="Black" Stretch="None">
         <Path.Data>

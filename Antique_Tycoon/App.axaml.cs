@@ -26,7 +26,6 @@ public partial class App : Application
   public App()
   {
     Services = ConfigureServices();
-    Core.Initialize();
   }
   
   public override void OnFrameworkInitializationCompleted()

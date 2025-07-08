@@ -3,6 +3,13 @@
                     xmlns:c="using:Antique_Tycoon.Views.Controls"
                     xmlns:vm="using:Antique_Tycoon.ViewModels"
                     xmlns:transforms="using:Avalonia.Media">
+  
+  <Design.PreviewWith>
+    <ContentControl>
+        <vm:StartPageViewModel />
+      </ContentControl>
+  </Design.PreviewWith>
+  
   <DataTemplate x:Key="StartPageDataTemplate" DataType="vm:StartPageViewModel">
     <Grid ColumnDefinitions="*,2*,*">
       <Grid.Styles>

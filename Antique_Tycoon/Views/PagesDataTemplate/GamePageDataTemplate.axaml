@@ -1,9 +1,13 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="using:Antique_Tycoon.Views.Controls"
                     xmlns:i="using:Antique_Tycoon.Behaviors"
                     xmlns:w="using:Antique_Tycoon.Views.Widgets"
                     xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels">
+  <Design.PreviewWith>
+    <ContentControl>
+        <vm:GamePageViewModel />
+      </ContentControl>
+  </Design.PreviewWith>
   <DataTemplate x:Key="GamePageDataTemplate" DataType="vm:GamePageViewModel">
     <Grid Name="MainGrid"
           Focusable="False"
