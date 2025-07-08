@@ -10,8 +10,8 @@
 
   <DataTemplate x:Key="CreateRoomPageDataTemplate" DataType="vm:CreateRoomPageViewModel">
     <Grid RowDefinitions="50,*">
-      <c:MCTitleBar 
-        Content="{Binding RoomName}"/>
+      <c:MCTitleBar
+        Content="创建房间" />
       <Grid Grid.Row="1" ColumnDefinitions="*,2*">
         <Border Grid.Column="0"
                 BorderThickness="2"
@@ -24,9 +24,11 @@
                   HorizontalAlignment="Stretch"
                   Stretch="Fill"
                   Source="{Binding Cover}" />
-                <c:MCButton Grid.Row="1"
-                            FontSize="26"
-                            Content="创建" Padding="0 12" />
+                <c:MCButton
+                  Grid.Row="1"
+                  FontSize="26"
+                  Content="创建" Padding="0 12"
+                  Command="{Binding CreateRoomAndNavigateToRoomPageCommand}" />
               </Grid>
             </Border>
           </Grid>
@@ -34,7 +36,6 @@
         <StackPanel Grid.Column="1">
           <StackPanel.Styles>
             <Style Selector="Border.Item">
-              <Setter Property="Background" Value="#48494A" />
               <Setter Property="Padding" Value="32 16" />
               <Setter Property="BorderThickness" Value="0 0 0 2" />
               <Setter Property="BorderBrush" Value="#323334" />

@@ -1,7 +1,10 @@
 using System;
+using Antique_Tycoon.Services;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
@@ -18,5 +21,11 @@ public partial class CreateRoomPageViewModel:ViewModelBase,IDisposable
   public void Dispose()
   {
     Cover.Dispose();
+  }
+
+  [RelayCommand]
+  private void CreateRoomAndNavigateToRoomPage()
+  {
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel());
   }
 }

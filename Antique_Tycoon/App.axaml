@@ -41,5 +41,6 @@
     <StaticResource ResourceKey="GamePageDataTemplate"/>
     <StaticResource ResourceKey="HallPageDataTemplate"/>
     <StaticResource ResourceKey="StartPageDataTemplate"/>
+    <StaticResource ResourceKey="RoomPageDataTemplate"/>
   </Application.DataTemplates>
 </Application>

@@ -6,6 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Antique_Tycoon.Views.Windows.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        Background="#48494A"
         Title="古玩大亨"
         WindowState="Maximized">
   <Design.DataContext>
@@ -18,7 +19,7 @@
     Content="{Binding CurrentPageViewModel}">
     <TransitioningContentControl.PageTransition>
       <CompositePageTransition>
-        <PageSlide Orientation="Horizontal" Duration="0:0:0.4"/>
+        <PageSlide Orientation="Horizontal" Duration="0:0:0.35"/>
         <CrossFade Duration="0:0:0.2"/>
       </CompositePageTransition>
     </TransitioningContentControl.PageTransition>

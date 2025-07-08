@@ -5,5 +5,6 @@
     <MergeResourceInclude Source="/Views/PagesDataTemplate/GamePageDataTemplate.axaml"/>
     <MergeResourceInclude Source="/Views/PagesDataTemplate/HallPageDataTemplate.axaml"/>
     <MergeResourceInclude Source="/Views/PagesDataTemplate/StartPageDataTemplate.axaml"/>
+    <MergeResourceInclude Source="/Views/PagesDataTemplate/RoomPageDataTemplate.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
