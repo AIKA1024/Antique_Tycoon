@@ -47,7 +47,7 @@ public partial class App : Application
   private IServiceProvider ConfigureServices()
   {
     var services = new ServiceCollection();
-    services.AddSingleton(new LibVLC());
+    services.AddSingleton(new LibVLC("--no-video"));
     services.AddSingleton<MainWindowViewModel>();
     services.AddSingleton<NavigationService>(sp=>new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
     return services.BuildServiceProvider();
