@@ -4,4 +4,8 @@ namespace Antique_Tycoon.ViewModels;
 
 public class ViewModelBase : ObservableObject
 {
+  public virtual void OnBacked()
+  {
+    
+  }
 }

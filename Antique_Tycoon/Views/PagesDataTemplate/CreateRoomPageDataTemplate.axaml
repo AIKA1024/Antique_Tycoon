@@ -10,7 +10,8 @@
 
   <DataTemplate x:Key="CreateRoomPageDataTemplate" DataType="vm:CreateRoomPageViewModel">
     <Grid RowDefinitions="50,*">
-      <c:MCTitleBar Content="{Binding RoomName}" />
+      <c:MCTitleBar 
+        Content="{Binding RoomName}"/>
       <Grid Grid.Row="1" ColumnDefinitions="*,2*">
         <Border Grid.Column="0"
                 BorderThickness="2"

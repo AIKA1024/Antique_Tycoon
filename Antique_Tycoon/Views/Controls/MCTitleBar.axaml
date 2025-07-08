@@ -1,32 +1,35 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:Antique_Tycoon.Views.Controls"
+        xmlns:c="using:Antique_Tycoon.Views.Controls"
         xmlns:cm="clr-namespace:Antique_Tycoon.Commands">
   <Design.PreviewWith>
-    <controls:MCTitleBar />
+    <c:MCTitleBar />
   </Design.PreviewWith>
 
-  <Style Selector="controls|MCTitleBar">
-    <Setter Property="FontWeight" Value="Black"/>
-    <Setter Property="FontSize" Value="24"/>
+  <Style Selector="c|MCTitleBar">
+    <Setter Property="FontWeight" Value="Black" />
+    <Setter Property="FontSize" Value="24" />
     <Setter Property="Template">
       <ControlTemplate>
         <Border
           Background="#E6E8EB"
           BorderBrush="#B1B2B5" BorderThickness="0 0 0 2">
           <DockPanel>
-            <controls:MCButton Classes="Back"
-                               Command="{x:Static cm:StaticCommands.BackCommand}"
-                               FontSize="16">
-            </controls:MCButton>
+            <c:MCButton
+              Classes="Back"
+              Command="{x:Static cm:StaticCommands.BackCommand}"
+              CommandParameter="{TemplateBinding DataContext}"
+              FontSize="16">
+            </c:MCButton>
             <ContentPresenter Content="{TemplateBinding Content}"
                               FontSize="{TemplateBinding FontSize}"
                               FontWeight="{TemplateBinding FontWeight}"
                               HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
+                              VerticalAlignment="Center" />
           </DockPanel>
         </Border>
       </ControlTemplate>
     </Setter>
   </Style>
 </Styles>
+
