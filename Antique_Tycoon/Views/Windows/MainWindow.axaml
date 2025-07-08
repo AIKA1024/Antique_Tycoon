@@ -15,7 +15,7 @@
     <KeyBinding Gesture="Tab" Command="{Binding KeyPressedCommand}" CommandParameter="{Binding $self.Gesture}" />
   </Window.KeyBindings>
   <TransitioningContentControl
-    Content="{Binding CurrentPage}">
+    Content="{Binding CurrentPageViewModel}">
     <TransitioningContentControl.PageTransition>
       <CompositePageTransition>
         <PageSlide Orientation="Horizontal" Duration="0:0:0.4"/>

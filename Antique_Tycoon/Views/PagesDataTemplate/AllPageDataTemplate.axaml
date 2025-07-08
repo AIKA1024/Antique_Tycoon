@@ -1,0 +1,9 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <MergeResourceInclude Source="/Views/PagesDataTemplate/CreateRoomPageDataTemplate.axaml"/>
+    <MergeResourceInclude Source="/Views/PagesDataTemplate/GamePageDataTemplate.axaml"/>
+    <MergeResourceInclude Source="/Views/PagesDataTemplate/HallPageDataTemplate.axaml"/>
+    <MergeResourceInclude Source="/Views/PagesDataTemplate/StartPageDataTemplate.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

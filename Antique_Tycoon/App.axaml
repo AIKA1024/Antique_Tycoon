@@ -8,26 +8,40 @@
     <FluentTheme />
   </Application.Styles>
   <Application.Styles>
-    <StyleInclude Source="Views/Controls/MCButton.axaml"/>
-    <StyleInclude Source="Views/Controls/MCTitleBar.axaml"/>
-    <StyleInclude Source="Views/Styles/TextBox.axaml"/>
-    
+    <StyleInclude Source="Views/Controls/MCButton.axaml" />
+    <StyleInclude Source="Views/Controls/MCTitleBar.axaml" />
+    <StyleInclude Source="Views/Styles/TextBox.axaml" />
+
   </Application.Styles>
   <Application.Resources>
-    <Path x:Key="BackPath" x:Shared="False" Fill="Black" Stretch="None">
-      <Path.Data>
-        <GeometryGroup>
-          <RectangleGeometry Rect="10,0,2,2" />
-          <RectangleGeometry Rect="8,2,2,2" />
-          <RectangleGeometry Rect="6,4,2,2" />
-          <RectangleGeometry Rect="4,6,2,2" />
-          <RectangleGeometry Rect="2,8,2,2" />
-          <RectangleGeometry Rect="4,10,2,2" />
-          <RectangleGeometry Rect="6,12,2,2" />
-          <RectangleGeometry Rect="8,14,2,2" />
-          <RectangleGeometry Rect="10,16,2,2" />
-        </GeometryGroup>
-      </Path.Data>
-    </Path>
+    <ResourceDictionary>
+      <!-- <ResourceInclude Source="Views/PagesDataTemplate/AllPageDataTemplate.axaml"/> -->
+      <ResourceDictionary.MergedDictionaries>
+        <MergeResourceInclude Source="Views/PagesDataTemplate/AllPageDataTemplate.axaml" />
+        <!-- <MergeResourceInclude Source="Views/PagesDataTemplate/CreateRoomPageDataTemplate.axaml"/> -->
+      </ResourceDictionary.MergedDictionaries>
+      <Path x:Key="BackPath" x:Shared="False" Fill="Black" Stretch="None">
+        <Path.Data>
+          <GeometryGroup>
+            <RectangleGeometry Rect="10,0,2,2" />
+            <RectangleGeometry Rect="8,2,2,2" />
+            <RectangleGeometry Rect="6,4,2,2" />
+            <RectangleGeometry Rect="4,6,2,2" />
+            <RectangleGeometry Rect="2,8,2,2" />
+            <RectangleGeometry Rect="4,10,2,2" />
+            <RectangleGeometry Rect="6,12,2,2" />
+            <RectangleGeometry Rect="8,14,2,2" />
+            <RectangleGeometry Rect="10,16,2,2" />
+          </GeometryGroup>
+        </Path.Data>
+      </Path>
+    </ResourceDictionary>
   </Application.Resources>
+  
+  <Application.DataTemplates>
+    <StaticResource ResourceKey="CreateRoomPageDataTemplate"/>
+    <StaticResource ResourceKey="GamePageDataTemplate"/>
+    <StaticResource ResourceKey="HallPageDataTemplate"/>
+    <StaticResource ResourceKey="StartPageDataTemplate"/>
+  </Application.DataTemplates>
 </Application>

@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Antique_Tycoon.Views.Controls"
+                    xmlns:vm="using:Antique_Tycoon.ViewModels">
+  <DataTemplate x:Key="HallPageDataTemplate" DataType="vm:HallPageViewModel">
+    <Grid RowDefinitions="50,*" RowSpacing="8">
+      <c:MCTitleBar Grid.Row="0" Content="游戏"/>
+      <StackPanel Grid.Row="1" Spacing="8" Margin="16 0">
+        <c:MCButton HorizontalAlignment="Right" Content="创建新房间"
+                    Command="{Binding NavigateToCreateRoomPageCommand}"/>
+        <ListBox/>
+      </StackPanel>
+    </Grid>
+  </DataTemplate>
+</ResourceDictionary>
