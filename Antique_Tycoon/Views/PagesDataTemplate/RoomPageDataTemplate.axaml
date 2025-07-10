@@ -11,11 +11,19 @@
   <DataTemplate x:Key="RoomPageDataTemplate" DataType="vm:RoomPageViewModel">
     <Grid RowDefinitions="50,*" RowSpacing="8">
       <c:MCTitleBar Grid.Row="0" Content="xxx的房间" />
-      <StackPanel Grid.Row="1">
+      <StackPanel Grid.Row="1" Spacing="16"
+                  VerticalAlignment="Stretch">
+        <c:MCButton Classes="ore"
+                    Content="开始游戏"
+                    Margin="32"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top" />
         <ItemsControl ItemsSource="{Binding Players}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Border BorderThickness="2" BorderBrush="#131313">
+              <Border
+                BorderThickness="2"
+                BorderBrush="#131313">
                 <StackPanel>
                   <Border BorderThickness="2" BorderBrush="#5A5B5C" Padding="8">
                     <StackPanel>
@@ -35,12 +43,12 @@
                   </Border>
                   <Rectangle Fill="#313233" VerticalAlignment="Bottom" Height="4" />
                 </StackPanel>
-                
               </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </StackPanel>
+
     </Grid>
   </DataTemplate>
 </ResourceDictionary>

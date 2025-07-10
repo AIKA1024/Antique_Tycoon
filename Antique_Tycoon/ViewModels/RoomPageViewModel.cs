@@ -10,10 +10,11 @@ namespace Antique_Tycoon.ViewModels;
 public partial class RoomPageViewModel: ViewModelBase
 {
   private readonly CancellationTokenSource _cancellationTokenSource;
-  public RoomPageViewModel(CancellationTokenSource cts)
+  public RoomPageViewModel(CancellationTokenSource cts = default)
   {
     _cancellationTokenSource = cts;
   }
+
   public AvaloniaList<Player> Players { get; set; } = [new() { Name = "lbw" }];
   public override void OnBacked()
   {

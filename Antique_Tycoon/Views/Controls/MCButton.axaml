@@ -7,7 +7,7 @@
 
   <Style Selector="c|MCButton">
     <Setter Property="IsPlaySound" Value="True" />
-    <Setter Property="Padding" Value="64 16" />
+    <Setter Property="Padding" Value="32 8" />
     <Setter Property="CornerRadius" Value="0" />
     <Setter Property="Background" Value="#C6C6C6" />
     <Setter Property="Foreground" Value="#4C4C4C" />
@@ -15,34 +15,41 @@
     <Setter Property="BorderBrush" Value="#131313" />
     <Setter Property="Template">
       <ControlTemplate>
-        <Border
-          Background="{TemplateBinding Background}"
-          BorderThickness="{TemplateBinding BorderThickness}"
-          BorderBrush="{TemplateBinding BorderBrush}">
-          <DockPanel LastChildFill="True">
-            <Rectangle
-              DockPanel.Dock="Bottom"
-              Fill="#4E4E50"
-              Height="5"
-              VerticalAlignment="Bottom" />
-            <Border
-              IsHitTestVisible="False"
-              DockPanel.Dock="Top"
-              BorderThickness="2"
-              BorderBrush="#66FFFFFF"
-              BackgroundSizing="OuterBorderEdge">
-              <ContentPresenter
+        <StackPanel>
+          <Rectangle />
+          <Border
+            Background="{TemplateBinding Background}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            Margin="{TemplateBinding Margin}"
+            Height="{TemplateBinding Height}"
+            Width="{TemplateBinding Width}">
+            <DockPanel LastChildFill="True">
+              <Rectangle
+                DockPanel.Dock="Bottom"
+                Fill="#4E4E50"
+                Height="5"
+                VerticalAlignment="Bottom" />
+              <Border
                 Padding="{TemplateBinding Padding}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Content="{TemplateBinding Content}"
-                Foreground="{TemplateBinding Foreground}"
-                FontSize="{TemplateBinding FontSize}"
-                FontFamily="{TemplateBinding FontFamily}" />
-            </Border>
-          </DockPanel>
+                IsHitTestVisible="False"
+                DockPanel.Dock="Top"
+                BorderThickness="2"
+                BorderBrush="#66FFFFFF"
+                BackgroundSizing="OuterBorderEdge">
+                <ContentPresenter
+                  Padding="{TemplateBinding Padding}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Content="{TemplateBinding Content}"
+                  Foreground="{TemplateBinding Foreground}"
+                  FontSize="{TemplateBinding FontSize}"
+                  FontFamily="{TemplateBinding FontFamily}" />
+              </Border>
+            </DockPanel>
+          </Border>
+        </StackPanel>
 
-        </Border>
       </ControlTemplate>
     </Setter>
 
@@ -56,22 +63,20 @@
   <Style Selector="c|MCButton.ore">
     <Setter Property="Foreground" Value="White" />
     <Setter Property="Background" Value="#3C8527" />
-    <Setter Property="BorderBrush" Value="#1E1E1F"/>
+    <Setter Property="BorderBrush" Value="#1E1E1F" />
     <Style Selector="^:pointerover">
       <Setter Property="Background" Value="#2A641C" />
-      <Style Selector="^Border>DockPanel>Border">
+      <Style Selector="^>StackPanel>Border>DockPanel>Border">
         <Setter Property="BorderBrush" Value="#7FA277" />
       </Style>
     </Style>
-    <Style Selector="^>Border>DockPanel>Rectangle">
+    <Style Selector="^>StackPanel>Border>DockPanel>Rectangle">
       <Setter Property="Fill" Value="#1D4D13" />
     </Style>
-    <Style Selector="^:pressed">
-      <Setter Property="RenderTransform">
-        <TranslateTransform Y="5" />
-      </Setter>
+    <Style Selector="^:pressed>StackPanel>Rectangle">
+      <Setter Property="Height" Value="5" />
     </Style>
-    <Style Selector="^:pressed Border>DockPanel>Rectangle">
+    <Style Selector="^:pressed>StackPanel>Border>DockPanel>Rectangle">
       <Setter Property="Height" Value="0" />
     </Style>
   </Style>
