@@ -12,10 +12,10 @@
     <Grid RowDefinitions="50,*" RowSpacing="8">
       <c:MCTitleBar Grid.Row="0" Content="xxx的房间" />
       <StackPanel Grid.Row="1" Spacing="16"
+                  Margin="16"
                   VerticalAlignment="Stretch">
         <c:MCButton Classes="ore"
                     Content="开始游戏"
-                    Margin="32"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top" />
         <ItemsControl ItemsSource="{Binding Players}">

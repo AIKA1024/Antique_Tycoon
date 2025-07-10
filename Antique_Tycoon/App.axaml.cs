@@ -54,6 +54,7 @@ public partial class App : Application
     services.AddSingleton<MainWindowViewModel>();
     services.AddSingleton<NavigationService>(sp=>new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
     services.AddSingleton<NetClient>();
+    services.AddSingleton<NetServer>();
     services.AddSingleton<Player>();
     return services.BuildServiceProvider();
   }

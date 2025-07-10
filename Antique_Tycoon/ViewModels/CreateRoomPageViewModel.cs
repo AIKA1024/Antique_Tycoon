@@ -32,10 +32,11 @@ public partial class CreateRoomPageViewModel:ViewModelBase,IDisposable
   [RelayCommand]
   private async Task CreateRoomAndNavigateToRoomPage()
   {
+    cts.TryReset();
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(cts));
     try
     {
-      await App.Current.Services.GetRequiredService<NetClient>().CreateRoomAndListenAsync(RoomName,cts.Token);
+      await App.Current.Services.GetRequiredService<NetServer>().CreateRoomAndListenAsync(RoomName,cts.Token);
     }
     catch (OperationCanceledException e)
     {
