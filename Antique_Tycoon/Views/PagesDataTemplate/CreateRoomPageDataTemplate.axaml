@@ -51,7 +51,7 @@
           <Border Classes="Item">
             <StackPanel Spacing="8">
               <TextBlock Text="房间名称" FontWeight="Black" />
-              <TextBox Classes="MCTextbox" Text="卢本伟的房间" />
+              <TextBox Classes="MCTextbox" Text="{Binding RoomName}" />
             </StackPanel>
           </Border>
           <Border Classes="Item">

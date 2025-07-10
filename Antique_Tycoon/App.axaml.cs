@@ -4,6 +4,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
+using Antique_Tycoon.Models;
+using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using Avalonia.Markup.Xaml;
 using Antique_Tycoon.ViewModels;
@@ -16,6 +18,7 @@ namespace Antique_Tycoon;
 
 public partial class App : Application
 {
+  public int DefaultPort => 13437;
   public IServiceProvider Services { get; }
   public new static App Current => (App)Application.Current!;
   public override void Initialize()
@@ -50,6 +53,8 @@ public partial class App : Application
     services.AddSingleton(new LibVLC("--no-video"));
     services.AddSingleton<MainWindowViewModel>();
     services.AddSingleton<NavigationService>(sp=>new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
+    services.AddSingleton<NetClient>();
+    services.AddSingleton<Player>();
     return services.BuildServiceProvider();
   }
 
