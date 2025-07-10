@@ -14,37 +14,40 @@
     <Grid RowDefinitions="50,*" RowSpacing="8">
       <c:MCTitleBar Grid.Row="0" Content="游戏" />
       <StackPanel Grid.Row="1" Spacing="8" Margin="16 0">
-        <c:MCButton HorizontalAlignment="Right" Content="创建新房间"
-                    Command="{Binding NavigateToCreateRoomPageCommand}" />
+        <c:MCButton
+          Content="创建新房间"
+          Classes="ore"
+          Command="{Binding NavigateToCreateRoomPageCommand}"
+          HorizontalAlignment="Right" />
         <ItemsControl ItemsSource="{Binding RoomList}"
                       Foreground="White">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <Border
-                  i:TapBehavior.Command="{Binding $parent.((vm:HallPageViewModel)DataContext).JoinRoomCommand}"
-                  Cursor="Hand"
-                  BorderThickness="2"
-                  BorderBrush="#1E1E1F"
-                  Background="#48494A">
-                  <Panel>
-                    <Grid ColumnDefinitions="80,*"
-                          ColumnSpacing="16"
-                          Margin="16">
-                      <Image Grid.Column="0" Width="64" Source="../../Assets/Avatars/Steve.png"/>
-                    
-                      <StackPanel
-                        Grid.Column="1">
-                        <TextBlock Text="{Binding RoomName}" />
-                        <TextBlock Text="{Binding CurrentPlayerCount,StringFormat={}{0}/5}" />
-                      </StackPanel>
-                    </Grid>
+              <Border
+                i:TapBehavior.Command="{Binding $parent.((vm:HallPageViewModel)DataContext).JoinRoomCommand}"
+                Cursor="Hand"
+                BorderThickness="2"
+                BorderBrush="#1E1E1F"
+                Background="#48494A">
+                <Panel>
+                  <Grid ColumnDefinitions="80,*"
+                        ColumnSpacing="16"
+                        Margin="16">
+                    <Image Grid.Column="0" Width="64" Source="../../Assets/Avatars/Steve.png" />
 
-                    <Rectangle Width="2" HorizontalAlignment="Left" Fill="#5A5B5C" />
-                    <Rectangle Height="2" VerticalAlignment="Top" Fill="#5A5B5C" />
-                    <Rectangle Width="2" HorizontalAlignment="Right" Fill="#5A5B5C" />
-                    <Rectangle Height="2" VerticalAlignment="Bottom" Fill="#323334" />
-                  </Panel>
-                </Border>
+                    <StackPanel
+                      Grid.Column="1">
+                      <TextBlock Text="{Binding RoomName}" />
+                      <TextBlock Text="{Binding CurrentPlayerCount,StringFormat={}{0}/5}" />
+                    </StackPanel>
+                  </Grid>
+
+                  <Rectangle Width="2" HorizontalAlignment="Left" Fill="#5A5B5C" />
+                  <Rectangle Height="2" VerticalAlignment="Top" Fill="#5A5B5C" />
+                  <Rectangle Width="2" HorizontalAlignment="Right" Fill="#5A5B5C" />
+                  <Rectangle Height="2" VerticalAlignment="Bottom" Fill="#323334" />
+                </Panel>
+              </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>

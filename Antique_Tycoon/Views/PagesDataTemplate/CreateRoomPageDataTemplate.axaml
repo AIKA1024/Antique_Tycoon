@@ -26,8 +26,10 @@
                   Source="{Binding Cover}" />
                 <c:MCButton
                   Grid.Row="1"
+                  VerticalAlignment="Top"
                   FontSize="26"
-                  Content="创建" Padding="0 12"
+                  Content="创建"
+                  Classes="ore"
                   Command="{Binding CreateRoomAndNavigateToRoomPageCommand}" />
               </Grid>
             </Border>
