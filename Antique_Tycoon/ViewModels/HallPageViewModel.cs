@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
 using Antique_Tycoon.Models;
@@ -14,8 +15,8 @@ namespace Antique_Tycoon.ViewModels;
 public partial class HallPageViewModel:ViewModelBase
 {
   private readonly Timer _timer = new(2000);
-  public AvaloniaList<RoomNetInfo> RoomList { get; } = [];
-  // public AvaloniaList<RoomNetInfo> RoomList { get; } = [new RoomNetInfo{Ip = "127.0.0.1",Port = 13437,RoomName = "lbw的房间"}];
+  public AvaloniaList<RoomBaseInfo> RoomList { get; } = [];
+  // public AvaloniaList<RoomBaseInfo> RoomList { get; } = [new RoomBaseInfo{Ip = "127.0.0.1",Port = 13437,RoomName = "lbw的房间"}];
   public HallPageViewModel()
   {
     _timer.Elapsed += async (s, e) =>
@@ -40,8 +41,17 @@ public partial class HallPageViewModel:ViewModelBase
   }
 
   [RelayCommand]
-  private void JoinRoom()
+  private async Task JoinRoom(RoomBaseInfo roomInfo)
   {
-    
+    var response = await App.Current.Services.GetRequiredService<NetClient>().JoinRoomAsync(new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port));
+    if (response.Players.Count == 0)
+    {
+      return;//todo 要显示提示
+    }
+
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
+    {
+      Players = response.Players
+    });
   }
 }

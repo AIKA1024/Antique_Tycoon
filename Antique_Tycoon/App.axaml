@@ -11,7 +11,6 @@
     <StyleInclude Source="Views/Controls/MCButton.axaml" />
     <StyleInclude Source="Views/Controls/MCTitleBar.axaml" />
     <StyleInclude Source="Views/Styles/TextBox.axaml" />
-
   </Application.Styles>
   <Application.Resources>
     <ResourceDictionary>

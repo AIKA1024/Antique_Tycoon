@@ -1,9 +1,10 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="using:Antique_Tycoon.Views.Controls"
-                    xmlns:vm="using:Antique_Tycoon.ViewModels"
-                    xmlns:i="using:Antique_Tycoon.Behaviors"
-                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
+<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:c="using:Antique_Tycoon.Views.Controls"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:i="using:Antique_Tycoon.Behaviors"
+  xmlns:vm="using:Antique_Tycoon.ViewModels">
   <Design.PreviewWith>
     <ContentControl>
       <vm:HallPageViewModel />
@@ -13,39 +14,57 @@
   <DataTemplate x:Key="HallPageDataTemplate" DataType="vm:HallPageViewModel">
     <Grid RowDefinitions="50,*" RowSpacing="8">
       <c:MCTitleBar Grid.Row="0" Content="游戏" />
-      <StackPanel Grid.Row="1" Spacing="8" Margin="16 0">
+      <StackPanel
+        Grid.Row="1"
+        Margin="16,0"
+        Spacing="8">
         <c:MCButton
-          Content="创建新房间"
+          HorizontalAlignment="Right"
           Classes="ore"
           Command="{Binding NavigateToCreateRoomPageCommand}"
-          HorizontalAlignment="Right" />
-        <ItemsControl ItemsSource="{Binding RoomList}"
-                      Foreground="White">
+          Content="创建新房间" />
+        <ItemsControl Foreground="White" ItemsSource="{Binding RoomList}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Border
                 i:TapBehavior.Command="{Binding $parent.((vm:HallPageViewModel)DataContext).JoinRoomCommand}"
-                Cursor="Hand"
-                BorderThickness="2"
+                i:TapBehavior.CommandParameter="{Binding}"
+                Background="#48494A"
                 BorderBrush="#1E1E1F"
-                Background="#48494A">
+                BorderThickness="2"
+                Cursor="Hand">
                 <Panel>
-                  <Grid ColumnDefinitions="80,*"
-                        ColumnSpacing="16"
-                        Margin="16">
-                    <Image Grid.Column="0" Width="64" Source="../../Assets/Avatars/Steve.png" />
+                  <Grid
+                    Margin="16"
+                    ColumnDefinitions="80,*"
+                    ColumnSpacing="16">
+                    <Image
+                      Grid.Column="0"
+                      Width="64"
+                      Source="../../Assets/Avatars/Steve.png" />
 
-                    <StackPanel
-                      Grid.Column="1">
+                    <StackPanel Grid.Column="1">
                       <TextBlock Text="{Binding RoomName}" />
-                      <TextBlock Text="{Binding CurrentPlayerCount,StringFormat={}{0}/5}" />
+                      <TextBlock Text="{Binding CurrentPlayerCount, StringFormat={}{0}/5}" />
                     </StackPanel>
                   </Grid>
 
-                  <Rectangle Width="2" HorizontalAlignment="Left" Fill="#5A5B5C" />
-                  <Rectangle Height="2" VerticalAlignment="Top" Fill="#5A5B5C" />
-                  <Rectangle Width="2" HorizontalAlignment="Right" Fill="#5A5B5C" />
-                  <Rectangle Height="2" VerticalAlignment="Bottom" Fill="#323334" />
+                  <Rectangle
+                    Width="2"
+                    HorizontalAlignment="Left"
+                    Fill="#5A5B5C" />
+                  <Rectangle
+                    Height="2"
+                    VerticalAlignment="Top"
+                    Fill="#5A5B5C" />
+                  <Rectangle
+                    Width="2"
+                    HorizontalAlignment="Right"
+                    Fill="#5A5B5C" />
+                  <Rectangle
+                    Height="2"
+                    VerticalAlignment="Bottom"
+                    Fill="#323334" />
                 </Panel>
               </Border>
             </DataTemplate>

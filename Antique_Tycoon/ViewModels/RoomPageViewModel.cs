@@ -4,6 +4,7 @@ using Antique_Tycoon.Models;
 using Avalonia.Collections;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
@@ -15,7 +16,7 @@ public partial class RoomPageViewModel: ViewModelBase
     _cancellationTokenSource = cts;
   }
 
-  public AvaloniaList<Player> Players { get; set; } = [new() { Name = "lbw" }];
+  public AvaloniaList<Player> Players { get; set; } = [App.Current.Services.GetRequiredService<Player>()];
   public override void OnBacked()
   {
     base.OnBacked();
