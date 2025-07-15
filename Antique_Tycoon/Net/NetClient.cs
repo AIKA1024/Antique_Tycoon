@@ -24,7 +24,7 @@ public class NetClient : NetBase
   {
     _udpClient.EnableBroadcast = true;
     var bytes = "DiscoverRoom"u8.ToArray();
-    await _udpClient.SendAsync(bytes, bytes.Length, "255.255.255.255", App.Current.DefaultPort);
+    await _udpClient.SendAsync(bytes, bytes.Length, "255.255.255.255", App.DefaultPort);
     var result = await _udpClient.ReceiveAsync();
     var json = Encoding.UTF8.GetString(result.Buffer);
     var roomInfo = JsonSerializer.Deserialize(json, AppJsonContext.Default.RoomBaseInfo);

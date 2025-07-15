@@ -18,7 +18,8 @@ namespace Antique_Tycoon;
 
 public partial class App : Application
 {
-  public int DefaultPort => 13437;
+  public const int DefaultPort = 13437;
+  
   public IServiceProvider Services { get; private set; }
   public new static App Current => (App)Application.Current!;
   public override void Initialize()

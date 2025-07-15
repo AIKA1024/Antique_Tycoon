@@ -44,12 +44,12 @@ public class NetServer : NetBase
     var roomInfo = new RoomBaseInfo
     {
       RoomName = roomName,
-      Port = App.Current.DefaultPort,
+      Port = App.DefaultPort,
       Ip = _localIPv4,
     };
 
     _listener?.Dispose();
-    _listener = new TcpListener(IPAddress.Any, App.Current.DefaultPort);
+    _listener = new TcpListener(IPAddress.Any, App.DefaultPort);
     _listener.Start();
 
     var udpTask = HandleUdpDiscoveryAsync(roomInfo, cancellation);
@@ -60,15 +60,15 @@ public class NetServer : NetBase
   /// <summary>
   /// 回应Udp询问房间请求
   /// </summary>
-  private async Task HandleUdpDiscoveryAsync(RoomBaseInfo roomInfo, CancellationToken cancellation)
+  private async Task HandleUdpDiscoveryAsync(RoomBaseInfo roomInfo, CancellationToken cancellationToken)
   {
-    using var udpServer = new UdpClient(App.Current.DefaultPort);
+    using var udpServer = new UdpClient(App.DefaultPort);
 
-    while (!cancellation.IsCancellationRequested)
+    while (!cancellationToken.IsCancellationRequested)
     {
-      var result = await udpServer.ReceiveAsync(cancellation);
+      var result = await udpServer.ReceiveAsync(cancellationToken);
 
-      var json = JsonSerializer.Serialize(roomInfo);
+      var json = JsonSerializer.Serialize(roomInfo,AppJsonContext.Default.RoomBaseInfo);
       var bytes = Encoding.UTF8.GetBytes(json);
 
       await udpServer.SendAsync(bytes, bytes.Length, result.RemoteEndPoint);
@@ -94,7 +94,6 @@ public class NetServer : NetBase
   {
     await using var stream = client.GetStream();
     await ReceiveLoopAsync(client);
-    // 读取数据 / 发送欢迎信息 / 加入房间逻辑
   }
 
   private async Task SendRequestAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
