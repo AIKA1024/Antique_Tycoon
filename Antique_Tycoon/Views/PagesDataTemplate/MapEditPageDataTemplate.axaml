@@ -19,9 +19,9 @@
                     Title="地图编辑器">
         <c:MCButton Classes="ore"
                     Content="保存"
-                    Height="40"
                     Padding="8 4"
                     FontSize="12"
+                    VerticalAlignment="Center"
                     Margin="0 0 8 0" />
       </c:MCTitleBar>
       <Canvas Grid.Row="1"

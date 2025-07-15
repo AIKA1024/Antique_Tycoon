@@ -17,10 +17,10 @@
         <PublishAot>false</PublishAot>
         <UseNativeAot>false</UseNativeAot>
     </PropertyGroup>
-<!--    <PropertyGroup Condition="'$(Configuration)' == 'Release'">-->
-<!--        <PublishAot>true</PublishAot>-->
-<!--        <UseNativeAot>true</UseNativeAot>-->
-<!--    </PropertyGroup>-->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <PublishAot>true</PublishAot>
+        <UseNativeAot>true</UseNativeAot>
+    </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
