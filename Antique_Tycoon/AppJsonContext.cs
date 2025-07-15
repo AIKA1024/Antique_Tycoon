@@ -9,6 +9,7 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(RoomBaseInfo))]
 [JsonSerializable(typeof(JoinRoomResponse))]
 [JsonSerializable(typeof(JoinRoomRequest))]
+[JsonSerializable(typeof(UpdateRoomResponse))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
 public partial class AppJsonContext : JsonSerializerContext
 {

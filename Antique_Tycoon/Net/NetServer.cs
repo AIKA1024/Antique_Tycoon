@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -9,7 +10,6 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
-using Avalonia.Collections;
 
 namespace Antique_Tycoon.Net;
 
@@ -18,6 +18,8 @@ public class NetServer : NetBase
   private TcpListener? _listener;
   private readonly string _localIPv4;
   private readonly Room _room = new();
+  public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
+  
 
   public NetServer()
   {
@@ -91,11 +93,18 @@ public class NetServer : NetBase
   private async Task HandleTcpClientAsync(TcpClient client)
   {
     await using var stream = client.GetStream();
-    await ReceiveLoopAsync(stream);
+    await ReceiveLoopAsync(client);
     // 读取数据 / 发送欢迎信息 / 加入房间逻辑
   }
 
-  private async Task ReceiveJoinRoomRequest(JoinRoomRequest request, NetworkStream stream)
+  private async Task SendRequestAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
+    where T : ITcpMessage
+  {
+    var data = PackMessage(message);
+    await client.GetStream().WriteAsync(data, cancellationToken);
+  }
+
+  private async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)
   {
     if (_room.Players.Count >= _room.MaxPlayer)
     {
@@ -105,32 +114,39 @@ public class NetServer : NetBase
         Message = "房间已满"
       };
       var data = PackMessage(response);
-      await stream.WriteAsync(data, 0, data.Length);
+      await client.GetStream().WriteAsync(data, 0, data.Length);
     }
     else
     {
-      request.Player.Stream = stream;
+      request.Player.Client = client;
       _room.Players.Add(request.Player);
-      var response = new JoinRoomResponse
+      var joinRoomResponse = new JoinRoomResponse
       {
         Id = request.Id,
         Players = _room.Players
       };
-      var data = PackMessage(response);
-      await stream.WriteAsync(data, 0, data.Length);
+      await SendRequestAsync(joinRoomResponse, client);
+
+      //todo 给房间的其他人发送更新房间的消息
+      var updateRoomResponse = new UpdateRoomResponse
+      {
+        Id = request.Id,
+        Players = _room.Players
+      };
+      foreach (var player in _room.Players.Where(p => !p.IsHomeowner && p.Client != client))
+        await SendRequestAsync(updateRoomResponse, player.Client);
+      RoomInfoUpdated?.Invoke(_room.Players);
     }
   }
 
-  protected override async Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, NetworkStream stream)
+
+  protected override async Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
     switch (tcpMessageType)
     {
       case TcpMessageType.JoinRoomRequest:
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomRequest) is { } joinRoomRequest)
-          await ReceiveJoinRoomRequest(joinRoomRequest, stream);
-        break;
-      case TcpMessageType.ChatMessage:
-
+          await ReceiveJoinRoomRequest(joinRoomRequest, client);
         break;
     }
 

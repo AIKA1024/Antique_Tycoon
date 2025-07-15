@@ -16,9 +16,9 @@ namespace Antique_Tycoon.Net;
 public class NetClient : NetBase
 {
   private readonly UdpClient _udpClient = new();
-  private TcpClient? _tpcClient;
+  private TcpClient? _tcpClient;
   private readonly Dictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
-  private NetworkStream? _stream;
+  public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
 
   public async Task<RoomBaseInfo> DiscoverRoomAsync()
   {
@@ -33,11 +33,10 @@ public class NetClient : NetBase
 
   private async Task ConnectServer(IPEndPoint ipEndPoint, CancellationToken cancellation = default)
   {
-    _tpcClient?.Dispose();
-    _tpcClient = new TcpClient();
-    await _tpcClient.ConnectAsync(ipEndPoint, cancellation);
-    _stream = _tpcClient.GetStream();
-    _ = ReceiveLoopAsync(_stream, cancellation); // ✅ 开启监听回包任务
+    _tcpClient?.Dispose();
+    _tcpClient = new TcpClient();
+    await _tcpClient.ConnectAsync(ipEndPoint, cancellation);
+    _ = ReceiveLoopAsync(_tcpClient, cancellation); // ✅ 开启监听回包任务
   }
 
   public async Task<JoinRoomResponse> JoinRoomAsync(IPEndPoint ipEndPoint, CancellationToken cancellation = default)
@@ -56,24 +55,31 @@ public class NetClient : NetBase
     var data = PackMessage(message);
     var tcs = new TaskCompletionSource<ITcpMessage>();
     _pendingRequests[message.Id] = tcs;
-    await _stream.WriteAsync(data, cancellationToken);
+    await _tcpClient.GetStream().WriteAsync(data, cancellationToken);
     // 等待服务器响应（HandleReceive 中会完成 tcs）
     return await tcs.Task.WaitAsync(cancellationToken);
   }
 
-  protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, NetworkStream stream)
+  
+
+  protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
-    ITcpMessage? message = null;
+    ITcpMessage? message = null;//额外处理，调用方只需await方法就行，不需要在这里添加逻辑
     switch (tcpMessageType)
     {
       case TcpMessageType.JoinRoomResponse:
-        message = JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomResponse);
+        var joinRoomResponse = JsonSerializer.Deserialize(json,AppJsonContext.Default.JoinRoomResponse);
+        message = joinRoomResponse;
         break;
-      case TcpMessageType.ChatMessage:
-
+      case TcpMessageType.UpdateRoomResponse:
+        var updateRoomResponse = JsonSerializer.Deserialize(json,AppJsonContext.Default.UpdateRoomResponse);
+        message = updateRoomResponse;
+        RoomInfoUpdated?.Invoke(updateRoomResponse.Players);
         break;
     }
 
+    
+    
     if (_pendingRequests.TryGetValue(message.Id, out var tcs))
     {
       tcs.SetResult(message);
@@ -82,4 +88,6 @@ public class NetClient : NetBase
     }
     return Task.CompletedTask;
   }
+
+
 }

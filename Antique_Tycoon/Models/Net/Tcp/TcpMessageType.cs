@@ -4,5 +4,5 @@ public enum TcpMessageType : ushort
 {
   JoinRoomRequest = 1,
   JoinRoomResponse = 2,
-  ChatMessage = 3
+  UpdateRoomResponse = 3
 }

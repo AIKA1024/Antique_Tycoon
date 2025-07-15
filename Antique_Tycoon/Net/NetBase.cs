@@ -1,25 +1,27 @@
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
-using Tmds.DBus.Protocol;
+using Antique_Tycoon.Models;
 
 namespace Antique_Tycoon.Net;
 
 public abstract class NetBase
 {
-  protected async Task ReceiveLoopAsync(NetworkStream stream, CancellationToken cancellationToken = default)
+  public abstract event Action<IEnumerable<Player>>? RoomInfoUpdated;
+  protected async Task ReceiveLoopAsync(TcpClient client, CancellationToken cancellationToken = default)
   {
     var buffer = new byte[4096];
     var memory = new MemoryStream();
-
+    var stream = client.GetStream();    
+    
     while (!cancellationToken.IsCancellationRequested)
     {
       int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
@@ -46,7 +48,7 @@ public abstract class NetBase
         var json = Encoding.UTF8.GetString(messageBytes, 2, messageBytes.Length - 2);
 
         // 处理消息（带 typeId）
-        _ = ProcessMessageAsync((TcpMessageType)typeId, json, stream); // 传入 typeId
+        _ = ProcessMessageAsync((TcpMessageType)typeId, json, client); // 传入 typeId
 
         // === 清除已读部分 ===
         var remaining = memory.Length - memory.Position;
@@ -82,10 +84,12 @@ public abstract class NetBase
         TcpMessageType.JoinRoomRequest),
       _ when type == typeof(JoinRoomResponse) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.JoinRoomResponse,
         TcpMessageType.JoinRoomResponse),
+      _ when type == typeof(UpdateRoomResponse) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.UpdateRoomResponse,
+        TcpMessageType.UpdateRoomResponse),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };
   }
 
-  protected abstract Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, NetworkStream stream);
+  protected abstract Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client);
 }
