@@ -62,14 +62,14 @@ public class ShowFlyoutBehavior : Behavior<Control>
     var pointer = e.GetCurrentPoint(sender as Visual);
     if (pointer.Properties.IsRightButtonPressed)
     {
-      _oldPoint = e.GetPosition(AssociatedObject);
+      _oldPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     }
   }
 
   private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
   {
     if (e.InitialPressMouseButton != MouseButton.Right) return;
-    var newPoint = e.GetPosition(AssociatedObject);
+    var newPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var dx = newPoint.X - _oldPoint.X;
     var dy = newPoint.Y - _oldPoint.Y;
     var distanceSquared = dx * dx + dy * dy;
