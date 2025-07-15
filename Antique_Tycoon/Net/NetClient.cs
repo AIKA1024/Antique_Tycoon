@@ -31,7 +31,7 @@ public class NetClient : NetBase
     return roomInfo;
   }
 
-  private async Task ConnectServer(IPEndPoint ipEndPoint, CancellationToken cancellation = default)
+  public async Task ConnectServer(IPEndPoint ipEndPoint, CancellationToken cancellation = default)
   {
     _tcpClient?.Dispose();
     _tcpClient = new TcpClient();
@@ -39,9 +39,8 @@ public class NetClient : NetBase
     _ = ReceiveLoopAsync(_tcpClient, cancellation); // ✅ 开启监听回包任务
   }
 
-  public async Task<JoinRoomResponse> JoinRoomAsync(IPEndPoint ipEndPoint, CancellationToken cancellation = default)
+  public async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)
   {
-    await ConnectServer(ipEndPoint, cancellation);
     var joinRoomRequest = new JoinRoomRequest
     {
       Id = Guid.CreateVersion7().ToString(),

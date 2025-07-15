@@ -43,11 +43,14 @@ public partial class HallPageViewModel:ViewModelBase
   [RelayCommand]
   private async Task JoinRoom(RoomBaseInfo roomInfo)
   {
-    var response = await App.Current.Services.GetRequiredService<NetClient>().JoinRoomAsync(new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port));
+    var iPEndPoint = new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port);
+    await App.Current.Services.GetRequiredService<NetClient>().ConnectServer(iPEndPoint);
+    var response = await App.Current.Services.GetRequiredService<NetClient>().JoinRoomAsync();
     if (response.Players.Count == 0)
     {
       return;//todo 要显示提示
     }
+    
 
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
     {
