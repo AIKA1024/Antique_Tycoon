@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class HallPageViewModel:ViewModelBase
+public partial class HallPageViewModel:PageViewModelBase
 {
   private readonly Timer _timer = new(2000);
   public AvaloniaList<RoomBaseInfo> RoomList { get; } = [];

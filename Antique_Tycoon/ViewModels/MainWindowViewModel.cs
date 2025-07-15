@@ -5,9 +5,9 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : PageViewModelBase
 {
-  [ObservableProperty] private ViewModelBase _currentPageViewModel = new StartPageViewModel();
+  [ObservableProperty] private PageViewModelBase _currentPageViewModel = new StartPageViewModel();
 
   [RelayCommand]
   private void KeyPressed(Avalonia.Input.KeyGesture key)

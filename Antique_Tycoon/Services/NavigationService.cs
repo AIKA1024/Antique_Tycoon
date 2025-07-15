@@ -8,14 +8,14 @@ namespace Antique_Tycoon.Services;
 public class NavigationService
 {
   private readonly MainWindowViewModel _mainWindowViewModel;
-  private readonly List<ViewModelBase> _navigationHistory = new();
+  private readonly List<PageViewModelBase> _navigationHistory = new();
 
   public NavigationService(MainWindowViewModel viewModel)
   {
     _mainWindowViewModel = viewModel;
   }
 
-  public void Navigation(ViewModelBase vm)
+  public void Navigation(PageViewModelBase vm)
   {
     _navigationHistory.Add(_mainWindowViewModel.CurrentPageViewModel);
     _mainWindowViewModel.CurrentPageViewModel = vm;

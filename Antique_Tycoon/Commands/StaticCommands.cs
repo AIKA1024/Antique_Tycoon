@@ -9,7 +9,7 @@ namespace Antique_Tycoon.Commands;
 
 public static class StaticCommands
 {
-  public static ICommand BackCommand { get; } = new RelayCommand<ViewModelBase?>((vm) =>
+  public static ICommand BackCommand { get; } = new RelayCommand<PageViewModelBase?>((vm) =>
   {
     App.Current.Services.GetRequiredService<NavigationService>().Back();
     vm?.OnBacked();

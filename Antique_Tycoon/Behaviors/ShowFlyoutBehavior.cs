@@ -15,6 +15,16 @@ public class ShowFlyoutBehavior : Behavior<Control>
 {
   private Point _oldPoint;
   private Flyout _flyout;
+  
+  public static readonly AttachedProperty<Point?> PointerPositionProperty =
+    AvaloniaProperty.RegisterAttached<ShowFlyoutBehavior, Control, Point?>(
+      "PointerPosition");
+
+  public static void SetPointerPosition(Control element, Point? value) =>
+    element.SetValue(PointerPositionProperty, value);
+
+  public static Point? GetPointerPosition(Control element) =>
+    element.GetValue(PointerPositionProperty);
 
   protected override void OnAttached()
   {
@@ -28,12 +38,13 @@ public class ShowFlyoutBehavior : Behavior<Control>
   {
     _flyout = (Flyout)FlyoutBase.GetAttachedFlyout(AssociatedObject);
     foreach (var menuItem in ((Panel)_flyout.Content).Children.OfType<MenuItem>())
-      menuItem.Click+= MenuItemOnClick;
+      menuItem.Tapped += MenuItemOnTap;
   }
 
-  private void MenuItemOnClick(object? sender, RoutedEventArgs e)
+  private void MenuItemOnTap(object? sender, TappedEventArgs e)
   {
     _flyout.Hide();
+    SetPointerPosition(AssociatedObject,e.GetPosition(AssociatedObject));
   }
 
   override protected void OnDetaching()
@@ -43,7 +54,7 @@ public class ShowFlyoutBehavior : Behavior<Control>
     AssociatedObject.PointerReleased -= OnPointerReleased;
     AssociatedObject.Initialized += AssociatedObjectOnLoaded;
     foreach (var menuItem in ((Panel)_flyout.Content).Children.OfType<MenuItem>())
-      menuItem.Click -= MenuItemOnClick;
+      menuItem.Tapped -= MenuItemOnTap;
   }
 
   private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -51,14 +62,14 @@ public class ShowFlyoutBehavior : Behavior<Control>
     var pointer = e.GetCurrentPoint(sender as Visual);
     if (pointer.Properties.IsRightButtonPressed)
     {
-      _oldPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
+      _oldPoint = e.GetPosition(AssociatedObject);
     }
   }
 
   private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
   {
     if (e.InitialPressMouseButton != MouseButton.Right) return;
-    var newPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
+    var newPoint = e.GetPosition(AssociatedObject);
     var dx = newPoint.X - _oldPoint.X;
     var dy = newPoint.Y - _oldPoint.Y;
     var distanceSquared = dx * dx + dy * dy;

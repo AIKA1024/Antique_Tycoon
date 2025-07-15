@@ -7,5 +7,7 @@
     <MergeResourceInclude Source="/Views/PagesDataTemplate/StartPageDataTemplate.axaml"/>
     <MergeResourceInclude Source="/Views/PagesDataTemplate/RoomPageDataTemplate.axaml"/>
     <MergeResourceInclude Source="/Views/PagesDataTemplate/MapEditPageDataTemplate.axaml"/>
+    
+    <MergeResourceInclude Source="/Views/CellDataTemplate/SpawnPointDataTemplate.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

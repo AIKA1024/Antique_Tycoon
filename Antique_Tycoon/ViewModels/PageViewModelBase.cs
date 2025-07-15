@@ -2,7 +2,7 @@
 
 namespace Antique_Tycoon.ViewModels;
 
-public abstract class ViewModelBase : ObservableObject
+public abstract class PageViewModelBase : ObservableObject
 {
   public virtual void OnBacked()
   {

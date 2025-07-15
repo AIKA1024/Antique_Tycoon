@@ -15,7 +15,7 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <MergeResourceInclude Source="Views/PagesDataTemplate/AllPageDataTemplate.axaml" />
+        <MergeResourceInclude Source="/Views/AllPageDataTemplate.axaml" />
       </ResourceDictionary.MergedDictionaries>
       <Path x:Key="BackPath" x:Shared="False" Fill="Black" Stretch="None">
         <Path.Data>
@@ -42,5 +42,7 @@
     <StaticResource ResourceKey="StartPageDataTemplate"/>
     <StaticResource ResourceKey="RoomPageDataTemplate"/>
     <StaticResource ResourceKey="MapEditPageDataTemplate"/>
+    
+    <StaticResource ResourceKey="SpawnPointDataTemplate"/>
   </Application.DataTemplates>
 </Application>

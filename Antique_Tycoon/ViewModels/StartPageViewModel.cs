@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class StartPageViewModel:ViewModelBase
+public partial class StartPageViewModel:PageViewModelBase
 {
   public Player SelfPlayer { get; } = App.Current.Services.GetRequiredService<Player>();
   

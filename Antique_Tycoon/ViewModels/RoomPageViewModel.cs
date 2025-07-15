@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class RoomPageViewModel: ViewModelBase
+public partial class RoomPageViewModel: PageViewModelBase
 {
   private readonly CancellationTokenSource _cancellationTokenSource;
   public RoomPageViewModel(CancellationTokenSource cts = default)

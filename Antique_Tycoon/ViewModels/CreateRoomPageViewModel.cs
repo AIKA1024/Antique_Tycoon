@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class CreateRoomPageViewModel:ViewModelBase,IDisposable
+public partial class CreateRoomPageViewModel:PageViewModelBase,IDisposable
 {
   
   [ObservableProperty] private string _roomName = $"{App.Current.Services.GetRequiredService<Player>().Name}的房间";

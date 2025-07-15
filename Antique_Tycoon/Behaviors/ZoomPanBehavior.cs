@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class ZoomPanBehavior : Behavior<Panel>
+public class ZoomPanBehavior : Behavior<Control>
 {
   private Point? _lastPointer;
   private DragAndZoomViewModel? _vm;
@@ -20,40 +20,40 @@ public class ZoomPanBehavior : Behavior<Panel>
   protected override void OnAttached()
   {
     base.OnAttached();
-    if (AssociatedObject is { } panel)
+    if (AssociatedObject is { } control)
     {
-      panel.PointerPressed += OnPointerPressed;
-      panel.PointerMoved += OnPointerMoved;
-      panel.PointerReleased += OnPointerReleased;
-      panel.PointerWheelChanged += OnPointerWheelChanged;
-      panel.DataContextChanged += OnDataContextChanged;
+      control.PointerPressed += OnPointerPressed;
+      control.PointerMoved += OnPointerMoved;
+      control.PointerReleased += OnPointerReleased;
+      control.PointerWheelChanged += OnPointerWheelChanged;
+      control.DataContextChanged += OnDataContextChanged;
       // 如果已经有 DataContext，也立即尝试赋值
-      TryBindViewModel(panel.DataContext);
+      TryBindViewModel(control.DataContext);
     }
   }
 
-  private void TryBindViewModel(object? dc)
+  private void TryBindViewModel(object? dataContext)
   {
-    if (dc is DragAndZoomViewModel vm)
+    if (dataContext is DragAndZoomViewModel vm)
       _vm = vm;
   }
 
   private void OnDataContextChanged(object? sender, EventArgs e)
   {
-    if (sender is Panel p)
-      TryBindViewModel(p.DataContext);
+    if (sender is Control c)
+      TryBindViewModel(c.DataContext);
   }
 
   protected override void OnDetaching()
   {
     base.OnDetaching();
-    if (AssociatedObject is { } panel)
+    if (AssociatedObject is { } control)
     {
-      panel.PointerPressed -= OnPointerPressed;
-      panel.PointerMoved -= OnPointerMoved;
-      panel.PointerReleased -= OnPointerReleased;
-      panel.PointerWheelChanged -= OnPointerWheelChanged;
-      panel.DataContextChanged -= OnDataContextChanged;
+      control.PointerPressed -= OnPointerPressed;
+      control.PointerMoved -= OnPointerMoved;
+      control.PointerReleased -= OnPointerReleased;
+      control.PointerWheelChanged -= OnPointerWheelChanged;
+      control.DataContextChanged -= OnDataContextChanged;
     }
   }
 

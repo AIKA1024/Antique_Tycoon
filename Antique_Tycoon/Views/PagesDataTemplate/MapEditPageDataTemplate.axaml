@@ -1,8 +1,10 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-                    xmlns:i="using:Antique_Tycoon.Behaviors"
-                    xmlns:vm="using:Antique_Tycoon.ViewModels">
+<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
+  xmlns:i="using:Antique_Tycoon.Behaviors"
+  xmlns:vm="using:Antique_Tycoon.ViewModels"
+  xmlns:cm="using:Antique_Tycoon.Models.Cell">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="400">
       <vm:MapEditPageViewModel />
@@ -11,57 +13,72 @@
 
   <DataTemplate x:Key="MapEditPageDataTemplate" x:DataType="vm:MapEditPageViewModel">
     <Grid RowDefinitions="50,*">
-      <Interaction.Behaviors>
-        <i:ZoomPanBehavior />
-      </Interaction.Behaviors>
-      <c:MCTitleBar Grid.Row="0"
-                    ZIndex="1"
-                    Title="地图编辑器">
-        <c:MCButton Classes="ore"
-                    Content="保存"
-                    Padding="8 4"
-                    FontSize="12"
-                    VerticalAlignment="Center"
-                    Margin="0 0 8 0" />
+      <c:MCTitleBar
+        Title="地图编辑器"
+        Grid.Row="0"
+        ZIndex="1">
+        <c:MCButton
+          Margin="0,0,8,0"
+          Padding="8,4"
+          VerticalAlignment="Center"
+          Classes="ore"
+          Content="保存"
+          FontSize="12" />
       </c:MCTitleBar>
-      <Canvas Grid.Row="1"
-              RenderTransformOrigin="0,0"
-              Background="RosyBrown"
-              Focusable="False">
+      <ItemsControl Grid.Row="1"
+                    Background="Transparent"
+                    ItemsSource="{Binding MapEntities}">
         <Interaction.Behaviors>
-          <i:ShowFlyoutBehavior/>
+          <i:ZoomPanBehavior />
         </Interaction.Behaviors>
-        <Canvas.Styles>
-          <Style Selector="FlyoutPresenter.Dark">
-           <Setter Property="Background" Value="#383838"/>
-          </Style>
-        </Canvas.Styles>
-        <FlyoutBase.AttachedFlyout>
-          <Flyout FlyoutPresenterClasses="Dark" ShowMode="Standard">
-            <StackPanel>
-              <StackPanel.Styles>
-                <Style Selector="StackPanel MenuItem">
-                  <Setter Property="Foreground" Value="White"/>
-                  <Setter Property="CornerRadius" Value="4"/>
+        <ItemsControl.ItemContainerTheme>
+          <ControlTheme TargetType="ContentPresenter" x:DataType="cm:SpawnPoint">
+            <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+            <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+          </ControlTheme>
+        </ItemsControl.ItemContainerTheme>
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <Canvas
+              i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition,Mode=OneWayToSource}"
+              Background="RosyBrown"
+              Focusable="False"
+              RenderTransformOrigin="0,0">
+              <Interaction.Behaviors>
+                <i:ShowFlyoutBehavior />
+              </Interaction.Behaviors>
+              <Canvas.Styles>
+                <Style Selector="FlyoutPresenter.Dark">
+                  <Setter Property="Background" Value="#383838" />
                 </Style>
-                <Style Selector="StackPanel MenuItem:pressed TextBlock">
-                  <Setter Property="Foreground" Value="White"/>
-                </Style>
-              </StackPanel.Styles>
-              <MenuItem Header="玩家起点" />
-              <MenuItem Header="地产" />
-              <MenuItem Header="自定义事件" />
-            </StackPanel>
-          </Flyout>
-        </FlyoutBase.AttachedFlyout>
-        <Canvas.RenderTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
-            <TranslateTransform X="{Binding Offset.X}" Y="{Binding Offset.Y}" />
-          </TransformGroup>
-        </Canvas.RenderTransform>
-        <!-- 可拖动内容放在这里 -->
-      </Canvas>
+              </Canvas.Styles>
+              <FlyoutBase.AttachedFlyout>
+                <Flyout FlyoutPresenterClasses="Dark" ShowMode="Standard">
+                  <StackPanel>
+                    <StackPanel.Styles>
+                      <Style Selector="StackPanel MenuItem">
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="CornerRadius" Value="4" />
+                        <Setter Property="Command" Value="{Binding CreateEntityCommand}"/>
+                        <Setter Property="CommandParameter" Value="{Binding $self.Header,Mode=OneTime}"/>
+                      </Style>
+                    </StackPanel.Styles>
+                    <MenuItem Header="玩家出生点"/>
+                    <MenuItem Header="地产" />
+                    <MenuItem Header="自定义事件" />
+                  </StackPanel>
+                </Flyout>
+              </FlyoutBase.AttachedFlyout>
+              <Canvas.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
+                  <TranslateTransform X="{Binding Offset.X}" Y="{Binding Offset.Y}" />
+                </TransformGroup>
+              </Canvas.RenderTransform>
+            </Canvas>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+      </ItemsControl>
     </Grid>
   </DataTemplate>
 </ResourceDictionary>
