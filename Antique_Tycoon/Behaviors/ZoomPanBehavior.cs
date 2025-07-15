@@ -1,18 +1,22 @@
 using System;
 using System.Windows.Input;
 using Antique_Tycoon.ViewModels;
+using Antique_Tycoon.Views.Windows;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Xaml.Interactivity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Behaviors;
 
 public class ZoomPanBehavior : Behavior<Panel>
 {
   private Point? _lastPointer;
-  private GamePageViewModel? _vm;
-
+  private DragAndZoomViewModel? _vm;
+  private static readonly Cursor Hand = new(new Bitmap(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/DragHand.png"))),new PixelPoint(8,8));
   protected override void OnAttached()
   {
     base.OnAttached();
@@ -30,7 +34,7 @@ public class ZoomPanBehavior : Behavior<Panel>
 
   private void TryBindViewModel(object? dc)
   {
-    if (dc is GamePageViewModel vm)
+    if (dc is DragAndZoomViewModel vm)
       _vm = vm;
   }
 
@@ -56,7 +60,9 @@ public class ZoomPanBehavior : Behavior<Panel>
   private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
   {
     if (e.GetCurrentPoint(AssociatedObject).Properties.IsRightButtonPressed)
+    {
       _lastPointer = e.GetPosition(AssociatedObject);
+    }
   }
 
   private void OnPointerMoved(object? sender, PointerEventArgs e)
@@ -67,12 +73,14 @@ public class ZoomPanBehavior : Behavior<Panel>
       var delta = pos - _lastPointer.Value;
       _vm!.Offset = new Point(_vm.Offset.X + delta.X, _vm.Offset.Y + delta.Y);
       _lastPointer = pos;
+      ((Control)sender).Cursor = Hand;
     }
   }
 
   private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
   {
     _lastPointer = null;
+    ((Control)sender).Cursor = Cursor.Default;
   }
 
   private void OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)

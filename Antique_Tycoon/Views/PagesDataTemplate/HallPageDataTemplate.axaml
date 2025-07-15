@@ -13,7 +13,7 @@
 
   <DataTemplate x:Key="HallPageDataTemplate" DataType="vm:HallPageViewModel">
     <Grid RowDefinitions="50,*" RowSpacing="8">
-      <c:MCTitleBar Grid.Row="0" Content="游戏" />
+      <c:MCTitleBar Grid.Row="0" Title="游戏" />
       <StackPanel
         Grid.Row="1"
         Margin="16,0"
@@ -27,8 +27,8 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Border
-                i:TapBehavior.Command="{Binding $parent.((vm:HallPageViewModel)DataContext).JoinRoomCommand}"
-                i:TapBehavior.CommandParameter="{Binding}"
+                i:Tap.Command="{Binding $parent.((vm:HallPageViewModel)DataContext).JoinRoomCommand}"
+                i:Tap.CommandParameter="{Binding}"
                 Background="#48494A"
                 BorderBrush="#1E1E1F"
                 BorderThickness="2"

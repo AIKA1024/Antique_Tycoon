@@ -10,8 +10,13 @@ public partial class StartPageViewModel:ViewModelBase
   public Player SelfPlayer { get; } = App.Current.Services.GetRequiredService<Player>();
   
   [RelayCommand]
-  private void NavigateToGamePage()
+  private void NavigateToHallPage()
   {
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new HallPageViewModel());
+  }
+  [RelayCommand]
+  private void NavigateToMapEditPage()
+  {
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new MapEditPageViewModel());
   }
 }

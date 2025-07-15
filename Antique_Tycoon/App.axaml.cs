@@ -19,7 +19,7 @@ namespace Antique_Tycoon;
 public partial class App : Application
 {
   public int DefaultPort => 13437;
-  public IServiceProvider Services { get; }
+  public IServiceProvider Services { get; private set; }
   public new static App Current => (App)Application.Current!;
   public override void Initialize()
   {
@@ -38,10 +38,7 @@ public partial class App : Application
       // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
       // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
       DisableAvaloniaDataAnnotationValidation();
-      desktop.MainWindow = new MainWindow
-      {
-        DataContext = Services.GetRequiredService<MainWindowViewModel>(),
-      };
+      desktop.MainWindow = Services.GetRequiredService<MainWindow>();
     }
 
     base.OnFrameworkInitializationCompleted();
@@ -50,6 +47,7 @@ public partial class App : Application
   private IServiceProvider ConfigureServices()
   {
     var services = new ServiceCollection();
+    services.AddSingleton<MainWindow>(sp=> new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
     services.AddSingleton(new LibVLC("--no-video"));
     services.AddSingleton<MainWindowViewModel>();
     services.AddSingleton<NavigationService>(sp=>new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));

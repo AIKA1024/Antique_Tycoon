@@ -4,7 +4,7 @@
                     xmlns:w="using:Antique_Tycoon.Views.Widgets"
                     xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels">
   <Design.PreviewWith>
-    <ContentControl>
+    <ContentControl Width="600" Height="600">
         <vm:GamePageViewModel />
       </ContentControl>
   </Design.PreviewWith>
@@ -16,8 +16,7 @@
         <i:ZoomPanBehavior />
       </Interaction.Behaviors>
       <Canvas RenderTransformOrigin="0,0"
-              Background="RosyBrown"
-              Focusable="False">
+              Background="RosyBrown">
         <Canvas.RenderTransform>
           <TransformGroup>
             <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
@@ -28,7 +27,7 @@
         <Rectangle Width="100" Height="100" Fill="Green" Canvas.Left="50" Canvas.Top="50" />
         <Ellipse Width="80" Height="80" Fill="Red" Canvas.Left="200" Canvas.Top="150" />
       </Canvas>
-      <w:PlayerUI x:Name="PlayerUI" Focusable="False" />
+      <w:PlayerUI x:Name="PlayerUI" Focusable="False" IsHitTestVisible="False"/>
     </Grid>
   </DataTemplate>
 </ResourceDictionary>

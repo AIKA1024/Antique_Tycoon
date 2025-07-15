@@ -3,7 +3,7 @@
         xmlns:c="using:Antique_Tycoon.Views.Controls"
         xmlns:cm="clr-namespace:Antique_Tycoon.Commands">
   <Design.PreviewWith>
-    <c:MCTitleBar />
+    <c:MCTitleBar Title="我是标题"/>
   </Design.PreviewWith>
 
   <Style Selector="c|MCTitleBar">
@@ -14,22 +14,31 @@
         <Border
           Background="#E6E8EB"
           BorderBrush="#B1B2B5" BorderThickness="0 0 0 2">
-          <DockPanel>
+          <Grid ColumnDefinitions="Auto,*,Auto">
             <c:MCButton
+              Grid.Column="0"
               Classes="Back"
               Command="{x:Static cm:StaticCommands.BackCommand}"
               CommandParameter="{TemplateBinding DataContext}"
               FontSize="16">
             </c:MCButton>
-            <ContentPresenter Content="{TemplateBinding Content}"
-                              FontSize="{TemplateBinding FontSize}"
-                              FontWeight="{TemplateBinding FontWeight}"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center" />
-          </DockPanel>
+            <TextBlock
+              Grid.Column="1"
+              Text="{TemplateBinding Title}"
+              FontSize="{TemplateBinding FontSize}"
+              FontWeight="{TemplateBinding FontWeight}"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center" />
+            <ContentPresenter
+              Grid.Column="2"
+              Content="{TemplateBinding Content}"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Center" />
+          </Grid>
+
+
         </Border>
       </ControlTemplate>
     </Setter>
   </Style>
 </Styles>
-

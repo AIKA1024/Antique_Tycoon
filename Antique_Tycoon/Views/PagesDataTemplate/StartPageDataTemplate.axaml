@@ -3,13 +3,13 @@
                     xmlns:c="using:Antique_Tycoon.Views.Controls"
                     xmlns:vm="using:Antique_Tycoon.ViewModels"
                     xmlns:transforms="using:Avalonia.Media">
-  
+
   <Design.PreviewWith>
-    <ContentControl>
-        <vm:StartPageViewModel />
-      </ContentControl>
+    <ContentControl Height="600">
+      <vm:StartPageViewModel />
+    </ContentControl>
   </Design.PreviewWith>
-  
+
   <DataTemplate x:Key="StartPageDataTemplate" DataType="vm:StartPageViewModel">
     <Grid ColumnDefinitions="*,2*,*">
       <Grid.Styles>
@@ -29,10 +29,13 @@
             </Animation>
           </Style.Animations>
         </Style>
+        <Style Selector="c|MCButton.Width">
+          <Setter Property="Width" Value="200" />
+        </Style>
       </Grid.Styles>
       <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="8">
         <Panel HorizontalAlignment="Center">
-          <Image Width="512" Source="../../Assets/Title.png"/>
+          <Image Width="512" Source="../../Assets/Title.png" />
           <TextBlock x:Name="SubTitleText"
                      Classes="Jump"
                      Text="MineCraft Edition!"
@@ -46,15 +49,23 @@
             <TextBlock.RenderTransform>
               <TransformGroup>
                 <RotateTransform Angle="-22" />
-                <ScaleTransform/>
+                <ScaleTransform />
               </TransformGroup>
             </TextBlock.RenderTransform>
           </TextBlock>
         </Panel>
-        <c:MCButton Content="游戏"
-                    Command="{Binding NavigateToGamePageCommand}"
-                    HorizontalAlignment="Center" />
-        <c:MCButton Content="设置" HorizontalAlignment="Center" />
+        <c:MCButton
+          Classes="Width"
+          Content="游戏"
+          Command="{Binding NavigateToHallPageCommand}"
+          HorizontalAlignment="Center" />
+        <c:MCButton
+          Classes="Width"
+          Command="{Binding NavigateToMapEditPageCommand}"
+          Content="创意工坊" HorizontalAlignment="Center" />
+        <c:MCButton
+          Classes="Width"
+          Content="设置" HorizontalAlignment="Center" />
       </StackPanel>
       <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
         <TextBlock Text="{Binding SelfPlayer.Name}"

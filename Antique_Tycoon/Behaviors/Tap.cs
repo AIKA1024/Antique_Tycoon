@@ -7,18 +7,18 @@ using Avalonia.Interactivity;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class TapBehavior: AvaloniaObject
+public class Tap: AvaloniaObject
 {
-  static TapBehavior()
+  static Tap()
   {
     CommandProperty.Changed.AddClassHandler<InputElement>(HandleCommandChanged);
   }
 
   public static readonly AttachedProperty<ICommand?> CommandProperty =
-    AvaloniaProperty.RegisterAttached<TapBehavior,InputElement,ICommand?>(
+    AvaloniaProperty.RegisterAttached<Tap,InputElement,ICommand?>(
       "Command");
   
-  public static readonly AttachedProperty<object?> CommandParameterProperty = AvaloniaProperty.RegisterAttached<TapBehavior, InputElement, object?>(
+  public static readonly AttachedProperty<object?> CommandParameterProperty = AvaloniaProperty.RegisterAttached<Tap, InputElement, object?>(
     "CommandParameter");
 
   public static ICommand? GetCommand(AvaloniaObject element)
