@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Antique_Tycoon.Models.Cell;
 using Avalonia;
 using Avalonia.Collections;
@@ -12,8 +13,9 @@ public partial class MapEditPageViewModel:DragAndZoomViewModel
   public Point PointerPosition { get; set; }
 
   [RelayCommand]
-  private void CreateEntity(string type)
+  private async Task CreateEntity(string type)
   {
+    await Task.Delay(10);//命令触发比menuitem的tap时间早，导致PointerPosition没更新，这样等有点💩，但目前没问题
     switch (type)
     {
       case "玩家出生点":

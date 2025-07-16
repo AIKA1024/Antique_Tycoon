@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,8 +14,9 @@ namespace Antique_Tycoon.Behaviors;
 
 public class ShowFlyoutBehavior : Behavior<Control>
 {
-  private Point _oldPoint;
+  private Point _oldPoint;//用于判断释放拖拽了画布
   private Flyout _flyout;
+  private Point _lastPointerPosition;//用于获取鼠标在canvas的坐标
   
   public static readonly AttachedProperty<Point?> PointerPositionProperty =
     AvaloniaProperty.RegisterAttached<ShowFlyoutBehavior, Control, Point?>(
@@ -44,7 +46,7 @@ public class ShowFlyoutBehavior : Behavior<Control>
   private void MenuItemOnTap(object? sender, TappedEventArgs e)
   {
     _flyout.Hide();
-    SetPointerPosition(AssociatedObject,e.GetPosition(AssociatedObject));
+    SetPointerPosition(AssociatedObject, _lastPointerPosition);
   }
 
   override protected void OnDetaching()
@@ -63,6 +65,18 @@ public class ShowFlyoutBehavior : Behavior<Control>
     if (pointer.Properties.IsRightButtonPressed)
     {
       _oldPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
+      
+      var root = AssociatedObject.GetVisualRoot() as Visual;
+      if (root != null)
+      {
+        var transform = AssociatedObject.TransformToVisual(root);
+        if (transform != null)
+        {
+          var screenPoint = e.GetPosition(root);
+          var canvasPoint = transform.Value.Invert().Transform(screenPoint);
+          _lastPointerPosition = canvasPoint;
+        }
+      }
     }
   }
 

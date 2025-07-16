@@ -6,14 +6,17 @@
       <m:SpawnPoint />
     </ContentControl>
   </Design.PreviewWith>
-  
+
   <DataTemplate x:Key="SpawnPointDataTemplate" x:DataType="m:SpawnPoint">
-    <Border
-            CornerRadius="4" Background="#eccc68">
-      <StackPanel>
-        <TextBlock Text="{Binding Title}"
-                   HorizontalAlignment="Center"/>
-      </StackPanel>
-    </Border>
+    <StackPanel>
+      <TextBlock Text="{Binding Title}"
+                 FontSize="16"
+                 FontWeight="Black"
+                 HorizontalAlignment="Center" />
+      <TextBlock FontSize="8" Text="{Binding Bonus,StringFormat=经过起点领取{0}元}" />
+      <Image Width="64"
+             Margin="0 16 0 0"
+             Source="../../Assets/Avatars/Minecraft.png" />
+    </StackPanel>
   </DataTemplate>
 </ResourceDictionary>
