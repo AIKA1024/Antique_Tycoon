@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class ZoomPanBehavior : Behavior<Control>
+public class ZoomPanBehavior : Behavior<Control>//todo 如果控件上有其他控件，拖拽的控件就收不到OnPointerPressed事件
 {
   private Point? _lastPointer;
   private DragAndZoomViewModel? _vm;

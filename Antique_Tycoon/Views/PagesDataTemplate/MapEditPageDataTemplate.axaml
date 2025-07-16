@@ -34,10 +34,10 @@
         <ListBox.ItemsPanel>
           <ItemsPanelTemplate>
             <Canvas
-              i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition,Mode=OneWayToSource}"
               Background="#262626"
               Focusable="False"
-              RenderTransformOrigin="0,0">
+              RenderTransformOrigin="0,0"
+              i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition,Mode=OneWayToSource}">
               <Interaction.Behaviors>
                 <i:ShowFlyoutBehavior />
               </Interaction.Behaviors>
@@ -47,7 +47,7 @@
                 </Style>
               </Canvas.Styles>
               <FlyoutBase.AttachedFlyout>
-                <Flyout FlyoutPresenterClasses="Dark" ShowMode="Standard">
+                <Flyout FlyoutPresenterClasses="Dark">
                   <StackPanel>
                     <StackPanel.Styles>
                       <Style Selector="StackPanel MenuItem">
@@ -90,11 +90,15 @@
                   BorderThickness="{TemplateBinding BorderThickness}"
                   BorderBrush="{TemplateBinding BorderBrush}">
                   <ContentPresenter Content="{TemplateBinding Content}"/>
+                  <Interaction.Behaviors>
+                    <i:CanvasItemDragBehavior/>
+                  </Interaction.Behaviors>
                 </Border>
               </ControlTemplate>
             </Setter>
             <Style Selector="^:selected">
                <Setter Property="BorderBrush" Value="#1e90ff" />
+               <Setter Property="ZIndex" Value="1"/>
             </Style>
           </Style>
         </ListBox.Styles>

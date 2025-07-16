@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Views.Windows;
 using Avalonia;
 using Avalonia.Controls;
@@ -65,18 +66,7 @@ public class ShowFlyoutBehavior : Behavior<Control>
     if (pointer.Properties.IsRightButtonPressed)
     {
       _oldPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
-      
-      var root = AssociatedObject.GetVisualRoot() as Visual;
-      if (root != null)
-      {
-        var transform = AssociatedObject.TransformToVisual(root);
-        if (transform != null)
-        {
-          var screenPoint = e.GetPosition(root);
-          var canvasPoint = transform.Value.Invert().Transform(screenPoint);
-          _lastPointerPosition = canvasPoint;
-        }
-      }
+      _lastPointerPosition = AssociatedObject.GetPointerPosition(e).SnapToGrid(10);
     }
   }
 
