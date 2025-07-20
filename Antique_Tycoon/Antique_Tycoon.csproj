@@ -25,6 +25,11 @@
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
     <ItemGroup>
+        <AvaloniaResource Remove="Assets\BGM\Below and Above.mp3" />
+        <AvaloniaResource Remove="Assets\BGM\Comforting Memories.mp3" />
+        <AvaloniaResource Remove="Assets\BGM\Fireflies.mp3" />
+        <AvaloniaResource Remove="Assets\BGM\Lilypad.mp3" />
+        <AvaloniaResource Remove="Assets\BGM\O%27s Piano.mp3" />
         <AvaloniaResource Remove="Assets\SFX\MCButtonPressed.mp3" />
         <AvaloniaResource Remove="Assets\SFX\Sheep\Sheep_Bleating" />
     </ItemGroup>
@@ -59,6 +64,9 @@
 
     <ItemGroup>
         <None Update="Assets\SFX\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Assets\BGM\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="libvlc\**">
