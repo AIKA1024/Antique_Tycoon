@@ -9,5 +9,8 @@
     <MergeResourceInclude Source="/Views/PagesDataTemplate/MapEditPageDataTemplate.axaml"/>
     
     <MergeResourceInclude Source="/Views/CellDataTemplate/SpawnPointDataTemplate.axaml"/>
+    <MergeResourceInclude Source="/Views/CellDataTemplate/EstateDataTemplate.axaml"/>
+    
+    <MergeResourceInclude Source="/Views/DetailDataTemplate/SpawnPointDetailDataTemplate.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

@@ -25,11 +25,13 @@
           Content="保存"
           FontSize="12" />
       </c:MCTitleBar>
-      <Panel Grid.Row="1" Background="Transparent">
+      <Panel Grid.Row="1">
         <Interaction.Behaviors>
           <i:ZoomPanBehavior />
         </Interaction.Behaviors>
         <ListBox
+          SelectedItem="{Binding SelectedMapEntity,Mode=OneWayToSource}"
+          SelectedItems="{Binding SelectedMapEntities}"
           ItemsSource="{Binding MapEntities}"
           RenderTransformOrigin="0,0"
           ClipToBounds="False">
@@ -124,7 +126,35 @@
             </Style>
           </ListBox.Styles>
         </ListBox>
+        
+        <!-- DetailPanel -->
+        <Border
+          Background="#2F2F2F"
+          TextElement.Foreground="White"
+          HorizontalAlignment="Right">
+          <Panel>
+            <TextBlock Text="选择一个元素以查看属性"
+                       Margin="32 0"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNull}}"/>
+            <StackPanel>
+              <StackPanel Orientation="Horizontal">
+                <c:MCButton Classes="Back" FontSize="12" />
+                <TextBlock Text="细节" 
+                           FontSize="24"
+                           Margin="8"
+                           FontWeight="Black" />
+              </StackPanel>
+              <ContentControl Content="{Binding SelectedMapEntity}">
+                <ContentControl.DataTemplates>
+                  <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
+                </ContentControl.DataTemplates>
+              </ContentControl>
+            </StackPanel>
+          </Panel>
+        </Border>
       </Panel>
-    </Grid>
+      </Grid>
   </DataTemplate>
 </ResourceDictionary>

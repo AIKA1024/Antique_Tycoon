@@ -1,0 +1,26 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Antique_Tycoon.Views.Controls">
+  <Design.PreviewWith>
+    <controls:MCContentControl />
+  </Design.PreviewWith>
+
+  <Style Selector="controls|MCContentControl">
+    <Setter Property="Background" Value="#48494A" />
+    <Setter Property="Padding" Value="16" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel>
+          <Rectangle Height="2" Fill="#5A5B5C" />
+          <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{TemplateBinding Header}" FontWeight="Black" />
+              <ContentPresenter Content="{TemplateBinding Content}" />
+            </StackPanel>
+          </Border>
+          <Rectangle Height="2" Fill="#323334" />
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

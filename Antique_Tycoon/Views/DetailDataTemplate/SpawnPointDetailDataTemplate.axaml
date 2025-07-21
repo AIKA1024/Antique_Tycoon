@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
+                    xmlns:cm="using:Antique_Tycoon.Models.Cell">
+  <Design.PreviewWith>
+    <ContentControl>
+      <ContentControl.DataTemplates>
+        <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
+      </ContentControl.DataTemplates>
+      <cm:SpawnPoint />
+    </ContentControl>
+  </Design.PreviewWith>
+
+  <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="cm:SpawnPoint">
+    <StackPanel>
+      <c:MCContentControl Header="标题">
+        <TextBox
+          Classes="MCTextbox"
+          FontSize="16"
+          Text="{Binding Title}" />
+      </c:MCContentControl>
+      <c:MCContentControl Header="路过出生点时获得金额">
+        <TextBox
+          Classes="MCTextbox"
+          FontSize="16"
+          Text="{Binding Bonus}" />
+      </c:MCContentControl>
+      <c:MCContentControl Header="图片">
+        <StackPanel Orientation="Horizontal" Spacing="32">
+          <Image Source="{Binding Cover}" Width="64"/>
+          <c:MCButton Content="选择图片" Classes="ore" Padding="12 8"/>
+        </StackPanel>
+      </c:MCContentControl>
+    </StackPanel>
+
+  </DataTemplate>
+</ResourceDictionary>
