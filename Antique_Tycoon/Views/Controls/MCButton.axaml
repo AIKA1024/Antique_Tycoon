@@ -78,20 +78,28 @@
   </Style>
 
   <Style Selector="c|MCButton.Back">
-    <Setter Property="Padding" Value="14 14 18 18"></Setter>
-    <Setter Property="Content" Value="{DynamicResource BackPath}" />
+    <Setter Property="Foreground" Value="Black"/>
+    <Setter Property="Padding" Value="14 14 18 18"/>
     <Setter Property="Template">
       <ControlTemplate>
         <Panel>
-          <ContentPresenter
-            ZIndex="1"
-            Padding="{TemplateBinding Padding}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Content="{TemplateBinding Content}"
-            Foreground="{TemplateBinding Foreground}"
-            FontSize="{TemplateBinding FontSize}"
-            FontFamily="{TemplateBinding FontFamily}" />
+          <Path Fill="{TemplateBinding Foreground}"
+                Margin="{TemplateBinding Padding}"
+                Stretch="None">
+            <Path.Data>
+              <GeometryGroup>
+                <RectangleGeometry Rect="10,0,2,2" />
+                <RectangleGeometry Rect="8,2,2,2" />
+                <RectangleGeometry Rect="6,4,2,2" />
+                <RectangleGeometry Rect="4,6,2,2" />
+                <RectangleGeometry Rect="2,8,2,2" />
+                <RectangleGeometry Rect="4,10,2,2" />
+                <RectangleGeometry Rect="6,12,2,2" />
+                <RectangleGeometry Rect="8,14,2,2" />
+                <RectangleGeometry Rect="10,16,2,2" />
+              </GeometryGroup>
+            </Path.Data>
+          </Path>
           <Border x:Name="Border" Background="White" Opacity="0" />
         </Panel>
       </ControlTemplate>

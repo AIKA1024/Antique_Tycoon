@@ -140,7 +140,9 @@
                        IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNull}}"/>
             <StackPanel>
               <StackPanel Orientation="Horizontal">
-                <c:MCButton Classes="Back" FontSize="12" />
+                <c:MCButton Classes="Back"
+                            FontSize="12"
+                            Foreground="White"/>
                 <TextBlock Text="细节" 
                            FontSize="24"
                            Margin="8"

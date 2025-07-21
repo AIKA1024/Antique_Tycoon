@@ -18,21 +18,6 @@
       <ResourceDictionary.MergedDictionaries>
         <MergeResourceInclude Source="/Views/AllPageDataTemplate.axaml" />
       </ResourceDictionary.MergedDictionaries>
-      <Path x:Key="BackPath" x:Shared="False" Fill="Black" Stretch="None">
-        <Path.Data>
-          <GeometryGroup>
-            <RectangleGeometry Rect="10,0,2,2" />
-            <RectangleGeometry Rect="8,2,2,2" />
-            <RectangleGeometry Rect="6,4,2,2" />
-            <RectangleGeometry Rect="4,6,2,2" />
-            <RectangleGeometry Rect="2,8,2,2" />
-            <RectangleGeometry Rect="4,10,2,2" />
-            <RectangleGeometry Rect="6,12,2,2" />
-            <RectangleGeometry Rect="8,14,2,2" />
-            <RectangleGeometry Rect="10,16,2,2" />
-          </GeometryGroup>
-        </Path.Data>
-      </Path>
     </ResourceDictionary>
   </Application.Resources>
   
