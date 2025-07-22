@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
+using Antique_Tycoon.Models.Cell;
 using Avalonia.Collections;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;

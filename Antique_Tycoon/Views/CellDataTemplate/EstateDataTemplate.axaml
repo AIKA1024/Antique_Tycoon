@@ -1,14 +1,18 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:m="using:Antique_Tycoon.Models">
+                    xmlns:m="using:Antique_Tycoon.Models"
+                    xmlns:cell="clr-namespace:Antique_Tycoon.Models.Cell">
   <Design.PreviewWith>
     <ContentControl>
-      <m:Estate Title="平原"/>
+      <cell:Estate Title="平原"/>
     </ContentControl>
   </Design.PreviewWith>
   
-  <DataTemplate x:Key="EstateDataTemplate" x:DataType="m:Estate">
+  <DataTemplate x:Key="EstateDataTemplate" x:DataType="cell:Estate">
     <StackPanel>
+      <TextBlock Text="{Binding Level,StringFormat={}{0}级}"
+                 HorizontalAlignment="Center"
+                 Margin="0 -18 0 0"/>
       <TextBlock Text="{Binding Title}"
                  FontSize="16"
                  FontWeight="Black"

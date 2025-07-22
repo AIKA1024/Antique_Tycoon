@@ -1,6 +1,6 @@
 using Avalonia.Media.Imaging;
 
-namespace Antique_Tycoon.Models;
+namespace Antique_Tycoon.Models.Cell;
 
 public class Antique
 {

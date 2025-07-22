@@ -28,7 +28,7 @@ public partial class MapEditPageViewModel:DragAndZoomViewModel
         MapEntities.Add(new SpawnPoint{Left = PointerPosition.X,Top = PointerPosition.Y,Title = "玩家出生点"});
         break;
       case "地产":
-        MapEntities.Add(new Estate{Left = PointerPosition.X,Top = PointerPosition.Y,Title = "未命名生态群系"});
+        MapEntities.Add(new Estate{Left = PointerPosition.X,Top = PointerPosition.Y,Title = "某生态群系"});
         break;
       case "自定义事件":
         break;

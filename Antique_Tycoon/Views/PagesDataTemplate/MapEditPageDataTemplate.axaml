@@ -25,7 +25,8 @@
           Content="保存"
           FontSize="12" />
       </c:MCTitleBar>
-      <Panel Grid.Row="1">
+      <Panel Grid.Row="1"
+             Background="Transparent">
         <Interaction.Behaviors>
           <i:ZoomPanBehavior />
         </Interaction.Behaviors>
@@ -62,7 +63,7 @@
                       </StackPanel.Styles>
                       <MenuItem Header="玩家出生点" />
                       <MenuItem Header="地产" />
-                      <MenuItem Header="自定义事件" />
+                      <MenuItem Header="传送点" />
                     </StackPanel>
                   </Flyout>
                 </FlyoutBase.AttachedFlyout>
@@ -100,14 +101,16 @@
               <Setter Property="Canvas.Top" Value="{Binding Top}" />
               <Setter Property="Canvas.Left" Value="{Binding Left}" />
               <Setter Property="Padding" Value="16" />
-              <Setter Property="Background" Value="#eccc68" />
+              <Setter Property="Background" Value="{Binding Background}" />
               <Setter Property="CornerRadius" Value="4" />
               <Setter Property="BorderThickness" Value="2" />
               <Setter Property="Template">
                 <ControlTemplate TargetType="ListBoxItem">
                   <Border
-                    Padding="{TemplateBinding Padding}"
+                    Height="{Binding Height,Mode=TwoWay}"
+                    Width="{Binding Width,Mode=TwoWay}"
                     ClipToBounds="True"
+                    Padding="{TemplateBinding Padding}"
                     CornerRadius="{TemplateBinding CornerRadius}"
                     Background="{TemplateBinding Background}"
                     BorderThickness="{TemplateBinding BorderThickness}"
@@ -131,7 +134,9 @@
         <Border
           Background="#2F2F2F"
           TextElement.Foreground="White"
-          HorizontalAlignment="Right">
+          HorizontalAlignment="Right"
+          BorderThickness="2 0 0 0"
+          BorderBrush="Black">
           <Panel>
             <TextBlock Text="选择一个元素以查看属性"
                        Margin="32 0"
@@ -143,16 +148,20 @@
                 <c:MCButton Classes="Back"
                             FontSize="12"
                             Foreground="White"/>
-                <TextBlock Text="细节" 
+                <TextBlock Text="属性" 
                            FontSize="24"
                            Margin="8"
-                           FontWeight="Black" />
+                           FontWeight="Black"
+                           HorizontalAlignment="Center"/>
               </StackPanel>
-              <ContentControl Content="{Binding SelectedMapEntity}">
-                <ContentControl.DataTemplates>
-                  <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
-                </ContentControl.DataTemplates>
-              </ContentControl>
+              <ScrollViewer>
+                <ContentControl Content="{Binding SelectedMapEntity}">
+                  <ContentControl.DataTemplates>
+                    <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
+                    <StaticResource ResourceKey="EstateDetailDataTemplate" />
+                  </ContentControl.DataTemplates>
+                </ContentControl>
+              </ScrollViewer>
             </StackPanel>
           </Panel>
         </Border>

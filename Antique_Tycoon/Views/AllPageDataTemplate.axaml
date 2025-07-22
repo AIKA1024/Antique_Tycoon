@@ -12,5 +12,6 @@
     <MergeResourceInclude Source="/Views/CellDataTemplate/EstateDataTemplate.axaml"/>
     
     <MergeResourceInclude Source="/Views/DetailDataTemplate/SpawnPointDetailDataTemplate.axaml"/>
+    <MergeResourceInclude Source="/Views/DetailDataTemplate/EstateDetailDataTemplate.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

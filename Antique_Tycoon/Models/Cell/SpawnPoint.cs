@@ -1,6 +1,8 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace Antique_Tycoon.Models.Cell;
 
-public class SpawnPoint:CanvasEntity
+public partial class SpawnPoint : CanvasEntity
 {
-  public int Bonus { get; set; } = 2000;
+  [ObservableProperty] private int _bonus = 2000;
 }

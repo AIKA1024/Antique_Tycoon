@@ -2,16 +2,17 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:cm="using:Antique_Tycoon.Models.Cell">
+  <!-- Add Resources Here -->
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
-        <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
+        <StaticResource ResourceKey="EstateDetailDataTemplate" />
       </ContentControl.DataTemplates>
-      <cm:SpawnPoint />
+      <cm:Estate />
     </ContentControl>
   </Design.PreviewWith>
-
-  <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="cm:SpawnPoint">
+  
+  <DataTemplate  x:Key="EstateDetailDataTemplate" x:DataType="cm:Estate">
     <StackPanel>
       <c:MCContentControl Header="宽度">
         <TextBox
@@ -31,11 +32,16 @@
           FontSize="16"
           Text="{Binding Title}" />
       </c:MCContentControl>
-      <c:MCContentControl Header="路过出生点时获得金额">
+      <c:MCContentControl Header="价格">
         <TextBox
           Classes="MCTextbox"
           FontSize="16"
-          Text="{Binding Bonus}" />
+          Text="{Binding Value}" />
+      </c:MCContentControl>
+      <c:MCContentControl Header="背景色">
+        <StackPanel Orientation="Horizontal" Spacing="32">
+          <Rectangle Fill="{Binding Background}" Height="64" Width="64"/>
+        </StackPanel>
       </c:MCContentControl>
       <c:MCContentControl Header="图片">
         <StackPanel Orientation="Horizontal" Spacing="32">
@@ -44,6 +50,6 @@
         </StackPanel>
       </c:MCContentControl>
     </StackPanel>
-
   </DataTemplate>
+  
 </ResourceDictionary>
