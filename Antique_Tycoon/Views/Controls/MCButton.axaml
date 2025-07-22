@@ -17,7 +17,7 @@
       <ControlTemplate>
         <StackPanel Height="{TemplateBinding Height}"
                     Width="{TemplateBinding Width}">
-          <Rectangle />
+          <Rectangle Fill="Transparent"/>
           <Border
             Background="{TemplateBinding Background}"
             BorderThickness="{TemplateBinding BorderThickness}"
