@@ -1,3 +1,4 @@
+using Antique_Tycoon.ViewModels.PageViewModels;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 

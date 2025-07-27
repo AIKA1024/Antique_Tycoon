@@ -4,16 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Antique_Tycoon.ViewModels"
              xmlns:c="using:Antique_Tycoon.Views.Controls"
+             xmlns:controlViewModels="clr-namespace:Antique_Tycoon.ViewModels.ControlViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
-             x:DataType="vm:PlayerUIViewModel">
+             x:DataType="controlViewModels:PlayerUIViewModel">
   <UserControl.Styles>
     <Style Selector="Grid.Invisible">
       <Setter Property="Opacity" Value="0" />
     </Style>
   </UserControl.Styles>
   <Design.DataContext>
-    <vm:PlayerUIViewModel />
+    <controlViewModels:PlayerUIViewModel />
   </Design.DataContext>
   <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*"
         Classes.Invisible="{Binding IsVisible}">

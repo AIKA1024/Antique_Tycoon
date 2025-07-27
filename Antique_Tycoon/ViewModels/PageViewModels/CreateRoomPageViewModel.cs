@@ -10,7 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Antique_Tycoon.ViewModels;
+namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class CreateRoomPageViewModel:PageViewModelBase,IDisposable
 {

@@ -1,15 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Net;
 using Avalonia.Collections;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Antique_Tycoon.ViewModels;
+namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class RoomPageViewModel: PageViewModelBase
 {

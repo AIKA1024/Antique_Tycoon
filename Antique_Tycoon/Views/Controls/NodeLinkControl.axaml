@@ -1,0 +1,45 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Antique_Tycoon.Views.Controls"
+        xmlns:c="using:Antique_Tycoon.Views.Controls"
+        xmlns:cm="using:Antique_Tycoon.Models.Cell">
+  <Design.PreviewWith>
+    <controls:NodeLinkControl />
+  </Design.PreviewWith>
+
+  <Style Selector="controls|NodeLinkControl" x:DataType="cm:SpawnPoint">
+    <Setter Property="Padding" Value="16" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="BorderBrush" Value="#1E90FF"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel
+          Height="{Binding Height,Mode=TwoWay}"
+          Width="{Binding Width,Mode=TwoWay}">
+          <Border
+            ClipToBounds="True"
+            Background="{TemplateBinding Background}"
+            Padding="{TemplateBinding Padding}"
+            CornerRadius="{TemplateBinding CornerRadius}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            BorderBrush="{TemplateBinding BorderBrush}">
+            <ContentPresenter Content="{TemplateBinding Content}" />
+          </Border>
+
+          <c:Connector
+            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            HorizontalAlignment="Left" VerticalAlignment="Center" />
+          <c:Connector
+            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            HorizontalAlignment="Center" VerticalAlignment="Top" />
+          <c:Connector
+            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            HorizontalAlignment="Right" VerticalAlignment="Center" />
+          <c:Connector
+            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

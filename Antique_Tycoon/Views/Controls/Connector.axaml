@@ -1,0 +1,48 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Antique_Tycoon.Views.Controls"
+        xmlns:cv="clr-namespace:Antique_Tycoon.Converters">
+  <!-- <Design.PreviewWith> -->
+  <!--   <c:Connector /> -->
+  <!-- </Design.PreviewWith> -->
+
+  <Style Selector="c|Connector">
+    <Setter Property="Height" Value="20" />
+    <Setter Property="Width" Value="20" />
+    <Setter Property="Padding" Value="2" />
+    <Setter Property="Fill" Value="Black" />
+    <Setter Property="BorderBrush" Value="Khaki" />
+    <Setter Property="Stroke" Value="White" />
+    <!-- Set Defaults -->
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Padding="4"
+                ClipToBounds="True"
+                CornerRadius="{TemplateBinding Width,Converter={cv:DoubleToCornerRadiusConverter}}"
+                Width="{TemplateBinding Width}"
+                Height="{TemplateBinding Height}">
+          <Panel>
+            <Ellipse Fill="{TemplateBinding BorderBrush}">
+              <Ellipse.Styles>
+                <Style Selector="c|Connector:pointerover>Border>Panel>Ellipse">
+                  <Setter Property="Effect">
+                    <DropShadowEffect Color="{Binding Path=BorderBrush,Converter={cv:SolidBrushToColorConverter},RelativeSource={RelativeSource TemplatedParent}}"
+                                      OffsetX="0.5" OffsetY="0.5" BlurRadius="10" Opacity="0.8"/>
+                  </Setter>
+                </Style>
+              </Ellipse.Styles>
+            </Ellipse>
+            <Ellipse Fill="{TemplateBinding Fill}"
+                     Margin="{TemplateBinding Padding}"
+                     IsHitTestVisible="False" />
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="ContextFlyout">
+      <MenuFlyout>
+        <TextBlock Text="切断联线"/>
+      </MenuFlyout>
+    </Setter>
+  </Style>
+</Styles>

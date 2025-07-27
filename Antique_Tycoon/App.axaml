@@ -11,6 +11,9 @@
     <StyleInclude Source="Views/Controls/MCButton.axaml" />
     <StyleInclude Source="Views/Controls/MCTitleBar.axaml" />
     <StyleInclude Source="Views/Controls/MCContentControl.axaml" />
+    <StyleInclude Source="Views/Controls/Connector.axaml" />
+    <StyleInclude Source="Views/Controls/NodeLinkControl.axaml" />
+    <StyleInclude Source="Views/Widgets/GameCanvas.axaml" />
     <StyleInclude Source="Views/Styles/TextBox.axaml" />
   </Application.Styles>
   <Application.Resources>

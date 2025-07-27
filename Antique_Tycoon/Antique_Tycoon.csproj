@@ -48,6 +48,7 @@
         <PackageReference Include="HotAvalonia" Version="3.0.0" PrivateAssets="All" Publish="True" />
         <PackageReference Include="LibVLCSharp" Version="3.9.3" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+        <PackageReference Include="PropertyGenerator.Avalonia" Version="1.0.2" />
         <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2" />
     </ItemGroup>
 
@@ -59,6 +60,10 @@
         <Compile Update="Views\Windows\MainWindow.axaml.cs">
             <DependentUpon>GameWindow.axaml</DependentUpon>
             <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Widgets\GameCanvas.axaml.cs">
+          <DependentUpon>GameCanvas.axaml</DependentUpon>
+          <SubType>Code</SubType>
         </Compile>
     </ItemGroup>
 

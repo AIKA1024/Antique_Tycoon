@@ -2,6 +2,7 @@ using System;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models.Cell;
 using Antique_Tycoon.ViewModels;
+using Antique_Tycoon.Views.Controls;
 using Antique_Tycoon.Views.Windows;
 using Avalonia;
 using Avalonia.Controls;
@@ -13,11 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class CanvasItemDragBehavior : Behavior<Control>
+public class CanvasItemDragBehavior : Behavior<Control>//想着解耦把逻辑放在行为里，但又不得不依赖vm的属性💩
 {
   private CanvasEntity _model;
   private DragAndZoomViewModel dragAndZoomViewModel;
-  private Point _dragOffset;
   private bool _isDragging;
   private Point _lastPointerPosition;
 
@@ -66,7 +66,7 @@ public class CanvasItemDragBehavior : Behavior<Control>
     var currentPointerPosition = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var delta = currentPointerPosition - _lastPointerPosition;
     var adjustedDelta = new Point(delta.X / dragAndZoomViewModel.Scale, delta.Y / dragAndZoomViewModel.Scale);
-    
+
     // 增量叠加 每次移动10个单位
     var snappedDeltaX = Math.Round(adjustedDelta.X / 10) * 10;
     var snappedDeltaY = Math.Round(adjustedDelta.Y / 10) * 10;
@@ -79,6 +79,7 @@ public class CanvasItemDragBehavior : Behavior<Control>
         _lastPointerPosition.X + snappedDeltaX * dragAndZoomViewModel.Scale,
         _lastPointerPosition.Y + snappedDeltaY * dragAndZoomViewModel.Scale
       );
+      DragEvents.RaiseDrag(AssociatedObject);
     }
   }
 

@@ -1,7 +1,7 @@
+using Antique_Tycoon.ViewModels.PageViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 
-namespace Antique_Tycoon.ViewModels;
+namespace Antique_Tycoon.ViewModels.ControlViewModels;
 
 public partial class PlayerUIViewModel:PageViewModelBase
 {

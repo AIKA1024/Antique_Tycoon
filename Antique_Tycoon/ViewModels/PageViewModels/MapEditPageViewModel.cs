@@ -1,12 +1,11 @@
 using System.Threading.Tasks;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Cell;
 using Avalonia;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace Antique_Tycoon.ViewModels;
+namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapEditPageViewModel:DragAndZoomViewModel
 {

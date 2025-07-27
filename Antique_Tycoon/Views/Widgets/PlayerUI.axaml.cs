@@ -3,6 +3,7 @@ using Antique_Tycoon.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using PlayerUIViewModel = Antique_Tycoon.ViewModels.ControlViewModels.PlayerUIViewModel;
 
 namespace Antique_Tycoon.Views.Widgets;
 

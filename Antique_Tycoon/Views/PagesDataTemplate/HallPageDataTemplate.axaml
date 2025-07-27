@@ -4,14 +4,15 @@
   xmlns:c="using:Antique_Tycoon.Views.Controls"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:i="using:Antique_Tycoon.Behaviors"
-  xmlns:vm="using:Antique_Tycoon.ViewModels">
+  xmlns:vm="using:Antique_Tycoon.ViewModels"
+  xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
     <ContentControl>
-      <vm:HallPageViewModel />
+      <pageViewModels:HallPageViewModel />
     </ContentControl>
   </Design.PreviewWith>
 
-  <DataTemplate x:Key="HallPageDataTemplate" DataType="vm:HallPageViewModel">
+  <DataTemplate x:Key="HallPageDataTemplate" DataType="pageViewModels:HallPageViewModel">
     <Grid RowDefinitions="50,*" RowSpacing="8">
       <c:MCTitleBar Grid.Row="0" Title="游戏" />
       <StackPanel
@@ -27,7 +28,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Border
-                i:Tap.Command="{Binding $parent.((vm:HallPageViewModel)DataContext).JoinRoomCommand}"
+                i:Tap.Command="{Binding $parent.((pageViewModels:HallPageViewModel)DataContext).JoinRoomCommand}"
                 i:Tap.CommandParameter="{Binding}"
                 Background="#48494A"
                 BorderBrush="#1E1E1F"

@@ -1,14 +1,15 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="using:Antique_Tycoon.Views.Controls"
-                    xmlns:vm="using:Antique_Tycoon.ViewModels">
+                    xmlns:vm="using:Antique_Tycoon.ViewModels"
+                    xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
     <ContentControl>
-      <vm:RoomPageViewModel />
+      <pageViewModels:RoomPageViewModel />
     </ContentControl>
   </Design.PreviewWith>
 
-  <DataTemplate x:Key="RoomPageDataTemplate" DataType="vm:RoomPageViewModel">
+  <DataTemplate x:Key="RoomPageDataTemplate" DataType="pageViewModels:RoomPageViewModel">
     <Grid RowDefinitions="50,*" RowSpacing="8">
       <c:MCTitleBar Grid.Row="0" Title="xxx的房间" />
       <StackPanel Grid.Row="1" Spacing="16"

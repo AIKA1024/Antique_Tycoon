@@ -3,7 +3,7 @@ using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Antique_Tycoon.ViewModels;
+namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class StartPageViewModel:PageViewModelBase
 {
@@ -12,11 +12,11 @@ public partial class StartPageViewModel:PageViewModelBase
   [RelayCommand]
   private void NavigateToHallPage()
   {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new HallPageViewModel());
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new PageViewModels.HallPageViewModel());
   }
   [RelayCommand]
   private void NavigateToMapEditPage()
   {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new MapEditPageViewModel());
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new PageViewModels.MapEditPageViewModel());
   }
 }

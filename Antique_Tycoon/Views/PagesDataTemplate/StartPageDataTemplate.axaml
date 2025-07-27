@@ -2,15 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="using:Antique_Tycoon.Views.Controls"
                     xmlns:vm="using:Antique_Tycoon.ViewModels"
-                    xmlns:transforms="using:Avalonia.Media">
+                    xmlns:transforms="using:Avalonia.Media"
+                    xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
 
   <Design.PreviewWith>
     <ContentControl Height="600">
-      <vm:StartPageViewModel />
+      <pageViewModels:StartPageViewModel />
     </ContentControl>
   </Design.PreviewWith>
 
-  <DataTemplate x:Key="StartPageDataTemplate" DataType="vm:StartPageViewModel">
+  <DataTemplate x:Key="StartPageDataTemplate" DataType="pageViewModels:StartPageViewModel">
     <Grid ColumnDefinitions="*,2*,*">
       <Grid.Styles>
         <Style Selector="TextBlock.Jump">

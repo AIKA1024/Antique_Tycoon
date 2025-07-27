@@ -2,13 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:i="using:Antique_Tycoon.Behaviors"
                     xmlns:w="using:Antique_Tycoon.Views.Widgets"
-                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels">
+                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels"
+                    xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="600">
-        <vm:GamePageViewModel />
+        <pageViewModels:GamePageViewModel />
       </ContentControl>
   </Design.PreviewWith>
-  <DataTemplate x:Key="GamePageDataTemplate" DataType="vm:GamePageViewModel">
+  <DataTemplate x:Key="GamePageDataTemplate" DataType="pageViewModels:GamePageViewModel">
     <Grid Name="MainGrid"
           Focusable="False"
           Background="LightGray">

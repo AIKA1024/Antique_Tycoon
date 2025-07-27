@@ -2,7 +2,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
@@ -10,7 +9,7 @@ using Avalonia.Collections;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Antique_Tycoon.ViewModels;
+namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class HallPageViewModel:PageViewModelBase
 {
@@ -37,7 +36,7 @@ public partial class HallPageViewModel:PageViewModelBase
   [RelayCommand]
   private void NavigateToCreateRoomPage()
   {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new CreateRoomPageViewModel());
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new PageViewModels.CreateRoomPageViewModel());
   }
 
   [RelayCommand]

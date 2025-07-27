@@ -1,0 +1,118 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="using:Antique_Tycoon.Behaviors"
+        xmlns:vm="using:Antique_Tycoon.ViewModels"
+        xmlns:c="using:Antique_Tycoon.Views.Controls"
+        xmlns:cm="using:Antique_Tycoon.Models.Cell"
+        xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
+        xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
+  <Design.PreviewWith>
+    <widgets:GameCanvas />
+  </Design.PreviewWith>
+
+  <Style Selector="widgets|GameCanvas" x:DataType="pageViewModels:MapEditPageViewModel">
+    <!-- Set Defaults -->
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel Background="Transparent">
+          <Interaction.Behaviors>
+            <i:ZoomPanBehavior />
+          </Interaction.Behaviors>
+
+          <ListBox
+            SelectedItem="{Binding SelectedMapEntity,Mode=OneWayToSource}"
+            SelectedItems="{Binding SelectedMapEntities}"
+            ItemsSource="{Binding MapEntities}"
+            RenderTransformOrigin="0,0"
+            ClipToBounds="False">
+            <ListBox.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
+                <TranslateTransform X="{Binding Offset.X}" Y="{Binding Offset.Y}" />
+              </TransformGroup>
+            </ListBox.RenderTransform>
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <Canvas
+                  Focusable="False"
+                  Width="3000"
+                  Height="2000"
+                  Background="#262626"
+                  i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition,Mode=OneWayToSource}">
+                  <FlyoutBase.AttachedFlyout>
+                    <Flyout FlyoutPresenterClasses="Dark">
+                      <StackPanel>
+                        <StackPanel.Styles>
+                          <Style Selector="StackPanel MenuItem">
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="CornerRadius" Value="4" />
+                            <Setter Property="Command" Value="{Binding CreateEntityCommand}" />
+                            <Setter Property="CommandParameter" Value="{Binding $self.Header,Mode=OneTime}" />
+                          </Style>
+                        </StackPanel.Styles>
+                        <MenuItem Header="玩家出生点" />
+                        <MenuItem Header="地产" />
+                        <MenuItem Header="传送点" />
+                      </StackPanel>
+                    </Flyout>
+                  </FlyoutBase.AttachedFlyout>
+                  <Interaction.Behaviors>
+                    <i:ShowFlyoutBehavior />
+                  </Interaction.Behaviors>
+                  <Canvas.Styles>
+                    <Style Selector="FlyoutPresenter.Dark">
+                      <Setter Property="Background" Value="#383838" />
+                    </Style>
+                  </Canvas.Styles>
+                </Canvas>
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.Styles>
+              <Style Selector="ListBox">
+                <Setter Property="Template">
+                  <ControlTemplate>
+                    <Border
+                      ClipToBounds="{TemplateBinding ClipToBounds}"
+                      Background="{TemplateBinding Background}"
+                      BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="{TemplateBinding BorderThickness}"
+                      CornerRadius="{TemplateBinding CornerRadius}">
+                      <Panel>
+                        <ItemsPresenter Name="PART_ItemsPresenter"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}"
+                                        Margin="{TemplateBinding Padding}" />
+                      </Panel>
+                    </Border>
+                  </ControlTemplate>
+                </Setter>
+              </Style>
+              <Style Selector="ListBoxItem" x:DataType="cm:SpawnPoint">
+                <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="Background" Value="#ECCC68" />
+                <Setter Property="Template">
+                  <ControlTemplate TargetType="ListBoxItem"><!-- 这个可能也要封装成一个控件好一点 -->
+                    <c:NodeLinkControl
+                      Background="{TemplateBinding Background}"
+                      BorderBrush="{TemplateBinding BorderBrush}"
+                      CornerRadius="{TemplateBinding CornerRadius}"
+                      Content="{TemplateBinding Content}">
+                      <Interaction.Behaviors>
+                        <i:CanvasItemDragBehavior />
+                      </Interaction.Behaviors>
+                    </c:NodeLinkControl>
+                  </ControlTemplate>
+                </Setter>
+                <Style Selector="^:selected">
+                  <Setter Property="BorderBrush" Value="#1e90ff" />
+                  <Setter Property="ZIndex" Value="1" />
+                </Style>
+              </Style>
+            </ListBox.Styles>
+          </ListBox>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

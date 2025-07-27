@@ -2,6 +2,7 @@ using System;
 using System.Windows.Input;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels;
+using Antique_Tycoon.ViewModels.PageViewModels;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 
