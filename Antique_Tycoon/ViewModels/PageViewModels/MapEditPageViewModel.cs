@@ -33,4 +33,10 @@ public partial class MapEditPageViewModel:DragAndZoomViewModel
         break;
     }
   }
+
+  [RelayCommand]
+  private void RemoveEntity(CanvasEntity target)
+  {
+    MapEntities.Remove(target);
+  }
 }

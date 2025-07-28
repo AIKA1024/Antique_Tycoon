@@ -126,7 +126,6 @@ public partial class Connector : TemplatedControl
   protected override void OnPointerPressed(PointerPressedEventArgs e)
   {
     base.OnPointerPressed(e);
-    // if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
     if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
       CancelConnect();
     else

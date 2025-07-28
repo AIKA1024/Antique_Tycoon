@@ -1,16 +1,15 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="using:Antique_Tycoon.Behaviors"
-        xmlns:vm="using:Antique_Tycoon.ViewModels"
         xmlns:c="using:Antique_Tycoon.Views.Controls"
         xmlns:cm="using:Antique_Tycoon.Models.Cell"
         xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
-        xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
+        xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
     <widgets:GameCanvas />
   </Design.PreviewWith>
 
-  <Style Selector="widgets|GameCanvas" x:DataType="pageViewModels:MapEditPageViewModel">
+  <Style Selector="widgets|GameCanvas" x:DataType="vm:MapEditPageViewModel">
     <!-- Set Defaults -->
     <Setter Property="Template">
       <ControlTemplate>
@@ -81,21 +80,23 @@
                   </ControlTemplate>
                 </Setter>
               </Style>
-              <Style Selector="ListBoxItem" x:DataType="cm:SpawnPoint">
+              <Style Selector="ListBoxItem" x:DataType="cm:CanvasEntity">
                 <Setter Property="Canvas.Top" Value="{Binding Top}" />
                 <Setter Property="Canvas.Left" Value="{Binding Left}" />
-                <Setter Property="CornerRadius" Value="4" />
-                <Setter Property="Background" Value="#ECCC68" />
                 <Setter Property="Template">
-                  <ControlTemplate TargetType="ListBoxItem"><!-- 这个可能也要封装成一个控件好一点 -->
+                  <ControlTemplate TargetType="ListBoxItem">
                     <c:NodeLinkControl
-                      Background="{TemplateBinding Background}"
+                      Focusable="True"
                       BorderBrush="{TemplateBinding BorderBrush}"
-                      CornerRadius="{TemplateBinding CornerRadius}"
                       Content="{TemplateBinding Content}">
                       <Interaction.Behaviors>
                         <i:CanvasItemDragBehavior />
                       </Interaction.Behaviors>
+                      <c:NodeLinkControl.KeyBindings>
+                        <KeyBinding Gesture="Delete"
+                                    Command="{Binding $parent.((vm:MapEditPageViewModel)DataContext).RemoveEntityCommand}"
+                                    CommandParameter="{Binding}" />
+                      </c:NodeLinkControl.KeyBindings>
                     </c:NodeLinkControl>
                   </ControlTemplate>
                 </Setter>
