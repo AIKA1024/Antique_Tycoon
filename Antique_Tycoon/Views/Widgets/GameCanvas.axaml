@@ -4,7 +4,8 @@
         xmlns:c="using:Antique_Tycoon.Views.Controls"
         xmlns:cm="using:Antique_Tycoon.Models.Cell"
         xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
-        xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
+        xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+        xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
   <Design.PreviewWith>
     <widgets:GameCanvas />
   </Design.PreviewWith>
@@ -80,7 +81,7 @@
                   </ControlTemplate>
                 </Setter>
               </Style>
-              <Style Selector="ListBoxItem" x:DataType="cm:CanvasEntity">
+              <Style Selector="ListBoxItem" x:DataType="node:CanvasEntity">
                 <Setter Property="Canvas.Top" Value="{Binding Top}" />
                 <Setter Property="Canvas.Left" Value="{Binding Left}" />
                 <Setter Property="Template">

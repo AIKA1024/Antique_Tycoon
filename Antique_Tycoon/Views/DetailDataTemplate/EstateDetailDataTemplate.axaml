@@ -1,31 +1,20 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-                    xmlns:cm="using:Antique_Tycoon.Models.Cell">
+                    xmlns:cm="using:Antique_Tycoon.Models.Cell"
+                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
         <StaticResource ResourceKey="EstateDetailDataTemplate" />
       </ContentControl.DataTemplates>
-      <cm:Estate />
+      <node:Estate />
     </ContentControl>
   </Design.PreviewWith>
   
-  <DataTemplate  x:Key="EstateDetailDataTemplate" x:DataType="cm:Estate">
+  <DataTemplate  x:Key="EstateDetailDataTemplate" x:DataType="node:Estate">
     <StackPanel>
-      <c:MCContentControl Header="宽度">
-        <TextBox
-          Classes="MCTextbox"
-          FontSize="16"
-          Text="{Binding Width}" />
-      </c:MCContentControl>
-      <c:MCContentControl Header="高度">
-        <TextBox
-          Classes="MCTextbox"
-          FontSize="16"
-          Text="{Binding Height}" />
-      </c:MCContentControl>
       <c:MCContentControl Header="标题">
         <TextBox
           Classes="MCTextbox"
@@ -37,11 +26,6 @@
           Classes="MCTextbox"
           FontSize="16"
           Text="{Binding Value}" />
-      </c:MCContentControl>
-      <c:MCContentControl Header="背景色">
-        <StackPanel Orientation="Horizontal" Spacing="32">
-          <Rectangle Fill="{Binding Background}" Height="64" Width="64"/>
-        </StackPanel>
       </c:MCContentControl>
       <c:MCContentControl Header="图片">
         <StackPanel Orientation="Horizontal" Spacing="32">

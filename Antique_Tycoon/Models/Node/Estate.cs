@@ -1,6 +1,4 @@
-using Avalonia.Media.Imaging;
-
-namespace Antique_Tycoon.Models.Cell;
+namespace Antique_Tycoon.Models.Node;
 
 public partial class Estate:CanvasEntity
 {

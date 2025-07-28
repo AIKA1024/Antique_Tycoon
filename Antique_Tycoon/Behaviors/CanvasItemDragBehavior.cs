@@ -1,6 +1,6 @@
 using System;
 using Antique_Tycoon.Extensions;
-using Antique_Tycoon.Models.Cell;
+using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.ViewModels;
 using Antique_Tycoon.Views.Controls;
 using Antique_Tycoon.Views.Windows;
@@ -11,6 +11,7 @@ using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
+using CanvasEntity = Antique_Tycoon.Models.Node.CanvasEntity;
 
 namespace Antique_Tycoon.Behaviors;
 

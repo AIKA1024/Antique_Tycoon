@@ -1,30 +1,18 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-                    xmlns:cm="using:Antique_Tycoon.Models.Cell">
+                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
         <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
       </ContentControl.DataTemplates>
-      <cm:SpawnPoint />
+      <node:SpawnPoint />
     </ContentControl>
   </Design.PreviewWith>
 
-  <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="cm:SpawnPoint">
+  <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="node:SpawnPoint">
     <StackPanel>
-      <c:MCContentControl Header="宽度">
-        <TextBox
-          Classes="MCTextbox"
-          FontSize="16"
-          Text="{Binding Width}" />
-      </c:MCContentControl>
-      <c:MCContentControl Header="高度">
-        <TextBox
-          Classes="MCTextbox"
-          FontSize="16"
-          Text="{Binding Height}" />
-      </c:MCContentControl>
       <c:MCContentControl Header="标题">
         <TextBox
           Classes="MCTextbox"

@@ -7,6 +7,7 @@
   </Design.PreviewWith>
 
   <Style Selector="c|MCTitleBar">
+    <Setter Property="Foreground" Value="Black"/>
     <Setter Property="FontWeight" Value="Black" />
     <Setter Property="FontSize" Value="24" />
     <Setter Property="Template">
@@ -35,8 +36,6 @@
               HorizontalAlignment="Right"
               VerticalAlignment="Center" />
           </Grid>
-
-
         </Border>
       </ControlTemplate>
     </Setter>

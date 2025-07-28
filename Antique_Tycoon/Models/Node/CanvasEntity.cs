@@ -1,12 +1,10 @@
 using System;
-using Antique_Tycoon.ViewModels;
-using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Antique_Tycoon.Models.Cell;
+namespace Antique_Tycoon.Models.Node;
 
 public abstract partial class CanvasEntity : ObservableObject
 {

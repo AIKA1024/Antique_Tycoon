@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Antique_Tycoon.Models.Cell;
+namespace Antique_Tycoon.Models.Node;
 
 public partial class SpawnPoint : CanvasEntity
 {

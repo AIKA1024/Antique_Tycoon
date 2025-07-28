@@ -2,9 +2,7 @@
   xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-  xmlns:i="using:Antique_Tycoon.Behaviors"
-  xmlns:vm="using:Antique_Tycoon.ViewModels"
-  xmlns:cm="using:Antique_Tycoon.Models.Cell"
+  xmlns:cv="using:Antique_Tycoon.Converters"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
   xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
@@ -29,8 +27,8 @@
       </c:MCTitleBar>
       <Panel Grid.Row="1"
              Background="Transparent">
-        <widgets:GameCanvas/>
-        
+        <widgets:GameCanvas />
+
         <!-- DetailPanel -->
         <Border
           Background="#2F2F2F"
@@ -38,35 +36,54 @@
           HorizontalAlignment="Right"
           BorderThickness="2 0 0 0"
           BorderBrush="Black">
-          <Panel >
+          <Panel>
             <TextBlock Text="选择一个元素以查看属性"
                        Margin="32 0"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
-                       IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNull}}"/>
+                       IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNull}}" />
             <StackPanel>
               <StackPanel Orientation="Horizontal">
                 <c:MCButton Classes="Back"
                             FontSize="12"
-                            Foreground="White"/>
-                <TextBlock Text="属性" 
+                            Foreground="White" />
+                <TextBlock Text="属性"
                            FontSize="24"
                            Margin="8"
                            FontWeight="Black"
-                           HorizontalAlignment="Center"/>
+                           HorizontalAlignment="Center" />
               </StackPanel>
               <ScrollViewer>
-                <ContentControl Content="{Binding SelectedMapEntity}">
-                  <ContentControl.DataTemplates>
-                    <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
-                    <StaticResource ResourceKey="EstateDetailDataTemplate" />
-                  </ContentControl.DataTemplates>
-                </ContentControl>
+                <StackPanel IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNotNull} }">
+                  <c:MCContentControl Header="宽度">
+                    <TextBox
+                      Classes="MCTextbox"
+                      FontSize="16"
+                      Text="{Binding SelectedMapEntity.Width}" />
+                  </c:MCContentControl>
+                  <c:MCContentControl Header="高度">
+                    <TextBox
+                      Classes="MCTextbox"
+                      FontSize="16"
+                      Text="{Binding SelectedMapEntity.Height}" />
+                  </c:MCContentControl>
+                  <c:MCContentControl Header="背景色">
+                    <ColorPicker
+                      Color="{Binding SelectedMapEntity.Background,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
+                      HorizontalAlignment="Left" />
+                  </c:MCContentControl>
+                  <ContentControl Content="{Binding SelectedMapEntity}">
+                    <ContentControl.DataTemplates>
+                      <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
+                      <StaticResource ResourceKey="EstateDetailDataTemplate" />
+                    </ContentControl.DataTemplates>
+                  </ContentControl>
+                </StackPanel>
               </ScrollViewer>
             </StackPanel>
           </Panel>
         </Border>
       </Panel>
-      </Grid>
+    </Grid>
   </DataTemplate>
 </ResourceDictionary>

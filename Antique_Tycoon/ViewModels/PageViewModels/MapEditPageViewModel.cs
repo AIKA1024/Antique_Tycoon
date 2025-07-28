@@ -1,10 +1,12 @@
 using System.Threading.Tasks;
-using Antique_Tycoon.Models.Cell;
+using Antique_Tycoon.Models.Node;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CanvasEntity = Antique_Tycoon.Models.Node.CanvasEntity;
+using SpawnPoint = Antique_Tycoon.Models.Node.SpawnPoint;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 

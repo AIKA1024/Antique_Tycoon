@@ -72,10 +72,10 @@ public partial class Connector : TemplatedControl
     base.OnAttachedToVisualTree(e);
     var parent = this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault();
     if (parent != null)
-      DragEvents.AddDragHandler(parent, NoteLocationChanged);
+      DragEvents.AddDragHandler(parent, OnNoteLocationChanged);
   }
 
-  private void NoteLocationChanged(object? sender, RoutedEventArgs e)
+  private void OnNoteLocationChanged(object? sender, RoutedEventArgs e)
   {
     Dispatcher.UIThread.Post(() =>
     {
