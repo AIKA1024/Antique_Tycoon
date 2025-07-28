@@ -1,11 +1,13 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="using:Antique_Tycoon.Views.Controls"
-        xmlns:cv="clr-namespace:Antique_Tycoon.Converters">
+        xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+        xmlns:i="using:Antique_Tycoon.Behaviors">
   <!-- <Design.PreviewWith> -->
   <!--   <c:Connector /> -->
   <!-- </Design.PreviewWith> -->
 
+ 
   <Style Selector="c|Connector">
     <Setter Property="Height" Value="20" />
     <Setter Property="Width" Value="20" />
@@ -38,11 +40,6 @@
           </Panel>
         </Border>
       </ControlTemplate>
-    </Setter>
-    <Setter Property="ContextFlyout">
-      <MenuFlyout>
-        <TextBlock Text="切断联线"/>
-      </MenuFlyout>
     </Setter>
   </Style>
 </Styles>

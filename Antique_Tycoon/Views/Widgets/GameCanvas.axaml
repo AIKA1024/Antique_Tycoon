@@ -40,7 +40,7 @@
                   Background="#262626"
                   i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition,Mode=OneWayToSource}">
                   <FlyoutBase.AttachedFlyout>
-                    <Flyout FlyoutPresenterClasses="Dark">
+                    <Flyout>
                       <StackPanel>
                         <StackPanel.Styles>
                           <Style Selector="StackPanel MenuItem">
@@ -59,11 +59,6 @@
                   <Interaction.Behaviors>
                     <i:ShowFlyoutBehavior />
                   </Interaction.Behaviors>
-                  <Canvas.Styles>
-                    <Style Selector="FlyoutPresenter.Dark">
-                      <Setter Property="Background" Value="#383838" />
-                    </Style>
-                  </Canvas.Styles>
                 </Canvas>
               </ItemsPanelTemplate>
             </ListBox.ItemsPanel>

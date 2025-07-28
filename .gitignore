@@ -1,6 +1,5 @@
 bin/
 obj/
-Publish/
 .idea/
 .vs/
 /packages/

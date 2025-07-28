@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows.Input;
 using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.ViewModels.ControlViewModels;
@@ -13,6 +14,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using CommunityToolkit.Mvvm.Input;
 using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Controls;
@@ -105,7 +107,7 @@ public partial class Connector : TemplatedControl
     foreach (var connector in LineCanvas.GetVisualDescendants().OfType<Connector>())
     {
       connector.UpdateAnchor();
-      if (connector == this)
+      if (connector == this || connector.Parent == Parent)
         continue;
       var pos = connector.Anchor; // 世界坐标，需确保 Anchor 正确更新
       var dist = ((Vector)(pos - worldPos)).Length;
@@ -124,18 +126,24 @@ public partial class Connector : TemplatedControl
   protected override void OnPointerPressed(PointerPressedEventArgs e)
   {
     base.OnPointerPressed(e);
-    if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
-    var position = this.TranslatePoint(new Point(Width / 2, Width / 2), LineCanvas) ?? new Point(0, 0);
-    _tempLine = null;
-    _tempLine = new ConnectionLine
+    // if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+    if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+      CancelConnect();
+    else
     {
-      StartPoint = position,
-      EndPoint = position,
-      StrokeDashArray = [6, 4],
-      Stroke = Stroke,
-      StrokeThickness = StrokeThickness
-    };
-    LineCanvas.Children.Add(_tempLine);
+      var position = this.TranslatePoint(new Point(Width / 2, Width / 2), LineCanvas) ?? new Point(0, 0);
+      _tempLine = null;
+      _tempLine = new ConnectionLine
+      {
+        StartPoint = position,
+        EndPoint = position,
+        StrokeDashArray = [6, 4],
+        Stroke = Stroke,
+        StrokeThickness = StrokeThickness
+      };
+      LineCanvas.Children.Add(_tempLine);
+    }
+
     e.Handled = true;
   }
 
@@ -174,5 +182,15 @@ public partial class Connector : TemplatedControl
     _closestConnector.PassiveConnections.Add(connection);
     LineCanvas.Children.Add(connection.Line);
     e.Handled = true;
+  }
+
+  private void CancelConnect()
+  {
+    foreach (var activeConnection in ActiveConnections)
+      LineCanvas.Children.Remove(activeConnection.Line);
+    foreach (var passiveConnection in PassiveConnections)
+      LineCanvas.Children.Remove(passiveConnection.Line);
+    ActiveConnections.Clear();
+    PassiveConnections.Clear();
   }
 }

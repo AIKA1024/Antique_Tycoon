@@ -15,6 +15,7 @@
     <StyleInclude Source="Views/Controls/NodeLinkControl.axaml" />
     <StyleInclude Source="Views/Widgets/GameCanvas.axaml" />
     <StyleInclude Source="Views/Styles/TextBox.axaml" />
+    <StyleInclude Source="Views/Styles/MenuFlyoutPresenter.axaml" />
   </Application.Styles>
   <Application.Resources>
     <ResourceDictionary>
