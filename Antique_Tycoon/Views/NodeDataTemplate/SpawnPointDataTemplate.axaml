@@ -1,6 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:m="using:Antique_Tycoon.Models.Cell"
                     xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
   <Design.PreviewWith>
     <ContentControl>

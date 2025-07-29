@@ -1,7 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-                    xmlns:cm="using:Antique_Tycoon.Models.Cell"
                     xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
@@ -18,13 +17,11 @@
       <c:MCContentControl Header="标题">
         <TextBox
           Classes="MCTextbox"
-          FontSize="16"
           Text="{Binding Title}" />
       </c:MCContentControl>
       <c:MCContentControl Header="价格">
         <TextBox
           Classes="MCTextbox"
-          FontSize="16"
           Text="{Binding Value}" />
       </c:MCContentControl>
       <c:MCContentControl Header="图片">

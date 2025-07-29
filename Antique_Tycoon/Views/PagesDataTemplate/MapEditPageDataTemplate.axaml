@@ -36,52 +36,68 @@
           HorizontalAlignment="Right"
           BorderThickness="2 0 0 0"
           BorderBrush="Black">
-          <Panel>
-            <TextBlock Text="选择一个元素以查看属性"
-                       Margin="32 0"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNull}}" />
-            <StackPanel>
-              <StackPanel Orientation="Horizontal">
-                <c:MCButton Classes="Back"
-                            FontSize="12"
-                            Foreground="White" />
-                <TextBlock Text="属性"
-                           FontSize="24"
-                           Margin="8"
-                           FontWeight="Black"
-                           HorizontalAlignment="Center" />
+          <TabControl Padding="0" Width="260">
+            <TabControl.Styles>
+              <Style Selector="TabControl TabItem TextBox.MCTextbox">
+                <Setter Property="FontSize" Value="16"/>
+              </Style>
+            </TabControl.Styles>
+            <TabItem Header="属性">
+              <Panel>
+                <TextBlock Text="选择一个元素以查看属性"
+                           Margin="32 0"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNull}}" />
+                <ScrollViewer>
+                  <StackPanel
+                    IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNotNull} }">
+                    <c:MCContentControl Header="宽度">
+                      <TextBox
+                        Classes="MCTextbox"
+                        Text="{Binding SelectedMapEntity.Width}" />
+                    </c:MCContentControl>
+                    <c:MCContentControl Header="高度">
+                      <TextBox
+                        Classes="MCTextbox"
+                        Text="{Binding SelectedMapEntity.Height}" />
+                    </c:MCContentControl>
+                    <c:MCContentControl Header="背景色">
+                      <ColorPicker
+                        Color="{Binding SelectedMapEntity.Background,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
+                        HorizontalAlignment="Left" />
+                    </c:MCContentControl>
+                    <ContentControl Content="{Binding SelectedMapEntity}">
+                      <ContentControl.DataTemplates>
+                        <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
+                        <StaticResource ResourceKey="EstateDetailDataTemplate" />
+                      </ContentControl.DataTemplates>
+                    </ContentControl>
+                  </StackPanel>
+                </ScrollViewer>
+              </Panel>
+            </TabItem>
+            <TabItem Header="地图设置">
+              <StackPanel>
+                <c:MCContentControl Header="画布宽度">
+                  <TextBox Classes="MCTextbox" Text="{Binding Map.CanvasWidth,Mode=TwoWay}"/>
+                </c:MCContentControl>
+                <c:MCContentControl Header="画布高度">
+                  <TextBox Classes="MCTextbox" Text="{Binding Map.CanvasHeight,Mode=TwoWay}"/>
+                </c:MCContentControl>
+                <c:MCContentControl Header="画布背景色">
+                  <ColorPicker
+                    Color="{Binding Map.CanvasBackground,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
+                    HorizontalAlignment="Left" />
+                </c:MCContentControl>
+                <c:MCContentControl Header="节点默认背景色">
+                  <ColorPicker
+                    Color="{Binding Map.NodeDefaultBackground,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
+                    HorizontalAlignment="Left" />
+                </c:MCContentControl>
               </StackPanel>
-              <ScrollViewer>
-                <StackPanel IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNotNull} }">
-                  <c:MCContentControl Header="宽度">
-                    <TextBox
-                      Classes="MCTextbox"
-                      FontSize="16"
-                      Text="{Binding SelectedMapEntity.Width}" />
-                  </c:MCContentControl>
-                  <c:MCContentControl Header="高度">
-                    <TextBox
-                      Classes="MCTextbox"
-                      FontSize="16"
-                      Text="{Binding SelectedMapEntity.Height}" />
-                  </c:MCContentControl>
-                  <c:MCContentControl Header="背景色">
-                    <ColorPicker
-                      Color="{Binding SelectedMapEntity.Background,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
-                      HorizontalAlignment="Left" />
-                  </c:MCContentControl>
-                  <ContentControl Content="{Binding SelectedMapEntity}">
-                    <ContentControl.DataTemplates>
-                      <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
-                      <StaticResource ResourceKey="EstateDetailDataTemplate" />
-                    </ContentControl.DataTemplates>
-                  </ContentControl>
-                </StackPanel>
-              </ScrollViewer>
-            </StackPanel>
-          </Panel>
+            </TabItem>
+          </TabControl>
         </Border>
       </Panel>
     </Grid>

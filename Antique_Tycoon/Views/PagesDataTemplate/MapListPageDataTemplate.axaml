@@ -15,7 +15,9 @@
         Title="地图列表" />
 
       <StackPanel Grid.Row="1" Spacing="16" Margin="16 0">
-        <c:MCButton Classes="ore" Content="创建新地图" HorizontalAlignment="Right" />
+        <c:MCButton Classes="ore" Content="创建新地图"
+                    Command="{Binding NavigateToMapEditPageCommand}"
+                    HorizontalAlignment="Right" />
 
         <ItemsControl ItemsSource="{Binding Maps}">
           <ItemsControl.ItemsPanel>
@@ -30,8 +32,6 @@
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </StackPanel>
-
     </Grid>
-
   </DataTemplate>
 </ResourceDictionary>
