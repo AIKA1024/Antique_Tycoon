@@ -9,7 +9,7 @@
         <TrimMode>full</TrimMode>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <AssemblyName>Antique_Tycoon</AssemblyName>
-        <ApplicationIcon>Assets\Logo.ico</ApplicationIcon>
+        <ApplicationIcon>Assets\Image\Logo.ico</ApplicationIcon>
         <LangVersion>preview</LangVersion>
     </PropertyGroup>
 

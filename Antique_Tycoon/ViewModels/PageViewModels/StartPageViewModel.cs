@@ -12,11 +12,11 @@ public partial class StartPageViewModel:PageViewModelBase
   [RelayCommand]
   private void NavigateToHallPage()
   {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new PageViewModels.HallPageViewModel());
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new HallPageViewModel());
   }
   [RelayCommand]
-  private void NavigateToMapEditPage()
+  private void NavigateToMapListPage()
   {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new PageViewModels.MapEditPageViewModel());
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new MapListPageViewModel());
   }
 }

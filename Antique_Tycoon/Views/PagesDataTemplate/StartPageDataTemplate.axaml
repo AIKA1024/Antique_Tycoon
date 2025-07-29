@@ -36,7 +36,7 @@
       </Grid.Styles>
       <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="8">
         <Panel HorizontalAlignment="Center">
-          <Image Width="512" Source="../../Assets/Title.png" />
+          <Image Width="512" Source="../../Assets/Image/Title.png" />
           <TextBlock x:Name="SubTitleText"
                      Classes="Jump"
                      Text="MineCraft Edition!"
@@ -58,11 +58,11 @@
         <c:MCButton
           Classes="Width"
           Content="游戏"
-          Command="{Binding NavigateToHallPageCommand}"
+          Command="{Binding NavigateToHallPageCommand,Mode=OneTime}"
           HorizontalAlignment="Center" />
         <c:MCButton
           Classes="Width"
-          Command="{Binding NavigateToMapEditPageCommand}"
+          Command="{Binding NavigateToMapListPageCommand,Mode=OneTime}"
           Content="创意工坊" HorizontalAlignment="Center" />
         <c:MCButton
           Classes="Width"

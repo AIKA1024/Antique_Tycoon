@@ -28,6 +28,7 @@
   
   <Application.DataTemplates>
     <StaticResource ResourceKey="CreateRoomPageDataTemplate"/>
+    <StaticResource ResourceKey="MapListPageDataTemplate"/>
     <StaticResource ResourceKey="GamePageDataTemplate"/>
     <StaticResource ResourceKey="HallPageDataTemplate"/>
     <StaticResource ResourceKey="StartPageDataTemplate"/>

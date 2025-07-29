@@ -5,7 +5,8 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:i="using:Antique_Tycoon.Behaviors"
   xmlns:vm="using:Antique_Tycoon.ViewModels"
-  xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
+  xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+  xmlns:cv="clr-namespace:Antique_Tycoon.Converters">
   <Design.PreviewWith>
     <ContentControl>
       <pageViewModels:HallPageViewModel />
@@ -24,6 +25,17 @@
           Classes="ore"
           Command="{Binding NavigateToCreateRoomPageCommand}"
           Content="创建新房间" />
+        <Border
+          Padding="0 32"
+          BorderThickness="3"
+          BorderBrush="#1E1E1F"
+          Background="#313233"
+          VerticalAlignment="Center"
+          IsVisible="{Binding RoomList.Count,Converter={x:Static cv:StringConverters.Equal},ConverterParameter=0}">
+          <Image
+            Source="../../Assets/Image/No_Map.png"
+            Stretch="None" />
+        </Border>
         <ItemsControl Foreground="White" ItemsSource="{Binding RoomList}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>

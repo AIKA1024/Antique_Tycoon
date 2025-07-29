@@ -22,7 +22,7 @@ public partial class CreateRoomPageViewModel:PageViewModelBase,IDisposable
   private CancellationTokenSource cts = new();
   public CreateRoomPageViewModel()
   {
-    Cover = Bitmap.DecodeToWidth(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Map.jpg")),512,BitmapInterpolationMode.LowQuality );
+    Cover = Bitmap.DecodeToWidth(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Map.jpg")),512,BitmapInterpolationMode.LowQuality );
   }
   public void Dispose()
   {

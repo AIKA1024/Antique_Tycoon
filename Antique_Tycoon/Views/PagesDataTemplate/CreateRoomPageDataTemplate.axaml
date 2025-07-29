@@ -12,7 +12,7 @@
   <DataTemplate x:Key="CreateRoomPageDataTemplate" DataType="pageViewModels:CreateRoomPageViewModel">
     <Grid RowDefinitions="50,*">
       <c:MCTitleBar
-        Content="创建房间" />
+        Title="创建房间" />
       <Grid Grid.Row="1" ColumnDefinitions="*,2*">
         <Border Grid.Column="0"
                 BorderThickness="2"

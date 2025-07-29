@@ -19,7 +19,7 @@ public class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他
   private DragAndZoomViewModel? _vm;
 
   private static readonly Cursor Hand =
-    new(new Bitmap(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/DragHand.png"))), new PixelPoint(8, 8));
+    new(new Bitmap(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/DragHand.png"))), new PixelPoint(8, 8));
 
   protected override void OnAttached()
   {
