@@ -17,9 +17,10 @@
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  Text="{Binding Bonus,StringFormat=经过起点领取{0}元}" />
-      <Image Width="64"
-             Margin="0 16 0 0"
-             Source="../../Assets/Avatars/Minecraft.png" />
+      <Image 
+        Margin="0 16 0 0"
+        Source="{Binding Cover}"
+        Stretch="{Binding CoverStretch}"/>
     </StackPanel>
   </DataTemplate>
 </ResourceDictionary>

@@ -7,7 +7,7 @@
   <Border CornerRadius="8" Background="#eccc68" Padding="32">
     <Grid ColumnDefinitions="Auto,*">
       <StackPanel>
-        <Image Width="64" Source="../../Assets/Avatars/Steve.png" HorizontalAlignment="Left" />
+        <Image Width="64" Source="../../Assets/Avatar/Steve.png" HorizontalAlignment="Left" />
         <TextBlock Text="这是名字" HorizontalAlignment="Left"/>
       </StackPanel>
       <StackPanel Grid.Column="1" Margin="32 0 0 0">

@@ -14,21 +14,10 @@
   
   <DataTemplate  x:Key="EstateDetailDataTemplate" x:DataType="node:Estate">
     <StackPanel>
-      <c:MCContentControl Header="标题">
-        <TextBox
-          Classes="MCTextbox"
-          Text="{Binding Title}" />
-      </c:MCContentControl>
       <c:MCContentControl Header="价格">
         <TextBox
           Classes="MCTextbox"
           Text="{Binding Value}" />
-      </c:MCContentControl>
-      <c:MCContentControl Header="图片">
-        <StackPanel Orientation="Horizontal" Spacing="32">
-          <Image Source="{Binding Cover}" Width="64"/>
-          <c:MCButton Content="选择图片" Classes="ore" Padding="12 8"/>
-        </StackPanel>
       </c:MCContentControl>
     </StackPanel>
   </DataTemplate>

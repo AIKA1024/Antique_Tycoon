@@ -13,21 +13,10 @@
 
   <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="node:SpawnPoint">
     <StackPanel>
-      <c:MCContentControl Header="标题">
-        <TextBox
-          Classes="MCTextbox"
-          Text="{Binding Title}" />
-      </c:MCContentControl>
       <c:MCContentControl Header="路过出生点时获得金额">
         <TextBox
           Classes="MCTextbox"
           Text="{Binding Bonus}" />
-      </c:MCContentControl>
-      <c:MCContentControl Header="图片">
-        <StackPanel Orientation="Horizontal" Spacing="32">
-          <Image Source="{Binding Cover}" Width="64"/>
-          <c:MCButton Content="选择图片" Classes="ore" Padding="12 8"/>
-        </StackPanel>
       </c:MCContentControl>
     </StackPanel>
 

@@ -12,13 +12,14 @@
     <Setter Property="BorderThickness" Value="2" />
     <Setter Property="CornerRadius" Value="4" />
     <Setter Property="Background" Value="#ECCC68" />
-    <Setter Property="Foreground" Value="Black"/>
+    <Setter Property="Foreground" Value="Black" />
     <Setter Property="Template">
       <ControlTemplate x:DataType="node:CanvasEntity">
         <Panel
           TextElement.Foreground="{TemplateBinding Foreground}"
-          Height="{Binding Height,Mode=TwoWay}"
-          Width="{Binding Width,Mode=TwoWay}">
+          Height="{Binding Height}"
+          Width="{Binding Width}">
+          <!-- todo 修改宽高，线不会更新  -->
           <Border
             ClipToBounds="True"
             Background="{Binding Background}"

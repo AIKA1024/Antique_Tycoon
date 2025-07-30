@@ -11,6 +11,7 @@ using Avalonia.Markup.Xaml;
 using Antique_Tycoon.ViewModels;
 using Antique_Tycoon.Views;
 using Antique_Tycoon.Views.Windows;
+using Avalonia.Controls;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -54,7 +55,8 @@ public partial class App : Application
     services.AddSingleton<NavigationService>(sp=>new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
     services.AddSingleton<NetClient>();
     services.AddSingleton<NetServer>();
-    services.AddSingleton<Player>(new Player{IsHomeowner = true});
+    services.AddSingleton(new Player{IsHomeowner = true});
+    services.AddSingleton(sp=>TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
     return services.BuildServiceProvider();
   }
 
