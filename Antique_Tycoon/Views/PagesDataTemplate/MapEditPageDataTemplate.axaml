@@ -79,9 +79,10 @@
                         <c:MCButton Content="选择图片" Classes="ore" Padding="12 8"
                                     Command="{Binding ChangeImageCommand}"
                                     CommandParameter="{Binding SelectedMapEntity}" />
-                          <ComboBox ItemsSource="{e:EnumValues Type={x:Type m:Stretch}}" 
+                          <ComboBox ItemsSource="{x:Static e:StretchEnumValuesExtension.Values}" 
                                     SelectedItem="{Binding SelectedMapEntity.CoverStretch}"
-                                    VerticalAlignment="Center"/>
+                                    VerticalAlignment="Center">
+                          </ComboBox>
                       </StackPanel>
                     </c:MCContentControl>
                     <ContentControl Content="{Binding SelectedMapEntity}">
