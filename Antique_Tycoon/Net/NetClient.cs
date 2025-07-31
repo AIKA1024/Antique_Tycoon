@@ -12,7 +12,6 @@ using Antique_Tycoon.Models.Net.Tcp;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Net;
-//todo aot后好像无法连接
 public class NetClient : NetBase
 {
   private readonly UdpClient _udpClient = new();

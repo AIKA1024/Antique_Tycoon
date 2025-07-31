@@ -72,7 +72,7 @@ public partial class Connector : TemplatedControl
     base.OnAttachedToVisualTree(e);
     var parent = this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault();
     if (parent != null)
-      DragEvents.AddDragHandler(parent, OnNoteLocationChanged);
+      LayoutChanged.AddLayoutChangedHandler(parent, OnNoteLocationChanged);
   }
 
   private void OnNoteLocationChanged(object? sender, RoutedEventArgs e)

@@ -15,7 +15,7 @@ using CanvasEntity = Antique_Tycoon.Models.Node.CanvasEntity;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class CanvasItemDragBehavior : Behavior<Control>//想着解耦把逻辑放在行为里，但又不得不依赖vm的属性💩
+public class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑放在行为里，但又不得不依赖vm的属性💩
 {
   private CanvasEntity _model;
   private DragAndZoomViewModel dragAndZoomViewModel;
@@ -29,7 +29,11 @@ public class CanvasItemDragBehavior : Behavior<Control>//想着解耦把逻辑�
     AssociatedObject.PointerPressed += AssociatedObjectOnPointerPressed;
     AssociatedObject.PointerReleased += AssociatedObjectOnPointerReleased;
     AssociatedObject.PointerMoved += AssociatedObjectOnPointerMoved;
+    AssociatedObject.SizeChanged += AssociatedObjectOnSizeChanged;
   }
+
+  private void AssociatedObjectOnSizeChanged(object? sender, SizeChangedEventArgs e) =>
+    LayoutChanged.RaiseLayoutChanged(AssociatedObject);
 
   protected override void OnDetaching()
   {
@@ -38,6 +42,7 @@ public class CanvasItemDragBehavior : Behavior<Control>//想着解耦把逻辑�
     AssociatedObject.PointerReleased -= AssociatedObjectOnPointerReleased;
     AssociatedObject.PointerMoved -= AssociatedObjectOnPointerMoved;
     AssociatedObject.Loaded -= AssociatedObjectOnLoaded;
+    AssociatedObject.SizeChanged -= AssociatedObjectOnSizeChanged;
   }
 
   private void AssociatedObjectOnLoaded(object? sender, RoutedEventArgs e)
@@ -80,7 +85,7 @@ public class CanvasItemDragBehavior : Behavior<Control>//想着解耦把逻辑�
         _lastPointerPosition.X + snappedDeltaX * dragAndZoomViewModel.Scale,
         _lastPointerPosition.Y + snappedDeltaY * dragAndZoomViewModel.Scale
       );
-      DragEvents.RaiseDrag(AssociatedObject);
+      LayoutChanged.RaiseLayoutChanged(AssociatedObject);
     }
   }
 

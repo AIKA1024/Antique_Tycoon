@@ -19,7 +19,6 @@
           TextElement.Foreground="{TemplateBinding Foreground}"
           Height="{Binding Height}"
           Width="{Binding Width}">
-          <!-- todo 修改宽高，线不会更新  -->
           <Border
             ClipToBounds="True"
             Background="{Binding Background}"
