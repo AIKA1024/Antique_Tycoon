@@ -9,7 +9,7 @@ public static class LayoutChanged
   // 定义附加路由事件（冒泡策略）
   public static readonly RoutedEvent<RoutedEventArgs> LayoutChangedEvent =
     RoutedEvent.Register<RoutedEventArgs>(
-      "Drag",          // 事件名称
+      "LayoutChanged",          // 事件名称
       RoutingStrategies.Direct,      // 路由策略（冒泡、隧道或直接）
       typeof(LayoutChanged));    // 所有者类型（通常是当前静态类）
 
