@@ -28,7 +28,7 @@
         <Border
           Padding="0 32"
           BorderThickness="3"
-          BorderBrush="#1E1E1F"
+          BorderBrush="{StaticResource BorderBrush}"
           Background="#313233"
           VerticalAlignment="Center"
           IsVisible="{Binding RoomList.Count,Converter={x:Static cv:StringConverters.Equal},ConverterParameter=0}">
@@ -42,8 +42,8 @@
               <Border
                 i:Tap.Command="{Binding $parent.((pageViewModels:HallPageViewModel)DataContext).JoinRoomCommand}"
                 i:Tap.CommandParameter="{Binding}"
-                Background="#48494A"
-                BorderBrush="#1E1E1F"
+                Background="{StaticResource BorderBackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="2"
                 Cursor="Hand">
                 <Panel>
@@ -65,19 +65,19 @@
                   <Rectangle
                     Width="2"
                     HorizontalAlignment="Left"
-                    Fill="#5A5B5C" />
+                    Fill="{StaticResource LightedBorderBrush}" />
                   <Rectangle
                     Height="2"
                     VerticalAlignment="Top"
-                    Fill="#5A5B5C" />
+                    Fill="{StaticResource LightedBorderBrush}" />
                   <Rectangle
                     Width="2"
                     HorizontalAlignment="Right"
-                    Fill="#5A5B5C" />
+                    Fill="{StaticResource LightedBorderBrush}" />
                   <Rectangle
                     Height="2"
                     VerticalAlignment="Bottom"
-                    Fill="#323334" />
+                    Fill="{StaticResource LightedBorderBrush}" />
                 </Panel>
               </Border>
             </DataTemplate>

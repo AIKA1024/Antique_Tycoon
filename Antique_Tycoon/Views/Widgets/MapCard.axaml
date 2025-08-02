@@ -7,7 +7,7 @@
              xmlns:m="using:Antique_Tycoon.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Antique_Tycoon.Views.Widgets.MapCard">
-  <Border BorderBrush="#1E1E1F" BorderThickness="2" x:DataType="m:Map">
+  <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="2" x:DataType="m:Map">
     <StackPanel>
       <Image Source="{Binding Cover}" />
       <c:MCButton Content="{Binding Name}" />

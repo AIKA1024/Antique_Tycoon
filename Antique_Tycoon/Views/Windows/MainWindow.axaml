@@ -3,10 +3,11 @@
         xmlns:vm="using:Antique_Tycoon.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="using:Antique_Tycoon.Behaviors"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Antique_Tycoon.Views.Windows.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Background="#48494A"
+        Background="{StaticResource BorderBackgroundBrush}"
         Title="古玩大亨"
         WindowState="Maximized">
   <Design.DataContext>
@@ -15,13 +16,42 @@
   <Window.KeyBindings>
     <KeyBinding Gesture="Tab" Command="{Binding KeyPressedCommand}" CommandParameter="{Binding $self.Gesture}" />
   </Window.KeyBindings>
-  <TransitioningContentControl
-    Content="{Binding CurrentPageViewModel}">
-    <TransitioningContentControl.PageTransition>
-      <CompositePageTransition>
-        <PageSlide Orientation="Horizontal" Duration="0:0:0.35"/>
-        <CrossFade Duration="0:0:0.2"/>
-      </CompositePageTransition>
-    </TransitioningContentControl.PageTransition>
-  </TransitioningContentControl>
+  <Panel>
+    <TransitioningContentControl
+      Content="{Binding CurrentPageViewModel}">
+      <TransitioningContentControl.PageTransition>
+        <CompositePageTransition>
+          <PageSlide Orientation="Horizontal" Duration="0:0:0.35" />
+          <CrossFade Duration="0:0:0.2" />
+        </CompositePageTransition>
+      </TransitioningContentControl.PageTransition>
+    </TransitioningContentControl>
+
+    <Border x:Name="Mask" Background="#80000000"
+            IsVisible="{Binding DialogService.CurrentDialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}"
+            i:Tap.Command="{Binding CloseMaskByMeshTapCommand}"
+            i:Tap.CommandParameter="{Binding DialogService.CurrentDialogViewModel}">
+      <Border.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.1" />
+        </Transitions>
+      </Border.Transitions>
+      <Border.Styles>
+        <Style Selector="Border[IsVisible=True]">
+          <Setter Property="Opacity" Value="1" />
+        </Style>
+        <Style Selector="Border[IsVisible=False]">
+          <Setter Property="Opacity" Value="0" />
+        </Style>
+      </Border.Styles>
+
+      <ContentControl Content="{Binding DialogService.CurrentDialogViewModel}"
+                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Background="Transparent">
+        <ContentControl.Effect>
+          <DropShadowEffect Color="Black" BlurRadius="50" />
+        </ContentControl.Effect>
+      </ContentControl>
+    </Border>
+  </Panel>
 </Window>

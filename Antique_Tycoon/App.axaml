@@ -21,7 +21,8 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <MergeResourceInclude Source="/Views/AllPageDataTemplate.axaml" />
+        <MergeResourceInclude Source="/Views/DataTemplates/AllPageDataTemplate.axaml" />
+        <MergeResourceInclude Source="Themes/Colors.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>
@@ -37,5 +38,7 @@
     
     <StaticResource ResourceKey="SpawnPointDataTemplate"/>
     <StaticResource ResourceKey="EstateDataTemplate"/>
+    
+    <StaticResource ResourceKey="CreateNewMapDialogDataTemplate"/>
   </Application.DataTemplates>
 </Application>

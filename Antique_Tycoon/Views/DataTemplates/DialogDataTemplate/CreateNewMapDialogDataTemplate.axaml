@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dvm="using:Antique_Tycoon.ViewModels.DialogViewModels"
+                    xmlns:c="using:Antique_Tycoon.Views.Controls">
+  <Design.PreviewWith>
+    <ContentControl>
+      <ContentControl.DataTemplates>
+        <StaticResource ResourceKey="CreateNewMapDialogDataTemplate" />
+      </ContentControl.DataTemplates>
+      <dvm:CreateMapDialogViewModel />
+    </ContentControl>
+  </Design.PreviewWith>
+
+  <DataTemplate x:Key="CreateNewMapDialogDataTemplate" x:DataType="dvm:CreateMapDialogViewModel">
+    <Border BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="3"
+            Background="{StaticResource BorderBackgroundBrush}">
+      <StackPanel>
+        <Border Padding="128 16"
+                BorderThickness="3"
+                BorderBrush="{StaticResource LightedBorderBrush}">
+          <TextBlock Text="创建新地图"
+                     FontSize="16"
+                     FontWeight="Black" />
+        </Border>
+
+        <StackPanel>
+          <TextBox Margin="16"
+                   Classes="MCTextbox"
+                   Watermark="地图名"
+                   Text="{Binding MapName}" />
+          <StackPanel Spacing="8">
+            <Rectangle Height="3" Fill="{StaticResource LightedBorderBrush}" />
+            <c:MCButton Margin="16 0"
+                        Content="取消" 
+                        Command="{Binding CloseDialogCommand}"/>
+            <c:MCButton Margin="16 0" Classes="ore" Content="创建" />
+            <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" />
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+</ResourceDictionary>

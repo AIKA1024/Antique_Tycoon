@@ -17,9 +17,9 @@
         <Border Grid.Column="0"
                 BorderThickness="2"
                 Background="#313233"
-                BorderBrush="#1E1E1F">
+                BorderBrush="{StaticResource BorderBrush}">
           <Grid RowDefinitions="*,*">
-            <Border Grid.Row="0" Padding="16" BorderBrush="#1E1E1F" BorderThickness="0 0 0 2">
+            <Border Grid.Row="0" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0 0 0 2">
               <Grid RowDefinitions="4*,*" RowSpacing="8">
                 <Image
                   HorizontalAlignment="Stretch"
@@ -41,14 +41,14 @@
             <Style Selector="Border.Item">
               <Setter Property="Padding" Value="32 16" />
               <Setter Property="BorderThickness" Value="0 0 0 2" />
-              <Setter Property="BorderBrush" Value="#323334" />
+              <Setter Property="BorderBrush" Value="{StaticResource BorderBottomBrush}" />
               <Style Selector="^>StackPanel>TextBlock">
                 <Setter Property="Foreground" Value="#FFFFFF" />
               </Style>
             </Style>
             <Style Selector="Border.Item:nth-child(n+1)">
               <Setter Property="BorderThickness" Value="0 2 0 0" />
-              <Setter Property="BorderBrush" Value="#5A5B5C" />
+              <Setter Property="BorderBrush" Value="{StaticResource LightedBorderBrush}" />
             </Style>
           </StackPanel.Styles>
           <Border Classes="Item">

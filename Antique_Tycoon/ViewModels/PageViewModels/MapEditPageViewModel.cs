@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Services;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -17,7 +18,6 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapEditPageViewModel : DragAndZoomViewModel
 {
-  public AvaloniaList<CanvasEntity> MapEntities { get; set; } = [];
   public AvaloniaList<CanvasEntity> SelectedMapEntities { get; } = [];
 
   [ObservableProperty] private Map _map = new();
@@ -34,13 +34,13 @@ public partial class MapEditPageViewModel : DragAndZoomViewModel
       switch (type)
       {
         case "玩家出生点":
-          MapEntities.Add(new SpawnPoint
+          Map.Entities.Add(new SpawnPoint
           {
             Left = PointerPosition.X, Top = PointerPosition.Y, Title = "玩家出生点", Background = Map.NodeDefaultBackground
           });
           break;
         case "地产":
-          MapEntities.Add(new Estate
+          Map.Entities.Add(new Estate
           {
             Left = PointerPosition.X, Top = PointerPosition.Y, Title = "某生态群系", Background = Map.NodeDefaultBackground
           });
@@ -54,7 +54,7 @@ public partial class MapEditPageViewModel : DragAndZoomViewModel
   [RelayCommand]
   private void RemoveEntity(CanvasEntity target)
   {
-    MapEntities.Remove(target);
+    Map.Entities.Remove(target);
   }
 
   [RelayCommand]
@@ -83,5 +83,11 @@ public partial class MapEditPageViewModel : DragAndZoomViewModel
       target.Cover.Dispose();
       target.Cover = new Bitmap(stream);
     }
+  }
+
+  [RelayCommand]
+  private async Task SaveMap()
+  {
+    await App.Current.Services.GetRequiredService<MapFileService>().SaveMapAsync(Map);
   }
 }

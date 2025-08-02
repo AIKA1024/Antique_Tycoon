@@ -1,3 +1,5 @@
+using System;
+using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Node;
 using Avalonia.Collections;
 using Avalonia.Media;
@@ -8,11 +10,42 @@ namespace Antique_Tycoon.Models;
 
 public partial class Map : ObservableObject
 {
-  [ObservableProperty] private string _name = string.Empty;
-  [ObservableProperty] private Bitmap _cover;
-  [ObservableProperty] private double _canvasHeight = 2000;
-  [ObservableProperty] private double _canvasWidth = 3600;
-  [ObservableProperty] private IBrush _canvasBackground = new SolidColorBrush(Color.Parse("#262626"));
-  [ObservableProperty] private IBrush _nodeDefaultBackground = new SolidColorBrush(Color.Parse("#eccc68"));
+  public string Name
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = string.Empty;
+
+  [JsonIgnore]
+  public Bitmap Cover
+  {
+    get;
+    set => SetProperty(ref field, value);
+  }
+
+  public double CanvasHeight
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = 2000;
+
+  public double CanvasWidth
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = 3600;
+
+  public IBrush CanvasBackground
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = new SolidColorBrush(Color.Parse("#262626"));
+
+  public IBrush NodeDefaultBackground
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = new SolidColorBrush(Color.Parse("#eccc68"));
+
   public AvaloniaList<CanvasEntity> Entities { get; set; } = [];
 }

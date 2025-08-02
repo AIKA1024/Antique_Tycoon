@@ -7,9 +7,10 @@
   </Design.PreviewWith>
 
   <Style Selector="TextBox.MCTextbox">
+    <Setter Property="FontFamily" Value="微软雅黑"/>
     <Setter Property="Cursor" Value="Ibeam" />
     <Setter Property="Background" Value="#313233" />
-    <Setter Property="BorderBrush" Value="#1E1E1F" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
     <Setter Property="BorderThickness" Value="2" />
     <Setter Property="CaretBrush" Value="#3C8527" />
     <Setter Property="Foreground" Value="#FFFFFF" />

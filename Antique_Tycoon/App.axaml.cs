@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
@@ -23,6 +24,7 @@ public partial class App : Application
   
   public IServiceProvider Services { get; private set; }
   public new static App Current => (App)Application.Current!;
+  public string MapPath { get; } = Path.Join("..", "Maps");
   public override void Initialize()
   {
     AvaloniaXamlLoader.Load(this);
@@ -53,6 +55,8 @@ public partial class App : Application
     services.AddSingleton(new LibVLC("--no-video"));
     services.AddSingleton<MainWindowViewModel>();
     services.AddSingleton<NavigationService>(sp=>new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
+    services.AddSingleton<MapFileService>();
+    services.AddSingleton<DialogService>();
     services.AddSingleton<NetClient>();
     services.AddSingleton<NetServer>();
     services.AddSingleton(new Player{IsHomeowner = true});

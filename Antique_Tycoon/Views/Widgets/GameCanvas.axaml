@@ -21,7 +21,7 @@
           <ListBox
             SelectedItem="{Binding SelectedMapEntity,Mode=OneWayToSource}"
             SelectedItems="{Binding SelectedMapEntities}"
-            ItemsSource="{Binding MapEntities}"
+            ItemsSource="{Binding Map.Entities}"
             RenderTransformOrigin="0,0"
             ClipToBounds="False"
             Background="{x:Null}">

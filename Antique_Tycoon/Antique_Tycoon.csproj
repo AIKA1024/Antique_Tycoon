@@ -86,4 +86,18 @@
       <EmbeddedResource Remove="Publish\**" />
       <None Remove="Publish\**" />
     </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Views\DataTemplates\DetailDataTemplate\EstateDetailDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\DetailDataTemplate\SpawnPointDetailDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\NodeDataTemplate\EstateDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\NodeDataTemplate\SpawnPointDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\CreateRoomPageDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\GamePageDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\HallPageDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\MapEditPageDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\MapListPageDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\RoomPageDataTemplate.axaml" />
+      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\StartPageDataTemplate.axaml" />
+    </ItemGroup>
 </Project>

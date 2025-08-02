@@ -7,7 +7,7 @@ using Avalonia.Interactivity;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class Tap: AvaloniaObject
+public class Tap : AvaloniaObject
 {
   static Tap()
   {
@@ -15,11 +15,12 @@ public class Tap: AvaloniaObject
   }
 
   public static readonly AttachedProperty<ICommand?> CommandProperty =
-    AvaloniaProperty.RegisterAttached<Tap,InputElement,ICommand?>(
+    AvaloniaProperty.RegisterAttached<Tap, InputElement, ICommand?>(
       "Command");
-  
-  public static readonly AttachedProperty<object?> CommandParameterProperty = AvaloniaProperty.RegisterAttached<Tap, InputElement, object?>(
-    "CommandParameter");
+
+  public static readonly AttachedProperty<object?> CommandParameterProperty =
+    AvaloniaProperty.RegisterAttached<Tap, InputElement, object?>(
+      "CommandParameter");
 
   public static ICommand? GetCommand(AvaloniaObject element)
   {
@@ -30,7 +31,7 @@ public class Tap: AvaloniaObject
   {
     element.SetValue(CommandProperty, value);
   }
-  
+
   public static void SetCommandParameter(AvaloniaObject element, object? parameter)
   {
     element.SetValue(CommandParameterProperty, parameter);
@@ -40,23 +41,18 @@ public class Tap: AvaloniaObject
   {
     return element.GetValue(CommandParameterProperty);
   }
-  
+
   private static void HandleCommandChanged(InputElement inputElement, AvaloniaPropertyChangedEventArgs e)
   {
-    if (e.NewValue is ICommand commandValue)
-    {
-      // 添加非空值
+    if (e.NewValue is ICommand)
       inputElement.AddHandler(InputElement.TappedEvent, Handler);
-    }
     else
-    {
-      // 删除之前的值
       inputElement.RemoveHandler(InputElement.TappedEvent, Handler);
-    }
   }
+
   private static void Handler(object? s, TappedEventArgs e)
   {
-    if (s is InputElement inputElement)
+    if (s is InputElement inputElement && Equals(e.Source, inputElement))
     {
       var commandParameter = inputElement.GetValue(CommandParameterProperty);
       var commandValue = inputElement.GetValue(CommandProperty);

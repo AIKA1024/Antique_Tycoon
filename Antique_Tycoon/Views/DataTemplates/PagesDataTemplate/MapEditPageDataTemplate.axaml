@@ -25,6 +25,7 @@
           VerticalAlignment="Center"
           Classes="ore"
           Content="保存"
+          Command="{Binding SaveMapCommand}"
           FontSize="12" />
       </c:MCTitleBar>
       <Panel Grid.Row="1"

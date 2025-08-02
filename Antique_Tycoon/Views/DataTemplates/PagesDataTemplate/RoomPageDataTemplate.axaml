@@ -26,7 +26,7 @@
                 BorderThickness="2"
                 BorderBrush="#131313">
                 <StackPanel>
-                  <Border BorderThickness="2" BorderBrush="#5A5B5C" Padding="8">
+                  <Border BorderThickness="2" BorderBrush="{StaticResource LightedBorderBrush}" Padding="8">
                     <StackPanel>
                       <StackPanel Orientation="Horizontal" Spacing="32">
                         <Border BorderThickness="2" BorderBrush="#000000">
