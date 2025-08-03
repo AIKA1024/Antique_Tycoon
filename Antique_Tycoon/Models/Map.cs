@@ -41,11 +41,11 @@ public partial class Map : ObservableObject
     set => SetProperty(ref field, value);
   } = new SolidColorBrush(Color.Parse("#262626"));
 
-  public IBrush NodeDefaultBackground
+  public Color NodeDefaultBackground
   {
     get;
     set => SetProperty(ref field, value);
-  } = new SolidColorBrush(Color.Parse("#eccc68"));
+  } = Color.Parse("#eccc68");
 
   public AvaloniaList<CanvasEntity> Entities { get; set; } = [];
 }

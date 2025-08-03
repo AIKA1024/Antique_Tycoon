@@ -12,8 +12,6 @@ public class MapFileService
 
   public async Task SaveMapAsync(Map map)
   {
-    map.Name = "test";
-    
     var jsonStr = JsonSerializer.Serialize(map, AppJsonContext.Default.Map);
     var rootDirectoryPath = Path.Join(App.Current.MapPath, map.Name);
     var imageDirectoryPath = Path.Join(rootDirectoryPath, ImageFolderName);

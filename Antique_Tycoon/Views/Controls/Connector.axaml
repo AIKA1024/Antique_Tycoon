@@ -28,7 +28,7 @@
               <Ellipse.Styles>
                 <Style Selector="c|Connector:pointerover>Border>Panel>Ellipse">
                   <Setter Property="Effect">
-                    <DropShadowEffect Color="{Binding Path=BorderBrush,Converter={cv:SolidBrushToColorConverter},RelativeSource={RelativeSource TemplatedParent}}"
+                    <DropShadowEffect Color="{Binding Path=BorderBrush,Converter={x:Static cv:SolidBrushAndColorConverter.ToColor},RelativeSource={RelativeSource TemplatedParent}}"
                                       OffsetX="0.5" OffsetY="0.5" BlurRadius="10" Opacity="0.8"/>
                   </Setter>
                 </Style>

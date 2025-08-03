@@ -15,6 +15,9 @@
     <Border BorderBrush="{StaticResource BorderBrush}"
             BorderThickness="3"
             Background="{StaticResource BorderBackgroundBrush}">
+      <Border.KeyBindings>
+        <KeyBinding Gesture="Enter" Command="{Binding SubmitCommand}"/>
+      </Border.KeyBindings>
       <StackPanel>
         <Border Padding="128 16"
                 BorderThickness="3"
@@ -34,7 +37,8 @@
             <c:MCButton Margin="16 0"
                         Content="取消" 
                         Command="{Binding CloseDialogCommand}"/>
-            <c:MCButton Margin="16 0" Classes="ore" Content="创建" />
+            <c:MCButton Margin="16 0" Classes="ore" Content="创建" 
+                        Command="{Binding SubmitCommand}"/>
             <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" />
           </StackPanel>
         </StackPanel>

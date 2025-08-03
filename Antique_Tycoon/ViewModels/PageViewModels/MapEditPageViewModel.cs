@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
@@ -20,11 +21,17 @@ public partial class MapEditPageViewModel : DragAndZoomViewModel
 {
   public AvaloniaList<CanvasEntity> SelectedMapEntities { get; } = [];
 
-  [ObservableProperty] private Map _map = new();
+  [ObservableProperty]
+  private Map _map;
 
   [ObservableProperty] private CanvasEntity? _selectedMapEntity;
 
   public Point PointerPosition { get; set; }
+
+  public MapEditPageViewModel(Map map)
+  {
+    Map = map;
+  }
 
   [RelayCommand]
   private void CreateEntity(string type)

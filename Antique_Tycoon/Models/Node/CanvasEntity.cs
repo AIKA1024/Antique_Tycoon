@@ -45,11 +45,11 @@ public abstract partial class CanvasEntity : ObservableObject,IDisposable
     set => SetProperty(ref field, value);
   } = 150;
 
-  public IBrush Background
+  public Color Background
   {
     get;
     set => SetProperty(ref field, value);
-  } = new SolidColorBrush(Color.Parse("#eccc68"));
+  } = Color.Parse("#eccc68");
 
   public Stretch CoverStretch
   {

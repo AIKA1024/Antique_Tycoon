@@ -18,10 +18,4 @@ public partial class MapListPageViewModel : PageViewModelBase
   {
      await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new CreateMapDialogViewModel { IsLightDismissEnabled = true });
   }
-
-  [RelayCommand]
-  private void NavigateToMapEditPage()
-  {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new MapEditPageViewModel());
-  }
 }

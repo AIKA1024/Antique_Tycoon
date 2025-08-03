@@ -72,7 +72,7 @@
                     </c:MCContentControl>
                     <c:MCContentControl Header="背景色">
                       <ColorPicker
-                        Color="{Binding SelectedMapEntity.Background,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
+                        Color="{Binding SelectedMapEntity.Background,Mode=TwoWay}"
                         HorizontalAlignment="Left" />
                     </c:MCContentControl>
                     <c:MCContentControl Header="图片">
@@ -105,13 +105,14 @@
                   <TextBox Classes="MCTextbox" Text="{Binding Map.CanvasHeight,Mode=TwoWay}" />
                 </c:MCContentControl>
                 <c:MCContentControl Header="画布背景色">
+                  <!-- 画布背景可能后续要支持图片背景，先用转换器在这吧 -->
                   <ColorPicker
-                    Color="{Binding Map.CanvasBackground,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
+                    Color="{Binding Map.CanvasBackground,Mode=TwoWay,Converter={x:Static cv:SolidBrushAndColorConverter.ToColor}}"
                     HorizontalAlignment="Left" />
                 </c:MCContentControl>
                 <c:MCContentControl Header="节点默认背景色">
                   <ColorPicker
-                    Color="{Binding Map.NodeDefaultBackground,Mode=TwoWay,Converter={cv:SolidBrushToColorConverter}}"
+                    Color="{Binding Map.NodeDefaultBackground,Mode=TwoWay}"
                     HorizontalAlignment="Left" />
                 </c:MCContentControl>
               </StackPanel>
