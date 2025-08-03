@@ -16,7 +16,7 @@ public partial class Player : ObservableObject,IDisposable
   [ObservableProperty] int _money;
   [ObservableProperty] private Bitmap _avatar = Bitmap.DecodeToHeight(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png")),64);
   [JsonIgnore] public TcpClient Client { get; set; }
-  public AvaloniaList<Antique> Antiques { get; set; }
+  public AvaloniaList<Antique> Antiques { get; set; } = [];
   public bool IsHomeowner;
   public void Dispose()
   {

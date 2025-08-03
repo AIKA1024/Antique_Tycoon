@@ -31,7 +31,7 @@ public abstract partial class CanvasEntity : ObservableObject,IDisposable
   {
     get;
     set => SetProperty(ref field, value);
-  }
+  } = "";
 
   public double Width
   {

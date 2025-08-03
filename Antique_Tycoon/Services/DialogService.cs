@@ -28,12 +28,12 @@ public partial class DialogService : ObservableObject
 
   private void DialogsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
   {
-    CurrentDialogViewModel = _dialogs.Count != 0 ? _dialogs[0] : null;
+    CurrentDialogViewModel = _dialogs.Count != 0 ? _dialogs[^1] : null;
   }
 
   public Task ShowDialogAsync(DialogViewModelBase dialogViewModel)
   {
-    _dialogs.Insert(0, dialogViewModel);
+    _dialogs.Add(dialogViewModel);
     var tcs = new TaskCompletionSource();
     _dialogTasks.Add(dialogViewModel, tcs);
     return tcs.Task;
