@@ -92,9 +92,8 @@ public class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他
     if (_vm == null || AssociatedObject == null) return;
     var pos = e.GetPosition(AssociatedObject);
     var delta = e.Delta.Y > 0 ? 1.1 : 0.9; // 改用乘数而非增量
-    var newScale = Math.Clamp(_vm.Scale * delta, 0.4, 3);
+    var newScale = Math.Clamp(_vm.Scale * delta, 0.3, 3);
 
-    // 更稳定的缩放中心计算  设置画布大小后鼠标缩放错误，先禁用
     _vm.Offset = new Point(
       pos.X - (pos.X - _vm.Offset.X) * (newScale / _vm.Scale),
       pos.Y - (pos.Y - _vm.Offset.Y) * (newScale / _vm.Scale)

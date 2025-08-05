@@ -13,7 +13,6 @@
     <StyleInclude Source="Views/Controls/MCContentControl.axaml" />
     <StyleInclude Source="Views/Controls/Connector.axaml" />
     <StyleInclude Source="Views/Controls/NodeLinkControl.axaml" />
-    <StyleInclude Source="Views/Widgets/GameCanvas.axaml" />
     <StyleInclude Source="Views/Styles/TextBox.axaml" />
     <!-- <StyleInclude Source="Views/Styles/MenuFlyoutPresenter.axaml" /> -->
     <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />

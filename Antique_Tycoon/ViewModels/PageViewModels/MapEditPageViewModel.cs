@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models;
@@ -21,12 +22,13 @@ public partial class MapEditPageViewModel : DragAndZoomViewModel
 {
   public AvaloniaList<CanvasEntity> SelectedMapEntities { get; } = [];
 
-  [ObservableProperty]
-  private Map _map;
+  [ObservableProperty] private Map _map;
 
   [ObservableProperty] private CanvasEntity? _selectedMapEntity;
 
   public Point PointerPosition { get; set; }
+
+  public Func<Bitmap>? RequestRenderControl { get; set; }
 
   public MapEditPageViewModel(Map map)
   {
@@ -95,6 +97,59 @@ public partial class MapEditPageViewModel : DragAndZoomViewModel
   [RelayCommand]
   private async Task SaveMap()
   {
+    Map.Cover = RequestRenderControl?.Invoke();
     await App.Current.Services.GetRequiredService<MapFileService>().SaveMapAsync(Map);
   }
+  
+  // [RelayCommand]
+  // private void ZoomToFit()
+  // {
+  //   if (Map.Entities.Count == 0)
+  //     return;
+  //
+  //   var bounds = GetCanvasContentBounds(canvas);
+  //
+  //   double scaleX = targetSize.Width / bounds.Width;
+  //   double scaleY = targetSize.Height / bounds.Height;
+  //
+  //   double scale = Math.Min(scaleX, scaleY); // 保持纵横比
+  //
+  //   double offsetX = -bounds.X * scale + (targetSize.Width - bounds.Width * scale) / 2;
+  //   double offsetY = -bounds.Y * scale + (targetSize.Height - bounds.Height * scale) / 2;
+  //
+  //   Offset = new Point(offsetX, offsetY);
+  //   Scale = scale;
+  // }
+  //
+  // private static Rect GetCanvasContentBounds()
+  // {
+  //   double left = double.PositiveInfinity;
+  //   double top = double.PositiveInfinity;
+  //   double right = double.NegativeInfinity;
+  //   double bottom = double.NegativeInfinity;
+  //
+  //   foreach (var entity in Map.Entities)
+  //   {
+  //     double x = entity.Left;
+  //     double y = entity.Top;
+  //
+  //     if (double.IsNaN(x)) x = 0;
+  //     if (double.IsNaN(y)) y = 0;
+  //
+  //     var bounds = entity.Bounds; // Avalonia.Visual.Bounds
+  //     double width = bounds.Width;
+  //     double height = bounds.Height;
+  //
+  //     left = Math.Min(left, x);
+  //     top = Math.Min(top, y);
+  //     right = Math.Max(right, x + width);
+  //     bottom = Math.Max(bottom, y + height);
+  //   }
+  //
+  //   // 如果没有元素，返回 Rect(0,0,0,0)
+  //   if (double.IsPositiveInfinity(left) || double.IsPositiveInfinity(top))
+  //     return new Rect(0, 0, 0, 0);
+  //
+  //   return new Rect(left, top, right - left, bottom - top);
+  // }
 }

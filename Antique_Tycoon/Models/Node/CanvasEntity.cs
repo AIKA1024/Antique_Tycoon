@@ -1,4 +1,6 @@
 using System;
+using System.Text.Json.Serialization;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;

@@ -17,10 +17,10 @@ public class MapFileService
     var imageDirectoryPath = Path.Join(rootDirectoryPath, ImageFolderName);
     if (!Directory.Exists(imageDirectoryPath))
       Directory.CreateDirectory(imageDirectoryPath);
+    map.Cover.Save(Path.Join(rootDirectoryPath, "Cover.png"));
     foreach (var entity in map.Entities)
-    {
       entity.Cover.Save(Path.Join(imageDirectoryPath, entity.Uuid));
-    }
-    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath,"Map.json"), jsonStr);
+
+    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, "Map.json"), jsonStr);
   }
 }
