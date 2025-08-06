@@ -43,26 +43,31 @@ public partial class GameCanvas : UserControl
 
   void FitCanvasToContainer()
   {
-    var canvasSize = _canvas.Bounds.Size;
-    var containerSize = EntityListBox.Bounds.Size;
-
-    if (canvasSize.Width <= 0 || canvasSize.Height <= 0)
+    if (EntityListBox == null || DataContext is not MapEditPageViewModel vm)
       return;
 
-    // 缩放因子
-    double scaleX = containerSize.Width / canvasSize.Width;
-    double scaleY = containerSize.Height / canvasSize.Height;
-    double scale = Math.Min(scaleX, scaleY);
+    if (EntityListBox.GetVisualParent() is not Control parent)
+      return;
 
-    // 更新 ViewModel 中的缩放值
-    _mapEditPageViewModel.Scale = scale;
+    var canvasWidth = vm.Map.CanvasWidth;
+    var canvasHeight = vm.Map.CanvasHeight;
 
-    // 正确的偏移量计算
-    double offsetX = (containerSize.Width - canvasSize.Width * scale) / 2.0;
-    double offsetY = (containerSize.Height - canvasSize.Height * scale) / 2.0;
+    var availableWidth = parent.Bounds.Width;
+    var availableHeight = parent.Bounds.Height;
 
-    // 更新 ViewModel 中的偏移值
-    _mapEditPageViewModel.Offset = new Point(offsetX, offsetY);
+    // 计算适合的缩放比例（保留比例）
+    var scaleX = availableWidth / canvasWidth;
+    var scaleY = availableHeight / canvasHeight;
+    var scale = Math.Min(scaleX, scaleY);
+
+    // 更新 ViewModel 中的 Scale
+    vm.Scale = scale;
+
+    // 计算居中偏移
+    var offsetX = (availableWidth - canvasWidth * scale) / 2;
+    var offsetY = (availableHeight - canvasHeight * scale) / 2;
+
+    vm.Offset = new Point(offsetX, offsetY);
   }
   
   public Bitmap RenderCanvasToBitmap()
