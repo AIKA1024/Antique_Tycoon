@@ -33,6 +33,8 @@ public partial class App : Application
   public App()
   {
     Services = ConfigureServices();
+    if (!Directory.Exists(MapPath))
+      Directory.CreateDirectory(MapPath);
   }
   
   public override void OnFrameworkInitializationCompleted()
