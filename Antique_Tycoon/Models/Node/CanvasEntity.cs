@@ -9,7 +9,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Models.Node;
 
-public abstract partial class CanvasEntity : ObservableObject,IDisposable
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(SpawnPoint), "SpawnPoint")]
+[JsonDerivedType(typeof(Estate), "Estate")]
+//[JsonDerivedType(typeof(Antique), "Antique")]
+public abstract partial class CanvasEntity : ObservableObject, IDisposable
 {
   public string Uuid
   {
@@ -59,6 +63,7 @@ public abstract partial class CanvasEntity : ObservableObject,IDisposable
     set => SetProperty(ref field, value);
   }
 
+  [JsonIgnore]
   public Bitmap Cover
   {
     get;

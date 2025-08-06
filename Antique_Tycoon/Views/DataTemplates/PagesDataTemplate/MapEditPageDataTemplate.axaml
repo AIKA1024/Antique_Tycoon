@@ -105,9 +105,8 @@
                   <TextBox Classes="MCTextbox" Text="{Binding Map.CanvasHeight,Mode=TwoWay}" />
                 </c:MCContentControl>
                 <c:MCContentControl Header="画布背景色">
-                  <!-- 画布背景可能后续要支持图片背景，先用转换器在这吧 -->
                   <ColorPicker
-                    Color="{Binding Map.CanvasBackground,Mode=TwoWay,Converter={x:Static cv:SolidBrushAndColorConverter.ToColor}}"
+                    Color="{Binding Map.CanvasBackground}"
                     HorizontalAlignment="Left" />
                 </c:MCContentControl>
                 <c:MCContentControl Header="节点默认背景色">

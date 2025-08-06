@@ -20,7 +20,7 @@ public partial class GameCanvas : UserControl
   {
     InitializeComponent();
   }
-  
+
   protected override void OnLoaded(RoutedEventArgs e)
   {
     base.OnLoaded(e);
@@ -69,25 +69,27 @@ public partial class GameCanvas : UserControl
 
     vm.Offset = new Point(offsetX, offsetY);
   }
-  
+
   public Bitmap RenderCanvasToBitmap()
   {
     // 获取控件尺寸
+    const double scale = 0.1;
     _canvas.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
     _canvas.Arrange(new Rect(_canvas.DesiredSize));
 
-    var width = (int)(_canvas.Bounds.Width * 1);
-    var height = (int)(_canvas.Bounds.Height * 1);
+    var width = (int)(_canvas.Bounds.Width * scale);
+    var height = (int)(_canvas.Bounds.Height * scale);
 
     var rtb = new RenderTargetBitmap(new PixelSize(width, height), new Vector(96, 96));
 
     // 使用 DrawingContext 绘制 Canvas
     using var ctx = rtb.CreateDrawingContext(false);
     // 应用缩放变换
-    using (ctx.PushTransform(new ScaleTransform(1, 1).Value))
+    using (ctx.PushTransform(new ScaleTransform(scale, scale).Value))
     {
       ctx.DrawRectangle(new VisualBrush(_canvas), null, new Rect(0, 0, _canvas.Bounds.Width, _canvas.Bounds.Height));
     }
+
     return rtb;
   }
 }

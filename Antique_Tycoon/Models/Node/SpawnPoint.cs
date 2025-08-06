@@ -4,5 +4,9 @@ namespace Antique_Tycoon.Models.Node;
 
 public partial class SpawnPoint : CanvasEntity
 {
-  [ObservableProperty] private int _bonus = 2000;
+  public int Bonus
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = 2000;
 }

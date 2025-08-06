@@ -5,12 +5,22 @@
              xmlns:vm="using:Antique_Tycoon.ViewModels"
              xmlns:c="using:Antique_Tycoon.Views.Controls"
              xmlns:m="using:Antique_Tycoon.Models"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:w="clr-namespace:Antique_Tycoon.Views.Widgets"
+             mc:Ignorable="d"
              x:Class="Antique_Tycoon.Views.Widgets.MapCard">
-  <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="2" x:DataType="m:Map">
-    <StackPanel>
-      <Image Source="{Binding Cover}" />
-      <c:MCButton Content="{Binding Name}" />
-    </StackPanel>
-  </Border>
+  <UserControl.Styles>
+    <Style Selector="w|MapCard>c|MCButton>StackPanel>Border>DockPanel">
+      <Setter Property="LastChildFill" Value="False" />
+    </Style>
+  </UserControl.Styles>
+  <c:MCButton x:DataType="m:Map" Padding="0">
+    <Grid RowDefinitions="4*,*">
+      <Image Grid.Row="0" Source="{Binding Cover}" Stretch="Fill" />
+      <Border Grid.Row="1" Padding="16">
+        <TextBlock Text="{Binding Name}"
+                   VerticalAlignment="Center" HorizontalAlignment="Center" />
+      </Border>
+    </Grid>
+  </c:MCButton>
+
 </UserControl>

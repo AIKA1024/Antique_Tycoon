@@ -35,11 +35,11 @@ public partial class Map : ObservableObject
     set => SetProperty(ref field, value);
   } = 3600;
 
-  public IBrush CanvasBackground
+  public Color CanvasBackground
   {
     get;
     set => SetProperty(ref field, value);
-  } = new SolidColorBrush(Color.Parse("#262626"));
+  } = Color.Parse("#262626");
 
   public Color NodeDefaultBackground
   {

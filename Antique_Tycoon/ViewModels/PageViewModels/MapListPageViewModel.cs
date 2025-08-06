@@ -11,7 +11,7 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapListPageViewModel : PageViewModelBase
 {
-  public AvaloniaList<Map> Maps { get; set; } = [];
+  public AvaloniaList<Map> Maps { get; set; } = new(App.Current.Services.GetRequiredService<MapFileService>().GetMaps());
 
   [RelayCommand]
   private async Task ShowCreateDialog()
