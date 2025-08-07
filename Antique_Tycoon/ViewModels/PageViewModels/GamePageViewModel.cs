@@ -1,6 +1,9 @@
-﻿namespace Antique_Tycoon.ViewModels.PageViewModels;
+﻿using Antique_Tycoon.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-public partial class GamePageViewModel : DragAndZoomViewModel
+namespace Antique_Tycoon.ViewModels.PageViewModels;
+
+public partial class GamePageViewModel:PageViewModelBase
 {
-  
+  [ObservableProperty] private Map _map;
 }

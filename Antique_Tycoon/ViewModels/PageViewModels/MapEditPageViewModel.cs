@@ -18,7 +18,7 @@ using SpawnPoint = Antique_Tycoon.Models.Node.SpawnPoint;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
-public partial class MapEditPageViewModel : DragAndZoomViewModel
+public partial class MapEditPageViewModel:PageViewModelBase
 {
   public AvaloniaList<CanvasEntity> SelectedMapEntities { get; } = [];
 

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows.Input;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.ViewModels;
@@ -6,20 +7,29 @@ using Antique_Tycoon.Views.Windows;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
+using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他控件，拖拽的控件就收不到OnPointerPressed事件
+public partial class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他控件，拖拽的控件就收不到OnPointerPressed事件
 {
   private Point? _lastPointer;
-  private DragAndZoomViewModel? _vm;
 
   private static readonly Cursor Hand =
-    new(new Bitmap(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/DragHand.png"))), new PixelPoint(8, 8));
+    new(new Bitmap(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/DragHand.png"))),
+      new PixelPoint(8, 8));
+
+  [GeneratedDirectProperty] public partial double Scale { get; set; }
+
+  [GeneratedDirectProperty] public partial Point Offset { get; set; }
+
 
   protected override void OnAttached()
   {
@@ -30,23 +40,14 @@ public class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他
       control.PointerMoved += OnPointerMoved;
       control.PointerReleased += OnPointerReleased;
       control.PointerWheelChanged += OnPointerWheelChanged;
-      control.DataContextChanged += OnDataContextChanged;
-      // 如果已经有 DataContext，也立即尝试赋值
-      TryBindViewModel(control.DataContext);
+      control.Loaded += ControlOnLoaded;
     }
   }
 
-  private void TryBindViewModel(object? dataContext)
+  private void ControlOnLoaded(object? sender, RoutedEventArgs e)
   {
-    if (dataContext is DragAndZoomViewModel vm)
-      _vm = vm;
   }
 
-  private void OnDataContextChanged(object? sender, EventArgs e)
-  {
-    if (sender is Control c)
-      TryBindViewModel(c.DataContext);
-  }
 
   protected override void OnDetaching()
   {
@@ -57,7 +58,7 @@ public class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他
       control.PointerMoved -= OnPointerMoved;
       control.PointerReleased -= OnPointerReleased;
       control.PointerWheelChanged -= OnPointerWheelChanged;
-      control.DataContextChanged -= OnDataContextChanged;
+      control.Loaded -= ControlOnLoaded;
     }
   }
 
@@ -71,14 +72,12 @@ public class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他
 
   private void OnPointerMoved(object? sender, PointerEventArgs e)
   {
-    if (_lastPointer != null && e.GetCurrentPoint(AssociatedObject).Properties.IsRightButtonPressed)
-    {
-      var pos = e.GetPosition(AssociatedObject);
-      var delta = pos - _lastPointer.Value;
-      _vm!.Offset = new Point(_vm.Offset.X + delta.X, _vm.Offset.Y + delta.Y);
-      _lastPointer = pos;
-      ((Control)sender).Cursor = Hand;
-    }
+    if (_lastPointer == null || !e.GetCurrentPoint(AssociatedObject).Properties.IsRightButtonPressed) return;
+    var pos = e.GetPosition(AssociatedObject);
+    var delta = pos - _lastPointer.Value;
+    Offset = new Point(Offset.X + delta.X, Offset.Y + delta.Y);
+    _lastPointer = pos;
+    ((Control)sender).Cursor = Hand;
   }
 
   private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -89,15 +88,15 @@ public class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他
 
   private void OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
   {
-    if (_vm == null || AssociatedObject == null) return;
+    if (AssociatedObject == null) return;
     var pos = e.GetPosition(AssociatedObject);
     var delta = e.Delta.Y > 0 ? 1.1 : 0.9; // 改用乘数而非增量
-    var newScale = Math.Clamp(_vm.Scale * delta, 0.3, 3);
+    var newScale = Math.Clamp(Scale * delta, 0.3, 3);
 
-    _vm.Offset = new Point(
-      pos.X - (pos.X - _vm.Offset.X) * (newScale / _vm.Scale),
-      pos.Y - (pos.Y - _vm.Offset.Y) * (newScale / _vm.Scale)
+    Offset = new Point(
+      pos.X - (pos.X - Offset.X) * (newScale / Scale),
+      pos.Y - (pos.Y - Offset.Y) * (newScale / Scale)
     );
-    _vm.Scale = newScale;
+    Scale = newScale;
   }
 }

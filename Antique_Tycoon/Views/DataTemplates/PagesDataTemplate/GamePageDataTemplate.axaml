@@ -20,8 +20,8 @@
               Background="RosyBrown">
         <Canvas.RenderTransform>
           <TransformGroup>
-            <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
-            <TranslateTransform X="{Binding Offset.X}" Y="{Binding Offset.Y}" />
+            <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale}" />
+            <TranslateTransform X="{Binding Map.Offset.X}" Y="{Binding Map.Offset.Y}" />
           </TransformGroup>
         </Canvas.RenderTransform>
         <!-- 可拖动内容放在这里 -->

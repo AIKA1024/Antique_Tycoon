@@ -9,7 +9,7 @@ namespace Antique_Tycoon.Services;
 public class NavigationService
 {
   private readonly MainWindowViewModel _mainWindowViewModel;
-  private readonly List<PageViewModelBase> _navigationHistory = new();
+  private readonly List<PageViewModelBase> _navigationHistory = [];
 
   public NavigationService(MainWindowViewModel viewModel)
   {

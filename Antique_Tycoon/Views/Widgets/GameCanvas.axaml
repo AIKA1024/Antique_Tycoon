@@ -13,11 +13,9 @@
   <Design.PreviewWith>
     <widgets:GameCanvas />
   </Design.PreviewWith>
-  <UserControl.KeyBindings>
-    <KeyBinding Gesture="Ctrl+Space"></KeyBinding>
-  </UserControl.KeyBindings>
   <Panel Background="Transparent">
     <ListBox x:Name="EntityListBox"
+             Background="{x:Null}"
              SelectedItem="{Binding SelectedMapEntity,Mode=OneWayToSource}"
              SelectedItems="{Binding SelectedMapEntities}"
              ItemsSource="{Binding Map.Entities}"
@@ -25,16 +23,13 @@
              ClipToBounds="False">
       <ListBox.RenderTransform>
         <TransformGroup>
-          <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
-          <TranslateTransform X="{Binding Offset.X}" Y="{Binding Offset.Y}" />
+          <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale}" />
+          <TranslateTransform X="{Binding Map.Offset.X}" Y="{Binding Map.Offset.Y}" />
         </TransformGroup>
       </ListBox.RenderTransform>
       <ListBox.ItemsPanel>
         <ItemsPanelTemplate>
           <Canvas
-            ClipToBounds="False"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
             Width="{Binding Map.CanvasWidth}"
             Height="{Binding Map.CanvasHeight}"
             Background="{Binding Map.CanvasBackground,Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}"
@@ -59,6 +54,7 @@
             <Interaction.Behaviors>
               <i:ShowFlyoutBehavior />
             </Interaction.Behaviors>
+            
           </Canvas>
         </ItemsPanelTemplate>
       </ListBox.ItemsPanel>
@@ -72,11 +68,9 @@
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
                 CornerRadius="{TemplateBinding CornerRadius}">
-                <Panel>
                   <ItemsPresenter x:Name="PART_ItemsPresenter"
                                   ItemsPanel="{TemplateBinding ItemsPanel}"
                                   Margin="{TemplateBinding Padding}" />
-                </Panel>
               </Border>
             </ControlTemplate>
           </Setter>
@@ -91,7 +85,8 @@
                 BorderBrush="{TemplateBinding BorderBrush}"
                 Content="{TemplateBinding Content}">
                 <Interaction.Behaviors>
-                  <i:CanvasItemDragBehavior />
+                  <i:CanvasItemDragBehavior Offset="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Offset}"
+                                            Scale="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Scale}"/>
                 </Interaction.Behaviors>
                 <c:NodeLinkControl.KeyBindings>
                   <KeyBinding Gesture="Delete"
@@ -109,7 +104,8 @@
       </ListBox.Styles>
     </ListBox>
     <Interaction.Behaviors>
-      <i:ZoomPanBehavior />
+      <i:ZoomPanBehavior Scale="{Binding Map.Scale,Mode=TwoWay}"
+                         Offset="{Binding Map.Offset,Mode=TwoWay}"/>
     </Interaction.Behaviors>
   </Panel>
 

@@ -1,5 +1,7 @@
 using System;
 using System.Text.Json.Serialization;
+using Antique_Tycoon.Converters;
+using Antique_Tycoon.Converters.JsonConverter;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Media;
@@ -51,6 +53,7 @@ public abstract partial class CanvasEntity : ObservableObject, IDisposable
     set => SetProperty(ref field, value);
   } = 150;
 
+  [JsonConverter(typeof(ColorJsonConverter))]
   public Color Background
   {
     get;

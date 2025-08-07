@@ -11,16 +11,21 @@ using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
+using PropertyGenerator.Avalonia;
 using CanvasEntity = Antique_Tycoon.Models.Node.CanvasEntity;
 
 namespace Antique_Tycoon.Behaviors;
 
-public class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑放在行为里，但又不得不依赖vm的属性💩
+public partial class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑放在行为里，但又不得不依赖vm的属性💩
 {
   private CanvasEntity _model;
-  private DragAndZoomViewModel dragAndZoomViewModel;
   private bool _isDragging;
   private Point _lastPointerPosition;
+  [GeneratedDirectProperty]
+  public partial double Scale { get; set; }
+  
+  [GeneratedDirectProperty]
+  public partial Point Offset { get; set; }
 
   protected override void OnAttached()
   {
@@ -51,8 +56,6 @@ public class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑�
       _model = model;
     else
       throw new Exception("只能依附在数据上下文为CanvasEntity的元素上");
-    if (AssociatedObject.Parent.Parent.DataContext is DragAndZoomViewModel dvm)
-      dragAndZoomViewModel = dvm;
   }
 
   private void AssociatedObjectOnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -71,7 +74,7 @@ public class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑�
 
     var currentPointerPosition = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var delta = currentPointerPosition - _lastPointerPosition;
-    var adjustedDelta = new Point(delta.X / dragAndZoomViewModel.Scale, delta.Y / dragAndZoomViewModel.Scale);
+    var adjustedDelta = new Point(delta.X / Scale, delta.Y / Scale);
 
     // 增量叠加 每次移动10个单位
     var snappedDeltaX = Math.Round(adjustedDelta.X / 10) * 10;
@@ -82,8 +85,8 @@ public class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑�
       _model.Left += snappedDeltaX;
       _model.Top += snappedDeltaY;
       _lastPointerPosition = new Point(
-        _lastPointerPosition.X + snappedDeltaX * dragAndZoomViewModel.Scale,
-        _lastPointerPosition.Y + snappedDeltaY * dragAndZoomViewModel.Scale
+        _lastPointerPosition.X + snappedDeltaX * Scale,
+        _lastPointerPosition.Y + snappedDeltaY * Scale
       );
       LayoutChanged.RaiseLayoutChanged(AssociatedObject);
     }

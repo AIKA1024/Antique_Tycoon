@@ -61,13 +61,13 @@ public partial class GameCanvas : UserControl
     var scale = Math.Min(scaleX, scaleY);
 
     // 更新 ViewModel 中的 Scale
-    vm.Scale = scale;
+    _mapEditPageViewModel.Map.Scale = scale;
 
     // 计算居中偏移
     var offsetX = (availableWidth - canvasWidth * scale) / 2;
     var offsetY = (availableHeight - canvasHeight * scale) / 2;
 
-    vm.Offset = new Point(offsetX, offsetY);
+    _mapEditPageViewModel.Map.Offset = new Point(offsetX, offsetY);
   }
 
   public Bitmap RenderCanvasToBitmap()
