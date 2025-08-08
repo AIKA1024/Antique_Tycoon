@@ -30,10 +30,16 @@
           BorderThickness="3"
           BorderBrush="{StaticResource BorderBrush}"
           Background="#313233"
-          VerticalAlignment="Center"
-          IsVisible="{Binding RoomList.Count,Converter={x:Static cv:StringConverters.Equal},ConverterParameter=0}">
+          VerticalAlignment="Center">
+          <Border.IsVisible>
+            <Binding Path="RoomList.Count" Converter="{x:Static ObjectConverters.Equal}">
+              <Binding.ConverterParameter>
+                <x:Int32>0</x:Int32>
+              </Binding.ConverterParameter>
+            </Binding>
+          </Border.IsVisible>
           <Image
-            Source="../../Assets/Image/No_Map.png"
+            Source="/Assets/Image/No_Map.png"
             Stretch="None" />
         </Border>
         <ItemsControl Foreground="White" ItemsSource="{Binding RoomList}">
