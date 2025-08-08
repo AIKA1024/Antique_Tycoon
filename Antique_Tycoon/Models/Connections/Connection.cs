@@ -1,7 +1,7 @@
 using Antique_Tycoon.Views.Controls;
 using Avalonia.Media;
 
-namespace Antique_Tycoon.Models;
+namespace Antique_Tycoon.Models.Connections;
 
 public class Connection
 {

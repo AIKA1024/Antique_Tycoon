@@ -11,7 +11,7 @@ namespace Antique_Tycoon.Models;
 
 public partial class Player : ObservableObject,IDisposable
 {
-  public string Uuid = Guid.CreateVersion7().ToString();
+  public string Uuid = Guid.NewGuid().ToString();
   [ObservableProperty] string _name = "史蒂夫";
   [ObservableProperty] int _money;
   [ObservableProperty] private Bitmap _avatar = Bitmap.DecodeToHeight(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png")),64);

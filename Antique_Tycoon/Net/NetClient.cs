@@ -42,7 +42,7 @@ public class NetClient : NetBase
   {
     var joinRoomRequest = new JoinRoomRequest
     {
-      Id = Guid.CreateVersion7().ToString(),
+      Id = Guid.NewGuid().ToString(),
       Player = App.Current.Services.GetRequiredService<Player>()
     };
     return (JoinRoomResponse)await SendRequestAsync(joinRoomRequest, cancellation);

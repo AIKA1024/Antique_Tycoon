@@ -31,15 +31,19 @@
           </Border>
 
           <c:Connector
+            Id="{Binding ConnectorIds[0]}"
             LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
             HorizontalAlignment="Left" VerticalAlignment="Center" />
           <c:Connector
+            Id="{Binding ConnectorIds[1]}"
             LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
             HorizontalAlignment="Center" VerticalAlignment="Top" />
           <c:Connector
+            Id="{Binding ConnectorIds[2]}"
             LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
             HorizontalAlignment="Right" VerticalAlignment="Center" />
           <c:Connector
+            Id="{Binding ConnectorIds[3]}"
             LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
             HorizontalAlignment="Center" VerticalAlignment="Bottom" />
         </Panel>

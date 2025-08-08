@@ -2,6 +2,7 @@ using System;
 using System.Text.Json.Serialization;
 using Antique_Tycoon.Converters;
 using Antique_Tycoon.Converters.JsonConverter;
+using Antique_Tycoon.Models.Connections;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Media;
@@ -21,7 +22,7 @@ public abstract partial class CanvasEntity : ObservableObject, IDisposable
   {
     get;
     set => SetProperty(ref field, value);
-  } = Guid.CreateVersion7().ToString();
+  } = Guid.NewGuid().ToString();
 
   public double Left
   {
@@ -73,12 +74,19 @@ public abstract partial class CanvasEntity : ObservableObject, IDisposable
     set => SetProperty(ref field, value);
   } = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Minecraft.png")));
 
+  public string[] ConnectorIds { get; } =
+    [Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()];
+
+  public AvaloniaList<ConnectionModel> ConnectionModels { get; set; } = [];
+
   private bool _disposed;
+
   public void Dispose()
   {
     Dispose(disposing: true);
     GC.SuppressFinalize(this);
   }
+
   protected virtual void Dispose(bool disposing)
   {
     if (_disposed) return;

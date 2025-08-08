@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Connections;
+using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.ViewModels.ControlViewModels;
 using Avalonia;
 using Avalonia.Controls;
@@ -26,6 +29,7 @@ public partial class Connector : TemplatedControl
   private Point _lastCheckedPosition;
   private DateTime _lastCheckTime;
   private Connector? _closestConnector;
+  
   public List<Connection> ActiveConnections { get; } = [];
   public List<Connection> PassiveConnections { get; } = [];
 
@@ -33,30 +37,26 @@ public partial class Connector : TemplatedControl
   [GeneratedStyledProperty] public partial IBrush? Stroke { get; set; }
   [GeneratedStyledProperty(2)] public partial double StrokeThickness { get; set; }
 
-  public Panel? LineCanvas
+  [GeneratedDirectProperty] public partial Panel? LineCanvas { get; set; }
+
+  [GeneratedDirectProperty] public partial Point Anchor { get; set; }
+  [GeneratedDirectProperty] public partial string Id { get; set; } = "";
+  [GeneratedDirectProperty] public partial ICommand? Command { get; set; }
+  [GeneratedDirectProperty] public partial object? CommandParameter { get; set; }
+
+  public static readonly RoutedEvent<ConnectedRoutedEventArgs> ConnectedEvent =
+    RoutedEvent.Register<Connector, ConnectedRoutedEventArgs>(nameof(Connected), RoutingStrategies.Bubble);
+
+  public event EventHandler<ConnectedRoutedEventArgs> Connected
   {
-    get => field;
-    private set => SetAndRaise(LineCanvasProperty, ref field, value);
+    add => AddHandler(ConnectedEvent, value);
+    remove => RemoveHandler(ConnectedEvent, value);
   }
 
-  public static readonly DirectProperty<Connector, Panel?> LineCanvasProperty =
-    AvaloniaProperty.RegisterDirect<Connector, Panel?>(
-      nameof(Anchor),
-      o => o.LineCanvas,
-      (o, v) => o.LineCanvas = v);
-
-  public Point Anchor
+  public class ConnectedRoutedEventArgs(ConnectionModel connectionModel) : RoutedEventArgs
   {
-    get => field;
-    private set => SetAndRaise(AnchorProperty, ref field, value);
+    public ConnectionModel ConnectionModel { get; set; } = connectionModel;
   }
-
-  public static readonly DirectProperty<Connector, Point> AnchorProperty =
-    AvaloniaProperty.RegisterDirect<Connector, Point>(
-      nameof(Anchor),
-      o => o.Anchor,
-      (o, v) => o.Anchor = v);
-
 
   protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
   {
@@ -180,6 +180,14 @@ public partial class Connector : TemplatedControl
     ActiveConnections.Add(connection);
     _closestConnector.PassiveConnections.Add(connection);
     LineCanvas.Children.Add(connection.Line);
+    if (Command?.CanExecute(CommandParameter) == true)
+      Command.Execute(CommandParameter);
+    RaiseEvent(new ConnectedRoutedEventArgs(new ConnectionModel
+    {
+      StartConnectorId = Id,
+      EndConnectorId = _closestConnector.Id,
+      EndNodeId = ((CanvasEntity)_closestConnector.DataContext).Uuid
+    }) { RoutedEvent = ConnectedEvent, Source = this });
     e.Handled = true;
   }
 
