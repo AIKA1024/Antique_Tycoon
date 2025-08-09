@@ -29,18 +29,19 @@ public partial class Connector : TemplatedControl
   private Point _lastCheckedPosition;
   private DateTime _lastCheckTime;
   private Connector? _closestConnector;
+  public ConnectorModel SelfConnectorModel;
   
-  public List<Connection> ActiveConnections { get; } = [];
-  public List<Connection> PassiveConnections { get; } = [];
+  [GeneratedDirectProperty] public partial List<Connection> ActiveConnections { get; set; } = [];
+  [GeneratedDirectProperty] public partial List<Connection> PassiveConnections { get; set; } = [];
 
   [GeneratedStyledProperty] public partial IBrush? Fill { get; set; }
   [GeneratedStyledProperty] public partial IBrush? Stroke { get; set; }
   [GeneratedStyledProperty(2)] public partial double StrokeThickness { get; set; }
 
-  [GeneratedDirectProperty] public partial Panel? LineCanvas { get; set; }
+  [GeneratedDirectProperty] public partial Panel LineCanvas { get; set; }
 
   [GeneratedDirectProperty] public partial Point Anchor { get; set; }
-  [GeneratedDirectProperty] public partial string Id { get; set; } = "";
+  [GeneratedDirectProperty] public partial string Uuid { get; set; } = "";
   [GeneratedDirectProperty] public partial ICommand? Command { get; set; }
   [GeneratedDirectProperty] public partial object? CommandParameter { get; set; }
 
@@ -65,6 +66,7 @@ public partial class Connector : TemplatedControl
       throw new NullReferenceException("LineCanvas");
     LineCanvas.PointerMoved += Canvas_PointerMoved;
     LineCanvas.PointerReleased += Canvas_PointerReleased;
+    SelfConnectorModel = DataContext as ConnectorModel;
   }
 
   protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -79,17 +81,12 @@ public partial class Connector : TemplatedControl
   {
     Dispatcher.UIThread.Post(() =>
     {
+      UpdateAnchor();
       foreach (var activeConnection in ActiveConnections)
-      {
-        activeConnection.Start.UpdateAnchor();
         activeConnection.Update();
-      }
 
       foreach (var passiveConnection in PassiveConnections)
-      {
-        passiveConnection.End.UpdateAnchor();
         passiveConnection.Update();
-      }
     }, DispatcherPriority.Render);
   }
 
@@ -176,7 +173,7 @@ public partial class Connector : TemplatedControl
     _tempLine = null;
 
     if (_closestConnector == null) return;
-    var connection = new Connection(this, _closestConnector);
+    var connection = new Connection(SelfConnectorModel, _closestConnector.SelfConnectorModel);
     ActiveConnections.Add(connection);
     _closestConnector.PassiveConnections.Add(connection);
     LineCanvas.Children.Add(connection.Line);
@@ -184,9 +181,9 @@ public partial class Connector : TemplatedControl
       Command.Execute(CommandParameter);
     RaiseEvent(new ConnectedRoutedEventArgs(new ConnectionModel
     {
-      StartConnectorId = Id,
-      EndConnectorId = _closestConnector.Id,
-      EndNodeId = ((CanvasEntity)_closestConnector.DataContext).Uuid
+      StartConnectorId = Uuid,
+      EndConnectorId = _closestConnector.Uuid,
+      EndNodeId = ((CanvasEntity)_closestConnector.Parent.DataContext).Uuid
     }) { RoutedEvent = ConnectedEvent, Source = this });
     e.Handled = true;
   }

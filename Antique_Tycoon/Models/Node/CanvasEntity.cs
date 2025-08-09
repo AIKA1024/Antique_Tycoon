@@ -74,8 +74,8 @@ public abstract partial class CanvasEntity : ObservableObject, IDisposable
     set => SetProperty(ref field, value);
   } = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Minecraft.png")));
 
-  public string[] ConnectorIds { get; } =
-    [Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()];
+  public ConnectorModel[] ConnectorModels { get; set; } =
+    [new(), new(), new(), new()];
 
   public AvaloniaList<ConnectionModel> ConnectionModels { get; set; } = [];
 

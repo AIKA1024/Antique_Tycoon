@@ -1,26 +1,28 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:i="using:Antique_Tycoon.Behaviors"
-             xmlns:c="using:Antique_Tycoon.Views.Controls"
-             xmlns:cv="using:Antique_Tycoon.Converters"
-             xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
-             xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
-             x:Class="Antique_Tycoon.Views.Widgets.GameCanvas"
-             xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
-             Focusable="True"
-             ClipToBounds="False"
-             x:DataType="vm:MapEditPageViewModel">
+<UserControl
+  x:Class="Antique_Tycoon.Views.Widgets.GameCanvas"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:c="using:Antique_Tycoon.Views.Controls"
+  xmlns:cv="using:Antique_Tycoon.Converters"
+  xmlns:i="using:Antique_Tycoon.Behaviors"
+  xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
+  xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+  xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
+  x:DataType="vm:MapEditPageViewModel"
+  ClipToBounds="False"
+  Focusable="True">
   <Design.PreviewWith>
     <widgets:GameCanvas />
   </Design.PreviewWith>
   <Panel Background="Transparent">
-    <ListBox x:Name="EntityListBox"
-             Background="{x:Null}"
-             SelectedItem="{Binding SelectedMapEntity,Mode=OneWayToSource}"
-             SelectedItems="{Binding SelectedMapEntities}"
-             ItemsSource="{Binding Map.Entities}"
-             RenderTransformOrigin="0,0"
-             ClipToBounds="False">
+    <ListBox
+      x:Name="EntityListBox"
+      Background="{x:Null}"
+      ClipToBounds="False"
+      ItemsSource="{Binding Map.Entities}"
+      RenderTransformOrigin="0,0"
+      SelectedItem="{Binding SelectedMapEntity, Mode=OneWayToSource}"
+      SelectedItems="{Binding SelectedMapEntities}">
       <ListBox.RenderTransform>
         <TransformGroup>
           <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale}" />
@@ -32,8 +34,8 @@
           <Canvas
             Width="{Binding Map.CanvasWidth}"
             Height="{Binding Map.CanvasHeight}"
-            Background="{Binding Map.CanvasBackground,Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}"
-            i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition,Mode=OneWayToSource}">
+            i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition, Mode=OneWayToSource}"
+            Background="{Binding Map.CanvasBackground, Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}">
             <FlyoutBase.AttachedFlyout>
               <Flyout>
                 <StackPanel>
@@ -42,7 +44,7 @@
                       <Setter Property="Foreground" Value="White" />
                       <Setter Property="CornerRadius" Value="4" />
                       <Setter Property="Command" Value="{Binding CreateEntityCommand}" />
-                      <Setter Property="CommandParameter" Value="{Binding $self.Header,Mode=OneTime}" />
+                      <Setter Property="CommandParameter" Value="{Binding $self.Header, Mode=OneTime}" />
                     </Style>
                   </StackPanel.Styles>
                   <MenuItem Header="玩家出生点" />
@@ -54,7 +56,7 @@
             <Interaction.Behaviors>
               <i:ShowFlyoutBehavior />
             </Interaction.Behaviors>
-            
+
           </Canvas>
         </ItemsPanelTemplate>
       </ListBox.ItemsPanel>
@@ -63,35 +65,37 @@
           <Setter Property="Template">
             <ControlTemplate>
               <Border
-                ClipToBounds="{TemplateBinding ClipToBounds}"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
+                ClipToBounds="{TemplateBinding ClipToBounds}"
                 CornerRadius="{TemplateBinding CornerRadius}">
-                  <ItemsPresenter x:Name="PART_ItemsPresenter"
-                                  ItemsPanel="{TemplateBinding ItemsPanel}"
-                                  Margin="{TemplateBinding Padding}" />
+                <ItemsPresenter
+                  x:Name="PART_ItemsPresenter"
+                  Margin="{TemplateBinding Padding}"
+                  ItemsPanel="{TemplateBinding ItemsPanel}" />
               </Border>
             </ControlTemplate>
           </Setter>
         </Style>
-        <Style Selector="ListBoxItem" x:DataType="node:CanvasEntity">
+        <Style x:DataType="node:CanvasEntity" Selector="ListBoxItem">
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Setter Property="Template">
             <ControlTemplate TargetType="ListBoxItem">
               <c:NodeLinkControl
-                Focusable="True"
                 BorderBrush="{TemplateBinding BorderBrush}"
-                Content="{TemplateBinding Content}">
+                Content="{TemplateBinding Content}"
+                Focusable="True"
+                Map="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map}">
                 <Interaction.Behaviors>
-                  <i:CanvasItemDragBehavior Offset="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Offset}"
-                                            Scale="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Scale}"/>
+                  <i:CanvasItemDragBehavior Scale="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Scale}" Offset="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Offset}" />
                 </Interaction.Behaviors>
                 <c:NodeLinkControl.KeyBindings>
-                  <KeyBinding Gesture="Delete"
-                              Command="{Binding $parent.((vm:MapEditPageViewModel)DataContext).RemoveEntityCommand}"
-                              CommandParameter="{Binding}" />
+                  <KeyBinding
+                    Command="{Binding $parent.((vm:MapEditPageViewModel)DataContext).RemoveEntityCommand}"
+                    CommandParameter="{Binding}"
+                    Gesture="Delete" />
                 </c:NodeLinkControl.KeyBindings>
               </c:NodeLinkControl>
             </ControlTemplate>
@@ -104,8 +108,7 @@
       </ListBox.Styles>
     </ListBox>
     <Interaction.Behaviors>
-      <i:ZoomPanBehavior Scale="{Binding Map.Scale,Mode=TwoWay}"
-                         Offset="{Binding Map.Offset,Mode=TwoWay}"/>
+      <i:ZoomPanBehavior Scale="{Binding Map.Scale, Mode=TwoWay}" Offset="{Binding Map.Offset, Mode=TwoWay}" />
     </Interaction.Behaviors>
   </Panel>
 

@@ -40,14 +40,8 @@ public partial class ZoomPanBehavior : Behavior<Control> //todo 如果控件上�
       control.PointerMoved += OnPointerMoved;
       control.PointerReleased += OnPointerReleased;
       control.PointerWheelChanged += OnPointerWheelChanged;
-      control.Loaded += ControlOnLoaded;
     }
   }
-
-  private void ControlOnLoaded(object? sender, RoutedEventArgs e)
-  {
-  }
-
 
   protected override void OnDetaching()
   {
@@ -58,7 +52,6 @@ public partial class ZoomPanBehavior : Behavior<Control> //todo 如果控件上�
       control.PointerMoved -= OnPointerMoved;
       control.PointerReleased -= OnPointerReleased;
       control.PointerWheelChanged -= OnPointerWheelChanged;
-      control.Loaded -= ControlOnLoaded;
     }
   }
 

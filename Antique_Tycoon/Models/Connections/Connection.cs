@@ -5,11 +5,11 @@ namespace Antique_Tycoon.Models.Connections;
 
 public class Connection
 {
-  public Connector Start { get; }
-  public Connector End { get; }
+  public ConnectorModel Start { get; }
+  public ConnectorModel End { get; }
   public ConnectionLine Line { get; }
 
-  public Connection(Connector start, Connector end)
+  public Connection(ConnectorModel start, ConnectorModel end)
   {
     Start = start;
     End = end;

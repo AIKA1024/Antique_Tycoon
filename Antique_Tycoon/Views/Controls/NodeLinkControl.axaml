@@ -14,6 +14,8 @@
     <Setter Property="CornerRadius" Value="4" />
     <Setter Property="Background" Value="#ECCC68" />
     <Setter Property="Foreground" Value="Black" />
+    <Setter Property="CanvasEntity" Value="{Binding}"/>
+    <Setter Property="LineCanvas" Value="{Binding RelativeSource={RelativeSource AncestorType=Canvas}}"/>
     <Setter Property="Template">
       <ControlTemplate x:DataType="node:CanvasEntity">
         <Panel
@@ -31,20 +33,36 @@
           </Border>
 
           <c:Connector
-            Id="{Binding ConnectorIds[0]}"
-            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            DataContext="{Binding ConnectorModels[0]}"
+            Uuid="{Binding Uuid}"
+            Anchor="{Binding Anchor,Mode=TwoWay}"
+            ActiveConnections="{Binding ActiveConnections}"
+            PassiveConnections="{Binding PassiveConnections}"
+            LineCanvas="{Binding LineCanvas,RelativeSource={RelativeSource Mode=TemplatedParent}}"
             HorizontalAlignment="Left" VerticalAlignment="Center" />
           <c:Connector
-            Id="{Binding ConnectorIds[1]}"
-            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            DataContext="{Binding ConnectorModels[1]}"
+            Uuid="{Binding Uuid}"
+            Anchor="{Binding Anchor,Mode=TwoWay}"
+            ActiveConnections="{Binding ActiveConnections}"
+            PassiveConnections="{Binding PassiveConnections}"
+            LineCanvas="{Binding LineCanvas,RelativeSource={RelativeSource Mode=TemplatedParent}}"
             HorizontalAlignment="Center" VerticalAlignment="Top" />
           <c:Connector
-            Id="{Binding ConnectorIds[2]}"
-            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            DataContext="{Binding ConnectorModels[2]}"
+            Uuid="{Binding Uuid}"
+            Anchor="{Binding Anchor,Mode=TwoWay}"
+            ActiveConnections="{Binding ActiveConnections}"
+            PassiveConnections="{Binding PassiveConnections}"
+            LineCanvas="{Binding LineCanvas,RelativeSource={RelativeSource Mode=TemplatedParent}}"
             HorizontalAlignment="Right" VerticalAlignment="Center" />
           <c:Connector
-            Id="{Binding ConnectorIds[3]}"
-            LineCanvas="{Binding RelativeSource={RelativeSource AncestorType=Canvas},Mode=OneWay}"
+            DataContext="{Binding ConnectorModels[3]}"
+            Uuid="{Binding Uuid}"
+            Anchor="{Binding Anchor,Mode=TwoWay}"
+            ActiveConnections="{Binding ActiveConnections}"
+            PassiveConnections="{Binding PassiveConnections}"
+            LineCanvas="{Binding LineCanvas,RelativeSource={RelativeSource Mode=TemplatedParent}}"
             HorizontalAlignment="Center" VerticalAlignment="Bottom" />
         </Panel>
       </ControlTemplate>
