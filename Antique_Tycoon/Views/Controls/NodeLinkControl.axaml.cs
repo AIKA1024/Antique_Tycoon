@@ -18,7 +18,7 @@ namespace Antique_Tycoon.Views.Controls;
 
 public partial class NodeLinkControl : ContentControl
 {
-  [GeneratedDirectProperty] public partial CanvasEntity CanvasEntity { get; set; }
+  [GeneratedDirectProperty] public partial NodeModel NodeModel { get; set; }
   [GeneratedDirectProperty] public partial Map Map { get; set; }
   [GeneratedDirectProperty] public partial Panel LineCanvas { get; set; }
 
@@ -37,9 +37,9 @@ public partial class NodeLinkControl : ContentControl
   private void ConnectLine()
   {
     var mapEntitiesDic = Map.Entities.ToDictionary(e => e.Uuid, e => e);
-    foreach (var connectionModel in CanvasEntity.ConnectionModels)
+    foreach (var connectionModel in NodeModel.ConnectionModels)
     {
-      var startConnectorModel = CanvasEntity.ConnectorModels.First(c => c.Uuid == connectionModel.StartConnectorId);
+      var startConnectorModel = NodeModel.ConnectorModels.First(c => c.Uuid == connectionModel.StartConnectorId);
       var endEntity = mapEntitiesDic[connectionModel.EndNodeId];
       var endConnectorModel = endEntity.ConnectorModels.First(c => c.Uuid == connectionModel.EndConnectorId);
       var connection = new Connection(startConnectorModel, endConnectorModel);
@@ -51,7 +51,7 @@ public partial class NodeLinkControl : ContentControl
 
   private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)
   {
-    CanvasEntity.ConnectionModels.Add(e.ConnectionModel);
+    NodeModel.ConnectionModels.Add(e.ConnectionModel);
     e.Handled = true;
   }
 }

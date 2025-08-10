@@ -13,18 +13,17 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
-using CanvasEntity = Antique_Tycoon.Models.Node.CanvasEntity;
 using SpawnPoint = Antique_Tycoon.Models.Node.SpawnPoint;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapEditPageViewModel:PageViewModelBase
 {
-  public AvaloniaList<CanvasEntity> SelectedMapEntities { get; } = [];
+  public AvaloniaList<NodeModel> SelectedMapEntities { get; } = [];
 
   [ObservableProperty] private Map _map;
 
-  [ObservableProperty] private CanvasEntity? _selectedMapEntity;
+  [ObservableProperty] private NodeModel? _selectedMapEntity;
 
   public Point PointerPosition { get; set; }
 
@@ -61,13 +60,13 @@ public partial class MapEditPageViewModel:PageViewModelBase
   }
 
   [RelayCommand]
-  private void RemoveEntity(CanvasEntity target)
+  private void RemoveEntity(NodeModel target)
   {
     Map.Entities.Remove(target);//todo 线条不会被删除
   }
 
   [RelayCommand]
-  private async Task ChangeImage(CanvasEntity target)
+  private async Task ChangeImage(NodeModel target)
   {
     var files = await App.Current.Services.GetRequiredService<TopLevel>().StorageProvider.OpenFilePickerAsync(
       new FilePickerOpenOptions

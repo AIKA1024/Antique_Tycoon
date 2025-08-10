@@ -8,16 +8,16 @@
     <controls:NodeLinkControl />
   </Design.PreviewWith>
 
-  <Style Selector="controls|NodeLinkControl" x:DataType="node:CanvasEntity">
+  <Style Selector="controls|NodeLinkControl" x:DataType="node:NodeModel">
     <Setter Property="Padding" Value="16" />
     <Setter Property="BorderThickness" Value="2" />
     <Setter Property="CornerRadius" Value="4" />
     <Setter Property="Background" Value="#ECCC68" />
     <Setter Property="Foreground" Value="Black" />
-    <Setter Property="CanvasEntity" Value="{Binding}"/>
+    <Setter Property="NodeModel" Value="{Binding}"/>
     <Setter Property="LineCanvas" Value="{Binding RelativeSource={RelativeSource AncestorType=Canvas}}"/>
     <Setter Property="Template">
-      <ControlTemplate x:DataType="node:CanvasEntity">
+      <ControlTemplate>
         <Panel
           TextElement.Foreground="{TemplateBinding Foreground}"
           Height="{Binding Height}"
@@ -29,7 +29,8 @@
             CornerRadius="{TemplateBinding CornerRadius}"
             BorderThickness="{TemplateBinding BorderThickness}"
             BorderBrush="{TemplateBinding BorderBrush}">
-            <ContentPresenter Content="{TemplateBinding Content}" />
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"/>
           </Border>
 
           <c:Connector

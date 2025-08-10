@@ -12,13 +12,12 @@ using Avalonia.VisualTree;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
-using CanvasEntity = Antique_Tycoon.Models.Node.CanvasEntity;
 
 namespace Antique_Tycoon.Behaviors;
 
 public partial class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑放在行为里，但又不得不依赖vm的属性💩
 {
-  private CanvasEntity _model;
+  private NodeModel _model;
   private bool _isDragging;
   private Point _lastPointerPosition;
   [GeneratedDirectProperty]
@@ -52,7 +51,7 @@ public partial class CanvasItemDragBehavior : Behavior<Control> //想着解耦�
 
   private void AssociatedObjectOnLoaded(object? sender, RoutedEventArgs e)
   {
-    if (AssociatedObject.DataContext is CanvasEntity model)
+    if (AssociatedObject.DataContext is NodeModel model)
       _model = model;
     else
       throw new Exception("只能依附在数据上下文为CanvasEntity的元素上");

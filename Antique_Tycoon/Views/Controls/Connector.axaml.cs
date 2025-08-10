@@ -183,7 +183,7 @@ public partial class Connector : TemplatedControl
     {
       StartConnectorId = Uuid,
       EndConnectorId = _closestConnector.Uuid,
-      EndNodeId = ((CanvasEntity)_closestConnector.Parent.DataContext).Uuid
+      EndNodeId = ((NodeModel)_closestConnector.Parent.DataContext).Uuid
     }) { RoutedEvent = ConnectedEvent, Source = this });
     e.Handled = true;
   }

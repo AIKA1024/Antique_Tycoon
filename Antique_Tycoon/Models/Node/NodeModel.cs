@@ -16,14 +16,8 @@ namespace Antique_Tycoon.Models.Node;
 [JsonDerivedType(typeof(SpawnPoint), "SpawnPoint")]
 [JsonDerivedType(typeof(Estate), "Estate")]
 //[JsonDerivedType(typeof(Antique), "Antique")]
-public abstract partial class CanvasEntity : ObservableObject, IDisposable
+public abstract partial class NodeModel : CanvasItemModel, IDisposable
 {
-  public string Uuid
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = Guid.NewGuid().ToString();
-
   public double Left
   {
     get;

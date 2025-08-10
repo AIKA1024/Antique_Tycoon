@@ -1,6 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
+                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
+                    xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
+                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+                    xmlns:i="clr-namespace:Antique_Tycoon.Behaviors">
   <Design.PreviewWith>
     <ContentControl>
       <node:SpawnPoint />
@@ -8,19 +11,29 @@
   </Design.PreviewWith>
 
   <DataTemplate x:Key="SpawnPointDataTemplate" x:DataType="node:SpawnPoint">
-    <StackPanel>
-      <TextBlock Text="{Binding Title}"
-                 FontSize="16"
-                 FontWeight="Black"
-                 HorizontalAlignment="Center" />
-      <TextBlock FontSize="8" 
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 Text="{Binding Bonus,StringFormat=经过起点领取{0}元}" />
-      <Image 
-        Margin="0 16 0 0"
-        Source="{Binding Cover}"
-        Stretch="{Binding CoverStretch}"/>
-    </StackPanel>
+    <c:NodeLinkControl
+      Focusable="True"
+      Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=ListBox}}">
+      <Interaction.Behaviors>
+        <i:CanvasItemDragBehavior
+          Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=ListBox}}"
+          Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+      </Interaction.Behaviors>
+      <StackPanel>
+        <TextBlock Text="{Binding Title}"
+                   FontSize="16"
+                   FontWeight="Black"
+                   HorizontalAlignment="Center" />
+        <TextBlock FontSize="8"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Text="{Binding Bonus,StringFormat=经过起点领取{0}元}" />
+        <Image
+          Margin="0 16 0 0"
+          Source="{Binding Cover}"
+          Stretch="{Binding CoverStretch}" />
+      </StackPanel>
+    </c:NodeLinkControl>
+
   </DataTemplate>
 </ResourceDictionary>

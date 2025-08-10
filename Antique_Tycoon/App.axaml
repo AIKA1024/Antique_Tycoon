@@ -39,5 +39,7 @@
     <StaticResource ResourceKey="EstateDataTemplate"/>
     
     <StaticResource ResourceKey="CreateNewMapDialogDataTemplate"/>
+    
+    
   </Application.DataTemplates>
 </Application>

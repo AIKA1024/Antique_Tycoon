@@ -63,5 +63,5 @@ public class Map : ObservableObject
     set => SetProperty(ref field, value);
   } = Color.Parse("#eccc68");
 
-  public AvaloniaList<CanvasEntity> Entities { get; set; } = [];
+  public AvaloniaList<NodeModel> Entities { get; set; } = [];
 }

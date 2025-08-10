@@ -78,31 +78,21 @@
             </ControlTemplate>
           </Setter>
         </Style>
-        <Style x:DataType="node:CanvasEntity" Selector="ListBoxItem">
+        <Style x:DataType="node:NodeModel" Selector="ListBoxItem">
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Setter Property="Template">
-            <ControlTemplate TargetType="ListBoxItem">
-              <c:NodeLinkControl
-                BorderBrush="{TemplateBinding BorderBrush}"
-                Content="{TemplateBinding Content}"
-                Focusable="True"
-                Map="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map}">
-                <Interaction.Behaviors>
-                  <i:CanvasItemDragBehavior Scale="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Scale}" Offset="{Binding $parent.((vm:MapEditPageViewModel)DataContext).Map.Offset}" />
-                </Interaction.Behaviors>
-                <c:NodeLinkControl.KeyBindings>
-                  <KeyBinding
-                    Command="{Binding $parent.((vm:MapEditPageViewModel)DataContext).RemoveEntityCommand}"
-                    CommandParameter="{Binding}"
-                    Gesture="Delete" />
-                </c:NodeLinkControl.KeyBindings>
-              </c:NodeLinkControl>
+            <ControlTemplate>
+              <ContentPresenter Content="{TemplateBinding Content}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                ZIndex="{TemplateBinding ZIndex}" />
             </ControlTemplate>
           </Setter>
           <Style Selector="^:selected">
-            <Setter Property="BorderBrush" Value="#1e90ff" />
             <Setter Property="ZIndex" Value="1" />
+            <Style Selector="^ /template/ ContentPresenter>c|NodeLinkControl">
+              <Setter Property="BorderBrush" Value="#1e90ff" />
+            </Style>
           </Style>
         </Style>
       </ListBox.Styles>

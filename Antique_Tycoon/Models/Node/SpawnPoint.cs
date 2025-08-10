@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Models.Node;
 
-public partial class SpawnPoint : CanvasEntity
+public partial class SpawnPoint : NodeModel
 {
   public int Bonus
   {
