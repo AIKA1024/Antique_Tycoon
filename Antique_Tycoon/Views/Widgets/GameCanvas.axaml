@@ -22,7 +22,7 @@
       ClipToBounds="False"
       ItemsSource="{Binding Map.Entities}"
       RenderTransformOrigin="0,0"
-      SelectedItem="{Binding SelectedMapEntity, Mode=OneWayToSource}"
+      SelectedItem="{Binding TempSelectedMapEntity, Mode=OneWayToSource}"
       SelectedItems="{Binding SelectedMapEntities}">
       <ListBox.RenderTransform>
         <TransformGroup>
@@ -105,6 +105,7 @@
             </ControlTemplate>
           </Setter>
         </Style>
+        <!--todo 可能类型不是NodeModel -->
         <Style x:DataType="node:NodeModel" Selector="ListBoxItem">
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
@@ -122,6 +123,7 @@
             </Style>
           </Style>
         </Style>
+        
       </ListBox.Styles>
     </ListBox>
     <Interaction.Behaviors>

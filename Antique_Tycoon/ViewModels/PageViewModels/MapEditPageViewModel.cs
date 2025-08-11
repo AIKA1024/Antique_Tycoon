@@ -15,13 +15,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
-public partial class MapEditPageViewModel:PageViewModelBase
+public partial class MapEditPageViewModel : PageViewModelBase
 {
   public AvaloniaList<CanvasItemModel> SelectedMapEntities { get; } = [];
 
   [ObservableProperty] private Map _map;
+  [ObservableProperty]
+  [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
+  public partial CanvasItemModel TempSelectedMapEntity { get; set; }
 
-  [ObservableProperty] private NodeModel? _selectedMapEntity;//todo 线条也加进来后，要把线条的选择处理一下
+  public NodeModel? SelectedMapEntity => TempSelectedMapEntity as NodeModel; //todo 线条也加进来后，要把线条的选择处理一下
 
   public Point PointerPosition { get; set; }
 
@@ -60,7 +63,7 @@ public partial class MapEditPageViewModel:PageViewModelBase
   [RelayCommand]
   private void RemoveEntity(NodeModel target)
   {
-    Map.Entities.Remove(target);//todo 线条不会被删除
+    Map.Entities.Remove(target); //todo 线条不会被删除
   }
 
   [RelayCommand]
