@@ -29,6 +29,23 @@
           <TranslateTransform X="{Binding Map.Offset.X}" Y="{Binding Map.Offset.Y}" />
         </TransformGroup>
       </ListBox.RenderTransform>
+      <ListBox.DataTemplates>
+        <DataTemplate DataType="node:NodeModel">
+          <c:NodeLinkControl
+            Focusable="True"
+            Content="{Binding $self.DataContext}"
+            Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=ListBox}}">
+            <Interaction.Behaviors>
+              <i:CanvasItemDragBehavior Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                        Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+            </Interaction.Behaviors>
+            <c:NodeLinkControl.DataTemplates>
+              <StaticResource ResourceKey="SpawnPointDataTemplate"/>
+              <StaticResource ResourceKey="EstateDataTemplate"/>
+            </c:NodeLinkControl.DataTemplates>
+            </c:NodeLinkControl>
+        </DataTemplate>
+      </ListBox.DataTemplates>
       <ListBox.ItemsPanel>
         <ItemsPanelTemplate>
           <Canvas
@@ -56,7 +73,6 @@
             <Interaction.Behaviors>
               <i:ShowFlyoutBehavior />
             </Interaction.Behaviors>
-
           </Canvas>
         </ItemsPanelTemplate>
       </ListBox.ItemsPanel>

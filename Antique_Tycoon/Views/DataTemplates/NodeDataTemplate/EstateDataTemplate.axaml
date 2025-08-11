@@ -10,15 +10,7 @@
     </ContentControl>
   </Design.PreviewWith>
 
-  <!-- 为什么每个节点都手动使用NodeLinkControl包装？ 因为listbox需要同时显示线条，所以把节点的数据上下文和线条的再区分一下，而数据模板会匹配子类，如果给父类的数据上下文类型添加数据模板会导致无限递归，所以手动添加 -->
   <DataTemplate x:Key="EstateDataTemplate" x:DataType="node:Estate">
-    <c:NodeLinkControl
-      Focusable="True"
-      Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=ListBox}}">
-      <Interaction.Behaviors>
-        <i:CanvasItemDragBehavior Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                  Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-      </Interaction.Behaviors>
       <StackPanel>
         <TextBlock Text="{Binding Level,StringFormat={}{0}级}"
                    HorizontalAlignment="Center"
@@ -32,6 +24,5 @@
           Source="{Binding Cover}"
           Stretch="{Binding CoverStretch}" />
       </StackPanel>
-    </c:NodeLinkControl>
   </DataTemplate>
 </ResourceDictionary>
