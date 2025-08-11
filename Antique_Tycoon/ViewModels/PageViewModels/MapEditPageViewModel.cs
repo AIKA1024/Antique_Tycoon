@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
@@ -13,17 +12,16 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
-using SpawnPoint = Antique_Tycoon.Models.Node.SpawnPoint;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapEditPageViewModel:PageViewModelBase
 {
-  public AvaloniaList<NodeModel> SelectedMapEntities { get; } = [];
+  public AvaloniaList<CanvasItemModel> SelectedMapEntities { get; } = [];
 
   [ObservableProperty] private Map _map;
 
-  [ObservableProperty] private NodeModel? _selectedMapEntity;
+  [ObservableProperty] private NodeModel? _selectedMapEntity;//todo 线条也加进来后，要把线条的选择处理一下
 
   public Point PointerPosition { get; set; }
 

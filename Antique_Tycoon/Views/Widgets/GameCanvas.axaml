@@ -5,6 +5,7 @@
   xmlns:c="using:Antique_Tycoon.Views.Controls"
   xmlns:cv="using:Antique_Tycoon.Converters"
   xmlns:i="using:Antique_Tycoon.Behaviors"
+  xmlns:cm="using:Antique_Tycoon.Models.Connections"
   xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
   xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
@@ -36,14 +37,24 @@
             Content="{Binding $self.DataContext}"
             Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=ListBox}}">
             <Interaction.Behaviors>
-              <i:CanvasItemDragBehavior Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                        Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+              <i:CanvasItemDragBehavior
+                Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=ListBox}}" />
             </Interaction.Behaviors>
             <c:NodeLinkControl.DataTemplates>
-              <StaticResource ResourceKey="SpawnPointDataTemplate"/>
-              <StaticResource ResourceKey="EstateDataTemplate"/>
+              <StaticResource ResourceKey="SpawnPointDataTemplate" />
+              <StaticResource ResourceKey="EstateDataTemplate" />
             </c:NodeLinkControl.DataTemplates>
-            </c:NodeLinkControl>
+            <c:NodeLinkControl.KeyBindings>
+              <KeyBinding Gesture="Delete" Command="{Binding $parent.((vm:MapEditPageViewModel)DataContext).RemoveEntityCommand}"
+                          CommandParameter="{Binding}"/>
+            </c:NodeLinkControl.KeyBindings>
+          </c:NodeLinkControl>
+        </DataTemplate>
+        
+        <DataTemplate DataType="cm:Connection">
+          <c:ConnectionLine Data="{Binding Data}" Stroke="{Binding Stroke}"
+                            StrokeThickness="{Binding StrokeThickness}"/>
         </DataTemplate>
       </ListBox.DataTemplates>
       <ListBox.ItemsPanel>

@@ -12,10 +12,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Models.Node;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
-[JsonDerivedType(typeof(SpawnPoint), "SpawnPoint")]
-[JsonDerivedType(typeof(Estate), "Estate")]
-//[JsonDerivedType(typeof(Antique), "Antique")]
+
 public abstract partial class NodeModel : CanvasItemModel, IDisposable
 {
   public double Left
@@ -68,10 +65,9 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
     set => SetProperty(ref field, value);
   } = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Minecraft.png")));
 
-  public ConnectorModel[] ConnectorModels { get; set; } =
+  public ConnectorJsonModel[] ConnectorModels { get; set; } =
     [new(), new(), new(), new()];
 
-  public AvaloniaList<ConnectionModel> ConnectionModels { get; set; } = [];
 
   private bool _disposed;
 

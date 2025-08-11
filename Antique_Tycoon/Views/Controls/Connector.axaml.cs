@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows.Input;
 using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
@@ -19,6 +13,12 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PropertyGenerator.Avalonia;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Linq;
+using System.Windows.Input;
 
 namespace Antique_Tycoon.Views.Controls;
 
@@ -29,10 +29,12 @@ public partial class Connector : TemplatedControl
   private Point _lastCheckedPosition;
   private DateTime _lastCheckTime;
   private Connector? _closestConnector;
-  public ConnectorModel SelfConnectorModel;
-  
+  public ConnectorJsonModel SelfConnectorJsonModel { get; set; }
+
   [GeneratedDirectProperty] public partial List<Connection> ActiveConnections { get; set; } = [];
   [GeneratedDirectProperty] public partial List<Connection> PassiveConnections { get; set; } = [];
+
+  [GeneratedDirectProperty] public partial Map Map { get; set; }
 
   [GeneratedStyledProperty] public partial IBrush? Fill { get; set; }
   [GeneratedStyledProperty] public partial IBrush? Stroke { get; set; }
@@ -40,8 +42,8 @@ public partial class Connector : TemplatedControl
 
   [GeneratedDirectProperty] public partial Panel LineCanvas { get; set; }
 
-  [GeneratedDirectProperty] public partial Point Anchor { get; set; }
   [GeneratedDirectProperty] public partial string Uuid { get; set; } = "";
+  [GeneratedDirectProperty] public partial string NodeUuid { get; set; } = "";
   [GeneratedDirectProperty] public partial ICommand? Command { get; set; }
   [GeneratedDirectProperty] public partial object? CommandParameter { get; set; }
 
@@ -54,9 +56,22 @@ public partial class Connector : TemplatedControl
     remove => RemoveHandler(ConnectedEvent, value);
   }
 
-  public class ConnectedRoutedEventArgs(ConnectionModel connectionModel) : RoutedEventArgs
+  public static readonly RoutedEvent<ConnectedRoutedEventArgs> CancelConnectEvent =
+    RoutedEvent.Register<Connector, ConnectedRoutedEventArgs>(nameof(CancelConnect), RoutingStrategies.Bubble);
+
+  public event EventHandler<CancelConnectRoutedEventArgs> CancelConnect
   {
-    public ConnectionModel ConnectionModel { get; set; } = connectionModel;
+    add => AddHandler(CancelConnectEvent, value);
+    remove => RemoveHandler(CancelConnectEvent, value);
+  }
+
+  public class ConnectedRoutedEventArgs(Connection connection) : RoutedEventArgs
+  {
+    public Connection Connection { get; set; } = connection;
+  }
+  public class CancelConnectRoutedEventArgs(string connectorUuid) : RoutedEventArgs
+  {
+    public string ConnectorUuid { get; set; } = connectorUuid;
   }
 
   protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -66,7 +81,7 @@ public partial class Connector : TemplatedControl
       throw new NullReferenceException("LineCanvas");
     LineCanvas.PointerMoved += Canvas_PointerMoved;
     LineCanvas.PointerReleased += Canvas_PointerReleased;
-    SelfConnectorModel = DataContext as ConnectorModel;
+    SelfConnectorJsonModel = DataContext as ConnectorJsonModel;
   }
 
   protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -83,17 +98,17 @@ public partial class Connector : TemplatedControl
     {
       UpdateAnchor();
       foreach (var activeConnection in ActiveConnections)
-        activeConnection.Update();
+        activeConnection.UpdateGeometry();
 
       foreach (var passiveConnection in PassiveConnections)
-        passiveConnection.Update();
+        passiveConnection.UpdateGeometry();
     }, DispatcherPriority.Render);
   }
 
   public void UpdateAnchor()
   {
     var position = this.TranslatePoint(new Point(Width / 2, Height / 2), LineCanvas) ?? default;
-    Anchor = position;
+    SelfConnectorJsonModel.Anchor = position;
   }
 
   public Connector? FindClosestConnector(Point worldPos)
@@ -106,7 +121,7 @@ public partial class Connector : TemplatedControl
       connector.UpdateAnchor();
       if (connector == this || connector.Parent == Parent)
         continue;
-      var pos = connector.Anchor; // 世界坐标，需确保 Anchor 正确更新
+      var pos = connector.SelfConnectorJsonModel.Anchor; // 世界坐标，需确保 Anchor 正确更新
       var dist = ((Vector)(pos - worldPos)).Length;
 
       if (dist < minDist && dist < Width / 2)
@@ -124,7 +139,15 @@ public partial class Connector : TemplatedControl
   {
     base.OnPointerPressed(e);
     if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
-      CancelConnect();
+    {
+      foreach (var activeConnection in ActiveConnections)
+        Map.Entities.Remove(activeConnection);
+      foreach (var passiveConnection in PassiveConnections)
+        Map.Entities.Remove(passiveConnection);
+      ActiveConnections.Clear();
+      PassiveConnections.Clear();
+      RaiseEvent(new CancelConnectRoutedEventArgs(Uuid) { RoutedEvent = CancelConnectEvent, Source = this });
+    }
     else
     {
       var position = this.TranslatePoint(new Point(Width / 2, Width / 2), LineCanvas) ?? new Point(0, 0);
@@ -157,7 +180,7 @@ public partial class Connector : TemplatedControl
       _lastCheckedPosition = pos;
       _closestConnector = FindClosestConnector(pos);
       if (_closestConnector != null && _closestConnector != this)
-        _tempLine.EndPoint = _closestConnector?.Anchor ?? e.GetPosition(LineCanvas);
+        _tempLine.EndPoint = _closestConnector?.SelfConnectorJsonModel.Anchor ?? e.GetPosition(LineCanvas);
     }
 
     if (_closestConnector is null)
@@ -173,28 +196,13 @@ public partial class Connector : TemplatedControl
     _tempLine = null;
 
     if (_closestConnector == null) return;
-    var connection = new Connection(SelfConnectorModel, _closestConnector.SelfConnectorModel);
+    var connection = new Connection(SelfConnectorJsonModel, _closestConnector.SelfConnectorJsonModel, NodeUuid, _closestConnector.NodeUuid);
     ActiveConnections.Add(connection);
     _closestConnector.PassiveConnections.Add(connection);
-    LineCanvas.Children.Add(connection.Line);
+    Map.Entities.Add(connection);
     if (Command?.CanExecute(CommandParameter) == true)
       Command.Execute(CommandParameter);
-    RaiseEvent(new ConnectedRoutedEventArgs(new ConnectionModel
-    {
-      StartConnectorId = Uuid,
-      EndConnectorId = _closestConnector.Uuid,
-      EndNodeId = ((NodeModel)_closestConnector.Parent.DataContext).Uuid
-    }) { RoutedEvent = ConnectedEvent, Source = this });
+    RaiseEvent(new ConnectedRoutedEventArgs(connection) { RoutedEvent = ConnectedEvent, Source = this });
     e.Handled = true;
-  }
-
-  private void CancelConnect()
-  {
-    foreach (var activeConnection in ActiveConnections)
-      LineCanvas.Children.Remove(activeConnection.Line);
-    foreach (var passiveConnection in PassiveConnections)
-      LineCanvas.Children.Remove(passiveConnection.Line);
-    ActiveConnections.Clear();
-    PassiveConnections.Clear();
   }
 }

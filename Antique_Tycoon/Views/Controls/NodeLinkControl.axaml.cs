@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
 using Antique_Tycoon.Models.Node;
@@ -13,6 +11,9 @@ using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Antique_Tycoon.Views.Controls;
 
@@ -24,34 +25,31 @@ public partial class NodeLinkControl : ContentControl
 
   public NodeLinkControl()
   {
-    AddHandler(Connector.ConnectedEvent, OnConnectorConnected, RoutingStrategies.Bubble);
+    //AddHandler(Connector.ConnectedEvent, OnConnectorConnected, RoutingStrategies.Bubble);
+    //AddHandler(Connector.CancelConnectEvent, OnCancelConnectorConnected, RoutingStrategies.Bubble);
   }
 
   protected override void OnLoaded(RoutedEventArgs e)
   {
     base.OnLoaded(e);
-
-    ConnectLine();
   }
 
-  private void ConnectLine()
-  {
-    var mapEntitiesDic = Map.Entities.ToDictionary(e => e.Uuid, e => e);
-    foreach (var connectionModel in NodeModel.ConnectionModels)
-    {
-      var startConnectorModel = NodeModel.ConnectorModels.First(c => c.Uuid == connectionModel.StartConnectorId);
-      var endEntity = mapEntitiesDic[connectionModel.EndNodeId];
-      var endConnectorModel = endEntity.ConnectorModels.First(c => c.Uuid == connectionModel.EndConnectorId);
-      var connection = new Connection(startConnectorModel, endConnectorModel);
-      startConnectorModel.ActiveConnections.Add(connection);
-      endConnectorModel.PassiveConnections.Add(connection);
-      LineCanvas.Children.Add(connection.Line);
-    }
-  }
+  
 
-  private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)
-  {
-    NodeModel.ConnectionModels.Add(e.ConnectionModel);
-    e.Handled = true;
-  }
+  //private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)
+  //{
+  //  NodeModel.ConnectionModels.Add(e.Connection);
+  //  e.Handled = true;
+  //}
+
+  //private void OnCancelConnectorConnected(object? sender, Connector.CancelConnectRoutedEventArgs e)
+  //{
+  //  var connectionList = new List<Connection>();
+  //  for (int i = NodeModel.ConnectionModels.Count - 1; i >= 0; i--)
+  //  {
+  //    if (NodeModel.ConnectionModels[i].Uuid == e.ConnectorUuid)
+  //      NodeModel.ConnectionModels.RemoveAt(i);
+  //  }
+  //  e.Handled = true;
+  //}
 }
