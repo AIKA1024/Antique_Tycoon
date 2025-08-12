@@ -105,8 +105,10 @@
             </ControlTemplate>
           </Setter>
         </Style>
-        <!--todo 可能类型不是NodeModel -->
-        <Style x:DataType="node:NodeModel" Selector="ListBoxItem">
+        <Style Selector="ListBoxItem">
+          <Setter Property="i:DataContextType.Type" Value="{Binding}"/>
+        </Style>
+        <Style x:DataType="node:NodeModel" Selector="ListBoxItem.NodeModel">
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Setter Property="Template">
@@ -123,7 +125,15 @@
             </Style>
           </Style>
         </Style>
-        
+        <Style x:DataType="cm:Connection" Selector="ListBoxItem.Connection">
+          <Setter Property="Template">
+            <ControlTemplate>
+              <ContentPresenter Content="{TemplateBinding Content}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                ZIndex="{TemplateBinding ZIndex}" />
+            </ControlTemplate>
+          </Setter>
+        </Style>
       </ListBox.Styles>
     </ListBox>
     <Interaction.Behaviors>

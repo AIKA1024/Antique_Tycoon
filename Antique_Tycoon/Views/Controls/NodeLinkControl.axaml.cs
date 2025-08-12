@@ -25,8 +25,7 @@ public partial class NodeLinkControl : ContentControl
 
   public NodeLinkControl()
   {
-    //AddHandler(Connector.ConnectedEvent, OnConnectorConnected, RoutingStrategies.Bubble);
-    //AddHandler(Connector.CancelConnectEvent, OnCancelConnectorConnected, RoutingStrategies.Bubble);
+    
   }
 
   protected override void OnLoaded(RoutedEventArgs e)
@@ -36,20 +35,5 @@ public partial class NodeLinkControl : ContentControl
 
   
 
-  //private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)
-  //{
-  //  NodeModel.ConnectionModels.Add(e.Connection);
-  //  e.Handled = true;
-  //}
-
-  //private void OnCancelConnectorConnected(object? sender, Connector.CancelConnectRoutedEventArgs e)
-  //{
-  //  var connectionList = new List<Connection>();
-  //  for (int i = NodeModel.ConnectionModels.Count - 1; i >= 0; i--)
-  //  {
-  //    if (NodeModel.ConnectionModels[i].Uuid == e.ConnectorUuid)
-  //      NodeModel.ConnectionModels.RemoveAt(i);
-  //  }
-  //  e.Handled = true;
-  //}
+  
 }
