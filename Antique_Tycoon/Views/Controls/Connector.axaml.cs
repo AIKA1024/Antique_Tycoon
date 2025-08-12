@@ -138,7 +138,10 @@ public partial class Connector : TemplatedControl
   protected override void OnPointerPressed(PointerPressedEventArgs e)
   {
     base.OnPointerPressed(e);
-    if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+    var pointerPoint = e.GetCurrentPoint(this);
+    var props = pointerPoint.Properties;
+    var keyboardModifiers = e.KeyModifiers;
+    if (props.IsLeftButtonPressed && keyboardModifiers.HasFlag(KeyModifiers.Alt))
     {
       foreach (var activeConnection in ActiveConnections)
         Map.Entities.Remove(activeConnection);

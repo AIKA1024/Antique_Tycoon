@@ -32,8 +32,8 @@ public class ShowFlyoutBehavior : Behavior<Control>
   protected override void OnAttached()
   {
     base.OnAttached();
-    AssociatedObject.PointerPressed += OnPointerPressed;
-    AssociatedObject.PointerReleased += OnPointerReleased;
+    AssociatedObject.AddHandler(InputElement.PointerPressedEvent, OnPointerPressed, RoutingStrategies.Tunnel);
+    AssociatedObject.AddHandler(InputElement.PointerReleasedEvent, OnPointerReleased, RoutingStrategies.Tunnel);
     AssociatedObject.Loaded += AssociatedObjectOnLoaded;
   }
 
@@ -53,8 +53,8 @@ public class ShowFlyoutBehavior : Behavior<Control>
   override protected void OnDetaching()
   {
     base.OnDetaching();
-    AssociatedObject.PointerPressed -= OnPointerPressed;
-    AssociatedObject.PointerReleased -= OnPointerReleased;
+    AssociatedObject.RemoveHandler(InputElement.PointerPressedEvent, OnPointerPressed);
+    AssociatedObject.RemoveHandler(InputElement.PointerReleasedEvent, OnPointerReleased);
     AssociatedObject.Initialized += AssociatedObjectOnLoaded;
     foreach (var menuItem in ((Panel)_flyout.Content).Children.OfType<MenuItem>())
       menuItem.Tapped -= MenuItemOnTap;
@@ -62,6 +62,7 @@ public class ShowFlyoutBehavior : Behavior<Control>
 
   private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
   {
+    if (sender!=e.Source) return;
     var pointer = e.GetCurrentPoint(sender as Visual);
     if (pointer.Properties.IsRightButtonPressed)
     {
@@ -72,6 +73,7 @@ public class ShowFlyoutBehavior : Behavior<Control>
 
   private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
   {
+    if (sender!=e.Source) return;
     if (e.InitialPressMouseButton != MouseButton.Right) return;
     var newPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var dx = newPoint.X - _oldPoint.X;

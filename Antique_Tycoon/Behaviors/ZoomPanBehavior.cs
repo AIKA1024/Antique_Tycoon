@@ -36,10 +36,10 @@ public partial class ZoomPanBehavior : Behavior<Control> //todo 如果控件上�
     base.OnAttached();
     if (AssociatedObject is { } control)
     {
-      control.PointerPressed += OnPointerPressed;
-      control.PointerMoved += OnPointerMoved;
-      control.PointerReleased += OnPointerReleased;
-      control.PointerWheelChanged += OnPointerWheelChanged;
+      control.AddHandler(InputElement.PointerPressedEvent, OnPointerPressed, RoutingStrategies.Tunnel);
+      control.AddHandler(InputElement.PointerMovedEvent, OnPointerMoved, RoutingStrategies.Tunnel);
+      control.AddHandler(InputElement.PointerReleasedEvent, OnPointerReleased, RoutingStrategies.Tunnel);
+      control.AddHandler(InputElement.PointerWheelChangedEvent, OnPointerWheelChanged, RoutingStrategies.Tunnel);
     }
   }
 
@@ -48,10 +48,10 @@ public partial class ZoomPanBehavior : Behavior<Control> //todo 如果控件上�
     base.OnDetaching();
     if (AssociatedObject is { } control)
     {
-      control.PointerPressed -= OnPointerPressed;
-      control.PointerMoved -= OnPointerMoved;
-      control.PointerReleased -= OnPointerReleased;
-      control.PointerWheelChanged -= OnPointerWheelChanged;
+      control.RemoveHandler(InputElement.PointerPressedEvent, OnPointerPressed);
+      control.RemoveHandler(InputElement.PointerMovedEvent, OnPointerMoved);
+      control.RemoveHandler(InputElement.PointerReleasedEvent, OnPointerReleased);
+      control.RemoveHandler(InputElement.PointerWheelChangedEvent, OnPointerWheelChanged);
     }
   }
 

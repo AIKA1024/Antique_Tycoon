@@ -13,8 +13,8 @@ public partial class Connection : CanvasItemModel
 {
   public ConnectorJsonModel StartConnectorJsonModel { get; set; }
   public ConnectorJsonModel EndConnectorJsonModel { get; set; }
-  public string StartNodeId { get; set; } = "";
-  public string EndNodeId { get; set; } = "";
+  public string StartNodeId { get; set; }
+  public string EndNodeId { get; set; }
   public double ArrowLength { get; set; } = 6;
   public double ShortenLength { get; set; } = 6;
   public double ArrowAngle { get; set; } = Math.PI / 6;
