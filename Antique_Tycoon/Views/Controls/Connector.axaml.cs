@@ -29,7 +29,7 @@ public partial class Connector : TemplatedControl
   private Point _lastCheckedPosition;
   private DateTime _lastCheckTime;
   private Connector? _closestConnector;
-  public ConnectorJsonModel SelfConnectorJsonModel { get; set; }
+  public Point Anchor { get; set; }
 
   [GeneratedDirectProperty] public partial List<Connection> ActiveConnections { get; set; } = [];
   [GeneratedDirectProperty] public partial List<Connection> PassiveConnections { get; set; } = [];
@@ -44,6 +44,7 @@ public partial class Connector : TemplatedControl
 
   [GeneratedDirectProperty] public partial string Uuid { get; set; } = "";
   [GeneratedDirectProperty] public partial string NodeUuid { get; set; } = "";
+  
   [GeneratedDirectProperty] public partial ICommand? Command { get; set; }
   [GeneratedDirectProperty] public partial object? CommandParameter { get; set; }
 
@@ -69,6 +70,7 @@ public partial class Connector : TemplatedControl
   {
     public Connection Connection { get; set; } = connection;
   }
+
   public class CancelConnectRoutedEventArgs(string connectorUuid) : RoutedEventArgs
   {
     public string ConnectorUuid { get; set; } = connectorUuid;
@@ -81,7 +83,6 @@ public partial class Connector : TemplatedControl
       throw new NullReferenceException("LineCanvas");
     LineCanvas.PointerMoved += Canvas_PointerMoved;
     LineCanvas.PointerReleased += Canvas_PointerReleased;
-    SelfConnectorJsonModel = DataContext as ConnectorJsonModel;
   }
 
   protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -89,26 +90,33 @@ public partial class Connector : TemplatedControl
     base.OnAttachedToVisualTree(e);
     var parent = this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault();
     if (parent != null)
-      LayoutChanged.AddLayoutChangedHandler(parent, OnNoteLocationChanged);
+      LayoutChanged.AddLayoutChangedHandler(parent, OnNodeLocationChanged);
+    OnNodeLocationChanged(null,null);
   }
 
-  private void OnNoteLocationChanged(object? sender, RoutedEventArgs e)
+  private void OnNodeLocationChanged(object? sender, RoutedEventArgs e)
   {
     Dispatcher.UIThread.Post(() =>
     {
       UpdateAnchor();
       foreach (var activeConnection in ActiveConnections)
+      {
+        activeConnection.StartConnectorAnchor = Anchor;
         activeConnection.UpdateGeometry();
+      }
 
       foreach (var passiveConnection in PassiveConnections)
+      {
+        passiveConnection.EndConnectorAnchor = Anchor;
         passiveConnection.UpdateGeometry();
+      }
     }, DispatcherPriority.Render);
   }
 
   public void UpdateAnchor()
   {
     var position = this.TranslatePoint(new Point(Width / 2, Height / 2), LineCanvas) ?? default;
-    SelfConnectorJsonModel.Anchor = position;
+    Anchor = position;
   }
 
   public Connector? FindClosestConnector(Point worldPos)
@@ -121,7 +129,7 @@ public partial class Connector : TemplatedControl
       connector.UpdateAnchor();
       if (connector == this || connector.Parent == Parent)
         continue;
-      var pos = connector.SelfConnectorJsonModel.Anchor; // 世界坐标，需确保 Anchor 正确更新
+      var pos = connector.Anchor; // 世界坐标，需确保 Anchor 正确更新
       var dist = ((Vector)(pos - worldPos)).Length;
 
       if (dist < minDist && dist < Width / 2)
@@ -183,7 +191,7 @@ public partial class Connector : TemplatedControl
       _lastCheckedPosition = pos;
       _closestConnector = FindClosestConnector(pos);
       if (_closestConnector != null && _closestConnector != this)
-        _tempLine.EndPoint = _closestConnector?.SelfConnectorJsonModel.Anchor ?? e.GetPosition(LineCanvas);
+        _tempLine.EndPoint = _closestConnector?.Anchor ?? e.GetPosition(LineCanvas);
     }
 
     if (_closestConnector is null)
@@ -199,7 +207,8 @@ public partial class Connector : TemplatedControl
     _tempLine = null;
 
     if (_closestConnector == null) return;
-    var connection = new Connection(SelfConnectorJsonModel, _closestConnector.SelfConnectorJsonModel, NodeUuid, _closestConnector.NodeUuid);
+    var connection =
+      new Connection(Anchor,_closestConnector.Anchor,NodeUuid, _closestConnector.NodeUuid,Uuid,_closestConnector.Uuid);
     ActiveConnections.Add(connection);
     _closestConnector.PassiveConnections.Add(connection);
     Map.Entities.Add(connection);

@@ -1,41 +1,36 @@
 using System;
-using Antique_Tycoon.Extensions;
+using System.Collections.Generic;
 using Antique_Tycoon.Models.Node;
-using Antique_Tycoon.ViewModels;
-using Antique_Tycoon.Views.Controls;
 using Antique_Tycoon.Views.Windows;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.VisualTree;
+using Avalonia.Markup.Xaml;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Behaviors;
 
-public partial class CanvasItemDragBehavior : Behavior<Control> //想着解耦把逻辑放在行为里，但又不得不依赖vm的属性💩
+public partial class CanvasItemDragBehavior : Behavior<Control>
 {
-  private NodeModel _model;
   private bool _isDragging;
   private Point _lastPointerPosition;
-  [GeneratedDirectProperty]
-  public partial double Scale { get; set; }
-  
-  [GeneratedDirectProperty]
-  public partial Point Offset { get; set; }
+  private IDisposable? _topSubscription;
+  private IDisposable? _leftSubscription;
+  [GeneratedDirectProperty] public partial IList<CanvasItemModel>? SelectedItems { get; set; }
+  [GeneratedDirectProperty] public partial double Scale { get; set; }
 
+  [GeneratedDirectProperty] public partial Point Offset { get; set; }
   protected override void OnAttached()
   {
     base.OnAttached();
-    AssociatedObject.Loaded += AssociatedObjectOnLoaded;
     AssociatedObject.PointerPressed += AssociatedObjectOnPointerPressed;
     AssociatedObject.PointerReleased += AssociatedObjectOnPointerReleased;
     AssociatedObject.PointerMoved += AssociatedObjectOnPointerMoved;
-    AssociatedObject.SizeChanged += AssociatedObjectOnSizeChanged;
+    _topSubscription = AssociatedObject.GetObservable(Canvas.TopProperty).Subscribe(_ => LayoutChanged.RaiseLayoutChanged(AssociatedObject));
+    _leftSubscription = AssociatedObject.GetObservable(Canvas.LeftProperty).Subscribe(_ => LayoutChanged.RaiseLayoutChanged(AssociatedObject));
   }
-
   private void AssociatedObjectOnSizeChanged(object? sender, SizeChangedEventArgs e) =>
     LayoutChanged.RaiseLayoutChanged(AssociatedObject);
 
@@ -45,16 +40,9 @@ public partial class CanvasItemDragBehavior : Behavior<Control> //想着解耦�
     AssociatedObject.PointerPressed -= AssociatedObjectOnPointerPressed;
     AssociatedObject.PointerReleased -= AssociatedObjectOnPointerReleased;
     AssociatedObject.PointerMoved -= AssociatedObjectOnPointerMoved;
-    AssociatedObject.Loaded -= AssociatedObjectOnLoaded;
     AssociatedObject.SizeChanged -= AssociatedObjectOnSizeChanged;
-  }
-
-  private void AssociatedObjectOnLoaded(object? sender, RoutedEventArgs e)
-  {
-    if (AssociatedObject.DataContext is NodeModel model)
-      _model = model;
-    else
-      throw new Exception("只能依附在数据上下文为CanvasEntity的元素上");
+    _topSubscription?.Dispose();
+    _leftSubscription?.Dispose();
   }
 
   private void AssociatedObjectOnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -81,13 +69,18 @@ public partial class CanvasItemDragBehavior : Behavior<Control> //想着解耦�
 
     if (snappedDeltaX != 0 || snappedDeltaY != 0)
     {
-      _model.Left += snappedDeltaX;
-      _model.Top += snappedDeltaY;
+      foreach (var item in SelectedItems)
+      {
+        if (item is NodeModel nodeModel)
+        {
+          nodeModel.Left += snappedDeltaX;
+          nodeModel.Top += snappedDeltaY;
+        }
+      }
       _lastPointerPosition = new Point(
         _lastPointerPosition.X + snappedDeltaX * Scale,
         _lastPointerPosition.Y + snappedDeltaY * Scale
       );
-      LayoutChanged.RaiseLayoutChanged(AssociatedObject);
     }
   }
 

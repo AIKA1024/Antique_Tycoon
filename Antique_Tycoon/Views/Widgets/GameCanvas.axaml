@@ -34,11 +34,14 @@
       <c:XListbox.DataTemplates>
         <DataTemplate DataType="node:NodeModel">
           <c:NodeLinkControl
+            Canvas.Top="{Binding Top}"
+            Canvas.Left="{Binding Left}"
             Focusable="True"
             Content="{Binding $self.DataContext}"
             Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=c:XListbox}}">
             <Interaction.Behaviors>
               <i:CanvasItemDragBehavior
+                SelectedItems="{Binding $parent.((vm:MapEditPageViewModel)DataContext).SelectedMapEntities}"
                 Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=c:XListbox}}"
                 Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=c:XListbox}}" />
             </Interaction.Behaviors>
@@ -55,7 +58,9 @@
         
         <DataTemplate DataType="cm:Connection">
           <c:ConnectionLine Data="{Binding Data}" Stroke="{Binding Stroke}"
-                            StrokeThickness="{Binding StrokeThickness}"/>
+                            StrokeThickness="{Binding StrokeThickness}"
+                            StartPoint="{Binding StartConnectorAnchor}"
+                            EndPoint="{Binding EndConnectorAnchor}"/>
         </DataTemplate>
       </c:XListbox.DataTemplates>
       <c:XListbox.ItemsPanel>

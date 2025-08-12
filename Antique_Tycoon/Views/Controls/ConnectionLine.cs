@@ -6,10 +6,10 @@ using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Controls;
 
-public class ConnectionLine : Path
+public partial class ConnectionLine : Path
 {
-  public Point StartPoint { get; set; }
-  public Point EndPoint { get; set; }
+  [GeneratedDirectProperty] public partial Point StartPoint { get; set; }
+  [GeneratedDirectProperty] public partial Point EndPoint { get; set; }
 
   public double ArrowLength { get; set; } = 6;
   public double ShortenLength { get; set; } = 6;

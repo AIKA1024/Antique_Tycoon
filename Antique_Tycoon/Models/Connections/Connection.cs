@@ -11,10 +11,12 @@ namespace Antique_Tycoon.Models.Connections;
 
 public partial class Connection : CanvasItemModel
 {
-  public ConnectorJsonModel StartConnectorJsonModel { get; set; }
-  public ConnectorJsonModel EndConnectorJsonModel { get; set; }
+  [ObservableProperty] public partial Point StartConnectorAnchor { get; set; }
+  [ObservableProperty] public partial Point EndConnectorAnchor { get; set; }
   public string StartNodeId { get; set; }
+  public string StartConnectorId { get; set; }
   public string EndNodeId { get; set; }
+  public string EndConnectorId { get; set; }
   public double ArrowLength { get; set; } = 6;
   public double ShortenLength { get; set; } = 6;
   public double ArrowAngle { get; set; } = Math.PI / 6;
@@ -26,19 +28,21 @@ public partial class Connection : CanvasItemModel
   [ObservableProperty] public partial Geometry? Data { get; private set; }
   // public ConnectionLine Line { get; }
 
-  public Connection(ConnectorJsonModel startConnectorJsonModel, ConnectorJsonModel endConnectorJsonModel,string startNodeId,string endNodeId)
+  public Connection(Point startConnectorAnchor, Point endConnectorAnchor,string startNodeId,string endNodeId,string startConnectorId,string endConnectorId)
   {
-    StartConnectorJsonModel = startConnectorJsonModel;
-    EndConnectorJsonModel = endConnectorJsonModel;
+    StartConnectorAnchor = startConnectorAnchor;
+    EndConnectorAnchor = endConnectorAnchor;
     StartNodeId = startNodeId;
     EndNodeId =  endNodeId;
+    StartConnectorId = startConnectorId;
+    EndConnectorId = endConnectorId;
     UpdateGeometry();
   }
 
   public void UpdateGeometry()
   {
     double maxCurviness = 0.3; // 最大弯曲度
-    Vector delta = EndConnectorJsonModel.Anchor - StartConnectorJsonModel.Anchor;
+    Vector delta = EndConnectorAnchor - StartConnectorAnchor;
 
     if (delta.Length < double.Epsilon)
     {
@@ -74,7 +78,7 @@ public partial class Connection : CanvasItemModel
       normal = NormalizeToLength(normal, 1);
     }
 
-    var midPoint = StartConnectorJsonModel.Anchor + delta * 0.5;
+    var midPoint = StartConnectorAnchor + delta * 0.5;
     double length = delta.Length;
     Vector offset = normal * length * curviness;
 
@@ -83,17 +87,17 @@ public partial class Connection : CanvasItemModel
     var p2 = midPoint + offset;
 
     // 缩短起点和终点（你原来的逻辑）
-    Vector startTangent = p1 - StartConnectorJsonModel.Anchor;
+    Vector startTangent = p1 - StartConnectorAnchor;
     if (startTangent.Length < double.Epsilon)
       startTangent = new Vector(1, 0);
     startTangent = NormalizeToLength(startTangent, ShortenLength);
-    var newStart = StartConnectorJsonModel.Anchor + startTangent;
+    var newStart = StartConnectorAnchor + startTangent;
 
-    Vector tangent = EndConnectorJsonModel.Anchor - p2;
+    Vector tangent = EndConnectorAnchor - p2;
     if (tangent.Length < double.Epsilon)
       tangent = new Vector(0, 1);
     tangent = NormalizeToLength(tangent, ShortenLength);
-    var newEnd = EndConnectorJsonModel.Anchor - tangent;
+    var newEnd = EndConnectorAnchor - tangent;
 
     // 生成曲线
     var geometry = new PathGeometry

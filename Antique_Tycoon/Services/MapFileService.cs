@@ -59,11 +59,9 @@ public class MapFileService
     foreach (var connection in connections)
     {
       var startEntity = mapNodeDic[connection.StartNodeId];
-      var startConnectorModel = startEntity.ConnectorModels.First(c => c.Uuid == connection.StartConnectorJsonModel.Uuid);
+      var startConnectorModel = startEntity.ConnectorModels.First(c => c.Uuid == connection.StartConnectorId);
       var endEntity = mapNodeDic[connection.EndNodeId];
-      var endConnectorModel = endEntity.ConnectorModels.First(c => c.Uuid == connection.EndConnectorJsonModel.Uuid);
-      connection.StartConnectorJsonModel = startConnectorModel;//序列化生成的对象不是同一个，手动赋值一下
-      connection.EndConnectorJsonModel = endConnectorModel;
+      var endConnectorModel = endEntity.ConnectorModels.First(c => c.Uuid == connection.EndConnectorId);
       startConnectorModel.ActiveConnections.Add(connection);
       endConnectorModel.PassiveConnections.Add(connection);
       //Entities.Add(newConnection);

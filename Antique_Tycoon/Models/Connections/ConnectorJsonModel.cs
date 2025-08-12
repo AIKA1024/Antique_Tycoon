@@ -10,9 +10,6 @@ namespace Antique_Tycoon.Models.Connections;
 public partial class ConnectorJsonModel : ObservableObject
 {
   [ObservableProperty] public partial string Uuid { get; set; } = Guid.NewGuid().ToString();
-  [ObservableProperty]
-  [JsonConverter(typeof(PointJsonConverter))]
-  public partial Point Anchor { get; set; }
 
   [JsonIgnore]
   public List<Connection> ActiveConnections { get; set; } = [];

@@ -14,6 +14,7 @@ using PropertyGenerator.Avalonia;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Antique_Tycoon.Behaviors;
 
 namespace Antique_Tycoon.Views.Controls;
 
@@ -22,18 +23,4 @@ public partial class NodeLinkControl : ContentControl
   [GeneratedDirectProperty] public partial NodeModel NodeModel { get; set; }
   [GeneratedDirectProperty] public partial Map Map { get; set; }
   [GeneratedDirectProperty] public partial Panel LineCanvas { get; set; }
-
-  public NodeLinkControl()
-  {
-    
-  }
-
-  protected override void OnLoaded(RoutedEventArgs e)
-  {
-    base.OnLoaded(e);
-  }
-
-  
-
-  
 }
