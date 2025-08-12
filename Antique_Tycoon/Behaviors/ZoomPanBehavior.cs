@@ -18,7 +18,7 @@ using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Behaviors;
 
-public partial class ZoomPanBehavior : Behavior<Control> //todo 如果控件上有其他控件，拖拽的控件就收不到OnPointerPressed事件
+public partial class ZoomPanBehavior : Behavior<Control>
 {
   private Point? _lastPointer;
 

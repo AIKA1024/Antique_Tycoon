@@ -32,8 +32,8 @@ public class ShowFlyoutBehavior : Behavior<Control>
   protected override void OnAttached()
   {
     base.OnAttached();
-    AssociatedObject.AddHandler(InputElement.PointerPressedEvent, OnPointerPressed, RoutingStrategies.Tunnel);
-    AssociatedObject.AddHandler(InputElement.PointerReleasedEvent, OnPointerReleased, RoutingStrategies.Tunnel);
+    AssociatedObject.PointerPressed += OnPointerPressed;
+    AssociatedObject.PointerReleased += OnPointerReleased;
     AssociatedObject.Loaded += AssociatedObjectOnLoaded;
   }
 
@@ -53,8 +53,8 @@ public class ShowFlyoutBehavior : Behavior<Control>
   override protected void OnDetaching()
   {
     base.OnDetaching();
-    AssociatedObject.RemoveHandler(InputElement.PointerPressedEvent, OnPointerPressed);
-    AssociatedObject.RemoveHandler(InputElement.PointerReleasedEvent, OnPointerReleased);
+    AssociatedObject.PointerPressed -= OnPointerPressed;
+    AssociatedObject.PointerReleased -= OnPointerReleased;
     AssociatedObject.Initialized += AssociatedObjectOnLoaded;
     foreach (var menuItem in ((Panel)_flyout.Content).Children.OfType<MenuItem>())
       menuItem.Tapped -= MenuItemOnTap;

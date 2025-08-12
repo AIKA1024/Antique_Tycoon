@@ -16,30 +16,31 @@
     <widgets:GameCanvas />
   </Design.PreviewWith>
   <Panel Background="Transparent">
-    <ListBox
+    <c:XListbox
       x:Name="EntityListBox"
       Background="{x:Null}"
       ClipToBounds="False"
       ItemsSource="{Binding Map.Entities}"
       RenderTransformOrigin="0,0"
       SelectedItem="{Binding TempSelectedMapEntity, Mode=OneWayToSource}"
-      SelectedItems="{Binding SelectedMapEntities}">
-      <ListBox.RenderTransform>
+      SelectedItems="{Binding SelectedMapEntities}"
+      SelectionMode="Multiple">
+      <c:XListbox.RenderTransform>
         <TransformGroup>
           <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale}" />
           <TranslateTransform X="{Binding Map.Offset.X}" Y="{Binding Map.Offset.Y}" />
         </TransformGroup>
-      </ListBox.RenderTransform>
-      <ListBox.DataTemplates>
+      </c:XListbox.RenderTransform>
+      <c:XListbox.DataTemplates>
         <DataTemplate DataType="node:NodeModel">
           <c:NodeLinkControl
             Focusable="True"
             Content="{Binding $self.DataContext}"
-            Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=ListBox}}">
+            Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=c:XListbox}}">
             <Interaction.Behaviors>
               <i:CanvasItemDragBehavior
-                Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=c:XListbox}}"
+                Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=c:XListbox}}" />
             </Interaction.Behaviors>
             <c:NodeLinkControl.DataTemplates>
               <StaticResource ResourceKey="SpawnPointDataTemplate" />
@@ -56,8 +57,8 @@
           <c:ConnectionLine Data="{Binding Data}" Stroke="{Binding Stroke}"
                             StrokeThickness="{Binding StrokeThickness}"/>
         </DataTemplate>
-      </ListBox.DataTemplates>
-      <ListBox.ItemsPanel>
+      </c:XListbox.DataTemplates>
+      <c:XListbox.ItemsPanel>
         <ItemsPanelTemplate>
           <Canvas
             Width="{Binding Map.CanvasWidth}"
@@ -86,9 +87,9 @@
             </Interaction.Behaviors>
           </Canvas>
         </ItemsPanelTemplate>
-      </ListBox.ItemsPanel>
-      <ListBox.Styles>
-        <Style Selector="ListBox">
+      </c:XListbox.ItemsPanel>
+      <c:XListbox.Styles>
+        <Style Selector="c|XListbox">
           <Setter Property="Template">
             <ControlTemplate>
               <Border
@@ -105,10 +106,11 @@
             </ControlTemplate>
           </Setter>
         </Style>
-        <Style Selector="ListBoxItem">
+        
+        <Style Selector="c|XListBoxItem">
           <Setter Property="i:DataContextType.Type" Value="{Binding}"/>
         </Style>
-        <Style x:DataType="node:NodeModel" Selector="ListBoxItem.NodeModel">
+        <Style x:DataType="node:NodeModel" Selector="c|XListBoxItem.NodeModel">
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Setter Property="Template">
@@ -125,7 +127,7 @@
             </Style>
           </Style>
         </Style>
-        <Style x:DataType="cm:Connection" Selector="ListBoxItem.Connection">
+        <Style x:DataType="cm:Connection" Selector="c|XListBoxItem.Connection">
           <Setter Property="Template">
             <ControlTemplate>
               <ContentPresenter Content="{TemplateBinding Content}"
@@ -134,8 +136,8 @@
             </ControlTemplate>
           </Setter>
         </Style>
-      </ListBox.Styles>
-    </ListBox>
+      </c:XListbox.Styles>
+    </c:XListbox>
     <Interaction.Behaviors>
       <i:ZoomPanBehavior Scale="{Binding Map.Scale, Mode=TwoWay}" Offset="{Binding Map.Offset, Mode=TwoWay}" />
     </Interaction.Behaviors>
