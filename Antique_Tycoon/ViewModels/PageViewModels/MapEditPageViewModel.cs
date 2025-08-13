@@ -20,11 +20,19 @@ public partial class MapEditPageViewModel : PageViewModelBase
   public AvaloniaList<CanvasItemModel> SelectedMapEntities { get; } = [];
 
   [ObservableProperty] private Map _map;
+
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
   public partial CanvasItemModel TempSelectedMapEntity { get; set; }
 
-  public NodeModel? SelectedMapEntity => TempSelectedMapEntity as NodeModel; //todo 线条也加进来后，要把线条的选择处理一下
+  public NodeModel? SelectedMapEntity
+  {
+    get
+    {
+      if (SelectedMapEntities.Count > 1) return null;
+      return TempSelectedMapEntity as NodeModel;
+    }
+  }
 
   public Point PointerPosition { get; set; }
 
@@ -33,6 +41,10 @@ public partial class MapEditPageViewModel : PageViewModelBase
   public MapEditPageViewModel(Map map)
   {
     Map = map;
+    SelectedMapEntities.CollectionChanged += (_, __) =>
+    {
+      OnPropertyChanged(nameof(SelectedMapEntity));
+    };
   }
 
   [RelayCommand]

@@ -92,4 +92,10 @@ public partial class GameCanvas : UserControl
 
     return rtb;
   }
+
+  private void InputElement_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+  {
+    if (e.InitialPressMouseButton == MouseButton.Left)
+      EntityListBox.SelectedItems?.Clear();
+  }
 }

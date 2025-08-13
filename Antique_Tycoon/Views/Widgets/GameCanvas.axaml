@@ -33,6 +33,7 @@
       </c:XListbox.RenderTransform>
       <c:XListbox.DataTemplates>
         <DataTemplate DataType="node:NodeModel">
+          <!-- 设置top和Left是为了触发CanvasItemDragBehavior的监听，因为和listboxitem的top和left绑定的是相同的对象，所以变相监听到了listboxitem的top和left -->
           <c:NodeLinkControl
             Canvas.Top="{Binding Top}"
             Canvas.Left="{Binding Left}"
@@ -66,6 +67,7 @@
       <c:XListbox.ItemsPanel>
         <ItemsPanelTemplate>
           <Canvas
+            PointerReleased="InputElement_OnPointerReleased"
             Width="{Binding Map.CanvasWidth}"
             Height="{Binding Map.CanvasHeight}"
             i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition, Mode=OneWayToSource}"

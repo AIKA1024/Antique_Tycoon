@@ -17,16 +17,19 @@ public partial class Connection : CanvasItemModel
   public string StartConnectorId { get; set; }
   public string EndNodeId { get; set; }
   public string EndConnectorId { get; set; }
+  [JsonIgnore]
   public double ArrowLength { get; set; } = 6;
+  [JsonIgnore]
   public double ShortenLength { get; set; } = 6;
+  [JsonIgnore]
   public double ArrowAngle { get; set; } = Math.PI / 6;
 
   [JsonIgnore]
   [ObservableProperty] public partial IBrush? Stroke { get; set; } = Brushes.White;
   [JsonIgnore]
   [ObservableProperty] public partial double StrokeThickness { get; set; } = 2;
+  [JsonIgnore]
   [ObservableProperty] public partial Geometry? Data { get; private set; }
-  // public ConnectionLine Line { get; }
 
   public Connection(Point startConnectorAnchor, Point endConnectorAnchor,string startNodeId,string endNodeId,string startConnectorId,string endConnectorId)
   {
