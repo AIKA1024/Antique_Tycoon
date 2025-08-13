@@ -85,12 +85,10 @@ public partial class Connector : TemplatedControl
     LineCanvas.PointerReleased += Canvas_PointerReleased;
   }
 
-  protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+  protected override void OnLoaded(RoutedEventArgs e)
   {
-    base.OnAttachedToVisualTree(e);
-    var parent = this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault();
-    if (parent != null)
-      LayoutChanged.AddLayoutChangedHandler(parent, OnNodeLocationChanged);
+    base.OnLoaded(e);
+    LayoutChanged.AddLayoutChangedHandler(this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault(), OnNodeLocationChanged);
     OnNodeLocationChanged(null,null);
   }
 

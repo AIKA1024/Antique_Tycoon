@@ -18,6 +18,7 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
   private Point _lastPointerPosition;
   private IDisposable? _topSubscription;
   private IDisposable? _leftSubscription;
+  public double DragThreshold { get; set; }= 4;
   [GeneratedDirectProperty] public partial IList<CanvasItemModel>? SelectedItems { get; set; }
   [GeneratedDirectProperty] public partial double Scale { get; set; }
 
@@ -61,8 +62,22 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
 
     var currentPointerPosition = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var delta = currentPointerPosition - _lastPointerPosition;
+    
+    if (!_isDragging)
+    {
+      if (Math.Abs(delta.X) > DragThreshold || Math.Abs(delta.Y) > DragThreshold)
+      {
+        _isDragging = true; // 正式进入拖拽模式
+        _lastPointerPosition = currentPointerPosition; // 初始化拖拽起点
+      }
+      else
+      {
+        return; // 阈值没到，直接退出
+      }
+    }
+    
+    
     var adjustedDelta = new Point(delta.X / Scale, delta.Y / Scale);
-
     // 增量叠加 每次移动10个单位
     var snappedDeltaX = Math.Round(adjustedDelta.X / 10) * 10;
     var snappedDeltaY = Math.Round(adjustedDelta.Y / 10) * 10;

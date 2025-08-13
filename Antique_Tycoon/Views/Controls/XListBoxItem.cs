@@ -11,7 +11,7 @@ public class XListBoxItem : ListBoxItem
   private bool _leftPressed;
   private bool _dragging;
   private Point _pressPoint;
-  public double DragStartThreshold { get; set; } = 4;
+  public double DragStartThreshold { get; set; } = 2;
 
   protected override void OnPointerPressed(PointerPressedEventArgs e)
   {
@@ -32,9 +32,20 @@ public class XListBoxItem : ListBoxItem
   {
     if (_leftPressed)
     {
+      var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
       if (!_dragging) // 点击而非拖动
       {
-        SelectItem(e);
+        if (!ctrl)
+          SelectItem(e);
+        else
+        {
+          var xListBox = this.FindAncestorOfType<XListBox>();
+          int index = xListBox?.SelectedItems.IndexOf(DataContext) ?? -1;
+          if (index > -1)
+            xListBox?.SelectedItems?.RemoveAt(index);
+          else
+            xListBox?.SelectedItems?.Add(DataContext);
+        }
       }
 
       _leftPressed = false;
@@ -57,15 +68,15 @@ public class XListBoxItem : ListBoxItem
       {
         _dragging = true;
 
-        var listBox = this.FindAncestorOfType<ListBox>();
-        if (listBox != null && 
+        var xListBox = this.FindAncestorOfType<XListBox>();
+        if (xListBox != null &&
             !(e.KeyModifiers.HasFlag(KeyModifiers.Control) || e.KeyModifiers.HasFlag(KeyModifiers.Shift)))
         {
           var item = DataContext;
-          if (!listBox.SelectedItems.Contains(item))
+          if (!xListBox.SelectedItems.Contains(item))
           {
             // listBox.SelectedItems.Clear();
-            listBox.SelectedItem = item; // 拖拽开始时先选中当前项
+            xListBox.SelectedItem = item; // 拖拽开始时先选中当前项
           }
         }
 
@@ -78,44 +89,44 @@ public class XListBoxItem : ListBoxItem
 
   private void SelectItem(PointerEventArgs e)
   {
-    var listBox = this.FindAncestorOfType<ListBox>();
-    if (listBox == null) return;
+    var xListBox = this.FindAncestorOfType<XListBox>();
+    if (xListBox == null) return;
 
     var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
     var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
     var item = DataContext;
 
-    if (listBox.SelectionMode == SelectionMode.Multiple || listBox.SelectionMode == SelectionMode.Toggle)
+    if (xListBox.SelectionMode == SelectionMode.Multiple || xListBox.SelectionMode == SelectionMode.Toggle)
     {
       if (ctrl)
       {
-        if (!listBox.SelectedItems.Contains(item))
-          listBox.SelectedItems.Add(item);
+        if (!xListBox.SelectedItems.Contains(item))
+          xListBox.SelectedItems.Add(item);
       }
       else if (shift)
       {
         int startIndex = 0;
-        if (listBox.SelectedItems.Count > 0)
-          startIndex = listBox.Items.IndexOf(listBox.SelectedItems[0]);
-        int endIndex = listBox.Items.IndexOf(item);
+        if (xListBox.SelectedItems.Count > 0)
+          startIndex = xListBox.Items.IndexOf(xListBox.SelectedItems[0]);
+        int endIndex = xListBox.Items.IndexOf(item);
 
         int min = Math.Min(startIndex, endIndex);
         int max = Math.Max(startIndex, endIndex);
 
-        listBox.SelectedItems.Clear();
+        xListBox.SelectedItems.Clear();
         for (int i = min; i <= max; i++)
         {
-          listBox.SelectedItems.Add(listBox.Items[i]);
+          xListBox.SelectedItems.Add(xListBox.Items[i]);
         }
       }
-      else if (!_dragging || listBox.SelectedItems?.Count == 0)
+      else if (!_dragging || xListBox.SelectedItems?.Count == 0)
       {
-        listBox.SelectedItem = item;
+        xListBox.SelectedItem = item;
       }
     }
     else
     {
-      listBox.SelectedItem = item;
+      xListBox.SelectedItem = item;
     }
   }
 }

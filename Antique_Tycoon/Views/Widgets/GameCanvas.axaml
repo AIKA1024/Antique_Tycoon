@@ -16,7 +16,7 @@
     <widgets:GameCanvas />
   </Design.PreviewWith>
   <Panel Background="Transparent">
-    <c:XListbox
+    <c:XListBox
       x:Name="EntityListBox"
       Background="{x:Null}"
       ClipToBounds="False"
@@ -25,13 +25,13 @@
       SelectedItem="{Binding TempSelectedMapEntity, Mode=OneWayToSource}"
       SelectedItems="{Binding SelectedMapEntities}"
       SelectionMode="Multiple">
-      <c:XListbox.RenderTransform>
+      <c:XListBox.RenderTransform>
         <TransformGroup>
           <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale}" />
           <TranslateTransform X="{Binding Map.Offset.X}" Y="{Binding Map.Offset.Y}" />
         </TransformGroup>
-      </c:XListbox.RenderTransform>
-      <c:XListbox.DataTemplates>
+      </c:XListBox.RenderTransform>
+      <c:XListBox.DataTemplates>
         <DataTemplate DataType="node:NodeModel">
           <!-- 设置top和Left是为了触发CanvasItemDragBehavior的监听，因为和listboxitem的top和left绑定的是相同的对象，所以变相监听到了listboxitem的top和left -->
           <c:NodeLinkControl
@@ -39,12 +39,12 @@
             Canvas.Left="{Binding Left}"
             Focusable="True"
             Content="{Binding $self.DataContext}"
-            Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=c:XListbox}}">
+            Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=c:XListBox}}">
             <Interaction.Behaviors>
               <i:CanvasItemDragBehavior
                 SelectedItems="{Binding $parent.((vm:MapEditPageViewModel)DataContext).SelectedMapEntities}"
-                Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=c:XListbox}}"
-                Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=c:XListbox}}" />
+                Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=c:XListBox}}"
+                Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=c:XListBox}}" />
             </Interaction.Behaviors>
             <c:NodeLinkControl.DataTemplates>
               <StaticResource ResourceKey="SpawnPointDataTemplate" />
@@ -63,8 +63,8 @@
                             StartPoint="{Binding StartConnectorAnchor}"
                             EndPoint="{Binding EndConnectorAnchor}"/>
         </DataTemplate>
-      </c:XListbox.DataTemplates>
-      <c:XListbox.ItemsPanel>
+      </c:XListBox.DataTemplates>
+      <c:XListBox.ItemsPanel>
         <ItemsPanelTemplate>
           <Canvas
             PointerReleased="InputElement_OnPointerReleased"
@@ -94,9 +94,9 @@
             </Interaction.Behaviors>
           </Canvas>
         </ItemsPanelTemplate>
-      </c:XListbox.ItemsPanel>
-      <c:XListbox.Styles>
-        <Style Selector="c|XListbox">
+      </c:XListBox.ItemsPanel>
+      <c:XListBox.Styles>
+        <Style Selector="c|XListBox">
           <Setter Property="Template">
             <ControlTemplate>
               <Border
@@ -116,10 +116,6 @@
         
         <Style Selector="c|XListBoxItem">
           <Setter Property="i:DataContextType.Type" Value="{Binding}"/>
-        </Style>
-        <Style x:DataType="node:NodeModel" Selector="c|XListBoxItem.NodeModel">
-          <Setter Property="Canvas.Top" Value="{Binding Top}" />
-          <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Setter Property="Template">
             <ControlTemplate>
               <ContentPresenter Content="{TemplateBinding Content}"
@@ -127,6 +123,10 @@
                                 ZIndex="{TemplateBinding ZIndex}" />
             </ControlTemplate>
           </Setter>
+        </Style>
+        <Style x:DataType="node:NodeModel" Selector="c|XListBoxItem.NodeModel">
+          <Setter Property="Canvas.Top" Value="{Binding Top}" />
+          <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Style Selector="^:selected">
             <Setter Property="ZIndex" Value="1" />
             <Style Selector="^ /template/ ContentPresenter>c|NodeLinkControl">
@@ -134,17 +134,11 @@
             </Style>
           </Style>
         </Style>
-        <Style x:DataType="cm:Connection" Selector="c|XListBoxItem.Connection">
-          <Setter Property="Template">
-            <ControlTemplate>
-              <ContentPresenter Content="{TemplateBinding Content}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                ZIndex="{TemplateBinding ZIndex}" />
-            </ControlTemplate>
-          </Setter>
-        </Style>
-      </c:XListbox.Styles>
-    </c:XListbox>
+        <!-- <Style x:DataType="cm:Connection" Selector="c|XListBoxItem.Connection"> -->
+        <!--    -->
+        <!-- </Style> -->
+      </c:XListBox.Styles>
+    </c:XListBox>
     <Interaction.Behaviors>
       <i:ZoomPanBehavior Scale="{Binding Map.Scale, Mode=TwoWay}" Offset="{Binding Map.Offset, Mode=TwoWay}" />
     </Interaction.Behaviors>
