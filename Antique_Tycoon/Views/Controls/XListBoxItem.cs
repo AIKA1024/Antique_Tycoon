@@ -15,17 +15,12 @@ public class XListBoxItem : ListBoxItem
 
   protected override void OnPointerPressed(PointerPressedEventArgs e)
   {
-    if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed ||
-        e.GetCurrentPoint(this).Properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed)
-    {
-      e.Handled = true; // 阻止右键选中、左键按下就选中
+    if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
       _leftPressed = true;
-      _pressPoint = e.GetPosition(this);
-      _dragging = false;
-      return;
-    }
 
-    base.OnPointerPressed(e);
+    e.Handled = true; // 阻止右键选中、左键按下就选中
+    _pressPoint = e.GetPosition(this);
+    _dragging = false;
   }
 
   protected override void OnPointerReleased(PointerReleasedEventArgs e)
