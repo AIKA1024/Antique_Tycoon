@@ -10,7 +10,7 @@ namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
 public partial class CreateMapDialogViewModel : DialogViewModelBase
 {
-  [ObservableProperty] [Required] private string _mapName = "";
+  [ObservableProperty] [Required] private string _mapName;//不要赋初始值，让ValidateAllProperties验证就行
 
   [RelayCommand]
   private void Submit()
