@@ -19,7 +19,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
 {
   public AvaloniaList<CanvasItemModel> SelectedMapEntities { get; } = [];
 
-  [ObservableProperty] private Map _map;
+  [ObservableProperty] public partial Map Map { get; set; }
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
@@ -75,7 +75,13 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [RelayCommand]
   private void RemoveEntity(NodeModel target)
   {
+    foreach (var connector in target.ConnectorModels)
+    {
+      
+    }
+    
     Map.Entities.Remove(target); //todo 线条不会被删除
+    
   }
 
   [RelayCommand]

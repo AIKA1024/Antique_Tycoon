@@ -1,6 +1,9 @@
 using System;
 using System.Linq;
+using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.ViewModels.PageViewModels;
+using Antique_Tycoon.Views.Controls;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -19,6 +22,37 @@ public partial class GameCanvas : UserControl
   public GameCanvas()
   {
     InitializeComponent();
+    AddHandler(Connector.ConnectedEvent,OnConnectorConnected,RoutingStrategies.Bubble);
+    AddHandler(Connector.CancelConnectEvent,OnConnectorCancelConnect,RoutingStrategies.Bubble);
+  }
+
+  private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)
+  {
+    _mapEditPageViewModel.Map.Entities.Add(e.Connection);
+  }
+
+  private void OnConnectorCancelConnect(object? sender, Connector.CancelConnectRoutedEventArgs e)
+  {
+    if (e.Source is Connector connector)
+    {
+      foreach (var activeConnection in connector.ActiveConnections)
+      {
+        if (_mapEditPageViewModel.Map.EntitiesDict[activeConnection.EndNodeId] is NodeModel nodeModel)
+          nodeModel.ConnectorModels.First(c => c.Uuid == activeConnection.EndConnectorId).PassiveConnections
+            .Remove(activeConnection);
+      }
+      foreach (var passiveConnection in connector.PassiveConnections)
+      {
+        if (_mapEditPageViewModel.Map.EntitiesDict[passiveConnection.StartNodeId] is NodeModel nodeModel)
+          nodeModel.ConnectorModels.First(c => c.Uuid == passiveConnection.StartConnectorId).ActiveConnections
+            .Remove(passiveConnection);
+      }
+      foreach (var activeConnection in connector.ActiveConnections)
+        _mapEditPageViewModel.Map.Entities.Remove(activeConnection);
+      foreach (var passiveConnection in connector.PassiveConnections)
+        _mapEditPageViewModel.Map.Entities.Remove(passiveConnection);
+      e.Handled = true;
+    }
   }
 
   protected override void OnLoaded(RoutedEventArgs e)

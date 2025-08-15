@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 using Antique_Tycoon.Converters.JsonConverter;
 using Antique_Tycoon.Models.Node;
@@ -10,7 +13,7 @@ using Color = Avalonia.Media.Color;
 
 namespace Antique_Tycoon.Models;
 
-public class Map : ObservableObject
+public partial class Map : ObservableObject
 {
   public string Name
   {
@@ -23,6 +26,7 @@ public class Map : ObservableObject
     get;
     set => SetProperty(ref field, value);
   } = 1;
+
   [JsonConverter(typeof(PointJsonConverter))]
   public Point Offset
   {
@@ -63,5 +67,49 @@ public class Map : ObservableObject
     set => SetProperty(ref field, value);
   } = Color.Parse("#eccc68");
 
-  public AvaloniaList<CanvasItemModel> Entities { get; set; } = [];
+  public AvaloniaList<CanvasItemModel> Entities
+  {
+    get;
+    set
+    {
+      field.CollectionChanged -= EntitiesOnCollectionChanged;
+      field = value;
+      field.CollectionChanged += EntitiesOnCollectionChanged;
+      EntitiesDict.Clear();
+      foreach (var entity in field)
+        EntitiesDict[entity.Uuid] = entity;
+    }
+  } = [];
+
+  [JsonIgnore] public Dictionary<string, CanvasItemModel> EntitiesDict = [];
+
+  public Map()
+  {
+    Entities.CollectionChanged += EntitiesOnCollectionChanged;
+  }
+  
+
+  private void EntitiesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+  {
+    switch (e.Action)
+    {
+      case NotifyCollectionChangedAction.Add:
+        foreach (CanvasItemModel item in e.NewItems)
+          EntitiesDict.Add(item.Uuid, item);
+        break;
+      case NotifyCollectionChangedAction.Remove:
+        foreach (CanvasItemModel item in e.OldItems)
+          EntitiesDict.Remove(item.Uuid);
+        break;
+      case NotifyCollectionChangedAction.Replace:
+        foreach (CanvasItemModel item in e.OldItems)
+          EntitiesDict.Remove(item.Uuid);
+        foreach (CanvasItemModel item in e.NewItems)
+          EntitiesDict.Add(item.Uuid, item);
+        break;
+      case NotifyCollectionChangedAction.Reset:
+        EntitiesDict.Clear();
+        break;
+    }
+  }
 }

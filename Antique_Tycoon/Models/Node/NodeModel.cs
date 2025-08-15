@@ -68,7 +68,6 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
   public ConnectorJsonModel[] ConnectorModels { get; set; } =
     [new(), new(), new(), new()];
 
-
   private bool _disposed;
 
   public void Dispose()

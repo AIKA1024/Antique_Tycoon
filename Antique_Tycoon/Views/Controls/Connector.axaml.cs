@@ -34,8 +34,6 @@ public partial class Connector : TemplatedControl
   [GeneratedDirectProperty] public partial List<Connection> ActiveConnections { get; set; } = [];
   [GeneratedDirectProperty] public partial List<Connection> PassiveConnections { get; set; } = [];
 
-  [GeneratedDirectProperty] public partial Map Map { get; set; }
-
   [GeneratedStyledProperty] public partial IBrush? Fill { get; set; }
   [GeneratedStyledProperty] public partial IBrush? Stroke { get; set; }
   [GeneratedStyledProperty(2)] public partial double StrokeThickness { get; set; }
@@ -44,7 +42,7 @@ public partial class Connector : TemplatedControl
 
   [GeneratedDirectProperty] public partial string Uuid { get; set; } = "";
   [GeneratedDirectProperty] public partial string NodeUuid { get; set; } = "";
-  
+
   [GeneratedDirectProperty] public partial ICommand? Command { get; set; }
   [GeneratedDirectProperty] public partial object? CommandParameter { get; set; }
 
@@ -71,9 +69,12 @@ public partial class Connector : TemplatedControl
     public Connection Connection { get; set; } = connection;
   }
 
-  public class CancelConnectRoutedEventArgs(string connectorUuid) : RoutedEventArgs
+  // public class CancelConnectRoutedEventArgs(string connectorUuid) : RoutedEventArgs
+  // {
+  //   public string ConnectorUuid { get; set; } = connectorUuid;
+  // }
+  public class CancelConnectRoutedEventArgs() : RoutedEventArgs
   {
-    public string ConnectorUuid { get; set; } = connectorUuid;
   }
 
   protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -88,8 +89,9 @@ public partial class Connector : TemplatedControl
   protected override void OnLoaded(RoutedEventArgs e)
   {
     base.OnLoaded(e);
-    LayoutChanged.AddLayoutChangedHandler(this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault(), OnNodeLocationChanged);
-    OnNodeLocationChanged(null,null);
+    LayoutChanged.AddLayoutChangedHandler(this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault(),
+      OnNodeLocationChanged);
+    OnNodeLocationChanged(null, null);
   }
 
   private void OnNodeLocationChanged(object? sender, RoutedEventArgs e)
@@ -149,13 +151,9 @@ public partial class Connector : TemplatedControl
     var keyboardModifiers = e.KeyModifiers;
     if (props.IsLeftButtonPressed && keyboardModifiers.HasFlag(KeyModifiers.Alt))
     {
-      foreach (var activeConnection in ActiveConnections)
-        Map.Entities.Remove(activeConnection);
-      foreach (var passiveConnection in PassiveConnections)
-        Map.Entities.Remove(passiveConnection);
+      RaiseEvent(new CancelConnectRoutedEventArgs { RoutedEvent = CancelConnectEvent, Source = this });
       ActiveConnections.Clear();
       PassiveConnections.Clear();
-      RaiseEvent(new CancelConnectRoutedEventArgs(Uuid) { RoutedEvent = CancelConnectEvent, Source = this });
     }
     else
     {
@@ -206,13 +204,13 @@ public partial class Connector : TemplatedControl
 
     if (_closestConnector == null) return;
     var connection =
-      new Connection(Anchor,_closestConnector.Anchor,NodeUuid, _closestConnector.NodeUuid,Uuid,_closestConnector.Uuid);
-    ActiveConnections.Add(connection);
-    _closestConnector.PassiveConnections.Add(connection);
-    Map.Entities.Add(connection);
+      new Connection(Anchor, _closestConnector.Anchor, NodeUuid, _closestConnector.NodeUuid, Uuid,
+        _closestConnector.Uuid);
     if (Command?.CanExecute(CommandParameter) == true)
       Command.Execute(CommandParameter);
     RaiseEvent(new ConnectedRoutedEventArgs(connection) { RoutedEvent = ConnectedEvent, Source = this });
+    ActiveConnections.Add(connection);
+    _closestConnector.PassiveConnections.Add(connection);
     e.Handled = true;
   }
 }

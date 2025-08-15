@@ -40,7 +40,6 @@
             DataContext="{Binding ConnectorModels[0]}"
             ActiveConnections="{Binding ActiveConnections}"
             LineCanvas="{Binding LineCanvas, RelativeSource={RelativeSource Mode=TemplatedParent}}"
-            Map="{TemplateBinding Map}"
             PassiveConnections="{Binding PassiveConnections}"
             Uuid="{Binding Uuid}"/>
           <c:Connector
@@ -50,7 +49,6 @@
             DataContext="{Binding ConnectorModels[1]}"
             ActiveConnections="{Binding ActiveConnections}"
             LineCanvas="{Binding LineCanvas, RelativeSource={RelativeSource Mode=TemplatedParent}}"
-            Map="{TemplateBinding Map}"
             PassiveConnections="{Binding PassiveConnections}"
             Uuid="{Binding Uuid}" />
           <c:Connector
@@ -60,7 +58,6 @@
             DataContext="{Binding ConnectorModels[2]}"
             ActiveConnections="{Binding ActiveConnections}"
             LineCanvas="{Binding LineCanvas, RelativeSource={RelativeSource Mode=TemplatedParent}}"
-            Map="{TemplateBinding Map}"
             PassiveConnections="{Binding PassiveConnections}"
             Uuid="{Binding Uuid}" />
           <c:Connector
@@ -70,7 +67,6 @@
             DataContext="{Binding ConnectorModels[3]}"
             ActiveConnections="{Binding ActiveConnections}"
             LineCanvas="{Binding LineCanvas, RelativeSource={RelativeSource Mode=TemplatedParent}}"
-            Map="{TemplateBinding Map}"
             PassiveConnections="{Binding PassiveConnections}"
             Uuid="{Binding Uuid}" />
         </Panel>
