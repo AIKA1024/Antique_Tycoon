@@ -1,11 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
@@ -13,12 +10,15 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapEditPageViewModel : PageViewModelBase
 {
-  public AvaloniaList<CanvasItemModel> SelectedMapEntities { get; } = [];
+  public ObservableCollection<CanvasItemModel> SelectedMapEntities { get; } = [];
 
   [ObservableProperty] public partial Map Map { get; set; }
 
@@ -58,13 +58,19 @@ public partial class MapEditPageViewModel : PageViewModelBase
         case "玩家出生点":
           Map.Entities.Add(new SpawnPoint
           {
-            Left = PointerPosition.X, Top = PointerPosition.Y, Title = "玩家出生点", Background = Map.NodeDefaultBackground
+            Left = PointerPosition.X,
+            Top = PointerPosition.Y,
+            Title = "玩家出生点",
+            Background = Map.NodeDefaultBackground
           });
           break;
         case "地产":
           Map.Entities.Add(new Estate
           {
-            Left = PointerPosition.X, Top = PointerPosition.Y, Title = "某生态群系", Background = Map.NodeDefaultBackground
+            Left = PointerPosition.X,
+            Top = PointerPosition.Y,
+            Title = "某生态群系",
+            Background = Map.NodeDefaultBackground
           });
           break;
         case "自定义事件":

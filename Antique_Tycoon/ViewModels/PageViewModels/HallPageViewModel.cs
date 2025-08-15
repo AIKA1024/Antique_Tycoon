@@ -1,21 +1,21 @@
+using Antique_Tycoon.Models.Net;
+using Antique_Tycoon.Net;
+using Antique_Tycoon.Services;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
-using Antique_Tycoon.Models.Net;
-using Antique_Tycoon.Net;
-using Antique_Tycoon.Services;
-using Avalonia.Collections;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
-public partial class HallPageViewModel:PageViewModelBase
+public partial class HallPageViewModel : PageViewModelBase
 {
   private readonly Timer _timer = new(2000);
-  public AvaloniaList<RoomBaseInfo> RoomList { get; } = [];
-  // public AvaloniaList<RoomBaseInfo> RoomList { get; } = [new RoomBaseInfo{Ip = "127.0.0.1",Port = 13437,RoomName = "lbw的房间"}];
+  public ObservableCollection<RoomBaseInfo> RoomList { get; } = [];
+  // public ObservableCollection<RoomBaseInfo> RoomList { get; } = [new RoomBaseInfo{Ip = "127.0.0.1",Port = 13437,RoomName = "lbw的房间"}];
   public HallPageViewModel()
   {
     _timer.Elapsed += async (s, e) =>
@@ -28,11 +28,11 @@ public partial class HallPageViewModel:PageViewModelBase
   private async Task UpdateRoomList(object? sender, ElapsedEventArgs e)
   {
     var roomNetInfo = await App.Current.Services.GetRequiredService<NetClient>().DiscoverRoomAsync();
-    if (RoomList.Any(r=>Equals(r.Ip, roomNetInfo.Ip)))
+    if (RoomList.Any(r => Equals(r.Ip, roomNetInfo.Ip)))
       return;
     RoomList.Add(roomNetInfo);
   }
-  
+
   [RelayCommand]
   private void NavigateToCreateRoomPage()
   {
@@ -49,7 +49,7 @@ public partial class HallPageViewModel:PageViewModelBase
     {
       return;//todo 要显示提示
     }
-    
+
 
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
     {

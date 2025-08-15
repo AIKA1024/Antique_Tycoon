@@ -1,11 +1,9 @@
-using System;
-using System.Net;
-using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Node;
-using Antique_Tycoon.Views.Controls;
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+using System.Text.Json.Serialization;
 
 namespace Antique_Tycoon.Models.Connections;
 
@@ -31,12 +29,12 @@ public partial class Connection : CanvasItemModel
   [JsonIgnore]
   [ObservableProperty] public partial Geometry? Data { get; private set; }
 
-  public Connection(Point startConnectorAnchor, Point endConnectorAnchor,string startNodeId,string endNodeId,string startConnectorId,string endConnectorId)
+  public Connection(Point startConnectorAnchor, Point endConnectorAnchor, string startNodeId, string endNodeId, string startConnectorId, string endConnectorId)
   {
     StartConnectorAnchor = startConnectorAnchor;
     EndConnectorAnchor = endConnectorAnchor;
     StartNodeId = startNodeId;
-    EndNodeId =  endNodeId;
+    EndNodeId = endNodeId;
     StartConnectorId = startConnectorId;
     EndConnectorId = endConnectorId;
     UpdateGeometry();

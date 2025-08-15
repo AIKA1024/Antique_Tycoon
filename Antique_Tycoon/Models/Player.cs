@@ -1,8 +1,8 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Node;
-using Avalonia.Collections;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,7 +16,7 @@ public partial class Player : ObservableObject,IDisposable
   [ObservableProperty] int _money;
   [ObservableProperty] private Bitmap _avatar = Bitmap.DecodeToHeight(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png")),64);
   [JsonIgnore] public TcpClient Client { get; set; }
-  public AvaloniaList<Antique> Antiques { get; set; } = [];
+  public ObservableCollection<Antique> Antiques { get; set; } = [];
   public bool IsHomeowner;
   public void Dispose()
   {

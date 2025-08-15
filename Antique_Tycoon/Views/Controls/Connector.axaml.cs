@@ -1,8 +1,5 @@
 using Antique_Tycoon.Behaviors;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
-using Antique_Tycoon.Models.Node;
-using Antique_Tycoon.ViewModels.ControlViewModels;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -11,12 +8,9 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using CommunityToolkit.Mvvm.Input;
 using PropertyGenerator.Avalonia;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 

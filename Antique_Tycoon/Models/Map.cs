@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Text.Json.Serialization;
 using Antique_Tycoon.Converters.JsonConverter;
 using Antique_Tycoon.Models.Node;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Text.Json.Serialization;
 using Color = Avalonia.Media.Color;
 
 namespace Antique_Tycoon.Models;
@@ -67,7 +65,7 @@ public partial class Map : ObservableObject
     set => SetProperty(ref field, value);
   } = Color.Parse("#eccc68");
 
-  public AvaloniaList<CanvasItemModel> Entities
+  public ObservableCollection<CanvasItemModel> Entities
   {
     get;
     set
@@ -87,7 +85,7 @@ public partial class Map : ObservableObject
   {
     Entities.CollectionChanged += EntitiesOnCollectionChanged;
   }
-  
+
 
   private void EntitiesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
   {

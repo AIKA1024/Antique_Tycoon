@@ -2,7 +2,6 @@ using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
 using Antique_Tycoon.Models.Node;
 using Avalonia.Media.Imaging;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Net;
-using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,11 +19,11 @@ public partial class RoomPageViewModel: PageViewModelBase
   }
 
   [ObservableProperty] 
-  public partial AvaloniaList<Player> Players { get; set; } = [App.Current.Services.GetRequiredService<Player>()];
+  public partial ObservableCollection<Player> Players { get; set; } = [App.Current.Services.GetRequiredService<Player>()];
 
   private void ReceiveUpdateRoomInfo(IEnumerable<Player> players)
   {
-    Players = new AvaloniaList<Player>(players);
+    Players = new ObservableCollection<Player>(players);
   }
   
   public override void OnBacked()
