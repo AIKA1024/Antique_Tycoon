@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
@@ -75,13 +76,9 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [RelayCommand]
   private void RemoveEntity(NodeModel target)
   {
-    foreach (var connector in target.ConnectorModels)
-    {
-      
-    }
-    
-    Map.Entities.Remove(target); //todo 线条不会被删除
-    
+    foreach (var model in target.ConnectorModels)
+      model.CancelConnects(Map);
+    Map.Entities.Remove(target);
   }
 
   [RelayCommand]

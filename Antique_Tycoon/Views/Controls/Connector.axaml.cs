@@ -69,13 +69,7 @@ public partial class Connector : TemplatedControl
     public Connection Connection { get; set; } = connection;
   }
 
-  // public class CancelConnectRoutedEventArgs(string connectorUuid) : RoutedEventArgs
-  // {
-  //   public string ConnectorUuid { get; set; } = connectorUuid;
-  // }
-  public class CancelConnectRoutedEventArgs() : RoutedEventArgs
-  {
-  }
+  public class CancelConnectRoutedEventArgs : RoutedEventArgs;
 
   protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
   {

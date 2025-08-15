@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.ViewModels.PageViewModels;
@@ -35,22 +36,7 @@ public partial class GameCanvas : UserControl
   {
     if (e.Source is Connector connector)
     {
-      foreach (var activeConnection in connector.ActiveConnections)
-      {
-        if (_mapEditPageViewModel.Map.EntitiesDict[activeConnection.EndNodeId] is NodeModel nodeModel)
-          nodeModel.ConnectorModels.First(c => c.Uuid == activeConnection.EndConnectorId).PassiveConnections
-            .Remove(activeConnection);
-      }
-      foreach (var passiveConnection in connector.PassiveConnections)
-      {
-        if (_mapEditPageViewModel.Map.EntitiesDict[passiveConnection.StartNodeId] is NodeModel nodeModel)
-          nodeModel.ConnectorModels.First(c => c.Uuid == passiveConnection.StartConnectorId).ActiveConnections
-            .Remove(passiveConnection);
-      }
-      foreach (var activeConnection in connector.ActiveConnections)
-        _mapEditPageViewModel.Map.Entities.Remove(activeConnection);
-      foreach (var passiveConnection in connector.PassiveConnections)
-        _mapEditPageViewModel.Map.Entities.Remove(passiveConnection);
+      connector.CancelConnects(_mapEditPageViewModel.Map);
       e.Handled = true;
     }
   }
