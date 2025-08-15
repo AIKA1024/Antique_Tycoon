@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.3" />
+        <PackageReference Include="Avalonia" Version="11.3.4" />
         <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.3" />
         <PackageReference Include="Avalonia.Desktop" Version="11.3.3" />
         <PackageReference Include="Avalonia.ReactiveUI.Events" Version="0.10.22" />
