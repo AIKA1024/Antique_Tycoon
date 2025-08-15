@@ -60,7 +60,7 @@
                     <Image
                       Grid.Column="0"
                       Width="64"
-                      Source="../../Assets/Avatar/Steve.png" />
+                      Source="../../Assets/Image/Avatar/Steve.png" />
 
                     <StackPanel Grid.Column="1">
                       <TextBlock Text="{Binding RoomName}" />
