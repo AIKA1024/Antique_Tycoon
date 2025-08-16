@@ -20,6 +20,7 @@ public class NavigationService
   {
     _navigationHistory.Add(_mainWindowViewModel.CurrentPageViewModel);
     _mainWindowViewModel.CurrentPageViewModel = vm;
+    vm.OnNavigatedTo();
   }
 
   public bool IsCanBack()
@@ -32,6 +33,7 @@ public class NavigationService
     if (_mainWindowViewModel.CurrentPageViewModel is IDisposable needDisposeObj)
       needDisposeObj.Dispose();
     _mainWindowViewModel.CurrentPageViewModel = _navigationHistory[^1];
+    _mainWindowViewModel.CurrentPageViewModel.OnNavigatedTo();
     _navigationHistory.RemoveAt(_navigationHistory.Count - 1);
   }
 }
