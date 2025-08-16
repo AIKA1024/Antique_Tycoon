@@ -39,7 +39,7 @@
             </Binding>
           </Border.IsVisible>
           <Image
-            Source="/Assets/Image/No_Map.png"
+            Source="{Binding NoMapImage}"
             Stretch="None" />
         </Border>
         <ItemsControl Foreground="White" ItemsSource="{Binding RoomList}">
@@ -59,12 +59,14 @@
                     ColumnSpacing="16">
                     <Image
                       Grid.Column="0"
-                      Width="64"
-                      Source="../../Assets/Image/Avatar/Steve.png" />
+                      Width="256"
+                      Source="{Binding Cover}" />
 
                     <StackPanel Grid.Column="1">
                       <TextBlock Text="{Binding RoomName}" />
                       <TextBlock Text="{Binding CurrentPlayerCount, StringFormat={}{0}/5}" />
+                      <TextBlock Text="局域网" Background="HotPink" Padding="4" IsVisible="{Binding IsLanRoom}"
+                                 HorizontalAlignment="Left" Foreground="Black"/>
                     </StackPanel>
                   </Grid>
 

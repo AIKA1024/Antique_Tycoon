@@ -22,12 +22,13 @@
         <ItemsControl ItemsSource="{Binding Maps}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-              <WrapPanel />
+              <WrapPanel ItemSpacing="16" LineSpacing="16"/>
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <w:MapCard Width="360"/>
+              <w:MapCard Width="360" Command="{Binding $parent.((pageViewModels:MapListPageViewModel)DataContext).NavigationToMapEditPageCommand}"
+                         CommandParameter="{Binding}"/>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>

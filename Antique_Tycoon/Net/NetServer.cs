@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -39,13 +40,17 @@ public class NetServer : NetBase
     return "127.0.0.1"; // 回退
   }
 
-  public async Task CreateRoomAndListenAsync(string roomName, CancellationToken cancellation = default)
+  public async Task CreateRoomAndListenAsync(string roomName,Map map, CancellationToken cancellation = default)
   {
+    using var ms = new MemoryStream();
+    map.Cover.Save(ms);
     var roomInfo = new RoomBaseInfo
     {
       RoomName = roomName,
       Port = App.DefaultPort,
       Ip = _localIPv4,
+      CoverData = ms.ToArray(),
+      IsLanRoom = true
     };
 
     _listener?.Dispose();

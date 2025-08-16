@@ -1,3 +1,4 @@
+using System;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
@@ -8,14 +9,18 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
-public partial class HallPageViewModel : PageViewModelBase
+public partial class HallPageViewModel : PageViewModelBase,IDisposable
 {
   private readonly Timer _timer = new(2000);
+  private bool _disposed;
+  [ObservableProperty] private Bitmap _noMapImage = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/No_Map.png")));
   public ObservableCollection<RoomBaseInfo> RoomList { get; } = [];
-  // public ObservableCollection<RoomBaseInfo> RoomList { get; } = [new RoomBaseInfo{Ip = "127.0.0.1",Port = 13437,RoomName = "lbw的房间"}];
   public HallPageViewModel()
   {
     _timer.Elapsed += async (s, e) =>
@@ -36,7 +41,7 @@ public partial class HallPageViewModel : PageViewModelBase
   [RelayCommand]
   private void NavigateToCreateRoomPage()
   {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new PageViewModels.CreateRoomPageViewModel());
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new CreateRoomPageViewModel());
   }
 
   [RelayCommand]
@@ -55,5 +60,12 @@ public partial class HallPageViewModel : PageViewModelBase
     {
       Players = response.Players
     });
+  }
+
+  public void Dispose()
+  {
+    if (_disposed) return;
+    NoMapImage.Dispose();
+    _disposed = true;
   }
 }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="using:Antique_Tycoon.Behaviors"
+        xmlns:cv="using:Antique_Tycoon.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Antique_Tycoon.Views.Windows.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -37,21 +38,36 @@
         </Transitions>
       </Border.Transitions>
       <Border.Styles>
-        <Style Selector="Border[IsVisible=True]">
+        <Style Selector="Border#Mask[IsVisible=True]">
           <Setter Property="Opacity" Value="1" />
         </Style>
-        <Style Selector="Border[IsVisible=False]">
+        <Style Selector="Border#Mask[IsVisible=False]">
           <Setter Property="Opacity" Value="0" />
         </Style>
       </Border.Styles>
 
-      <ContentControl Content="{Binding DialogService.CurrentDialogViewModel}"
-                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                      Background="Transparent">
-        <ContentControl.Effect>
-          <DropShadowEffect Color="Black" BlurRadius="50" />
-        </ContentControl.Effect>
-      </ContentControl>
+      <Border
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        BoxShadow="0 0 50 10 black">
+        <Border.MaxWidth>
+          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+            <Binding Path="DialogService.CurrentDialogViewModel.MaxWidthPercent"/>
+            <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}"/>
+          </MultiBinding>
+        </Border.MaxWidth>
+        <Border.MaxHeight>
+          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+            <Binding Path="DialogService.CurrentDialogViewModel.MaxHeightPercent"/>
+            <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}"/>
+          </MultiBinding>
+        </Border.MaxHeight>
+        <ContentControl Content="{Binding DialogService.CurrentDialogViewModel}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Background="Transparent">
+        </ContentControl>
+      </Border>
+
     </Border>
   </Panel>
 </Window>

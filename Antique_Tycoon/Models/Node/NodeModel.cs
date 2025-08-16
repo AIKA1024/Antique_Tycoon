@@ -69,19 +69,10 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
     [new(), new(), new(), new()];
 
   private bool _disposed;
-
   public void Dispose()
   {
-    Dispose(disposing: true);
-    GC.SuppressFinalize(this);
-  }
-
-  protected virtual void Dispose(bool disposing)
-  {
     if (_disposed) return;
-
-    if (disposing)
-      Cover.Dispose();
+    Cover.Dispose();
     _disposed = true;
   }
 }

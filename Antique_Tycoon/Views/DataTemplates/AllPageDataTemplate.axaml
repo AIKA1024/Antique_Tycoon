@@ -16,5 +16,6 @@
     <MergeResourceInclude Source="/Views/DataTemplates/DetailDataTemplate/EstateDetailDataTemplate.axaml" />
     
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/CreateNewMapDialogDataTemplate.axaml" />
+    <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/SelectMapDialogDataTemplate.axaml" />
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

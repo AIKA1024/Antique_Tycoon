@@ -14,10 +14,20 @@ public class MapFileService
 {
   private const string ImageFolderName = "Image"; //封面不在这个文件夹
   private const string JsonName = "Map.json";
+  private List<Map>? _maps;
 
   public List<Map> GetMaps()
   {
-    List<Map> maps = [];
+    if (_maps != null)
+      return _maps;
+    UpdateMapList();
+    return _maps!;
+  }
+
+  public void UpdateMapList()
+  {
+    _maps ??= [];
+    _maps.Clear();
     foreach (var path in Directory.GetDirectories(App.Current.MapPath))
     {
       var imageDirectoryPath = Path.Join(path, ImageFolderName);
@@ -30,10 +40,8 @@ public class MapFileService
       }
       ConnectLine(map.Entities);
       map.Cover = new Bitmap(Path.Join(path, "Cover.png"));
-      maps.Add(map);
+      _maps.Add(map);
     }
-
-    return maps;
   }
 
   public async Task SaveMapAsync(Map map)

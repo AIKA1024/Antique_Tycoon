@@ -13,7 +13,7 @@
       <Setter Property="LastChildFill" Value="False" />
     </Style>
   </UserControl.Styles>
-  <c:MCButton x:DataType="m:Map" Padding="0" Click="Button_OnClick">
+  <c:MCButton x:DataType="m:Map" Padding="0" Command="{Binding $parent.Command}" CommandParameter="{Binding $parent.CommandParameter}">
     <Grid RowDefinitions="4*,*">
       <Image Grid.Row="0" Source="{Binding Cover}" Stretch="Fill" />
       <Border Grid.Row="1" Padding="16">

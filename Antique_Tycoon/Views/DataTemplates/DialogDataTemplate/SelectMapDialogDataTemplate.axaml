@@ -1,0 +1,46 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dvm="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
+                    xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets">
+  <Design.PreviewWith>
+    <ContentControl>
+      <ContentControl.DataTemplates>
+        <StaticResource ResourceKey="SelectMapDialogDataTemplate" />
+      </ContentControl.DataTemplates>
+      <dvm:SelectMapDialogViewModel />
+    </ContentControl>
+  </Design.PreviewWith>
+
+  <DataTemplate x:Key="SelectMapDialogDataTemplate" x:DataType="dvm:SelectMapDialogViewModel">
+    <Border MaxWidth="1600"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="3"
+            Background="{StaticResource BorderBackgroundBrush}">
+      <StackPanel>
+        <Border Padding="128 16"
+                BorderThickness="3"
+                BorderBrush="{StaticResource LightedBorderBrush}">
+          <Panel>
+            <TextBlock Text="选择地图"
+                       HorizontalAlignment="Center"
+                       FontSize="16"
+                       FontWeight="Black" />
+          </Panel>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding Maps}" Padding="32">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel ItemSpacing="16" LineSpacing="16"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <widgets:MapCard Width="256" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+</ResourceDictionary>

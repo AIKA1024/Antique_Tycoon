@@ -7,7 +7,9 @@ namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
 public abstract partial class DialogViewModelBase : ObservableValidator
 {
-  public bool IsLightDismissEnabled { get; set; }
+  [ObservableProperty] public partial double MaxWidthPercent { get; set; } = .8f;  // 0~1
+  [ObservableProperty] public partial double MaxHeightPercent { get; set; } = .8f; // 0~1
+  public bool IsLightDismissEnabled { get; set; } = true;
   [RelayCommand]
   protected void CloseDialog()
   {

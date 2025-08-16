@@ -66,7 +66,7 @@
           <Border Classes="Item">
             <StackPanel Spacing="8">
               <TextBlock Text="地图" FontWeight="Black" />
-              <TextBlock Text="暂时只有默认地图" />
+              <c:MCButton Content="选择地图" Classes="ore" Command="{Binding ShowSelectMapDialogCommand}"/>
             </StackPanel>
           </Border>
         </StackPanel>
