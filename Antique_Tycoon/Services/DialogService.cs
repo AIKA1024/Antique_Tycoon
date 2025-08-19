@@ -9,7 +9,7 @@ namespace Antique_Tycoon.Services;
 
 public partial class DialogService : ObservableObject
 {
-  private ObservableCollection<DialogViewModelBase> _dialogs = [];
+  private readonly ObservableCollection<DialogViewModelBase> _dialogs = [];
   private readonly Dictionary<DialogViewModelBase, TaskCompletionSource> _dialogTasks = [];
   [ObservableProperty] public partial DialogViewModelBase? CurrentDialogViewModel { get; private set; }
 

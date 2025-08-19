@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
@@ -10,31 +11,26 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
-public partial class CreateRoomPageViewModel : PageViewModelBase, IDisposable
+public partial class CreateRoomPageViewModel : PageViewModelBase
 {
-  private bool _disposed;
   [ObservableProperty] private string _roomName = $"{App.Current.Services.GetRequiredService<Player>().Name}的房间";
 
-  [ObservableProperty] private Bitmap _cover;
-  public Map SelectedMap { get; set; }
+  [ObservableProperty] 
+  public partial Map SelectedMap { get; set; } = App.Current.Services.GetRequiredService<MapFileService>().GetMaps()[0];
 
   private CancellationTokenSource _cts = new();
 
   public CreateRoomPageViewModel()
   {
-    Cover = Bitmap.DecodeToWidth(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Map.jpg")), 512,
-      BitmapInterpolationMode.LowQuality);
-  }
-
-  public void Dispose()
-  {
-    if (_disposed) return;
-    Cover.Dispose();
-    _disposed = true;
+    WeakReferenceMessenger.Default.Register<ChangeMapMessage>(this, (_, m) =>
+    {
+      SelectedMap = m.Value;
+    });
   }
 
   [RelayCommand]

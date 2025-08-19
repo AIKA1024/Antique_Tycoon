@@ -11,7 +11,7 @@
     <Setter Property="CornerRadius" Value="0" />
     <Setter Property="Background" Value="#C6C6C6" />
     <Setter Property="Foreground" Value="#4C4C4C" />
-    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="BorderThickness" Value="3" />
     <Setter Property="BorderBrush" Value="#131313" />
     <Setter Property="Template">
       <ControlTemplate>

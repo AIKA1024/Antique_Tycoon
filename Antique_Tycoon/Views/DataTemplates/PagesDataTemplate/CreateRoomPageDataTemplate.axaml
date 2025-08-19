@@ -21,10 +21,12 @@
           <Grid RowDefinitions="*,*">
             <Border Grid.Row="0" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0 0 0 2">
               <Grid RowDefinitions="4*,*" RowSpacing="8">
-                <Image
-                  HorizontalAlignment="Stretch"
-                  Stretch="Fill"
-                  Source="{Binding Cover}" />
+                <Border BorderThickness="3" BorderBrush="#1E1E1F">
+                  <Image
+                    HorizontalAlignment="Stretch"
+                    Stretch="Fill"
+                    Source="{Binding SelectedMap.Cover}" />
+                </Border>
                 <c:MCButton
                   Grid.Row="1"
                   VerticalAlignment="Top"

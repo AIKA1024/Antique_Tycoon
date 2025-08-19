@@ -15,7 +15,7 @@
   </UserControl.Styles>
   <c:MCButton x:DataType="m:Map" Padding="0" Command="{Binding $parent.Command}" CommandParameter="{Binding $parent.CommandParameter}">
     <Grid RowDefinitions="4*,*">
-      <Image Grid.Row="0" Source="{Binding Cover}" Stretch="Fill" />
+      <Image Grid.Row="0" Source="{Binding Cover,FallbackValue={x:Null}}" Stretch="Fill" />
       <Border Grid.Row="1" Padding="16">
         <TextBlock Text="{Binding Name}"
                    VerticalAlignment="Center" HorizontalAlignment="Center" />

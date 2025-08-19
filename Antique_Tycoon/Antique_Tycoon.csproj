@@ -21,6 +21,9 @@
         <PublishAot>true</PublishAot>
         <UseNativeAot>true</UseNativeAot>
     </PropertyGroup>
+    <PropertyGroup Label="Avalonia">
+      <AvaloniaXamlVerboseExceptions>False</AvaloniaXamlVerboseExceptions>
+    </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>

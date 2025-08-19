@@ -17,6 +17,7 @@ public partial class MapCard : UserControl
   {
     InitializeComponent();
   }
+  
   [GeneratedDirectProperty]
   public partial ICommand Command { get; set; }
   

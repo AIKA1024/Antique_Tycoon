@@ -31,12 +31,14 @@
         <ItemsControl ItemsSource="{Binding Maps}" Padding="32">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-              <WrapPanel ItemSpacing="16" LineSpacing="16"/>
+              <WrapPanel ItemSpacing="16" LineSpacing="16" />
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <widgets:MapCard Width="256" />
+              <widgets:MapCard Width="256"
+                               Command="{Binding $parent.((dvm:SelectMapDialogViewModel)DataContext).ChangeMapCommand}"
+                               CommandParameter="{Binding}" />
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
