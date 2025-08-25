@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
+using Antique_Tycoon.Models.Net.Tcp.Request;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Net;
@@ -18,6 +20,7 @@ public class NetClient : NetBase
   private TcpClient? _tcpClient;
   private readonly Dictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
+  public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(3);
 
   public async Task<RoomBaseInfo> DiscoverRoomAsync()
   {
@@ -30,19 +33,36 @@ public class NetClient : NetBase
     return roomInfo;
   }
 
+  private async Task HeartbeatLoopAsync(CancellationToken cancellation = default)
+  {
+    while (!cancellation.IsCancellationRequested)
+    {
+      try
+      {
+        await SendRequestAsync(new HeartbeatMessage(), cancellation);
+        await Task.Delay(HeartbeatInterval, cancellation);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"HeartbeatMessage error: {ex.Message}");
+        break;
+      }
+    }
+  }
+
   public async Task ConnectServer(IPEndPoint ipEndPoint, CancellationToken cancellation = default)
   {
     _tcpClient?.Dispose();
     _tcpClient = new TcpClient();
     await _tcpClient.ConnectAsync(ipEndPoint, cancellation);
-    _ = ReceiveLoopAsync(_tcpClient, cancellation); // ✅ 开启监听回包任务
+    _ = ReceiveLoopAsync(_tcpClient, cancellation); // 开启监听回包任务
+    _ = HeartbeatLoopAsync(cancellation);// 开始循环发送心跳包
   }
 
   public async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)
   {
     var joinRoomRequest = new JoinRoomRequest
     {
-      Id = Guid.NewGuid().ToString(),
       Player = App.Current.Services.GetRequiredService<Player>()
     };
     return (JoinRoomResponse)await SendRequestAsync(joinRoomRequest, cancellation);
@@ -75,7 +95,6 @@ public class NetClient : NetBase
         RoomInfoUpdated?.Invoke(updateRoomResponse.Players);
         break;
     }
-
     
     
     if (_pendingRequests.TryGetValue(message.Id, out var tcs))

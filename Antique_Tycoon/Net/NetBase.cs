@@ -10,6 +10,8 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Request;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 
 namespace Antique_Tycoon.Net;
 
@@ -86,6 +88,8 @@ public abstract class NetBase
         TcpMessageType.JoinRoomResponse),
       _ when type == typeof(UpdateRoomResponse) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.UpdateRoomResponse,
         TcpMessageType.UpdateRoomResponse),
+      _ when type == typeof(HeartbeatMessage) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.HeartbeatMessage,
+        TcpMessageType.HeartbeatMessage),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

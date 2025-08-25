@@ -2,7 +2,11 @@ namespace Antique_Tycoon.Models.Net.Tcp;
 
 public enum TcpMessageType : ushort
 {
-  JoinRoomRequest = 1,
-  JoinRoomResponse = 2,
-  UpdateRoomResponse = 3
+  /// <summary>
+  /// 心跳
+  /// </summary>
+  HeartbeatMessage = 1,
+  JoinRoomRequest = 2,
+  JoinRoomResponse = 3,
+  UpdateRoomResponse = 4
 }

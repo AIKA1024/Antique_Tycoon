@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
+using Antique_Tycoon.Models.Net.Tcp.Request;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 
 namespace Antique_Tycoon.Net;
 
@@ -20,7 +22,7 @@ public class NetServer : NetBase
   private readonly string _localIPv4;
   private readonly Room _room = new();
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
-  
+  private Dictionary<TcpClient,long> LastHeartbeat { get; } = [];
 
   public NetServer()
   {
@@ -42,6 +44,7 @@ public class NetServer : NetBase
 
   public async Task CreateRoomAndListenAsync(string roomName,Map map, CancellationToken cancellation = default)
   {
+    LastHeartbeat.Clear();
     using var ms = new MemoryStream();
     map.Cover.Save(ms);
     var roomInfo = new RoomBaseInfo
@@ -88,6 +91,7 @@ public class NetServer : NetBase
     while (!cancellation.IsCancellationRequested)
     {
       var client = await _listener.AcceptTcpClientAsync(cancellation);
+      LastHeartbeat.Add(client,DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
       _ = HandleTcpClientAsync(client); // 处理连接（不要阻塞主循环）
     }
   }
@@ -146,14 +150,17 @@ public class NetServer : NetBase
 
   protected override async Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
+    LastHeartbeat[client] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     switch (tcpMessageType)
     {
       case TcpMessageType.JoinRoomRequest:
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomRequest) is { } joinRoomRequest)
           await ReceiveJoinRoomRequest(joinRoomRequest, client);
         break;
+      case TcpMessageType.HeartbeatMessage://心跳包不做处理，以为无论什么请求都会更新最后在线时间
+        break;
+      default:
+        throw new Exception("未知的消息类型");
     }
-
-    throw new Exception("未知的消息类型");
   }
 }
