@@ -19,4 +19,12 @@ public abstract class PageViewModelBase : ObservableObject
   {
     
   }
+
+  /// <summary>
+  /// 切换到其他页面时
+  /// </summary>
+  public virtual void OnNavigatingFrom()
+  {
+    
+  }
 }

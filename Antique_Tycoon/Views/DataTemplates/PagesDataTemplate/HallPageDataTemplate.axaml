@@ -55,7 +55,7 @@
                 <Panel>
                   <Grid
                     Margin="16"
-                    ColumnDefinitions="80,*"
+                    ColumnDefinitions="256,*"
                     ColumnSpacing="16">
                     <Image
                       Grid.Column="0"

@@ -19,6 +19,7 @@ public class NavigationService
   public void Navigation(PageViewModelBase vm)
   {
     _navigationHistory.Add(_mainWindowViewModel.CurrentPageViewModel);
+    _mainWindowViewModel.CurrentPageViewModel.OnNavigatingFrom();
     _mainWindowViewModel.CurrentPageViewModel = vm;
     vm.OnNavigatedTo();
   }
@@ -32,6 +33,7 @@ public class NavigationService
   {
     if (_mainWindowViewModel.CurrentPageViewModel is IDisposable needDisposeObj)
       needDisposeObj.Dispose();
+    _mainWindowViewModel.CurrentPageViewModel.OnNavigatingFrom();
     _mainWindowViewModel.CurrentPageViewModel = _navigationHistory[^1];
     _mainWindowViewModel.CurrentPageViewModel.OnNavigatedTo();
     _navigationHistory.RemoveAt(_navigationHistory.Count - 1);

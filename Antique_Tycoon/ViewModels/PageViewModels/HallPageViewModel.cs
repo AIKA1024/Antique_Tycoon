@@ -27,7 +27,18 @@ public partial class HallPageViewModel : PageViewModelBase,IDisposable
     {
       await UpdateRoomList(s, e);
     };
+  }
+
+  public override void OnNavigatedTo()
+  {
+    base.OnNavigatedTo();
     _timer.Start();
+  }
+
+  public override void OnNavigatingFrom()
+  {
+    base.OnNavigatingFrom();
+    _timer.Stop();
   }
 
   private async Task UpdateRoomList(object? sender, ElapsedEventArgs e)
@@ -67,5 +78,6 @@ public partial class HallPageViewModel : PageViewModelBase,IDisposable
     if (_disposed) return;
     NoMapImage.Dispose();
     _disposed = true;
+    _timer.Stop();
   }
 }
