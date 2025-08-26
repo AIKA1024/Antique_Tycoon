@@ -14,6 +14,7 @@ using Antique_Tycoon.Models.Net.Tcp.Response;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Net;
+
 public class NetClient : NetBase
 {
   private readonly UdpClient _udpClient = new();
@@ -56,7 +57,7 @@ public class NetClient : NetBase
     _tcpClient = new TcpClient();
     await _tcpClient.ConnectAsync(ipEndPoint, cancellation);
     _ = ReceiveLoopAsync(_tcpClient, cancellation); // 开启监听回包任务
-    _ = HeartbeatLoopAsync(cancellation);// 开始循环发送心跳包
+    _ = HeartbeatLoopAsync(cancellation); // 开始循环发送心跳包
   }
 
   public async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)
@@ -68,7 +69,16 @@ public class NetClient : NetBase
     return (JoinRoomResponse)await SendRequestAsync(joinRoomRequest, cancellation);
   }
 
-  private async Task<ITcpMessage> SendRequestAsync<T>(T message, CancellationToken cancellationToken = default) where T : ITcpMessage
+  public void ExitRoom()
+  {
+    var exitRoomRequest = new ExitRoomRequest();
+    _ = SendRequestAsync(exitRoomRequest);
+  }
+
+  #region 封装的发送和接收逻辑
+
+  private async Task<ITcpMessage> SendRequestAsync<T>(T message, CancellationToken cancellationToken = default)
+    where T : ITcpMessage
   {
     var data = PackMessage(message);
     var tcs = new TaskCompletionSource<ITcpMessage>();
@@ -78,33 +88,33 @@ public class NetClient : NetBase
     return await tcs.Task.WaitAsync(cancellationToken);
   }
 
-  
 
   protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
-    ITcpMessage? message = null;//额外处理，调用方只需await方法就行，不需要在这里添加逻辑
+    ITcpMessage? message = null; //额外处理，调用方只需await方法就行，不需要在这里添加逻辑
     switch (tcpMessageType)
     {
       case TcpMessageType.JoinRoomResponse:
-        var joinRoomResponse = JsonSerializer.Deserialize(json,AppJsonContext.Default.JoinRoomResponse);
+        var joinRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomResponse);
         message = joinRoomResponse;
         break;
       case TcpMessageType.UpdateRoomResponse:
-        var updateRoomResponse = JsonSerializer.Deserialize(json,AppJsonContext.Default.UpdateRoomResponse);
+        var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
         message = updateRoomResponse;
         RoomInfoUpdated?.Invoke(updateRoomResponse.Players);
         break;
     }
-    
-    
+
+
     if (_pendingRequests.TryGetValue(message.Id, out var tcs))
     {
       tcs.SetResult(message);
       _pendingRequests.Remove(message.Id);
       return tcs.Task;
     }
+
     return Task.CompletedTask;
   }
 
-
+  #endregion
 }

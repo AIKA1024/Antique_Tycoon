@@ -10,8 +10,8 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class RoomPageViewModel: PageViewModelBase
 {
-  private readonly CancellationTokenSource _cancellationTokenSource;
-  public RoomPageViewModel(CancellationTokenSource cts = default)
+  private readonly CancellationTokenSource? _cancellationTokenSource;// 如果是加入别人的房间，这个就会是null
+  public RoomPageViewModel(CancellationTokenSource? cts = null)
   {
     _cancellationTokenSource = cts;
     App.Current.Services.GetRequiredService<NetClient>().RoomInfoUpdated += ReceiveUpdateRoomInfo;
@@ -29,8 +29,10 @@ public partial class RoomPageViewModel: PageViewModelBase
   public override void OnBacked()
   {
     base.OnBacked();
-    _cancellationTokenSource.Cancel();
+    if (!App.Current.Services.GetRequiredService<Player>().IsHomeowner)
+      App.Current.Services.GetRequiredService<NetClient>().ExitRoom();
     App.Current.Services.GetRequiredService<NetClient>().RoomInfoUpdated -= ReceiveUpdateRoomInfo;
     App.Current.Services.GetRequiredService<NetServer>().RoomInfoUpdated -= ReceiveUpdateRoomInfo;
+    _cancellationTokenSource?.Cancel();
   }
 }

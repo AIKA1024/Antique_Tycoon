@@ -22,7 +22,7 @@ public class NetServer : NetBase
   private readonly string _localIPv4;
   private readonly Room _room = new();
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
-  private Dictionary<TcpClient,long> LastHeartbeat { get; } = [];
+  private readonly Dictionary<TcpClient, Player> _clientPlayers = [];
 
   public NetServer()
   {
@@ -42,9 +42,10 @@ public class NetServer : NetBase
     return "127.0.0.1"; // 回退
   }
 
-  public async Task CreateRoomAndListenAsync(string roomName,Map map, CancellationToken cancellation = default)
+  public async Task CreateRoomAndListenAsync(string roomName, Map map, CancellationToken cancellation = default)
   {
-    LastHeartbeat.Clear();
+    _clientPlayers.Clear();
+    //todo _room好像也要清理一下
     using var ms = new MemoryStream();
     map.Cover.Save(ms);
     var roomInfo = new RoomBaseInfo
@@ -76,7 +77,7 @@ public class NetServer : NetBase
     {
       var result = await udpServer.ReceiveAsync(cancellationToken);
 
-      var json = JsonSerializer.Serialize(roomInfo,AppJsonContext.Default.RoomBaseInfo);
+      var json = JsonSerializer.Serialize(roomInfo, AppJsonContext.Default.RoomBaseInfo);
       var bytes = Encoding.UTF8.GetBytes(json);
 
       await udpServer.SendAsync(bytes, bytes.Length, result.RemoteEndPoint);
@@ -91,7 +92,7 @@ public class NetServer : NetBase
     while (!cancellation.IsCancellationRequested)
     {
       var client = await _listener.AcceptTcpClientAsync(cancellation);
-      LastHeartbeat.Add(client,DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+      // _clientPlayers.Add(client, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
       _ = HandleTcpClientAsync(client); // 处理连接（不要阻塞主循环）
     }
   }
@@ -101,7 +102,7 @@ public class NetServer : NetBase
   /// </summary>
   private async Task HandleTcpClientAsync(TcpClient client)
   {
-    await using var stream = client.GetStream();
+    // await using var stream = client.GetStream();
     await ReceiveLoopAsync(client);
   }
 
@@ -126,8 +127,8 @@ public class NetServer : NetBase
     }
     else
     {
-      request.Player.Client = client;
       _room.Players.Add(request.Player);
+      _clientPlayers[client] = request.Player;
       var joinRoomResponse = new JoinRoomResponse
       {
         Id = request.Id,
@@ -141,26 +142,44 @@ public class NetServer : NetBase
         Id = request.Id,
         Players = _room.Players
       };
-      foreach (var player in _room.Players.Where(p => !p.IsHomeowner && p.Client != client))
-        await SendRequestAsync(updateRoomResponse, player.Client);
+      foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client))
+        await SendRequestAsync(updateRoomResponse, otherClient);
       RoomInfoUpdated?.Invoke(_room.Players);
     }
+  }
+
+  private async Task ReceiveExitRoomRequest(ExitRoomRequest request, TcpClient client)
+  {
+    _room.Players.Remove(_clientPlayers[client]);
+    _clientPlayers.Remove(client);
+    var updateRoomResponse = new UpdateRoomResponse
+    {
+      Id = request.Id,
+      Players = _room.Players
+    };
+    foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client))//发出退出消息的客户端不需要等待服务器回应
+      await SendRequestAsync(updateRoomResponse, otherClient);
+    RoomInfoUpdated?.Invoke(_room.Players);
   }
 
 
   protected override async Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
-    LastHeartbeat[client] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     switch (tcpMessageType)
     {
+      case TcpMessageType.HeartbeatMessage: //心跳包不做处理，因为无论什么请求都会更新最后在线时间
+        break;
       case TcpMessageType.JoinRoomRequest:
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomRequest) is { } joinRoomRequest)
           await ReceiveJoinRoomRequest(joinRoomRequest, client);
         break;
-      case TcpMessageType.HeartbeatMessage://心跳包不做处理，以为无论什么请求都会更新最后在线时间
+      case TcpMessageType.ExitRoomRequest:
+        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.ExitRoomRequest) is { } exitRoomRequest)
+          await ReceiveExitRoomRequest(exitRoomRequest, client);
         break;
       default:
         throw new Exception("未知的消息类型");
     }
+    _clientPlayers[client].LastHeartbeat = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); //todo 服务器需要定期检查最后心跳时间是否过久
   }
 }

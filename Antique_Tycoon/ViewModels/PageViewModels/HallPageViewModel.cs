@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
+using Antique_Tycoon.Models;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -66,7 +67,7 @@ public partial class HallPageViewModel : PageViewModelBase,IDisposable
       return;//todo 要显示提示
     }
 
-
+    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false;
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
     {
       Players = response.Players

@@ -8,5 +8,6 @@ public enum TcpMessageType : ushort
   HeartbeatMessage = 1,
   JoinRoomRequest = 2,
   JoinRoomResponse = 3,
-  UpdateRoomResponse = 4
+  UpdateRoomResponse = 4,
+  ExitRoomRequest = 5
 }

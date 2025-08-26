@@ -90,6 +90,8 @@ public abstract class NetBase
         TcpMessageType.UpdateRoomResponse),
       _ when type == typeof(HeartbeatMessage) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.HeartbeatMessage,
         TcpMessageType.HeartbeatMessage),
+      _ when type == typeof(ExitRoomRequest) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.ExitRoomRequest,
+        TcpMessageType.ExitRoomRequest),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };
