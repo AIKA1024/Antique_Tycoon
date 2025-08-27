@@ -20,24 +20,21 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
 {
   [ObservableProperty] private string _roomName = $"{App.Current.Services.GetRequiredService<Player>().Name}的房间";
 
-  [ObservableProperty] 
+  [ObservableProperty]
   public partial Map SelectedMap { get; set; } = App.Current.Services.GetRequiredService<MapFileService>().GetMaps()[0];
 
   private CancellationTokenSource _cts = new();
 
   public CreateRoomPageViewModel()
   {
-    WeakReferenceMessenger.Default.Register<ChangeMapMessage>(this, (_, m) =>
-    {
-      SelectedMap = m.Value;
-    });
+    WeakReferenceMessenger.Default.Register<ChangeMapMessage>(this, (_, m) => { SelectedMap = m.Value; });
   }
 
   [RelayCommand]
   private async Task CreateRoomAndNavigateToRoomPage()
   {
     _cts.TryReset();
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(_cts));
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(SelectedMap, _cts));
     try
     {
       await App.Current.Services.GetRequiredService<NetServer>()

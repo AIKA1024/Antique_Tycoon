@@ -13,57 +13,29 @@ namespace Antique_Tycoon.Models;
 
 public partial class Map : ObservableObject
 {
-  public string Name
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = string.Empty;
+  [ObservableProperty] public partial string Name { get; set; } = string.Empty;
 
-  public double Scale
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = 1;
-
+  [ObservableProperty]
   [JsonConverter(typeof(PointJsonConverter))]
-  public Point Offset
-  {
-    get;
-    set => SetProperty(ref field, value);
-  }
+  public partial Point Offset { get; set; }
 
-  [JsonIgnore]
-  public Bitmap Cover
-  {
-    get;
-    set => SetProperty(ref field, value);
-  }
+  [ObservableProperty]
+  [JsonIgnore] public partial Bitmap Cover { get; set; }
 
-  public double CanvasHeight
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = 2000;
+  [ObservableProperty]
+  public partial double Scale { get; set; } = 1;
 
-  public double CanvasWidth
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = 3600;
+  [ObservableProperty] public partial double CanvasHeight { get; set; } = 2000;
 
+  [ObservableProperty] public partial double CanvasWidth { get; set; } = 3600;
+
+  [ObservableProperty]
   [JsonConverter(typeof(ColorJsonConverter))]
-  public Color CanvasBackground
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = Color.Parse("#262626");
+  public partial Color CanvasBackground { get; set; } = Color.Parse("#262626");
 
+  [ObservableProperty]
   [JsonConverter(typeof(ColorJsonConverter))]
-  public Color NodeDefaultBackground
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = Color.Parse("#eccc68");
+  public partial Color NodeDefaultBackground { get; set; } = Color.Parse("#eccc68");
 
   public ObservableCollection<CanvasItemModel> Entities
   {

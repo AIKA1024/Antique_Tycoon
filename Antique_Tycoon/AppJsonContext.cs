@@ -16,6 +16,7 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(JoinRoomRequest))]
 [JsonSerializable(typeof(UpdateRoomResponse))]
 [JsonSerializable(typeof(ExitRoomRequest))]
+[JsonSerializable(typeof(StartGameResponse))]
 
 [JsonSerializable(typeof(Map))]
 [JsonSerializable(typeof(SpawnPoint))]

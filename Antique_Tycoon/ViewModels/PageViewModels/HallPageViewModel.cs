@@ -67,7 +67,7 @@ public partial class HallPageViewModel : PageViewModelBase,IDisposable
       return;//todo 要显示提示
     }
 
-    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false;
+    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false;//todo 要下载地图
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
     {
       Players = response.Players

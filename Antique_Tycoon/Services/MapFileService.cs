@@ -1,10 +1,13 @@
+using System;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
 using Antique_Tycoon.Models.Node;
 using Avalonia.Media.Imaging;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -15,14 +18,6 @@ public class MapFileService
   private const string ImageFolderName = "Image"; //封面不在这个文件夹
   private const string JsonName = "Map.json";
   private List<Map>? _maps;
-
-  public List<Map> GetMaps()
-  {
-    if (_maps != null)
-      return _maps;
-    UpdateMapList();
-    return _maps!;
-  }
 
   public void UpdateMapList()
   {
@@ -38,17 +33,30 @@ public class MapFileService
         if (entity is NodeModel node)
           node.Cover = new Bitmap(imagePath);
       }
+
       ConnectLine(map.Entities);
       map.Cover = new Bitmap(Path.Join(path, "Cover.png"));
       _maps.Add(map);
     }
   }
 
+  public List<Map> GetMaps()
+  {
+    if (_maps != null)
+      return _maps;
+    UpdateMapList();
+    return _maps!;
+  }
+
+  public string GetMapZipHash(Map map) => Path.GetFileNameWithoutExtension(Directory.GetFiles(Path.Join(App.Current.MapArchiveFilePath, map.Name))[0]);
+
   public async Task SaveMapAsync(Map map)
   {
     var jsonStr = JsonSerializer.Serialize(map, AppJsonContext.Default.Map);
     var rootDirectoryPath = Path.Join(App.Current.MapPath, map.Name);
     var imageDirectoryPath = Path.Join(rootDirectoryPath, ImageFolderName);
+    var tempZipPath = Path.Join(App.Current.MapArchiveFilePath, $"{map.Name}.zip");
+    var mapZipDirectoryPath = Path.Join(App.Current.MapArchiveFilePath, $"{map.Name}");
     if (!Directory.Exists(imageDirectoryPath))
       Directory.CreateDirectory(imageDirectoryPath);
     map.Cover.Save(Path.Join(rootDirectoryPath, "Cover.png"));
@@ -56,7 +64,23 @@ public class MapFileService
       if (entity is NodeModel node)
         node.Cover.Save(Path.Join(imageDirectoryPath, entity.Uuid));
 
-    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, JsonName), jsonStr);
+    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, JsonName), jsonStr).ConfigureAwait(false);
+    if (File.Exists(tempZipPath))
+      File.Delete(tempZipPath);
+    ZipFile.CreateFromDirectory(rootDirectoryPath, tempZipPath, CompressionLevel.Optimal, false);
+
+    string hash;
+    await using (var stream = File.OpenRead(tempZipPath))
+    using (var sha256 = SHA256.Create())
+    {
+      var hashBytes = await sha256.ComputeHashAsync(stream);
+      hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+    }
+
+    if (Directory.Exists(mapZipDirectoryPath))
+      Directory.Delete(mapZipDirectoryPath, true); // 整个文件夹被删掉
+    Directory.CreateDirectory(mapZipDirectoryPath);
+    File.Move(tempZipPath, Path.Join(mapZipDirectoryPath, $"{hash}.zip"));
   }
 
   private void ConnectLine(IList<CanvasItemModel> Entities)

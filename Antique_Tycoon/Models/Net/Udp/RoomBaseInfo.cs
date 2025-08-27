@@ -12,8 +12,8 @@ public class RoomBaseInfo
   public int Port { get; set; }
   public int CurrentPlayerCount { get; set; } = 1;
   public int MaxPlayerCount { get; set; }
-
   public byte[] CoverData { get; set; }
+  public string Hash { get; set; } = "";
   
   [JsonIgnore]
   public Bitmap Cover

@@ -13,6 +13,8 @@ using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Net;
 
@@ -54,6 +56,7 @@ public class NetServer : NetBase
       Port = App.DefaultPort,
       Ip = _localIPv4,
       CoverData = ms.ToArray(),
+      Hash = App.Current.Services.GetRequiredService<MapFileService>().GetMapZipHash(map),
       IsLanRoom = true
     };
 
@@ -113,6 +116,13 @@ public class NetServer : NetBase
     await client.GetStream().WriteAsync(data, cancellationToken);
   }
 
+  public void StartGame()
+  {
+    var startMessage = new StartGameResponse();
+    foreach (var tcpClient in _clientPlayers.Keys)
+      _ = SendRequestAsync(startMessage, tcpClient, CancellationToken.None);
+  }
+
   private async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)
   {
     if (_room.Players.Count >= _room.MaxPlayer)
@@ -157,7 +167,7 @@ public class NetServer : NetBase
       Id = request.Id,
       Players = _room.Players
     };
-    foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client))//发出退出消息的客户端不需要等待服务器回应
+    foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client)) //发出退出消息的客户端不需要等待服务器回应
       await SendRequestAsync(updateRoomResponse, otherClient);
     RoomInfoUpdated?.Invoke(_room.Players);
   }
@@ -180,6 +190,7 @@ public class NetServer : NetBase
       default:
         throw new Exception("未知的消息类型");
     }
+
     _clientPlayers[client].LastHeartbeat = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); //todo 服务器需要定期检查最后心跳时间是否过久
   }
 }

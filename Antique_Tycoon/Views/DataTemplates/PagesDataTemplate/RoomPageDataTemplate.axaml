@@ -18,7 +18,8 @@
         <c:MCButton Classes="ore"
                     Content="开始游戏"
                     HorizontalAlignment="Right"
-                    VerticalAlignment="Top" />
+                    VerticalAlignment="Top" 
+                    IsVisible="{Binding SelfPlayer.IsHomeowner}"/>
         <ItemsControl ItemsSource="{Binding Players}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>

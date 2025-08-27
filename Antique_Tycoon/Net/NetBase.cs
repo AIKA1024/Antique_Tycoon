@@ -50,7 +50,14 @@ public abstract class NetBase
         var json = Encoding.UTF8.GetString(messageBytes, 2, messageBytes.Length - 2);
 
         // 处理消息（带 typeId）
-        _ = ProcessMessageAsync((TcpMessageType)typeId, json, client); // 传入 typeId
+        _ = ProcessMessageAsync((TcpMessageType)typeId, json, client).ContinueWith(t =>
+        {
+          if (t.Exception != null)
+          {
+            Console.WriteLine($"ProcessMessageAsync failed: {t.Exception}");
+            throw t.Exception;
+          }
+        }, TaskContinuationOptions.OnlyOnFaulted);
 
         // === 清除已读部分 ===
         var remaining = memory.Length - memory.Position;
@@ -92,6 +99,8 @@ public abstract class NetBase
         TcpMessageType.HeartbeatMessage),
       _ when type == typeof(ExitRoomRequest) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.ExitRoomRequest,
         TcpMessageType.ExitRoomRequest),
+      _ when type == typeof(StartGameResponse) => ((JsonTypeInfo<T>)(object)AppJsonContext.Default.StartGameResponse,
+        TcpMessageType.StartGameResponse),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

@@ -9,5 +9,6 @@ public enum TcpMessageType : ushort
   JoinRoomRequest = 2,
   JoinRoomResponse = 3,
   UpdateRoomResponse = 4,
-  ExitRoomRequest = 5
+  ExitRoomRequest = 5,
+  StartGameResponse = 6
 }

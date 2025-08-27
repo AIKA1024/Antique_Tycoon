@@ -21,10 +21,12 @@ namespace Antique_Tycoon;
 public partial class App : Application
 {
   public const int DefaultPort = 13437;
-  
+
   public IServiceProvider Services { get; private set; }
   public new static App Current => (App)Application.Current!;
   public string MapPath { get; } = Path.Join("..", "Maps");
+  public string MapArchiveFilePath { get; } = Path.Join("..", "MapArchiveFile");
+
   public override void Initialize()
   {
     AvaloniaXamlLoader.Load(this);
@@ -33,10 +35,10 @@ public partial class App : Application
   public App()
   {
     Services = ConfigureServices();
-    if (!Directory.Exists(MapPath))
-      Directory.CreateDirectory(MapPath);
+    Directory.CreateDirectory(MapPath);
+    Directory.CreateDirectory(MapArchiveFilePath);
   }
-  
+
   public override void OnFrameworkInitializationCompleted()
   {
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -53,16 +55,17 @@ public partial class App : Application
   private IServiceProvider ConfigureServices()
   {
     var services = new ServiceCollection();
-    services.AddSingleton<MainWindow>(sp=> new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
+    services.AddSingleton<MainWindow>(sp => new MainWindow
+      { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
     services.AddSingleton(new LibVLC("--no-video"));
     services.AddSingleton<MainWindowViewModel>();
-    services.AddSingleton<NavigationService>(sp=>new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
+    services.AddSingleton<NavigationService>(sp => new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
     services.AddSingleton<MapFileService>();
     services.AddSingleton<DialogService>();
     services.AddSingleton<NetClient>();
     services.AddSingleton<NetServer>();
-    services.AddSingleton(new Player{IsHomeowner = true});
-    services.AddSingleton(sp=>TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
+    services.AddSingleton(new Player { IsHomeowner = true });
+    services.AddSingleton(sp => TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
     return services.BuildServiceProvider();
   }
 
