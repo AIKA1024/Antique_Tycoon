@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,6 +17,7 @@ using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Timer = System.Timers.Timer;
 
 namespace Antique_Tycoon.Net;
 
@@ -23,12 +26,28 @@ public class NetServer : NetBase
   private TcpListener? _listener;
   private readonly string _localIPv4;
   private readonly Room _room = new();
+  private readonly ConcurrentDictionary<TcpClient, Player> _clientPlayers = [];
+  private readonly Timer _timer = new();
+
+  public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(5);
+
+  public TimeSpan CheckOutlineInterval
+  {
+    get;
+    set
+    {
+      field = value;
+      _timer.Interval = field.TotalMilliseconds;
+    }
+  } = TimeSpan.FromSeconds(5);
+
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
-  private readonly Dictionary<TcpClient, Player> _clientPlayers = [];
 
   public NetServer()
   {
     _localIPv4 = GetLocalIPv4();
+    _timer.Elapsed += (_, _) => CheckOutlinePlayer();
+    _timer.Start();
   }
 
   private string GetLocalIPv4()
@@ -42,6 +61,25 @@ public class NetServer : NetBase
     }
 
     return "127.0.0.1"; // 回退
+  }
+
+  private void CheckOutlinePlayer()
+  {
+    foreach (var kv in _clientPlayers)
+    {
+      long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      if (now - kv.Value.LastHeartbeat > DisconnectTimeout.TotalMilliseconds)
+      {
+        kv.Key.Close();
+        _clientPlayers.TryRemove(kv.Key, out _);
+        int index = _room.Players.IndexOf(kv.Value);//todo 这个退出房间可以封装一下
+        if (index >= 0)
+        {
+          _room.Players.RemoveAt(index);
+          RoomInfoUpdated?.Invoke(_room.Players);
+        }
+      }
+    }
   }
 
   public async Task CreateRoomAndListenAsync(string roomName, Map map, CancellationToken cancellation = default)
@@ -138,7 +176,7 @@ public class NetServer : NetBase
     else
     {
       _room.Players.Add(request.Player);
-      _clientPlayers[client] = request.Player;
+      _clientPlayers.TryAdd(client,request.Player);
       var joinRoomResponse = new JoinRoomResponse
       {
         Id = request.Id,
@@ -161,7 +199,7 @@ public class NetServer : NetBase
   private async Task ReceiveExitRoomRequest(ExitRoomRequest request, TcpClient client)
   {
     _room.Players.Remove(_clientPlayers[client]);
-    _clientPlayers.Remove(client);
+    _clientPlayers.TryRemove(client,out _);
     var updateRoomResponse = new UpdateRoomResponse
     {
       Id = request.Id,
@@ -191,6 +229,7 @@ public class NetServer : NetBase
         throw new Exception("未知的消息类型");
     }
 
-    _clientPlayers[client].LastHeartbeat = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); //todo 服务器需要定期检查最后心跳时间是否过久
+    if (_clientPlayers.TryGetValue(client, out var player))
+      player.LastHeartbeat = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
   }
 }

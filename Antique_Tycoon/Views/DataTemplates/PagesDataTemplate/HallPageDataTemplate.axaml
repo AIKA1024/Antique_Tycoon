@@ -65,7 +65,7 @@
                     <StackPanel Grid.Column="1">
                       <TextBlock Text="{Binding RoomName}" />
                       <TextBlock Text="{Binding CurrentPlayerCount, StringFormat={}{0}/5}" />
-                      <TextBlock Text="局域网" Background="HotPink" Padding="4" IsVisible="{Binding IsLanRoom}"
+                      <TextBlock Text="局域网" Background="#8CB3FF" Padding="4" IsVisible="{Binding IsLanRoom}"
                                  HorizontalAlignment="Left" Foreground="Black"/>
                     </StackPanel>
                   </Grid>
