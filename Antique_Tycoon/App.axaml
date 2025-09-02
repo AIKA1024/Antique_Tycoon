@@ -40,6 +40,7 @@
     
     <StaticResource ResourceKey="CreateNewMapDialogDataTemplate"/>
     <StaticResource ResourceKey="SelectMapDialogDataTemplate"/>
+    <StaticResource ResourceKey="MessageDialogDataTemplate"/>
     
   </Application.DataTemplates>
 </Application>

@@ -1,0 +1,49 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dvm="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
+                    xmlns:c="using:Antique_Tycoon.Views.Controls">
+  <!-- Add Resources Here -->
+
+  <Design.PreviewWith>
+    <ContentControl>
+      <ContentControl.DataTemplates>
+        <StaticResource ResourceKey="MessageDialogDataTemplate" />
+      </ContentControl.DataTemplates>
+      <dvm:MessageDialogViewModel Title="这是标题" Message="这是消息" />
+    </ContentControl>
+  </Design.PreviewWith>
+
+  <DataTemplate x:Key="MessageDialogDataTemplate" x:DataType="dvm:MessageDialogViewModel">
+    <Border BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="3"
+            Background="{StaticResource BorderBackgroundBrush}">
+      <StackPanel>
+        <Border Padding="128 16"
+                BorderThickness="3"
+                BorderBrush="{StaticResource LightedBorderBrush}">
+          <TextBlock Text="{Binding Title}"
+                     FontSize="16"
+                     FontWeight="ExtraBold" />
+        </Border>
+        <Border Background="#313233">
+          <StackPanel>
+            <TextBlock Text="{Binding Message}"
+                       FontSize="24"
+                       Margin="16"
+                       VerticalAlignment="Center" />
+            <Border Padding="16" Background="{StaticResource BorderBackgroundBrush}">
+              <StackPanel Spacing="12">
+                <c:MCButton Content="取消" HorizontalAlignment="Stretch" Padding="12"
+                            IsVisible="{Binding IsShowCancelButton}"
+                            Command="{Binding CancelCommand}"/>
+                <c:MCButton Classes="ore" Content="确认" HorizontalAlignment="Stretch" Padding="12"
+                            Command="{Binding ConfirmCommand}"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Border>
+        <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" />
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+</ResourceDictionary>

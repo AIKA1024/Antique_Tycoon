@@ -1,0 +1,29 @@
+using Antique_Tycoon.Services;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Antique_Tycoon.ViewModels.DialogViewModels;
+
+public partial class MessageDialogViewModel : DialogViewModelBase
+{
+  [ObservableProperty] public partial string Title { get; set; } = "";
+  [ObservableProperty] public partial string Message { get; set; } = "";
+  [ObservableProperty] public partial bool Result { get; set; }
+  
+  [ObservableProperty] public partial bool IsShowCancelButton { get; set; }
+
+  [RelayCommand]
+  private void Confirm()
+  {
+    Result = true;
+    App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this);
+  }
+  
+  [RelayCommand]
+  private void Cancel()
+  {
+    // Result = false;
+    App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this);
+  }
+}

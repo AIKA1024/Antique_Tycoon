@@ -29,7 +29,7 @@ public class NetServer : NetBase
   private readonly ConcurrentDictionary<TcpClient, Player> _clientPlayers = [];
   private readonly Timer _timer = new();
 
-  public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(5);
+  public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
   public TimeSpan CheckOutlineInterval
   {

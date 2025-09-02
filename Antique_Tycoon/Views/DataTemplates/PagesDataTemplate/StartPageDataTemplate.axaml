@@ -66,6 +66,7 @@
           Content="创意工坊" HorizontalAlignment="Center" />
         <c:MCButton
           Classes="Width"
+          Command="{Binding NavigateToSettingPageCommand}"
           Content="设置" HorizontalAlignment="Center" />
       </StackPanel>
       <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">

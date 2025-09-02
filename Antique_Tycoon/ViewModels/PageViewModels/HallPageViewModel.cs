@@ -10,24 +10,26 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.ViewModels.DialogViewModels;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
-public partial class HallPageViewModel : PageViewModelBase,IDisposable
+public partial class HallPageViewModel : PageViewModelBase, IDisposable
 {
   private readonly Timer _timer = new(2000);
   private bool _disposed;
-  [ObservableProperty] private Bitmap _noMapImage = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/No_Map.png")));
+
+  [ObservableProperty]
+  private Bitmap _noMapImage = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/No_Map.png")));
+
   public ObservableCollection<RoomBaseInfo> RoomList { get; } = [];
+
   public HallPageViewModel()
   {
-    _timer.Elapsed += async (s, e) =>
-    {
-      await UpdateRoomList(s, e);
-    };
+    _timer.Elapsed += async (s, e) => { await UpdateRoomList(s, e); };
   }
 
   public override void OnNavigatedTo()
@@ -64,10 +66,16 @@ public partial class HallPageViewModel : PageViewModelBase,IDisposable
     var response = await App.Current.Services.GetRequiredService<NetClient>().JoinRoomAsync();
     if (response.Players.Count == 0)
     {
-      return;//todo 要显示提示
+      await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(
+        new MessageDialogViewModel
+        {
+          Title = "提示",
+          Message = "房间已满"
+        });
+      return;
     }
 
-    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false;//todo 要下载地图
+    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false; //todo 要下载地图
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
     {
       Players = response.Players
