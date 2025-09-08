@@ -45,25 +45,38 @@ public class MapFileService
   public MemoryStream GetMapFileStream(Map map)
   {
     var mapHash = GetMapFileHash(map);
-    if (!string.IsNullOrEmpty(_mapStream.Hash) && _mapStream.Hash == mapHash)
-      return _mapStream.Stream!;
-    
-    _mapStream.Hash = mapHash;
-    _mapStream.Stream?.Close();
-    var memoryStream = new MemoryStream();
-    using var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true);
-    var folderPath = Path.Join(App.Current.MapPath, map.Name);
-    foreach (var filePath in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories))
-    {
-      string entryName = Path.GetRelativePath(folderPath, filePath);
-      var entry = archive.CreateEntry(entryName, CompressionLevel.Fastest);
 
-      using var entryStream = entry.Open();
-      using var fileStream = File.OpenRead(filePath);
-      fileStream.CopyTo(entryStream);
+    // 检查缓存，如果哈希匹配，直接返回缓存的流
+    if (!string.IsNullOrEmpty(_mapStream.Hash) && _mapStream.Hash == mapHash)
+    {
+      // 确保流的位置重置为0，以便可以从头开始读取
+      _mapStream.Stream.Position = 0;
+      return _mapStream.Stream;
     }
-    memoryStream.Position = 0;
+
+    // 清理旧的流，确保资源被释放
+    _mapStream.Stream?.Dispose();
+
+    var memoryStream = new MemoryStream();
+
+    // 使用 using 块确保 ZipArchive 被正确释放，
+    // 这也会确保 MemoryStream 的内容被完全写入
+    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+    {
+      var folderPath = Path.Join(App.Current.MapPath, map.Name);
+      foreach (var filePath in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories))
+      {
+        string entryName = Path.GetRelativePath(folderPath, filePath);
+        archive.CreateEntryFromFile(filePath, entryName, CompressionLevel.Fastest);
+      }
+    }
+
+    // 更新缓存
+    _mapStream.Hash = mapHash;
     _mapStream.Stream = memoryStream;
+
+    // 重置流的位置，以便调用者可以从头开始读取
+    memoryStream.Position = 0;
     return memoryStream;
   }
 
