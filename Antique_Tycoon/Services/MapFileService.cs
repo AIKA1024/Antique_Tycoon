@@ -1,4 +1,3 @@
-using System;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
 using Antique_Tycoon.Models.Node;
@@ -7,9 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Antique_Tycoon.Extensions;
+using Antique_Tycoon.ViewModels.DialogViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Services;
 
@@ -18,6 +19,53 @@ public class MapFileService
   private const string ImageFolderName = "Image"; //封面不在这个文件夹
   private const string JsonName = "Map.json";
   private List<Map>? _maps;
+  private (string Hash, MemoryStream? Stream) _mapStream;
+
+  public List<Map> GetMaps()
+  {
+    if (_maps != null)
+      return _maps;
+    UpdateMapList();
+    return _maps!;
+  }
+
+  //计算哈希是费时的操作，所以只在创建房间时计算对应地图文件的哈希值，json中图片使用了uuid命名，因此json的哈希值也有唯一性
+  public string GetMapFileHash(Map map)
+  {
+    var jsonPath = Path.Join(App.Current.MapPath, map.Name, JsonName);
+    return jsonPath.ComputeFileHash();
+  }
+
+  /// <summary>
+  /// 获得地图文件的流
+  /// 返回的流由内部处理，不需要手动释放
+  /// </summary>
+  /// <param name="map">地图</param>
+  /// <returns>内存流</returns>
+  public MemoryStream GetMapFileStream(Map map)
+  {
+    var mapHash = GetMapFileHash(map);
+    if (!string.IsNullOrEmpty(_mapStream.Hash) && _mapStream.Hash == mapHash)
+      return _mapStream.Stream!;
+    
+    _mapStream.Hash = mapHash;
+    _mapStream.Stream?.Close();
+    var memoryStream = new MemoryStream();
+    using var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true);
+    var folderPath = Path.Join(App.Current.MapPath, map.Name);
+    foreach (var filePath in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories))
+    {
+      string entryName = Path.GetRelativePath(folderPath, filePath);
+      var entry = archive.CreateEntry(entryName, CompressionLevel.Fastest);
+
+      using var entryStream = entry.Open();
+      using var fileStream = File.OpenRead(filePath);
+      fileStream.CopyTo(entryStream);
+    }
+    memoryStream.Position = 0;
+    _mapStream.Stream = memoryStream;
+    return memoryStream;
+  }
 
   public void UpdateMapList()
   {
@@ -40,23 +88,11 @@ public class MapFileService
     }
   }
 
-  public List<Map> GetMaps()
-  {
-    if (_maps != null)
-      return _maps;
-    UpdateMapList();
-    return _maps!;
-  }
-
-  public string GetMapZipHash(Map map) => Path.GetFileNameWithoutExtension(Directory.GetFiles(Path.Join(App.Current.MapArchiveFilePath, map.Name))[0]);
-
   public async Task SaveMapAsync(Map map)
   {
     var jsonStr = JsonSerializer.Serialize(map, AppJsonContext.Default.Map);
     var rootDirectoryPath = Path.Join(App.Current.MapPath, map.Name);
     var imageDirectoryPath = Path.Join(rootDirectoryPath, ImageFolderName);
-    var tempZipPath = Path.Join(App.Current.MapArchiveFilePath, $"{map.Name}.zip");
-    var mapZipDirectoryPath = Path.Join(App.Current.MapArchiveFilePath, $"{map.Name}");
     if (!Directory.Exists(imageDirectoryPath))
       Directory.CreateDirectory(imageDirectoryPath);
     map.Cover.Save(Path.Join(rootDirectoryPath, "Cover.png"));
@@ -64,23 +100,7 @@ public class MapFileService
       if (entity is NodeModel node)
         node.Cover.Save(Path.Join(imageDirectoryPath, entity.Uuid));
 
-    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, JsonName), jsonStr).ConfigureAwait(false);
-    if (File.Exists(tempZipPath))
-      File.Delete(tempZipPath);
-    ZipFile.CreateFromDirectory(rootDirectoryPath, tempZipPath, CompressionLevel.Optimal, false);
-
-    string hash;
-    await using (var stream = File.OpenRead(tempZipPath))
-    using (var sha256 = SHA256.Create())
-    {
-      var hashBytes = await sha256.ComputeHashAsync(stream);
-      hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-    }
-
-    if (Directory.Exists(mapZipDirectoryPath))
-      Directory.Delete(mapZipDirectoryPath, true); // 整个文件夹被删掉
-    Directory.CreateDirectory(mapZipDirectoryPath);
-    File.Move(tempZipPath, Path.Join(mapZipDirectoryPath, $"{hash}.zip"));
+    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, JsonName), jsonStr);
   }
 
   private void ConnectLine(IList<CanvasItemModel> Entities)

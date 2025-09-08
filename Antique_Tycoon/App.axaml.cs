@@ -25,7 +25,7 @@ public partial class App : Application
   public IServiceProvider Services { get; private set; }
   public new static App Current => (App)Application.Current!;
   public string MapPath { get; } = Path.Join("..", "Maps");
-  public string MapArchiveFilePath { get; } = Path.Join("..", "MapArchiveFile");
+  public string DownloadMapPath { get; } = Path.Join("..", "TempDownloadPath");
 
   public override void Initialize()
   {
@@ -36,7 +36,7 @@ public partial class App : Application
   {
     Services = ConfigureServices();
     Directory.CreateDirectory(MapPath);
-    Directory.CreateDirectory(MapArchiveFilePath);
+    Directory.CreateDirectory(DownloadMapPath);
   }
 
   public override void OnFrameworkInitializationCompleted()
@@ -62,8 +62,8 @@ public partial class App : Application
     services.AddSingleton<NavigationService>(sp => new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
     services.AddSingleton<MapFileService>();
     services.AddSingleton<DialogService>();
-    services.AddSingleton<NetClient>();
-    services.AddSingleton<NetServer>();
+    services.AddSingleton<NetClient>(_ => new NetClient { DownloadPath = DownloadMapPath });
+    services.AddSingleton<NetServer>(_ => new NetServer { DownloadPath = DownloadMapPath });
     services.AddSingleton(new Player { IsHomeowner = true });
     services.AddSingleton(sp => TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
     return services.BuildServiceProvider();

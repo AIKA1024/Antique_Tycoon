@@ -34,15 +34,18 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
   private async Task CreateRoomAndNavigateToRoomPage()
   {
     _cts.TryReset();
+    var netServer = App.Current.Services.GetRequiredService<NetServer>();
+    netServer.MapStreamResolver = () => App.Current.Services.GetRequiredService<MapFileService>().GetMapFileStream(SelectedMap);
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(SelectedMap, _cts));
     try
     {
-      await App.Current.Services.GetRequiredService<NetServer>()
+      await netServer
         .CreateRoomAndListenAsync(RoomName, SelectedMap, _cts.Token);
     }
     catch (OperationCanceledException e)
     {
-      // Console.WriteLine(e);
+      await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new MessageDialogViewModel
+        { Title = "出现异常！", Message = e.Message });
     }
   }
 

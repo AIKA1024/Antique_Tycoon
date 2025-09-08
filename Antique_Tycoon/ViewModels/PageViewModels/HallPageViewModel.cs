@@ -5,11 +5,13 @@ using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -61,21 +63,42 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   [RelayCommand]
   private async Task JoinRoom(RoomBaseInfo roomInfo)
   {
+    var client = App.Current.Services.GetRequiredService<NetClient>();
+    var dialogService = App.Current.Services.GetRequiredService<DialogService>();
     var iPEndPoint = new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port);
-    await App.Current.Services.GetRequiredService<NetClient>().ConnectServer(iPEndPoint);
-    var response = await App.Current.Services.GetRequiredService<NetClient>().JoinRoomAsync();
-    if (response.Players.Count == 0)
+    await client.ConnectServer(iPEndPoint);
+    if (!Directory.Exists(Path.Join(App.Current.DownloadMapPath, roomInfo.Hash)))
     {
-      await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(
+      var result = await client.DownloadMapAsync();
+      if (result.ResponseStatus != RequestResult.Success)
+        dialogService.ShowDialogAsync(
+          new MessageDialogViewModel
+          {
+            Title = "提示",
+            Message = "地图下载失败"
+          });
+      return;
+    }
+
+    await dialogService.ShowDialogAsync(
+      new MessageDialogViewModel
+      {
+        Title = "提示",
+        Message = "下载成功"
+      });
+    var response = await client.JoinRoomAsync();
+    if (response.ResponseStatus != RequestResult.Success)
+    {
+      await dialogService.ShowDialogAsync(
         new MessageDialogViewModel
         {
           Title = "提示",
-          Message = "房间已满"
+          Message = response.Message
         });
       return;
     }
 
-    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false; //todo 要下载地图
+    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false;
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
     {
       Players = response.Players

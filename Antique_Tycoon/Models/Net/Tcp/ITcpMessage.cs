@@ -4,4 +4,5 @@ public interface ITcpMessage
 {
   public string Id { get; set; }
   public long Timestamp { get; set; }
+  
 }

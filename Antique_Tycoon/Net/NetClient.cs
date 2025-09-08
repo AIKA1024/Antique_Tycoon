@@ -60,6 +60,12 @@ public class NetClient : NetBase
     _ = HeartbeatLoopAsync(cancellation); // 开始循环发送心跳包
   }
 
+  public async Task<DownloadMapResponse> DownloadMapAsync(CancellationToken cancellation = default)
+  {
+    var downloadMapRequest = new DownloadMapRequest();
+    return (DownloadMapResponse)await SendRequestAsync(downloadMapRequest, cancellation);
+  }
+
   public async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)
   {
     var joinRoomRequest = new JoinRoomRequest
@@ -106,7 +112,7 @@ public class NetClient : NetBase
     }
 
 
-    if (_pendingRequests.TryGetValue(message.Id, out var tcs))
+    if (_pendingRequests.TryGetValue(message.Id, out var tcs))//todo 只处理了消息的，没处理发送文件的情况
     {
       tcs.SetResult(message);
       _pendingRequests.Remove(message.Id);

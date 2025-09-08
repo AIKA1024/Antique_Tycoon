@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -42,6 +41,7 @@ public class NetServer : NetBase
   } = TimeSpan.FromSeconds(5);
 
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
+  public Func<Stream>? MapStreamResolver { get; set; }
 
   public NetServer()
   {
@@ -72,7 +72,7 @@ public class NetServer : NetBase
       {
         kv.Key.Close();
         _clientPlayers.TryRemove(kv.Key, out _);
-        int index = _room.Players.IndexOf(kv.Value);//todo 这个退出房间可以封装一下
+        int index = _room.Players.IndexOf(kv.Value); //todo 这个退出房间可以封装一下
         if (index >= 0)
         {
           _room.Players.RemoveAt(index);
@@ -94,7 +94,7 @@ public class NetServer : NetBase
       Port = App.DefaultPort,
       Ip = _localIPv4,
       CoverData = ms.ToArray(),
-      Hash = App.Current.Services.GetRequiredService<MapFileService>().GetMapZipHash(map),
+      Hash = App.Current.Services.GetRequiredService<MapFileService>().GetMapFileHash(map),
       IsLanRoom = true
     };
 
@@ -147,7 +147,7 @@ public class NetServer : NetBase
     await ReceiveLoopAsync(client);
   }
 
-  private async Task SendRequestAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
+  private async Task SendResponseAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
     where T : ITcpMessage
   {
     var data = PackMessage(message);
@@ -158,8 +158,9 @@ public class NetServer : NetBase
   {
     var startMessage = new StartGameResponse();
     foreach (var tcpClient in _clientPlayers.Keys)
-      _ = SendRequestAsync(startMessage, tcpClient, CancellationToken.None);
+      _ = SendResponseAsync(startMessage, tcpClient, CancellationToken.None);
   }
+
 
   private async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)
   {
@@ -168,7 +169,8 @@ public class NetServer : NetBase
       var response = new JoinRoomResponse
       {
         Id = request.Id,
-        Message = "房间已满"
+        Message = "房间已满",
+        ResponseStatus = RequestResult.Reject
       };
       var data = PackMessage(response);
       await client.GetStream().WriteAsync(data, 0, data.Length);
@@ -176,13 +178,13 @@ public class NetServer : NetBase
     else
     {
       _room.Players.Add(request.Player);
-      _clientPlayers.TryAdd(client,request.Player);
+      _clientPlayers.TryAdd(client, request.Player);
       var joinRoomResponse = new JoinRoomResponse
       {
         Id = request.Id,
         Players = _room.Players
       };
-      await SendRequestAsync(joinRoomResponse, client);
+      await SendResponseAsync(joinRoomResponse, client);
 
       //todo 给房间的其他人发送更新房间的消息
       var updateRoomResponse = new UpdateRoomResponse
@@ -191,7 +193,7 @@ public class NetServer : NetBase
         Players = _room.Players
       };
       foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client))
-        await SendRequestAsync(updateRoomResponse, otherClient);
+        await SendResponseAsync(updateRoomResponse, otherClient);
       RoomInfoUpdated?.Invoke(_room.Players);
     }
   }
@@ -199,17 +201,16 @@ public class NetServer : NetBase
   private async Task ReceiveExitRoomRequest(ExitRoomRequest request, TcpClient client)
   {
     _room.Players.Remove(_clientPlayers[client]);
-    _clientPlayers.TryRemove(client,out _);
+    _clientPlayers.TryRemove(client, out _);
     var updateRoomResponse = new UpdateRoomResponse
     {
       Id = request.Id,
       Players = _room.Players
     };
     foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client)) //发出退出消息的客户端不需要等待服务器回应
-      await SendRequestAsync(updateRoomResponse, otherClient);
+      await SendResponseAsync(updateRoomResponse, otherClient);
     RoomInfoUpdated?.Invoke(_room.Players);
   }
-
 
   protected override async Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
@@ -224,6 +225,10 @@ public class NetServer : NetBase
       case TcpMessageType.ExitRoomRequest:
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.ExitRoomRequest) is { } exitRoomRequest)
           await ReceiveExitRoomRequest(exitRoomRequest, client);
+        break;
+      case TcpMessageType.DownloadMapRequest:
+        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapRequest) != null)
+          await SendFileAsync(MapStreamResolver(), client, "TempMap.zip", TcpMessageType.DownloadMapResponse);
         break;
       default:
         throw new Exception("未知的消息类型");
