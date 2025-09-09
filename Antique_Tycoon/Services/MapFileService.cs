@@ -116,10 +116,10 @@ public class MapFileService
     await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, JsonName), jsonStr);
   }
 
-  private void ConnectLine(IList<CanvasItemModel> Entities)
+  private void ConnectLine(IList<CanvasItemModel> entities)
   {
-    var mapNodeDic = Entities.Where(e => e is NodeModel).Cast<NodeModel>().ToDictionary(e => e.Uuid, e => e);
-    var connections = Entities.Where(e => e is Connection).Cast<Connection>().ToArray();
+    var mapNodeDic = entities.Where(e => e is NodeModel).Cast<NodeModel>().ToDictionary(e => e.Uuid, e => e);
+    var connections = entities.Where(e => e is Connection).Cast<Connection>().ToArray();
     foreach (var connection in connections)
     {
       var startEntity = mapNodeDic[connection.StartNodeId];
@@ -128,7 +128,6 @@ public class MapFileService
       var endConnectorModel = endEntity.ConnectorModels.First(c => c.Uuid == connection.EndConnectorId);
       startConnectorModel.ActiveConnections.Add(connection);
       endConnectorModel.PassiveConnections.Add(connection);
-      //Entities.Add(newConnection);
     }
   }
 }

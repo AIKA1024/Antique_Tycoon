@@ -71,13 +71,15 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     {
       var result = await client.DownloadMapAsync();
       if (result.ResponseStatus != RequestResult.Success)
-        dialogService.ShowDialogAsync(
+      {
+        await dialogService.ShowDialogAsync(
           new MessageDialogViewModel
           {
             Title = "提示",
             Message = "地图下载失败"
           });
-      return;
+        return;
+      }
     }
 
     await dialogService.ShowDialogAsync(

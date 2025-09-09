@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -94,7 +95,6 @@ public class NetClient : NetBase
     return await tcs.Task.WaitAsync(cancellationToken);
   }
 
-
   protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
     ITcpMessage? message = null; //额外处理，调用方只需await方法就行，不需要在这里添加逻辑
@@ -112,7 +112,7 @@ public class NetClient : NetBase
     }
 
 
-    if (_pendingRequests.TryGetValue(message.Id, out var tcs))//todo 只处理了消息的，没处理发送文件的情况
+    if (_pendingRequests.TryGetValue(message.Id, out var tcs))
     {
       tcs.SetResult(message);
       _pendingRequests.Remove(message.Id);
@@ -120,6 +120,17 @@ public class NetClient : NetBase
     }
 
     return Task.CompletedTask;
+  }
+
+  protected override async Task ReceiveFileChunkAsync(string uuid, string fileName, int chunkIndex, int totalChunks,
+    byte[] data)
+  {
+    await base.ReceiveFileChunkAsync(uuid, fileName, chunkIndex, totalChunks, data);
+    if (_pendingRequests.TryGetValue(uuid, out var tcs))
+    {
+      tcs.SetResult(new DownloadMapResponse { Id = uuid});
+      _pendingRequests.Remove(uuid);
+    }
   }
 
   #endregion

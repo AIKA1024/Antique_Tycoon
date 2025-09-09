@@ -20,7 +20,7 @@ using Timer = System.Timers.Timer;
 
 namespace Antique_Tycoon.Net;
 
-public class NetServer : NetBase
+public class NetServer : NetBase//todo 服务器莫名其妙会认为别人掉了
 {
   private TcpListener? _listener;
   private readonly string _localIPv4;
@@ -227,8 +227,8 @@ public class NetServer : NetBase
           await ReceiveExitRoomRequest(exitRoomRequest, client);
         break;
       case TcpMessageType.DownloadMapRequest:
-        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapRequest) != null)
-          await SendFileAsync(MapStreamResolver(), client, "TempMap.zip", TcpMessageType.DownloadMapResponse);
+        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapRequest) is { } downloadMapRequest)
+          await SendFileAsync(MapStreamResolver(), downloadMapRequest.Id, "TempMap.zip", TcpMessageType.DownloadMapResponse,client);
         break;
       default:
         throw new Exception("未知的消息类型");

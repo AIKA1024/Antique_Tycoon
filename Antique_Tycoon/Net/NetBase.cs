@@ -75,11 +75,24 @@ public abstract class NetBase
         {
           case TcpMessageType.DownloadMapResponse:
             // 文件块处理，顺序、乱序都可
-            _ = ReceiveFileChunkAsync(messageBytes.AsSpan(2).ToArray()).ContinueWith(t =>
+            var header = FilePacketHeader.Deserialize(messageBytes, out var headerSize);
+
+            var data = new byte[header.DataLength];
+            Array.Copy(messageBytes, headerSize, data, 0, header.DataLength);
+
+            // 调用虚方法，传递必要字段
+            _ = ReceiveFileChunkAsync(
+              header.Uuid,
+              header.FileName,
+              header.ChunkIndex,
+              header.TotalChunks,
+              data
+            ).ContinueWith(t =>
             {
               if (t.Exception != null)
                 Console.WriteLine($"ReceiveFileChunkAsync failed: {t.Exception}");
             }, TaskContinuationOptions.OnlyOnFaulted);
+
             break;
 
           default:
@@ -127,65 +140,49 @@ public abstract class NetBase
     return buffer;
   }
 
-  public async Task SendFileAsync(Stream fileStream, TcpClient client, string fileName, TcpMessageType type)
+  public async Task SendFileAsync(Stream fileStream, string uuid, string fileName, TcpMessageType type,
+    TcpClient client)
   {
     var buffer = new byte[ChunkSize];
     int bytesRead;
     int chunkIndex = 0;
     int totalChunks = (int)Math.Ceiling((double)fileStream.Length / ChunkSize);
 
-    var fileNameBytes = Encoding.UTF8.GetBytes(fileName);
-    int fileNameLength = fileNameBytes.Length;
-
     var netStream = client.GetStream();
 
     while ((bytesRead = await fileStream.ReadAsync(buffer)) > 0)
     {
-      int bodyLength = 2 + 4 + 4 + 4 + fileNameLength + 4 + bytesRead;
-      var packet = new byte[4 + bodyLength];
+      var header = new FilePacketHeader
+      {
+        Type = type,
+        ChunkIndex = chunkIndex,
+        TotalChunks = totalChunks,
+        Uuid = uuid,
+        FileName = fileName,
+        DataLength = bytesRead
+      };
 
-      BitConverter.GetBytes(bodyLength).CopyTo(packet, 0);
-      BitConverter.GetBytes((ushort)type).CopyTo(packet, 4);
-      BitConverter.GetBytes(chunkIndex).CopyTo(packet, 6);
-      BitConverter.GetBytes(totalChunks).CopyTo(packet, 10);
-      BitConverter.GetBytes(fileNameLength).CopyTo(packet, 14);
-      fileNameBytes.CopyTo(packet, 18);
-      BitConverter.GetBytes(bytesRead).CopyTo(packet, 18 + fileNameLength);
-      Array.Copy(buffer, 0, packet, 22 + fileNameLength, bytesRead);
+      var headerBytes = header.Serialize();
+      int bodyLength = headerBytes.Length + bytesRead;
+
+      var packet = new byte[4 + bodyLength];
+      BitConverter.GetBytes(bodyLength).CopyTo(packet, 0); // 包长
+      headerBytes.CopyTo(packet, 4); // 包头
+      Array.Copy(buffer, 0, packet, 4 + headerBytes.Length, bytesRead); // 数据
 
       await netStream.WriteAsync(packet);
+
       chunkIndex++;
     }
   }
 
-  private async Task ReceiveFileChunkAsync(byte[] messageBytes)
+  protected virtual async Task ReceiveFileChunkAsync(
+    string uuid,
+    string fileName,
+    int chunkIndex,
+    int totalChunks,
+    byte[] data)
   {
-    int offset = 0;
-
-    // 1️⃣ 解析 chunkIndex
-    int chunkIndex = BitConverter.ToInt32(messageBytes, offset);
-    offset += 4;
-
-    // 2️⃣ 解析 totalChunks
-    int totalChunks = BitConverter.ToInt32(messageBytes, offset);
-    offset += 4;
-
-    // 3️⃣ 解析文件名长度
-    int fileNameLength = BitConverter.ToInt32(messageBytes, offset);
-    offset += 4;
-
-    // 4️⃣ 解析文件名
-    string fileName = Encoding.UTF8.GetString(messageBytes, offset, fileNameLength);
-    offset += fileNameLength;
-
-    // 5️⃣ 解析数据长度
-    int dataLength = BitConverter.ToInt32(messageBytes, offset);
-    offset += 4;
-
-    // 6️⃣ 获取文件数据
-    byte[] data = new byte[dataLength];
-    Array.Copy(messageBytes, offset, data, 0, dataLength);
-
     string safeFileName = Path.GetFileName(fileName);
     string fullPath = Path.Combine(DownloadPath, safeFileName);
 
@@ -194,16 +191,13 @@ public abstract class NetBase
     {
       if (!_downloads.TryGetValue(fullPath, out ctx))
       {
-        // 创建新的 FileDownloadContext，传入 totalChunks 和 ChunkSize
         ctx = new FileDownloadContext(fullPath, totalChunks, ChunkSize);
         _downloads[fullPath] = ctx;
       }
     }
 
-    // 7️⃣ 异步写入 chunk（乱序安全）
     await ctx.WriteChunkAsync(chunkIndex, data, 0, data.Length);
 
-    // 8️⃣ 检查是否完成
     if (ctx.IsCompleted)
     {
       ctx.Dispose();
@@ -211,8 +205,8 @@ public abstract class NetBase
       {
         _downloads.Remove(fullPath);
       }
-      
-      Console.WriteLine($"文件 {safeFileName} 下载完成！");
+
+      Console.WriteLine($"✅ 文件 {safeFileName} (uuid={uuid}) 下载完成！");
     }
   }
 
