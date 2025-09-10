@@ -12,6 +12,8 @@ using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Services;
+using Antique_Tycoon.ViewModels.DialogViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Net;
@@ -41,12 +43,15 @@ public class NetClient : NetBase
     {
       try
       {
-        await SendRequestAsync(new HeartbeatMessage(), cancellation);
+        _ = SendRequestAsync(new HeartbeatMessage(), cancellation);
         await Task.Delay(HeartbeatInterval, cancellation);
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"HeartbeatMessage error: {ex.Message}");
+#if DEBUG
+        await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new MessageDialogViewModel
+          { Title = "警告", Message = ex.Message, IsLightDismissEnabled = false });
+#endif
         break;
       }
     }
@@ -128,7 +133,7 @@ public class NetClient : NetBase
     await base.ReceiveFileChunkAsync(uuid, fileName, chunkIndex, totalChunks, data);
     if (_pendingRequests.TryGetValue(uuid, out var tcs))
     {
-      tcs.SetResult(new DownloadMapResponse { Id = uuid});
+      tcs.SetResult(new DownloadMapResponse { Id = uuid });
       _pendingRequests.Remove(uuid);
     }
   }
