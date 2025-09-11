@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -61,13 +62,15 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   }
 
   [RelayCommand]
-  private async Task JoinRoom(RoomBaseInfo roomInfo)
+  private async Task JoinRoom(RoomBaseInfo roomInfo)//todo 职责过重
   {
     var client = App.Current.Services.GetRequiredService<NetClient>();
     var dialogService = App.Current.Services.GetRequiredService<DialogService>();
     var iPEndPoint = new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port);
     await client.ConnectServer(iPEndPoint);
-    if (!Directory.Exists(Path.Join(App.Current.DownloadMapPath, roomInfo.Hash)))
+    var mapPath = Path.Join(App.Current.DownloadMapPath, $"{roomInfo.Hash}.zip");
+    var mapDirPath = Path.Join(App.Current.DownloadMapPath, roomInfo.Hash);
+    if (!Directory.Exists(mapDirPath))
     {
       var result = await client.DownloadMapAsync();
       if (result.ResponseStatus != RequestResult.Success)
@@ -80,14 +83,18 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
           });
         return;
       }
+      
+      await dialogService.ShowDialogAsync(
+        new MessageDialogViewModel
+        {
+          Title = "提示",
+          Message = "下载成功"
+        });
+      ZipFile.ExtractToDirectory(mapPath,mapDirPath);
+      File.Delete(mapPath);
     }
 
-    await dialogService.ShowDialogAsync(
-      new MessageDialogViewModel
-      {
-        Title = "提示",
-        Message = "下载成功"
-      });
+    
     var response = await client.JoinRoomAsync();
     if (response.ResponseStatus != RequestResult.Success)
     {

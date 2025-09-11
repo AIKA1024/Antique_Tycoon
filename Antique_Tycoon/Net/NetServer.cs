@@ -20,7 +20,7 @@ using Timer = System.Timers.Timer;
 
 namespace Antique_Tycoon.Net;
 
-public class NetServer : NetBase//todo 服务器莫名其妙会认为别人掉了
+public class NetServer : NetBase
 {
   private TcpListener? _listener;
   private readonly string _localIPv4;
@@ -41,7 +41,7 @@ public class NetServer : NetBase//todo 服务器莫名其妙会认为别人掉�
   } = TimeSpan.FromSeconds(5);
 
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
-  public Func<Stream>? MapStreamResolver { get; set; }
+  public Map? SelectedMap { get; set; }
 
   public NetServer()
   {
@@ -228,7 +228,12 @@ public class NetServer : NetBase//todo 服务器莫名其妙会认为别人掉�
         break;
       case TcpMessageType.DownloadMapRequest:
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapRequest) is { } downloadMapRequest)
-          await SendFileAsync(MapStreamResolver(), downloadMapRequest.Id, "TempMap.zip", TcpMessageType.DownloadMapResponse,client);
+        {
+          var mapService = App.Current.Services.GetRequiredService<MapFileService>();
+          await SendFileAsync(mapService.GetMapFileStream(SelectedMap),
+            downloadMapRequest.Id, $"{mapService.GetMapFileHash(SelectedMap)}.zip", TcpMessageType.DownloadMapResponse, client);
+        }
+
         break;
       default:
         throw new Exception("未知的消息类型");

@@ -35,7 +35,7 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
   {
     _cts.TryReset();
     var netServer = App.Current.Services.GetRequiredService<NetServer>();
-    netServer.MapStreamResolver = () => App.Current.Services.GetRequiredService<MapFileService>().GetMapFileStream(SelectedMap);
+    netServer.SelectedMap = SelectedMap;
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(SelectedMap, _cts));
     try
     {
