@@ -30,7 +30,7 @@
       </c:MCTitleBar>
       <Panel Grid.Row="1"
              Background="Transparent">
-        <widgets:GameCanvas />
+        <widgets:GameCanvas IsEditing="True"/>
 
         <!-- DetailPanel -->
         <Border

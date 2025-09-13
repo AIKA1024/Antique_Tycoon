@@ -15,10 +15,10 @@ namespace Antique_Tycoon.Behaviors;
 
 public class ShowFlyoutBehavior : Behavior<Control>
 {
-  private Point _oldPoint;//用于判断释放拖拽了画布
+  private Point _oldPoint; //用于判断释放拖拽了画布
   private Flyout _flyout;
-  private Point _lastPointerPosition;//用于获取鼠标在canvas的坐标
-  
+  private Point _lastPointerPosition; //用于获取鼠标在canvas的坐标
+
   public static readonly AttachedProperty<Point?> PointerPositionProperty =
     AvaloniaProperty.RegisterAttached<ShowFlyoutBehavior, Control, Point?>(
       "PointerPosition");
@@ -62,7 +62,7 @@ public class ShowFlyoutBehavior : Behavior<Control>
 
   private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
   {
-    if (sender!=e.Source) return;
+    if (sender != e.Source) return;
     var pointer = e.GetCurrentPoint(sender as Visual);
     if (pointer.Properties.IsRightButtonPressed)
     {
@@ -73,19 +73,16 @@ public class ShowFlyoutBehavior : Behavior<Control>
 
   private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
   {
-    if (sender!=e.Source) return;
+    if (sender != e.Source) return;
     if (e.InitialPressMouseButton != MouseButton.Right) return;
     var newPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var dx = newPoint.X - _oldPoint.X;
     var dy = newPoint.Y - _oldPoint.Y;
     var distanceSquared = dx * dx + dy * dy;
-    if (distanceSquared < 9) // 3 的平方
-    {
-      if (sender is Control ctl)
-      {
-        var flyout = (Flyout)FlyoutBase.GetAttachedFlyout(ctl);
-        flyout.ShowAt(ctl, true);
-      }
-    }
+    if (!(distanceSquared < 9)) return; // 3 的平方
+    if (sender is not Control ctl) return;
+    var flyout = (Flyout?)FlyoutBase.GetAttachedFlyout(ctl);
+    if (!IsEnabled || flyout is null) return;
+    flyout.ShowAt(ctl, true);
   }
 }

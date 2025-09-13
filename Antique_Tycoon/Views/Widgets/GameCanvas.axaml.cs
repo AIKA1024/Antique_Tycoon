@@ -12,6 +12,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.VisualTree;
+using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Widgets;
 
@@ -19,6 +20,7 @@ public partial class GameCanvas : UserControl
 {
   private Canvas _canvas;
   private MapEditPageViewModel _mapEditPageViewModel;
+  [GeneratedDirectProperty]public partial bool IsEditing { get; set; }
 
   public GameCanvas()
   {

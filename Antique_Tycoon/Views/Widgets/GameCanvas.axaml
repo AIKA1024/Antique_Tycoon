@@ -90,7 +90,7 @@
               </Flyout>
             </FlyoutBase.AttachedFlyout>
             <Interaction.Behaviors>
-              <i:ShowFlyoutBehavior />
+              <i:ShowFlyoutBehavior IsEnabled="{Binding $parent[widgets:GameCanvas].IsEditing}" />
             </Interaction.Behaviors>
           </Canvas>
         </ItemsPanelTemplate>
