@@ -17,22 +17,32 @@ namespace Antique_Tycoon.Services;
 public class MapFileService
 {
   private const string ImageFolderName = "Image"; //封面不在这个文件夹
-  private const string JsonName = "Map.json";
-  private List<Map>? _maps;
+  private const string JsonFileName = "Map.json";
+  private const string HashFileName = "Hash.txt";
+  private Dictionary<string, Map>? _mapsDictionary;
   private (string Hash, MemoryStream? Stream) _mapStream;
 
   public List<Map> GetMaps()
   {
-    if (_maps != null)
-      return _maps;
-    UpdateMapList();
-    return _maps!;
+    if (_mapsDictionary?.Values != null)
+      return _mapsDictionary.Values.ToList();
+    UpdateMapDictionary();
+    return _mapsDictionary!.Values.ToList();
+  }
+
+  public Map? GetMapByHash(string hash)
+  {
+    if (_mapsDictionary is null)
+      return null;
+
+    _mapsDictionary.TryGetValue(hash, out var map);
+    return map;
   }
 
   //计算哈希是费时的操作，所以只在创建房间时计算对应地图文件的哈希值，json中图片使用了uuid命名，因此json的哈希值也有唯一性
   public string GetMapFileHash(Map map)
   {
-    var jsonPath = Path.Join(App.Current.MapPath, map.Name, JsonName);
+    var jsonPath = Path.Join(App.Current.MapPath, map.Name, JsonFileName);
     return jsonPath.ComputeFileHash();
   }
 
@@ -80,14 +90,15 @@ public class MapFileService
     return memoryStream;
   }
 
-  public void UpdateMapList()
+  public void UpdateMapDictionary()
   {
-    _maps ??= [];
-    _maps.Clear();
+    _mapsDictionary ??= [];
+    _mapsDictionary.Clear();
     foreach (var path in Directory.GetDirectories(App.Current.MapPath))
     {
       var imageDirectoryPath = Path.Join(path, ImageFolderName);
-      var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Join(path, JsonName)), AppJsonContext.Default.Map);
+      var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Join(path, JsonFileName)),
+        AppJsonContext.Default.Map);
       foreach (var entity in map.Entities) //手动加载Cover
       {
         var imagePath = Path.Join(imageDirectoryPath, entity.Uuid);
@@ -97,7 +108,8 @@ public class MapFileService
 
       ConnectLine(map.Entities);
       map.Cover = new Bitmap(Path.Join(path, "Cover.png"));
-      _maps.Add(map);
+      map.Hash = File.ReadAllText(Path.Join(path, HashFileName));
+      _mapsDictionary.Add(map.Hash, map);
     }
   }
 
@@ -112,8 +124,10 @@ public class MapFileService
     foreach (var entity in map.Entities)
       if (entity is NodeModel node)
         node.Cover.Save(Path.Join(imageDirectoryPath, entity.Uuid));
+    var jsonPath = Path.Join(Path.Join(rootDirectoryPath, JsonFileName));
 
-    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, JsonName), jsonStr);
+    await File.WriteAllTextAsync(jsonPath, jsonStr);
+    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, HashFileName), jsonPath.ComputeFileHash());
   }
 
   private void ConnectLine(IList<CanvasItemModel> entities)

@@ -63,7 +63,7 @@ public partial class App : Application
     services.AddSingleton<MapFileService>();
     services.AddSingleton<DialogService>();
     services.AddSingleton<NetClient>(_ => new NetClient { DownloadPath = DownloadMapPath });
-    services.AddSingleton<NetServer>(_ => new NetServer { DownloadPath = DownloadMapPath });
+    services.AddSingleton<NetServer>(sp => new NetServer(sp.GetRequiredService<MapFileService>(), DownloadMapPath));// 这样注册才合理，NetClient不规范
     services.AddSingleton(new Player { IsHomeowner = true });
     services.AddSingleton(sp => TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
     return services.BuildServiceProvider();

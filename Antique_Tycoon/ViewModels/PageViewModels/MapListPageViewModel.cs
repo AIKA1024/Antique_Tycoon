@@ -23,7 +23,7 @@ public partial class MapListPageViewModel : PageViewModelBase
   public override void OnNavigatedTo()
   {
     base.OnNavigatedTo();
-    App.Current.Services.GetRequiredService<MapFileService>().UpdateMapList();
+    App.Current.Services.GetRequiredService<MapFileService>().UpdateMapDictionary();
     Maps =  new ObservableCollection<Map>(App.Current.Services.GetRequiredService<MapFileService>().GetMaps());
   }
 

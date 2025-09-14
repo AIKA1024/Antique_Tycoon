@@ -28,6 +28,10 @@ public partial class Map : ObservableObject
   [ObservableProperty] public partial double CanvasHeight { get; set; } = 2000;
 
   [ObservableProperty] public partial double CanvasWidth { get; set; } = 3600;
+  
+  [ObservableProperty]
+  [JsonIgnore]// 这个值通过另外的Hash文件读取
+  public partial string Hash { get; set; } = "";
 
   [ObservableProperty]
   [JsonConverter(typeof(ColorJsonConverter))]

@@ -29,13 +29,13 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
   {
     WeakReferenceMessenger.Default.Register<ChangeMapMessage>(this, (_, m) => { SelectedMap = m.Value; });
   }
+  
 
   [RelayCommand]
   private async Task CreateRoomAndNavigateToRoomPage()
   {
     _cts.TryReset();
     var netServer = App.Current.Services.GetRequiredService<NetServer>();
-    netServer.SelectedMap = SelectedMap;
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(SelectedMap, _cts));
     try
     {

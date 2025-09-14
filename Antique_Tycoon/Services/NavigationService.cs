@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Antique_Tycoon.ViewModels;
 using Antique_Tycoon.ViewModels.PageViewModels;
-using Avalonia.Controls;
 
 namespace Antique_Tycoon.Services;
 

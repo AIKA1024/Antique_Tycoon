@@ -72,7 +72,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     var mapDirPath = Path.Join(App.Current.DownloadMapPath, roomInfo.Hash);
     if (!Directory.Exists(mapDirPath))
     {
-      var result = await client.DownloadMapAsync();
+      var result = await client.DownloadMapAsync(roomInfo.Hash);
       if (result.ResponseStatus != RequestResult.Success)
       {
         await dialogService.ShowDialogAsync(

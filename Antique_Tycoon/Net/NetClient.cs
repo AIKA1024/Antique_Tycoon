@@ -66,9 +66,9 @@ public class NetClient : NetBase
     _ = HeartbeatLoopAsync(cancellation); // 开始循环发送心跳包
   }
 
-  public async Task<DownloadMapResponse> DownloadMapAsync(CancellationToken cancellation = default)
+  public async Task<DownloadMapResponse> DownloadMapAsync(string hash,CancellationToken cancellation = default)
   {
-    var downloadMapRequest = new DownloadMapRequest();
+    var downloadMapRequest = new DownloadMapRequest(hash);
     return (DownloadMapResponse)await SendRequestAsync(downloadMapRequest, cancellation);
   }
 
@@ -113,6 +113,10 @@ public class NetClient : NetBase
         var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
         message = updateRoomResponse;
         RoomInfoUpdated?.Invoke(updateRoomResponse.Players);
+        break;
+      case TcpMessageType.DownloadMapResponse:
+        var downloadMapResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapResponse);
+        message = downloadMapResponse;
         break;
     }
 

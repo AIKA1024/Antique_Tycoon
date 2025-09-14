@@ -27,6 +27,7 @@ public class NetServer : NetBase
   private readonly Room _room = new();
   private readonly ConcurrentDictionary<TcpClient, Player> _clientPlayers = [];
   private readonly Timer _timer = new();
+  private readonly MapFileService _mapFileService;
 
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
@@ -41,10 +42,11 @@ public class NetServer : NetBase
   } = TimeSpan.FromSeconds(5);
 
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
-  public Map? SelectedMap { get; set; }
 
-  public NetServer()
+  public NetServer(MapFileService mapFileService, string downloadPath)
   {
+    _mapFileService = mapFileService;
+    DownloadPath = downloadPath;
     _localIPv4 = GetLocalIPv4();
     _timer.Elapsed += (_, _) => CheckOutlinePlayer();
     _timer.Start();
@@ -229,9 +231,15 @@ public class NetServer : NetBase
       case TcpMessageType.DownloadMapRequest:
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapRequest) is { } downloadMapRequest)
         {
-          var mapService = App.Current.Services.GetRequiredService<MapFileService>();
-          await SendFileAsync(mapService.GetMapFileStream(SelectedMap),
-            downloadMapRequest.Id, $"{mapService.GetMapFileHash(SelectedMap)}.zip", TcpMessageType.DownloadMapResponse, client);
+          if (_mapFileService.GetMapByHash(downloadMapRequest.Hash) is { } map)
+          {
+            await SendFileAsync(_mapFileService.GetMapFileStream(map),
+              downloadMapRequest.Id, $"{_mapFileService.GetMapFileHash(map)}.zip", TcpMessageType.DownloadMapResponse,
+              client);
+          }
+          else
+            await SendResponseAsync(
+              new DownloadMapResponse { Id = downloadMapRequest.Id, ResponseStatus = RequestResult.Error }, client);
         }
 
         break;
