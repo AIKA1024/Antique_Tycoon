@@ -16,7 +16,7 @@
       <Interaction.Behaviors>
         <i:ZoomPanBehavior />
       </Interaction.Behaviors>
-      <w:GameCanvas/>
+      <w:GameCanvas CurrentMap="{Binding Map}"/>
       <w:PlayerUI x:Name="PlayerUI" Focusable="False" IsHitTestVisible="False"/>
     </Grid>
   </DataTemplate>

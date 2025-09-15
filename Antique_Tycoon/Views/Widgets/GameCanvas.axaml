@@ -14,7 +14,7 @@
   <Design.PreviewWith>
     <widgets:GameCanvas />
   </Design.PreviewWith>
-  <Panel Background="Transparent">
+  <Panel Background="{DynamicResource BorderBackgroundColor}">
     <c:XListBox
       x:Name="EntityListBox"
       Background="{x:Null}"
