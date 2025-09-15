@@ -62,13 +62,13 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   }
 
   [RelayCommand]
-  private async Task JoinRoom(RoomBaseInfo roomInfo)//todo 职责过重
+  private async Task JoinRoom(RoomBaseInfo roomInfo) //todo 职责过重
   {
     var client = App.Current.Services.GetRequiredService<NetClient>();
     var dialogService = App.Current.Services.GetRequiredService<DialogService>();
     var iPEndPoint = new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port);
     await client.ConnectServer(iPEndPoint);
-    var mapPath = Path.Join(App.Current.DownloadMapPath, $"{roomInfo.Hash}.zip");
+    var mapZipPath = Path.Join(App.Current.DownloadMapPath, $"{roomInfo.Hash}.zip");
     var mapDirPath = Path.Join(App.Current.DownloadMapPath, roomInfo.Hash);
     if (!Directory.Exists(mapDirPath))
     {
@@ -83,18 +83,18 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
           });
         return;
       }
-      
+
       await dialogService.ShowDialogAsync(
         new MessageDialogViewModel
         {
           Title = "提示",
           Message = "下载成功"
         });
-      ZipFile.ExtractToDirectory(mapPath,mapDirPath);
-      File.Delete(mapPath);
+      ZipFile.ExtractToDirectory(mapZipPath, mapDirPath);
+      File.Delete(mapZipPath);
     }
 
-    
+
     var response = await client.JoinRoomAsync();
     if (response.ResponseStatus != RequestResult.Success)
     {
@@ -108,10 +108,12 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     }
 
     App.Current.Services.GetRequiredService<Player>().IsHomeowner = false;
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel
-    {
-      Players = response.Players
-    });
+    var mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(
+      new RoomPageViewModel(mapFileService.LoadMap(mapDirPath))
+      {
+        Players = response.Players
+      });
   }
 
   public void Dispose()

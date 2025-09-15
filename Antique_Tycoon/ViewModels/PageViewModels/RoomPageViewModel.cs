@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
@@ -16,19 +18,18 @@ public partial class RoomPageViewModel : PageViewModelBase
   public Player SelfPlayer { get; set; } = App.Current.Services.GetRequiredService<Player>();
   private Map SelectedMap { get; }
 
-  public RoomPageViewModel(CancellationTokenSource? cts = null)//todo 这是临时让程序运行的方法，应该要传递地图才对
-  {
-    _cancellationTokenSource = cts;
-    App.Current.Services.GetRequiredService<NetClient>().RoomInfoUpdated += ReceiveUpdateRoomInfo;
-    App.Current.Services.GetRequiredService<NetServer>().RoomInfoUpdated += ReceiveUpdateRoomInfo;
-  }
-
   public RoomPageViewModel(Map map, CancellationTokenSource? cts = null)
   {
     SelectedMap = map;
     _cancellationTokenSource = cts;
+    App.Current.Services.GetRequiredService<NetClient>().GameStarted += OnGameStarted;
     App.Current.Services.GetRequiredService<NetClient>().RoomInfoUpdated += ReceiveUpdateRoomInfo;
     App.Current.Services.GetRequiredService<NetServer>().RoomInfoUpdated += ReceiveUpdateRoomInfo;
+  }
+
+  private void OnGameStarted(StartGameResponse _)
+  {
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new GamePageViewModel(SelectedMap));
   }
 
   [ObservableProperty]
@@ -40,6 +41,7 @@ public partial class RoomPageViewModel : PageViewModelBase
     Players = new ObservableCollection<Player>(players);
   }
 
+  [RelayCommand]
   private void StartGame()
   {
     App.Current.Services.GetRequiredService<NetServer>().StartGame();

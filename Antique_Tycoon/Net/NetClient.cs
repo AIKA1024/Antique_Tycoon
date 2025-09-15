@@ -24,6 +24,7 @@ public class NetClient : NetBase
   private TcpClient? _tcpClient;
   private readonly Dictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
   public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
+  public event Action<StartGameResponse>? GameStarted;
   public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(3);
 
   public async Task<RoomBaseInfo> DiscoverRoomAsync()
@@ -66,7 +67,7 @@ public class NetClient : NetBase
     _ = HeartbeatLoopAsync(cancellation); // 开始循环发送心跳包
   }
 
-  public async Task<DownloadMapResponse> DownloadMapAsync(string hash,CancellationToken cancellation = default)
+  public async Task<DownloadMapResponse> DownloadMapAsync(string hash, CancellationToken cancellation = default)
   {
     var downloadMapRequest = new DownloadMapRequest(hash);
     return (DownloadMapResponse)await SendRequestAsync(downloadMapRequest, cancellation);
@@ -112,23 +113,26 @@ public class NetClient : NetBase
       case TcpMessageType.UpdateRoomResponse:
         var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
         message = updateRoomResponse;
-        RoomInfoUpdated?.Invoke(updateRoomResponse.Players);
+        if (updateRoomResponse != null)
+          RoomInfoUpdated?.Invoke(updateRoomResponse.Players);
         break;
       case TcpMessageType.DownloadMapResponse:
         var downloadMapResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapResponse);
         message = downloadMapResponse;
         break;
+      case TcpMessageType.StartGameResponse:
+        var startGameResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.StartGameResponse);
+        message = startGameResponse;
+        if (startGameResponse != null)
+          GameStarted?.Invoke(startGameResponse);
+        break;
     }
 
+    if (message is null || !_pendingRequests.Remove(message.Id, out var tcs))
+      return Task.CompletedTask;
 
-    if (_pendingRequests.TryGetValue(message.Id, out var tcs))
-    {
-      tcs.SetResult(message);
-      _pendingRequests.Remove(message.Id);
-      return tcs.Task;
-    }
-
-    return Task.CompletedTask;
+    tcs.SetResult(message);
+    return tcs.Task;
   }
 
   protected override async Task ReceiveFileChunkAsync(string uuid, string fileName, int chunkIndex, int totalChunks,

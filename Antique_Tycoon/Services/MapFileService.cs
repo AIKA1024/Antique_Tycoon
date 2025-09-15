@@ -39,6 +39,24 @@ public class MapFileService
     return map;
   }
 
+  public Map LoadMap(string folderPath)
+  {
+    var imageDirectoryPath = Path.Join(folderPath, ImageFolderName);
+    var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Join(folderPath, JsonFileName)),
+      AppJsonContext.Default.Map);
+    foreach (var entity in map.Entities) //手动加载Cover
+    {
+      var imagePath = Path.Join(imageDirectoryPath, entity.Uuid);
+      if (entity is NodeModel node)
+        node.Cover = new Bitmap(imagePath);
+    }
+
+    ConnectLine(map.Entities);
+    map.Cover = new Bitmap(Path.Join(folderPath, "Cover.png"));
+    map.Hash = File.ReadAllText(Path.Join(folderPath, HashFileName));
+    return map;
+  }
+
   //计算哈希是费时的操作，所以只在创建房间时计算对应地图文件的哈希值，json中图片使用了uuid命名，因此json的哈希值也有唯一性
   public string GetMapFileHash(Map map)
   {
@@ -96,19 +114,7 @@ public class MapFileService
     _mapsDictionary.Clear();
     foreach (var path in Directory.GetDirectories(App.Current.MapPath))
     {
-      var imageDirectoryPath = Path.Join(path, ImageFolderName);
-      var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Join(path, JsonFileName)),
-        AppJsonContext.Default.Map);
-      foreach (var entity in map.Entities) //手动加载Cover
-      {
-        var imagePath = Path.Join(imageDirectoryPath, entity.Uuid);
-        if (entity is NodeModel node)
-          node.Cover = new Bitmap(imagePath);
-      }
-
-      ConnectLine(map.Entities);
-      map.Cover = new Bitmap(Path.Join(path, "Cover.png"));
-      map.Hash = File.ReadAllText(Path.Join(path, HashFileName));
+      var map = LoadMap(path);
       _mapsDictionary.Add(map.Hash, map);
     }
   }
