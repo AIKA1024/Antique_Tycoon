@@ -18,9 +18,9 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapEditPageViewModel : PageViewModelBase
 {
-  public ObservableCollection<CanvasItemModel> SelectedMapEntities { get; } = [];
+  public ObservableCollection<CanvasItemModel> SelectedMapEntities { get; set; } = [];
 
-  [ObservableProperty] public partial Map Map { get; set; }
+  [ObservableProperty] public partial Map CurrentMap { get; set; }
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
@@ -35,56 +35,15 @@ public partial class MapEditPageViewModel : PageViewModelBase
     }
   }
 
-  public Point PointerPosition { get; set; }
-
   public Func<Bitmap>? RequestRenderControl { get; set; }
 
-  public MapEditPageViewModel(Map map)
+  public MapEditPageViewModel(Map currentMap)
   {
-    Map = map;
+    CurrentMap = currentMap;
     SelectedMapEntities.CollectionChanged += (_, __) =>
     {
       OnPropertyChanged(nameof(SelectedMapEntity));
     };
-  }
-
-  [RelayCommand]
-  private void CreateEntity(string type)
-  {
-    Dispatcher.UIThread.Post(() =>
-    {
-      switch (type)
-      {
-        case "玩家出生点":
-          Map.Entities.Add(new SpawnPoint
-          {
-            Left = PointerPosition.X,
-            Top = PointerPosition.Y,
-            Title = "玩家出生点",
-            Background = Map.NodeDefaultBackground
-          });
-          break;
-        case "地产":
-          Map.Entities.Add(new Estate
-          {
-            Left = PointerPosition.X,
-            Top = PointerPosition.Y,
-            Title = "某生态群系",
-            Background = Map.NodeDefaultBackground
-          });
-          break;
-        case "自定义事件":
-          break;
-      }
-    }, DispatcherPriority.Render);
-  }
-
-  [RelayCommand]
-  private void RemoveEntity(NodeModel target)
-  {
-    foreach (var model in target.ConnectorModels)
-      model.CancelConnects(Map);
-    Map.Entities.Remove(target);
   }
 
   [RelayCommand]
@@ -118,7 +77,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [RelayCommand]
   private async Task SaveMap()
   {
-    Map.Cover = RequestRenderControl?.Invoke();
-    await App.Current.Services.GetRequiredService<MapFileService>().SaveMapAsync(Map);
+    CurrentMap.Cover = RequestRenderControl?.Invoke();
+    await App.Current.Services.GetRequiredService<MapFileService>().SaveMapAsync(CurrentMap);
   }
 }

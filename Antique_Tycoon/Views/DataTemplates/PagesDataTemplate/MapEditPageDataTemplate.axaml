@@ -30,7 +30,9 @@
       </c:MCTitleBar>
       <Panel Grid.Row="1"
              Background="Transparent">
-        <widgets:GameCanvas IsEditing="True"/>
+        <widgets:GameCanvas IsEditing="True" CurrentMap="{Binding CurrentMap}"
+                            SelectedMapEntities="{Binding SelectedMapEntities}"
+                            TempSelectedMapEntity="{Binding SelectedMapEntity}"/>
 
         <!-- DetailPanel -->
         <Border
@@ -99,19 +101,19 @@
             <TabItem Header="地图设置">
               <StackPanel>
                 <c:MCContentControl Header="画布宽度">
-                  <TextBox Classes="MCTextbox" Text="{Binding Map.CanvasWidth,Mode=TwoWay}" />
+                  <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasWidth,Mode=TwoWay}" />
                 </c:MCContentControl>
                 <c:MCContentControl Header="画布高度">
-                  <TextBox Classes="MCTextbox" Text="{Binding Map.CanvasHeight,Mode=TwoWay}" />
+                  <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasHeight,Mode=TwoWay}" />
                 </c:MCContentControl>
                 <c:MCContentControl Header="画布背景色">
                   <ColorPicker
-                    Color="{Binding Map.CanvasBackground}"
+                    Color="{Binding CurrentMap.CanvasBackground}"
                     HorizontalAlignment="Left" />
                 </c:MCContentControl>
                 <c:MCContentControl Header="节点默认背景色">
                   <ColorPicker
-                    Color="{Binding Map.NodeDefaultBackground,Mode=TwoWay}"
+                    Color="{Binding CurrentMap.NodeDefaultBackground,Mode=TwoWay}"
                     HorizontalAlignment="Left" />
                 </c:MCContentControl>
               </StackPanel>

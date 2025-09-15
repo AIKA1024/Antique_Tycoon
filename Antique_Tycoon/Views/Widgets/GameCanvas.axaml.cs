@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models;
@@ -11,7 +12,9 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
+using CommunityToolkit.Mvvm.Input;
 using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Widgets;
@@ -20,25 +23,30 @@ public partial class GameCanvas : UserControl
 {
   private Canvas _canvas;
   private MapEditPageViewModel _mapEditPageViewModel;
-  [GeneratedDirectProperty]public partial bool IsEditing { get; set; }
+  [GeneratedDirectProperty] public partial bool IsEditing { get; set; }
+  [GeneratedDirectProperty] public partial Map CurrentMap { get; set; }
+  public Point PointerPosition { get; set; }
+
+  [GeneratedDirectProperty] public partial CanvasItemModel TempSelectedMapEntity { get; set; }
+  [GeneratedDirectProperty] public partial ObservableCollection<CanvasItemModel> SelectedMapEntities { get; set; } = [];
 
   public GameCanvas()
   {
     InitializeComponent();
-    AddHandler(Connector.ConnectedEvent,OnConnectorConnected,RoutingStrategies.Bubble);
-    AddHandler(Connector.CancelConnectEvent,OnConnectorCancelConnect,RoutingStrategies.Bubble);
+    AddHandler(Connector.ConnectedEvent, OnConnectorConnected, RoutingStrategies.Bubble);
+    AddHandler(Connector.CancelConnectEvent, OnConnectorCancelConnect, RoutingStrategies.Bubble);
   }
 
   private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)
   {
-    _mapEditPageViewModel.Map.Entities.Add(e.Connection);
+    _mapEditPageViewModel.CurrentMap.Entities.Add(e.Connection);
   }
 
   private void OnConnectorCancelConnect(object? sender, Connector.CancelConnectRoutedEventArgs e)
   {
     if (e.Source is Connector connector)
     {
-      connector.CancelConnects(_mapEditPageViewModel.Map);
+      connector.CancelConnects(_mapEditPageViewModel.CurrentMap);
       e.Handled = true;
     }
   }
@@ -50,8 +58,12 @@ public partial class GameCanvas : UserControl
       .OfType<Canvas>()
       .FirstOrDefault()!;
     Focus();
-    _mapEditPageViewModel = (MapEditPageViewModel)DataContext;
-    _mapEditPageViewModel.RequestRenderControl = RenderCanvasToBitmap;
+
+    if (DataContext is MapEditPageViewModel mapEditPageViewModel)
+    {
+      _mapEditPageViewModel = mapEditPageViewModel;
+      _mapEditPageViewModel.RequestRenderControl = RenderCanvasToBitmap;
+    }
   }
 
   protected override void OnKeyDown(KeyEventArgs e)
@@ -71,8 +83,8 @@ public partial class GameCanvas : UserControl
     if (EntityListBox.GetVisualParent() is not Control parent)
       return;
 
-    var canvasWidth = vm.Map.CanvasWidth;
-    var canvasHeight = vm.Map.CanvasHeight;
+    var canvasWidth = vm.CurrentMap.CanvasWidth;
+    var canvasHeight = vm.CurrentMap.CanvasHeight;
 
     var availableWidth = parent.Bounds.Width;
     var availableHeight = parent.Bounds.Height;
@@ -83,13 +95,13 @@ public partial class GameCanvas : UserControl
     var scale = Math.Min(scaleX, scaleY);
 
     // 更新 ViewModel 中的 Scale
-    _mapEditPageViewModel.Map.Scale = scale;
+    _mapEditPageViewModel.CurrentMap.Scale = scale;
 
     // 计算居中偏移
     var offsetX = (availableWidth - canvasWidth * scale) / 2;
     var offsetY = (availableHeight - canvasHeight * scale) / 2;
 
-    _mapEditPageViewModel.Map.Offset = new Point(offsetX, offsetY);
+    _mapEditPageViewModel.CurrentMap.Offset = new Point(offsetX, offsetY);
   }
 
   public Bitmap RenderCanvasToBitmap()
@@ -119,5 +131,46 @@ public partial class GameCanvas : UserControl
   {
     if (e.InitialPressMouseButton == MouseButton.Left)
       EntityListBox.SelectedItems?.Clear();
+  }
+
+  [RelayCommand]
+  private void CreateEntity(string type)
+  {
+    Dispatcher.UIThread.Post(() =>
+    {
+      switch (type)
+      {
+        case "玩家出生点":
+          CurrentMap.Entities.Add(new SpawnPoint
+          {
+            Left = PointerPosition.X,
+            Top = PointerPosition.Y,
+            Title = "玩家出生点",
+            Background = CurrentMap.NodeDefaultBackground
+          });
+          break;
+        case "地产":
+          CurrentMap.Entities.Add(new Estate
+          {
+            Left = PointerPosition.X,
+            Top = PointerPosition.Y,
+            Title = "某生态群系",
+            Background = CurrentMap.NodeDefaultBackground
+          });
+          break;
+        case "自定义事件":
+          break;
+      }
+    }, DispatcherPriority.Render);
+  }
+
+  [RelayCommand]
+  private void RemoveEntity(NodeModel target)
+  {
+    if (!IsEditing)
+      return;
+    foreach (var model in target.ConnectorModels)
+      model.CancelConnects(CurrentMap);
+    CurrentMap.Entities.Remove(target);
   }
 }

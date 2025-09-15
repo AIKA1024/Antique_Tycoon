@@ -7,10 +7,9 @@
   xmlns:i="using:Antique_Tycoon.Behaviors"
   xmlns:cm="using:Antique_Tycoon.Models.Connections"
   xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
-  xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
-  x:DataType="vm:MapEditPageViewModel"
   ClipToBounds="False"
+  x:Name="Me"
   Focusable="True">
   <Design.PreviewWith>
     <widgets:GameCanvas />
@@ -20,15 +19,15 @@
       x:Name="EntityListBox"
       Background="{x:Null}"
       ClipToBounds="False"
-      ItemsSource="{Binding Map.Entities}"
+      ItemsSource="{Binding #Me.CurrentMap.Entities}"
       RenderTransformOrigin="0,0"
-      SelectedItem="{Binding TempSelectedMapEntity, Mode=OneWayToSource}"
-      SelectedItems="{Binding SelectedMapEntities}"
+      SelectedItem="{Binding #Me.TempSelectedMapEntity, Mode=OneWayToSource}"
+      SelectedItems="{Binding #Me.SelectedMapEntities}"
       SelectionMode="Multiple">
       <c:XListBox.RenderTransform>
         <TransformGroup>
-          <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale}" />
-          <TranslateTransform X="{Binding Map.Offset.X}" Y="{Binding Map.Offset.Y}" />
+          <ScaleTransform ScaleX="{Binding #Me.CurrentMap.Scale}" ScaleY="{Binding #Me.CurrentMap.Scale}" />
+          <TranslateTransform X="{Binding #Me.CurrentMap.Offset.X}" Y="{Binding #Me.CurrentMap.Offset.Y}" />
         </TransformGroup>
       </c:XListBox.RenderTransform>
       <c:XListBox.DataTemplates>
@@ -39,19 +38,19 @@
             Canvas.Left="{Binding Left}"
             Focusable="True"
             Content="{Binding $self.DataContext}"
-            Map="{Binding ((vm:MapEditPageViewModel)DataContext).Map, RelativeSource={RelativeSource AncestorType=c:XListBox}}">
+            Map="{Binding #Me.CurrentMap, RelativeSource={RelativeSource AncestorType=c:XListBox}}">
             <Interaction.Behaviors>
               <i:CanvasItemDragBehavior
-                SelectedItems="{Binding $parent.((vm:MapEditPageViewModel)DataContext).SelectedMapEntities}"
-                Scale="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Scale, RelativeSource={RelativeSource AncestorType=c:XListBox}}"
-                Offset="{Binding ((vm:MapEditPageViewModel)DataContext).Map.Offset, RelativeSource={RelativeSource AncestorType=c:XListBox}}" />
+                SelectedItems="{Binding #Me.SelectedMapEntities}"
+                Scale="{Binding #Me.CurrentMap.Scale, RelativeSource={RelativeSource AncestorType=c:XListBox}}"
+                Offset="{Binding #Me.CurrentMap.Offset, RelativeSource={RelativeSource AncestorType=c:XListBox}}" />
             </Interaction.Behaviors>
             <c:NodeLinkControl.DataTemplates>
               <StaticResource ResourceKey="SpawnPointDataTemplate" />
               <StaticResource ResourceKey="EstateDataTemplate" />
             </c:NodeLinkControl.DataTemplates>
             <c:NodeLinkControl.KeyBindings>
-              <KeyBinding Gesture="Delete" Command="{Binding $parent.((vm:MapEditPageViewModel)DataContext).RemoveEntityCommand}"
+              <KeyBinding Gesture="Delete" Command="{Binding #Me.RemoveEntityCommand}"
                           CommandParameter="{Binding}"/>
             </c:NodeLinkControl.KeyBindings>
           </c:NodeLinkControl>
@@ -68,10 +67,10 @@
         <ItemsPanelTemplate>
           <Canvas
             PointerReleased="InputElement_OnPointerReleased"
-            Width="{Binding Map.CanvasWidth}"
-            Height="{Binding Map.CanvasHeight}"
-            i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition, Mode=OneWayToSource}"
-            Background="{Binding Map.CanvasBackground, Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}">
+            Width="{Binding #Me.CurrentMap.CanvasWidth}"
+            Height="{Binding #Me.CurrentMap.CanvasHeight}"
+            i:ShowFlyoutBehavior.PointerPosition="{Binding #Me.PointerPosition, Mode=OneWayToSource}"
+            Background="{Binding #Me.CurrentMap.CanvasBackground, Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}">
             <FlyoutBase.AttachedFlyout>
               <Flyout>
                 <StackPanel>
@@ -79,7 +78,7 @@
                     <Style Selector="StackPanel MenuItem">
                       <Setter Property="Foreground" Value="White" />
                       <Setter Property="CornerRadius" Value="4" />
-                      <Setter Property="Command" Value="{Binding CreateEntityCommand}" />
+                      <Setter Property="Command" Value="{Binding #Me.CreateEntityCommand}" />
                       <Setter Property="CommandParameter" Value="{Binding $self.Header, Mode=OneTime}" />
                     </Style>
                   </StackPanel.Styles>
@@ -90,7 +89,7 @@
               </Flyout>
             </FlyoutBase.AttachedFlyout>
             <Interaction.Behaviors>
-              <i:ShowFlyoutBehavior IsEnabled="{Binding $parent[widgets:GameCanvas].IsEditing}" />
+              <i:ShowFlyoutBehavior IsEnabled="{Binding #Me.IsEditing}" />
             </Interaction.Behaviors>
           </Canvas>
         </ItemsPanelTemplate>
@@ -114,7 +113,7 @@
           </Setter>
         </Style>
         
-        <Style Selector="c|XListBoxItem">
+        <Style Selector="c|XListBoxItem" x:DataType="node:CanvasItemModel">
           <Setter Property="i:DataContextType.Type" Value="{Binding}"/>
           <Setter Property="Template">
             <ControlTemplate>
@@ -140,7 +139,7 @@
       </c:XListBox.Styles>
     </c:XListBox>
     <Interaction.Behaviors>
-      <i:ZoomPanBehavior Scale="{Binding Map.Scale, Mode=TwoWay}" Offset="{Binding Map.Offset, Mode=TwoWay}" />
+      <i:ZoomPanBehavior Scale="{Binding #Me.CurrentMap.Scale, Mode=TwoWay}" Offset="{Binding #Me.CurrentMap.Offset, Mode=TwoWay}" />
     </Interaction.Behaviors>
   </Panel>
 

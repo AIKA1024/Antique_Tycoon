@@ -16,18 +16,7 @@
       <Interaction.Behaviors>
         <i:ZoomPanBehavior />
       </Interaction.Behaviors>
-      <Canvas RenderTransformOrigin="0,0"
-              Background="RosyBrown">
-        <Canvas.RenderTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale}" />
-            <TranslateTransform X="{Binding Map.Offset.X}" Y="{Binding Map.Offset.Y}" />
-          </TransformGroup>
-        </Canvas.RenderTransform>
-        <!-- 可拖动内容放在这里 -->
-        <Rectangle Width="100" Height="100" Fill="Green" Canvas.Left="50" Canvas.Top="50" />
-        <Ellipse Width="80" Height="80" Fill="Red" Canvas.Left="200" Canvas.Top="150" />
-      </Canvas>
+      <w:GameCanvas/>
       <w:PlayerUI x:Name="PlayerUI" Focusable="False" IsHitTestVisible="False"/>
     </Grid>
   </DataTemplate>
