@@ -26,5 +26,4 @@ public class RoomBaseInfo
   }
 
   public bool IsLanRoom { get; set; }
-  // public Bitmap MapThumbnail { get; set; }
 }

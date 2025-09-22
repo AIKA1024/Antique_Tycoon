@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
@@ -23,9 +21,16 @@ public class NetClient : NetBase
   private readonly UdpClient _udpClient = new();
   private TcpClient? _tcpClient;
   private readonly Dictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
-  public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
-  public event Action<StartGameResponse>? GameStarted;
+  private readonly Lazy<GameManager> _gameManagerLazy;
+  private GameManager GameManagerInstance => _gameManagerLazy.Value;
+  public event Action<ITcpMessage>? BroadcastMessageReceived;
   public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(3);
+
+  public NetClient(Lazy<GameManager> gameManagerLazy, string downloadPath)
+  {
+    _gameManagerLazy = gameManagerLazy;
+    DownloadPath = downloadPath;
+  }
 
   public async Task<RoomBaseInfo> DiscoverRoomAsync()
   {
@@ -44,7 +49,7 @@ public class NetClient : NetBase
     {
       try
       {
-        _ = SendRequestAsync(new HeartbeatMessage(), cancellation);
+        _ = SendRequestAsync(new HeartbeatMessage { PlayerUuid = GameManagerInstance.LocalPlayer.Uuid }, cancellation);
         await Task.Delay(HeartbeatInterval, cancellation);
       }
       catch (Exception ex)
@@ -67,30 +72,9 @@ public class NetClient : NetBase
     _ = HeartbeatLoopAsync(cancellation); // 开始循环发送心跳包
   }
 
-  public async Task<DownloadMapResponse> DownloadMapAsync(string hash, CancellationToken cancellation = default)
-  {
-    var downloadMapRequest = new DownloadMapRequest(hash);
-    return (DownloadMapResponse)await SendRequestAsync(downloadMapRequest, cancellation);
-  }
-
-  public async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)
-  {
-    var joinRoomRequest = new JoinRoomRequest
-    {
-      Player = App.Current.Services.GetRequiredService<Player>()
-    };
-    return (JoinRoomResponse)await SendRequestAsync(joinRoomRequest, cancellation);
-  }
-
-  public void ExitRoom()
-  {
-    var exitRoomRequest = new ExitRoomRequest();
-    _ = SendRequestAsync(exitRoomRequest);
-  }
-
   #region 封装的发送和接收逻辑
 
-  private async Task<ITcpMessage> SendRequestAsync<T>(T message, CancellationToken cancellationToken = default)
+  public async Task<ITcpMessage> SendRequestAsync<T>(T message, CancellationToken cancellationToken = default)
     where T : ITcpMessage
   {
     var data = PackMessage(message);
@@ -113,8 +97,6 @@ public class NetClient : NetBase
       case TcpMessageType.UpdateRoomResponse:
         var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
         message = updateRoomResponse;
-        if (updateRoomResponse != null)
-          RoomInfoUpdated?.Invoke(updateRoomResponse.Players);
         break;
       case TcpMessageType.DownloadMapResponse:
         var downloadMapResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapResponse);
@@ -123,13 +105,17 @@ public class NetClient : NetBase
       case TcpMessageType.StartGameResponse:
         var startGameResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.StartGameResponse);
         message = startGameResponse;
-        if (startGameResponse != null)
-          GameStarted?.Invoke(startGameResponse);
         break;
     }
 
-    if (message is null || !_pendingRequests.Remove(message.Id, out var tcs))
+    if (message == null)
       return Task.CompletedTask;
+    if (!_pendingRequests.Remove(message.Id, out var tcs)) //证明不是客户端主动请求的，是服务器主动发送的
+    {
+      BroadcastMessageReceived?.Invoke(message);
+      return Task.CompletedTask;
+    }
+
 
     tcs.SetResult(message);
     return tcs.Task;

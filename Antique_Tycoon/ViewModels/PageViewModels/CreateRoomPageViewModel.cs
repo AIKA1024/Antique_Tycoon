@@ -1,5 +1,5 @@
 using System;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
@@ -7,8 +7,6 @@ using Antique_Tycoon.Models;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -18,33 +16,57 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class CreateRoomPageViewModel : PageViewModelBase
 {
-  [ObservableProperty] private string _roomName = $"{App.Current.Services.GetRequiredService<Player>().Name}的房间";
+  private readonly CancellationTokenSource _cts = new();
+  private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+  private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
+  private readonly MapFileService _mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
 
+  [ObservableProperty] private string _roomName = "";
   [ObservableProperty]
-  public partial Map SelectedMap { get; set; } = App.Current.Services.GetRequiredService<MapFileService>().GetMaps()[0];
-
-  private CancellationTokenSource _cts = new();
-
+  private Map? _selectedMap;
+  
   public CreateRoomPageViewModel()
   {
-    WeakReferenceMessenger.Default.Register<ChangeMapMessage>(this, (_, m) => { SelectedMap = m.Value; });
+    RoomName = $"{_gameManager.LocalPlayer.Name}的房间";
+    _gameManager.PropertyChanged += (sender, e) =>
+    {
+      // 当 GameManager 的 SelectedMap 变化时，更新 ViewModel 的 _selectedMap
+      if (e.PropertyName == nameof(GameManager.SelectedMap))
+        SelectedMap = _gameManager.SelectedMap;
+    };
+    SelectedMap = _gameManager.SelectedMap;
   }
-  
+
 
   [RelayCommand]
   private async Task CreateRoomAndNavigateToRoomPage()
   {
+    if (_gameManager.SelectedMap == null)
+    {
+      await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+      {
+        Title = "错误",
+        Message = "无可用地图"
+      });
+      return;
+    }
+
     _cts.TryReset();
     var netServer = App.Current.Services.GetRequiredService<NetServer>();
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(SelectedMap, _cts));
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(
+      _gameManager.SelectedMap,
+      App.Current.Services.GetRequiredService<NetClient>(),
+      netServer,
+      _gameManager,
+      _cts));
     try
     {
       await netServer
-        .CreateRoomAndListenAsync(RoomName, SelectedMap, _cts.Token);
+        .CreateRoomAndListenAsync(RoomName, _gameManager.SelectedMap, _cts.Token);
     }
     catch (OperationCanceledException e)
     {
-      await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new MessageDialogViewModel
+      await _dialogService.ShowDialogAsync(new MessageDialogViewModel
         { Title = "出现异常！", Message = e.Message });
     }
   }
@@ -52,8 +74,7 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
   [RelayCommand]
   private async Task ShowSelectMapDialog()
   {
-    var services = App.Current.Services;
-    await services.GetRequiredService<DialogService>()
-      .ShowDialogAsync(new SelectMapDialogViewModel(services.GetRequiredService<MapFileService>().GetMaps()));
+    await _dialogService.ShowDialogAsync(
+      new SelectMapDialogViewModel(_mapFileService.GetMaps()));
   }
 }

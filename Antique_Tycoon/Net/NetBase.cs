@@ -1,8 +1,6 @@
-using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -10,10 +8,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
-using Avalonia;
 
 namespace Antique_Tycoon.Net;
 
@@ -22,7 +18,6 @@ public abstract class NetBase
   private readonly Dictionary<string, FileDownloadContext> _downloads = new();
   private const int ChunkSize = 64 * 1024;
   public string DownloadPath { get; set; } = Environment.CurrentDirectory;
-  public abstract event Action<IEnumerable<Player>>? RoomInfoUpdated;
 
   protected async Task ReceiveLoopAsync(TcpClient client, CancellationToken cancellationToken = default)
   {
@@ -63,7 +58,7 @@ public abstract class NetBase
 
         // 读取完整包体
         byte[] messageBytes = new byte[messageLength];
-        memory.Read(messageBytes, 0, messageLength);
+        await memory.ReadExactlyAsync(messageBytes, 0, messageLength, cancellationToken);
 
         // 解析 type
         TcpMessageType type = (TcpMessageType)BitConverter.ToUInt16(messageBytes, 0);

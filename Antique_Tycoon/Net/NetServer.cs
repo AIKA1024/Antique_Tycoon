@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,8 +11,7 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
-using Antique_Tycoon.Models.Net.Tcp.Request;
-using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Net.TcpMessageHandlers;
 using Antique_Tycoon.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Timer = System.Timers.Timer;
@@ -24,11 +22,13 @@ public class NetServer : NetBase
 {
   private TcpListener? _listener;
   private readonly string _localIPv4;
-  private readonly Room _room = new();
-  private readonly ConcurrentDictionary<TcpClient, Player> _clientPlayers = [];
+  private readonly Dictionary<TcpClient, long> _clientLastActiveTimes = [];
   private readonly Timer _timer = new();
-  private readonly MapFileService _mapFileService;
-
+  private readonly IEnumerable<ITcpMessageHandler> _messageHandlers;
+  /// <summary>
+  /// 服务器才会收到这个事件
+  /// </summary>
+  public event Func<TcpClient,Task>? ClientDisconnected;//应该提供一个非异步的事件，但我自己用就这样吧
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
   public TimeSpan CheckOutlineInterval
@@ -41,12 +41,10 @@ public class NetServer : NetBase
     }
   } = TimeSpan.FromSeconds(5);
 
-  public override event Action<IEnumerable<Player>>? RoomInfoUpdated;
-
-  public NetServer(MapFileService mapFileService, string downloadPath)
+  public NetServer(IEnumerable<ITcpMessageHandler> messageHandlers, string downloadPath)
   {
-    _mapFileService = mapFileService;
     DownloadPath = downloadPath;
+    _messageHandlers = messageHandlers;
     _localIPv4 = GetLocalIPv4();
     _timer.Elapsed += (_, _) => CheckOutlinePlayer();
     _timer.Start();
@@ -67,27 +65,21 @@ public class NetServer : NetBase
 
   private void CheckOutlinePlayer()
   {
-    foreach (var kv in _clientPlayers)
+    foreach (var kv in _clientLastActiveTimes)
     {
       long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-      if (now - kv.Value.LastHeartbeat > DisconnectTimeout.TotalMilliseconds)
+      if (now - kv.Value > DisconnectTimeout.TotalMilliseconds)
       {
         kv.Key.Close();
-        _clientPlayers.TryRemove(kv.Key, out _);
-        int index = _room.Players.IndexOf(kv.Value); //todo 这个退出房间可以封装一下
-        if (index >= 0)
-        {
-          _room.Players.RemoveAt(index);
-          RoomInfoUpdated?.Invoke(_room.Players);
-        }
+        _clientLastActiveTimes.Remove(kv.Key);
+        ClientDisconnected?.Invoke(kv.Key);
       }
     }
   }
 
   public async Task CreateRoomAndListenAsync(string roomName, Map map, CancellationToken cancellation = default)
   {
-    _clientPlayers.Clear();
-    //todo _room好像也要清理一下
+    _clientLastActiveTimes.Clear();
     using var ms = new MemoryStream();
     map.Cover.Save(ms);
     var roomInfo = new RoomBaseInfo
@@ -135,7 +127,7 @@ public class NetServer : NetBase
     while (!cancellation.IsCancellationRequested)
     {
       var client = await _listener.AcceptTcpClientAsync(cancellation);
-      // _clientPlayers.Add(client, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+      _clientLastActiveTimes.TryAdd(client, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
       _ = HandleTcpClientAsync(client); // 处理连接（不要阻塞主循环）
     }
   }
@@ -149,105 +141,42 @@ public class NetServer : NetBase
     await ReceiveLoopAsync(client);
   }
 
-  private async Task SendResponseAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
+  public async Task SendResponseAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
     where T : ITcpMessage
   {
     var data = PackMessage(message);
     await client.GetStream().WriteAsync(data, cancellationToken);
   }
 
-  public void StartGame()
+  public async Task Broadcast<T>(T message, CancellationToken cancellationToken = default)where T : ITcpMessage
   {
-    var startMessage = new StartGameResponse();
-    foreach (var tcpClient in _clientPlayers.Keys)
-      _ = SendResponseAsync(startMessage, tcpClient, CancellationToken.None);
+    var data = PackMessage(message);
+    foreach (var client in _clientLastActiveTimes.Keys)
+      await client.GetStream().WriteAsync(data, cancellationToken);
   }
-
-
-  private async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)
+  
+  public async Task BroadcastExcept<T>(T message,TcpClient excluded, CancellationToken cancellationToken = default)where T : ITcpMessage
   {
-    if (_room.Players.Count >= _room.MaxPlayer)
+    var data = PackMessage(message);
+    foreach (var client in _clientLastActiveTimes.Keys)
     {
-      var response = new JoinRoomResponse
-      {
-        Id = request.Id,
-        Message = "房间已满",
-        ResponseStatus = RequestResult.Reject
-      };
-      var data = PackMessage(response);
-      await client.GetStream().WriteAsync(data, 0, data.Length);
-    }
-    else
-    {
-      _room.Players.Add(request.Player);
-      _clientPlayers.TryAdd(client, request.Player);
-      var joinRoomResponse = new JoinRoomResponse
-      {
-        Id = request.Id,
-        Players = _room.Players
-      };
-      await SendResponseAsync(joinRoomResponse, client);
+      if (client == excluded)
+        continue;
 
-      //todo 给房间的其他人发送更新房间的消息
-      var updateRoomResponse = new UpdateRoomResponse
-      {
-        Id = request.Id,
-        Players = _room.Players
-      };
-      foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client))
-        await SendResponseAsync(updateRoomResponse, otherClient);
-      RoomInfoUpdated?.Invoke(_room.Players);
+      await client.GetStream().WriteAsync(data, cancellationToken);
     }
-  }
-
-  private async Task ReceiveExitRoomRequest(ExitRoomRequest request, TcpClient client)
-  {
-    _room.Players.Remove(_clientPlayers[client]);
-    _clientPlayers.TryRemove(client, out _);
-    var updateRoomResponse = new UpdateRoomResponse
-    {
-      Id = request.Id,
-      Players = _room.Players
-    };
-    foreach (var otherClient in _clientPlayers.Keys.Where(c => c != client)) //发出退出消息的客户端不需要等待服务器回应
-      await SendResponseAsync(updateRoomResponse, otherClient);
-    RoomInfoUpdated?.Invoke(_room.Players);
   }
 
   protected override async Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
-    switch (tcpMessageType)
-    {
-      case TcpMessageType.HeartbeatMessage: //心跳包不做处理，因为无论什么请求都会更新最后在线时间
-        break;
-      case TcpMessageType.JoinRoomRequest:
-        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomRequest) is { } joinRoomRequest)
-          await ReceiveJoinRoomRequest(joinRoomRequest, client);
-        break;
-      case TcpMessageType.ExitRoomRequest:
-        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.ExitRoomRequest) is { } exitRoomRequest)
-          await ReceiveExitRoomRequest(exitRoomRequest, client);
-        break;
-      case TcpMessageType.DownloadMapRequest:
-        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapRequest) is { } downloadMapRequest)
-        {
-          if (_mapFileService.GetMapByHash(downloadMapRequest.Hash) is { } map)
-          {
-            await SendFileAsync(_mapFileService.GetMapFileStream(map),
-              downloadMapRequest.Id, $"{_mapFileService.GetMapFileHash(map)}.zip", TcpMessageType.DownloadMapResponse,
-              client);
-          }
-          else
-            await SendResponseAsync(
-              new DownloadMapResponse { Id = downloadMapRequest.Id, ResponseStatus = RequestResult.Error }, client);
-        }
+    var handlers = _messageHandlers.Where(h => h.CanHandle(tcpMessageType)).ToArray();
 
-        break;
-      default:
-        throw new Exception("未知的消息类型");
-    }
+    if (handlers.Length != 0)
+      foreach (var handler in handlers)
+        await handler.HandleAsync(json, client);
+    else
+      Console.WriteLine($"未定义{tcpMessageType}的处理方式");
 
-    if (_clientPlayers.TryGetValue(client, out var player))
-      player.LastHeartbeat = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+    _clientLastActiveTimes[client] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
   }
 }

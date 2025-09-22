@@ -19,7 +19,7 @@
                     Content="开始游戏"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top" 
-                    IsVisible="{Binding SelfPlayer.IsHomeowner}"
+                    IsVisible="{Binding LocalPlayer.IsHomeowner}"
                     Command="{Binding StartGameCommand}"/>
         <ItemsControl ItemsSource="{Binding Players}">
           <ItemsControl.ItemTemplate>

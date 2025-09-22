@@ -5,6 +5,11 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Antique_Tycoon.Views.Controls.PlayerCard"
              Foreground="Black">
+  <UserControl.Styles>
+    <Style Selector="UserControl:turn>Border">
+      <Setter Property="Background" Value="HotPink"/>
+    </Style>
+  </UserControl.Styles>
   <Border CornerRadius="8" Background="#eccc68" Padding="32">
     <Grid ColumnDefinitions="Auto,*">
       <StackPanel>

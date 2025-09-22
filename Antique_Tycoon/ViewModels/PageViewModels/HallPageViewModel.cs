@@ -9,14 +9,18 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
+using Antique_Tycoon.Models.Net.Tcp.Request;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Timer = System.Timers.Timer;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
@@ -24,14 +28,18 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 {
   private readonly Timer _timer = new(2000);
   private bool _disposed;
+  private readonly NetClient _client;
+  private readonly GameManager _gameManager;
 
   [ObservableProperty]
   private Bitmap _noMapImage = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/No_Map.png")));
 
   public ObservableCollection<RoomBaseInfo> RoomList { get; } = [];
 
-  public HallPageViewModel()
+  public HallPageViewModel(NetClient client, GameManager gameManager)
   {
+    _client = client;
+    _gameManager = gameManager;
     _timer.Elapsed += async (s, e) => { await UpdateRoomList(s, e); };
   }
 
@@ -49,7 +57,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 
   private async Task UpdateRoomList(object? sender, ElapsedEventArgs e)
   {
-    var roomNetInfo = await App.Current.Services.GetRequiredService<NetClient>().DiscoverRoomAsync();
+    var roomNetInfo = await _client.DiscoverRoomAsync();
     if (RoomList.Any(r => Equals(r.Ip, roomNetInfo.Ip)))
       return;
     RoomList.Add(roomNetInfo);
@@ -64,15 +72,14 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   [RelayCommand]
   private async Task JoinRoom(RoomBaseInfo roomInfo) //todo 职责过重
   {
-    var client = App.Current.Services.GetRequiredService<NetClient>();
     var dialogService = App.Current.Services.GetRequiredService<DialogService>();
     var iPEndPoint = new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port);
-    await client.ConnectServer(iPEndPoint);
+    await _client.ConnectServer(iPEndPoint);
     var mapZipPath = Path.Join(App.Current.DownloadMapPath, $"{roomInfo.Hash}.zip");
     var mapDirPath = Path.Join(App.Current.DownloadMapPath, roomInfo.Hash);
     if (!Directory.Exists(mapDirPath))
     {
-      var result = await client.DownloadMapAsync(roomInfo.Hash);
+      var result = await DownloadMapAsync(roomInfo.Hash);
       if (result.ResponseStatus != RequestResult.Success)
       {
         await dialogService.ShowDialogAsync(
@@ -95,7 +102,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     }
 
 
-    var response = await client.JoinRoomAsync();
+    var response = await JoinRoomAsync();
     if (response.ResponseStatus != RequestResult.Success)
     {
       await dialogService.ShowDialogAsync(
@@ -107,13 +114,28 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
       return;
     }
 
-    App.Current.Services.GetRequiredService<Player>().IsHomeowner = false;
+    _gameManager.LocalPlayer.IsHomeowner = false;
     var mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(
-      new RoomPageViewModel(mapFileService.LoadMap(mapDirPath))
-      {
-        Players = response.Players
-      });
+      new RoomPageViewModel(mapFileService.LoadMap(mapDirPath),
+        App.Current.Services.GetRequiredService<NetClient>(),
+        App.Current.Services.GetRequiredService<NetServer>(),
+        _gameManager));
+  }
+
+  private async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)
+  {
+    var joinRoomRequest = new JoinRoomRequest
+    {
+      Player = _gameManager.LocalPlayer
+    };
+    return (JoinRoomResponse)await _client.SendRequestAsync(joinRoomRequest, cancellation);
+  }
+  
+  private async Task<DownloadMapResponse> DownloadMapAsync(string hash, CancellationToken cancellation = default)
+  {
+    var downloadMapRequest = new DownloadMapRequest(hash);
+    return (DownloadMapResponse)await _client.SendRequestAsync(downloadMapRequest, cancellation);
   }
 
   public void Dispose()

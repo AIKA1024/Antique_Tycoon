@@ -7,6 +7,7 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Net;
+using Antique_Tycoon.Net.TcpMessageHandlers;
 using Antique_Tycoon.Services;
 using Avalonia.Markup.Xaml;
 using Antique_Tycoon.ViewModels;
@@ -30,6 +31,9 @@ public partial class App : Application
   public override void Initialize()
   {
     AvaloniaXamlLoader.Load(this);
+    var gameManager = Services.GetRequiredService<GameManager>();
+    gameManager.AddLocalPlayer();
+    gameManager.SetDefaultMap();
   }
 
   public App()
@@ -62,9 +66,15 @@ public partial class App : Application
     services.AddSingleton<NavigationService>(sp => new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
     services.AddSingleton<MapFileService>();
     services.AddSingleton<DialogService>();
-    services.AddSingleton<NetClient>(_ => new NetClient { DownloadPath = DownloadMapPath });
-    services.AddSingleton<NetServer>(sp => new NetServer(sp.GetRequiredService<MapFileService>(), DownloadMapPath));// 这样注册才合理，NetClient不规范
-    services.AddSingleton(new Player { IsHomeowner = true });
+    services.AddSingleton<GameManager>();
+    services.AddSingleton(sp => new Lazy<GameManager>(sp.GetRequiredService<GameManager>));
+    services.AddTransient<ITcpMessageHandler, JoinRoomHandler>();
+    services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
+    services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();
+    services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<Lazy<GameManager>>(), DownloadMapPath));
+    services.AddSingleton<NetServer>(sp =>
+      new NetServer(sp.GetServices<ITcpMessageHandler>(), DownloadMapPath)); // 这样注册才合理，NetClient不规范
+    services.AddSingleton(sp => new Lazy<NetServer>(sp.GetRequiredService<NetServer>));
     services.AddSingleton(sp => TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
     return services.BuildServiceProvider();
   }

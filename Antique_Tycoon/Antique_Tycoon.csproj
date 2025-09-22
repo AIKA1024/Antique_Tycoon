@@ -53,6 +53,7 @@
         <PackageReference Include="HotAvalonia" Version="3.0.0" PrivateAssets="All" Publish="True" />
         <PackageReference Include="LibVLCSharp" Version="3.9.4" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+        <PackageReference Include="ObservableCollections" Version="3.3.4" />
         <PackageReference Include="PropertyGenerator.Avalonia" Version="1.1.0" />
         <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2" />
     </ItemGroup>
