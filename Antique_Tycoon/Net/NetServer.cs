@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -175,7 +176,7 @@ public class NetServer : NetBase
       foreach (var handler in handlers)
         await handler.HandleAsync(json, client);
     else
-      Console.WriteLine($"未定义{tcpMessageType}的处理方式");
+      Debug.WriteLine($"未定义{tcpMessageType}的处理方式");
 
     _clientLastActiveTimes[client] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
   }

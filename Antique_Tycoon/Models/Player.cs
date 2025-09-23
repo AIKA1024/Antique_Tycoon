@@ -15,7 +15,6 @@ public partial class Player : ObservableObject,IDisposable
   [ObservableProperty] string _name = "史蒂夫";
   [ObservableProperty] int _money;
   [ObservableProperty] private Bitmap _avatar = Bitmap.DecodeToHeight(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png")),64);
-  [JsonIgnore] public long LastHeartbeat { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
   public ObservableCollection<Antique> Antiques { get; set; } = [];
   [ObservableProperty] public partial bool IsHomeowner { get; set; }
   public void Dispose()

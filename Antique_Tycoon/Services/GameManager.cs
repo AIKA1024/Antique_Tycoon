@@ -20,13 +20,12 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private readonly NetClient _netClient;
   private readonly MapFileService _mapFileService;
 
-  private readonly ObservableDictionary<string, Player>
-    _playersByUuid = []; //不应该存储IConnection，而且使用uuid做减，每次客户端发消息要带上自己的玩家uuid
+  private readonly ObservableDictionary<string, Player> _playersByUuid = [];
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
   public Player LocalPlayer { get; private set; }
   [ObservableProperty] public partial Map? SelectedMap { get; set; }
-  public INotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
+  public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
   public int MaxPlayer { get; private set; } = 5;
 
   public GameManager(NetServer netServer, NetClient netClient, MapFileService mapFileService)
@@ -41,7 +40,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public void AddLocalPlayer()
   {
-    var localPlayer = new Player();
+    var localPlayer = new Player{IsHomeowner = true};
     LocalPlayer = localPlayer;
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
   }
@@ -104,7 +103,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       var joinRoomResponse = new JoinRoomResponse
       {
         Id = request.Id,
-        Players = Players
+        // Players = Players
       };
       await _netServer.SendResponseAsync(joinRoomResponse, client);
 
@@ -114,7 +113,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         Players = Players
       };
       _clientToPlayerId.Add(client, request.PlayerUuid);
-      await _netServer.BroadcastExcept(updateRoomResponse, client);
+      await _netServer.Broadcast(updateRoomResponse);
     }
   }
 

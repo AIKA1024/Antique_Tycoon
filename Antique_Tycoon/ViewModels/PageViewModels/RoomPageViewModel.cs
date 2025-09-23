@@ -1,3 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models;
@@ -20,20 +24,27 @@ public partial class RoomPageViewModel : PageViewModelBase
   private Map SelectedMap { get; }
   private readonly NetClient _client;
   private readonly GameManager _gameManager;
-  [ObservableProperty] public partial INotifyCollectionChangedSynchronizedViewList<Player> Players { get; set; }
+  [ObservableProperty] public partial IList<Player> Players { get; set; }
   public Player LocalPlayer { get; }
 
 
-  public RoomPageViewModel(Map map, NetClient netClient, NetServer netServer, GameManager gameManager,
+  public RoomPageViewModel(Map map, NetClient netClient, NetServer netServer,GameManager gameManager,
     CancellationTokenSource? cts = null)
   {
     SelectedMap = map;
     _cancellationTokenSource = cts;
     _client = netClient;
     _gameManager = gameManager;
-    _client.BroadcastMessageReceived += ClientOnBroadcastMessageReceived;
     Players = _gameManager.Players;
     LocalPlayer = _gameManager.LocalPlayer;
+    _client.BroadcastMessageReceived += ClientOnBroadcastMessageReceived;
+    _gameManager.Players.CollectionChanged += OnPlayersChanged;
+  }
+
+  private void OnPlayersChanged(object? sender, NotifyCollectionChangedEventArgs e)
+  {
+    // 简单地重新赋值，会触发 ViewModel 的 Players 属性的更新，并通知 UI
+    Players = _gameManager.Players;
   }
 
   private void ClientOnBroadcastMessageReceived(ITcpMessage message)
@@ -59,5 +70,11 @@ public partial class RoomPageViewModel : PageViewModelBase
     if (!LocalPlayer.IsHomeowner)
       _gameManager.ExitRoom();
     _cancellationTokenSource?.Cancel();
+  }
+
+  public override void OnNavigatingFrom()
+  {
+    base.OnNavigatingFrom();
+    _gameManager.Players.CollectionChanged -= OnPlayersChanged;
   }
 }
