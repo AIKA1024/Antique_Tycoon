@@ -79,7 +79,16 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     var mapDirPath = Path.Join(App.Current.DownloadMapPath, roomInfo.Hash);
     if (!Directory.Exists(mapDirPath))
     {
-      var result = await DownloadMapAsync(roomInfo.Hash);
+      var task = DownloadMapAsync(roomInfo.Hash);
+      var messageVm = new MessageDialogViewModel
+      {
+        Title = "提示",
+        Message = "地图下载中",
+        IsLightDismissEnabled = false,
+        IsShowConfirmButton = false
+      };
+      var result = await dialogService.ShowDialogAsync(messageVm,task);
+      messageVm.CloseDialog();
       if (result.ResponseStatus != RequestResult.Success)
       {
         await dialogService.ShowDialogAsync(
@@ -90,17 +99,9 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
           });
         return;
       }
-
-      await dialogService.ShowDialogAsync(
-        new MessageDialogViewModel
-        {
-          Title = "提示",
-          Message = "下载成功"
-        });
       ZipFile.ExtractToDirectory(mapZipPath, mapDirPath);
       File.Delete(mapZipPath);
     }
-
 
     var response = await JoinRoomAsync();
     if (response.ResponseStatus != RequestResult.Success)
@@ -131,7 +132,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     };
     return (JoinRoomResponse)await _client.SendRequestAsync(joinRoomRequest, cancellation);
   }
-  
+
   private async Task<DownloadMapResponse> DownloadMapAsync(string hash, CancellationToken cancellation = default)
   {
     var downloadMapRequest = new DownloadMapRequest(hash);

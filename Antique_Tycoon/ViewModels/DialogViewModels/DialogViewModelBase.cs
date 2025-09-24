@@ -11,8 +11,16 @@ public abstract partial class DialogViewModelBase : ObservableValidator
   [ObservableProperty] public partial double MaxHeightPercent { get; set; } = .8f; // 0~1
   public bool IsLightDismissEnabled { get; set; } = true;
   [RelayCommand]
-  protected void CloseDialog()
+  public void CloseDialog()
   {
     App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this);
+  }
+}
+
+public abstract class DialogViewModelBase<T> : DialogViewModelBase
+{
+  public void CloseDialog(T result)
+  {
+    App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this, result);
   }
 }
