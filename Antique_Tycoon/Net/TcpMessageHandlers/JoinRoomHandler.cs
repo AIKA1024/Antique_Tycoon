@@ -7,19 +7,17 @@ using Antique_Tycoon.Services;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;
 
-public class JoinRoomHandler(Lazy<GameManager> gameManagerLazy) : ITcpMessageHandler
+public class JoinRoomHandler(GameManager gameManager) : ITcpMessageHandler
 {
-  private GameManager GameManagerInstance => gameManagerLazy.Value;
 
   // 通过构造函数注入依赖
-
   public bool CanHandle(TcpMessageType messageType) => messageType == TcpMessageType.JoinRoomRequest;
 
   public async Task HandleAsync(string json, TcpClient client)
   {
     if (JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomRequest) is { } joinRoomRequest)
     {
-      await GameManagerInstance.ReceiveJoinRoomRequest(joinRoomRequest, client);
+      await gameManager.ReceiveJoinRoomRequest(joinRoomRequest, client);
     }
   }
 }

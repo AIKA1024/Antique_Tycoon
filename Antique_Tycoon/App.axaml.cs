@@ -34,6 +34,7 @@ public partial class App : Application
     var gameManager = Services.GetRequiredService<GameManager>();
     gameManager.AddLocalPlayer();
     gameManager.SetDefaultMap();
+    gameManager.ListenEvent();
   }
 
   public App()
@@ -67,11 +68,11 @@ public partial class App : Application
     services.AddSingleton<MapFileService>();
     services.AddSingleton<DialogService>();
     services.AddSingleton<GameManager>();
-    services.AddSingleton(sp => new Lazy<GameManager>(sp.GetRequiredService<GameManager>));
     services.AddTransient<ITcpMessageHandler, JoinRoomHandler>();
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
     services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();
-    services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<Lazy<GameManager>>(), DownloadMapPath));
+    services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<GameManager>(), DownloadMapPath));
+    services.AddSingleton(sp => new Lazy<NetClient>(sp.GetRequiredService<NetClient>));
     services.AddSingleton<NetServer>(sp =>
       new NetServer(sp.GetServices<ITcpMessageHandler>(), DownloadMapPath)); // 这样注册才合理，NetClient不规范
     services.AddSingleton(sp => new Lazy<NetServer>(sp.GetRequiredService<NetServer>));

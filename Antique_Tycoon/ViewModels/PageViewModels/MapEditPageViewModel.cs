@@ -18,33 +18,33 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class MapEditPageViewModel : PageViewModelBase
 {
-  public ObservableCollection<CanvasItemModel> SelectedMapEntities { get; set; } = [];
-
+  [ObservableProperty]
+  [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
+  public partial ObservableCollection<CanvasItemModel> SelectedMapEntities { get; set; } = [];
   [ObservableProperty] public partial Map CurrentMap { get; set; }
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
-  public partial CanvasItemModel TempSelectedMapEntity { get; set; }
+  public partial CanvasItemModel TempSelectedMapEntity { get; set; } //用于筛选是不是线条
 
   public NodeModel? SelectedMapEntity
   {
     get
     {
-      if (SelectedMapEntities.Count > 1) return null;
+      if (SelectedMapEntities.Count > 1) return null; //多选了
       return TempSelectedMapEntity as NodeModel;
     }
   }
-
   public Func<Bitmap>? RequestRenderControl { get; set; }
 
   public MapEditPageViewModel(Map currentMap)
   {
     CurrentMap = currentMap;
-    SelectedMapEntities.CollectionChanged += (_, __) =>
-    {
-      OnPropertyChanged(nameof(SelectedMapEntity));
-    };
   }
+
+  partial void OnSelectedMapEntitiesChanged(ObservableCollection<CanvasItemModel> oldValue,
+    ObservableCollection<CanvasItemModel> newValue) =>
+    newValue.CollectionChanged += (_, __) => OnPropertyChanged(nameof(SelectedMapEntity));
 
   [RelayCommand]
   private async Task ChangeImage(NodeModel target)

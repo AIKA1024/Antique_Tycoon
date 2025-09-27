@@ -2,10 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:Antique_Tycoon.Views.Controls">
   <Design.PreviewWith>
-    <controls:MCContentControl />
+    <controls:McContentControl />
   </Design.PreviewWith>
 
-  <Style Selector="controls|MCContentControl">
+  <Style Selector="controls|McContentControl">
     <Setter Property="Background" Value="{DynamicResource BorderBackgroundBrush}" />
     <Setter Property="Padding" Value="16" />
     <Setter Property="Template">

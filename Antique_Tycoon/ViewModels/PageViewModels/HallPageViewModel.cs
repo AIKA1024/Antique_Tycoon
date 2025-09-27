@@ -88,17 +88,14 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
         IsShowConfirmButton = false
       };
       var result = await dialogService.ShowDialogAsync(messageVm,task);
-      messageVm.CloseDialog();
       if (result.ResponseStatus != RequestResult.Success)
       {
-        await dialogService.ShowDialogAsync(
-          new MessageDialogViewModel
-          {
-            Title = "提示",
-            Message = "地图下载失败"
-          });
+        messageVm.Title = "警告";
+        messageVm.Message = "地图下载失败";
+        messageVm.IsLightDismissEnabled = true;
         return;
       }
+      messageVm.CloseDialog();
       ZipFile.ExtractToDirectory(mapZipPath, mapDirPath);
       File.Delete(mapZipPath);
     }

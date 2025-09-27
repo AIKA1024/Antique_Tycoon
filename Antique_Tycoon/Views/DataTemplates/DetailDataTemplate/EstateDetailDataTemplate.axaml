@@ -14,11 +14,11 @@
   
   <DataTemplate  x:Key="EstateDetailDataTemplate" x:DataType="node:Estate">
     <StackPanel>
-      <c:MCContentControl Header="价格">
+      <c:McContentControl Header="价格">
         <TextBox
           Classes="MCTextbox"
           Text="{Binding Value}" />
-      </c:MCContentControl>
+      </c:McContentControl>
     </StackPanel>
   </DataTemplate>
   

@@ -13,11 +13,11 @@
 
   <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="node:SpawnPoint">
     <StackPanel>
-      <c:MCContentControl Header="路过出生点时获得金额">
+      <c:McContentControl Header="路过出生点时获得金额">
         <TextBox
           Classes="MCTextbox"
           Text="{Binding Bonus}" />
-      </c:MCContentControl>
+      </c:McContentControl>
     </StackPanel>
 
   </DataTemplate>

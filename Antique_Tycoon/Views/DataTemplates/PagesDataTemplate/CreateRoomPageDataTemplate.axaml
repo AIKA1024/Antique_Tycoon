@@ -62,7 +62,7 @@
           <Border Classes="Item">
             <StackPanel Spacing="8">
               <TextBlock Text="初始金额" FontWeight="Black" />
-              <TextBox Classes="MCTextbox" Text="20000" />
+              <TextBox Classes="MCTextbox" Text="{Binding SelectedMap.StartingCash}" />
             </StackPanel>
           </Border>
           <Border Classes="Item">

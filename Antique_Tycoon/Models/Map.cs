@@ -29,6 +29,8 @@ public partial class Map : ObservableObject
 
   [ObservableProperty] public partial double CanvasWidth { get; set; } = 3600;
   
+  [ObservableProperty] public partial int StartingCash { get; set; } = 10000;
+  
   [ObservableProperty]
   [JsonIgnore]// 这个值通过另外的Hash文件读取
   public partial string Hash { get; set; } = "";

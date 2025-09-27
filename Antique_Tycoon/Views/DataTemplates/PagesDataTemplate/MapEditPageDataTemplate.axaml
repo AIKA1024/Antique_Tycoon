@@ -2,9 +2,7 @@
   xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:e="using:Antique_Tycoon.Extensions"
-  xmlns:m="using:Avalonia.Media"
   xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-  xmlns:cv="using:Antique_Tycoon.Converters"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
   xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
@@ -31,8 +29,8 @@
       <Panel Grid.Row="1"
              Background="Transparent">
         <widgets:GameCanvas IsEditing="True" CurrentMap="{Binding CurrentMap}"
-                            SelectedMapEntities="{Binding SelectedMapEntities}"
-                            TempSelectedMapEntity="{Binding SelectedMapEntity}"/>
+                            SelectedMapEntities="{Binding SelectedMapEntities,Mode=OneWayToSource}"
+                            SelectedMapEntity="{Binding TempSelectedMapEntity,Mode=OneWayToSource}"/>
 
         <!-- DetailPanel -->
         <Border
@@ -57,27 +55,27 @@
                 <ScrollViewer>
                   <StackPanel
                     IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNotNull} }">
-                    <c:MCContentControl Header="标题">
+                    <c:McContentControl Header="标题">
                       <TextBox
                         Classes="MCTextbox"
                         Text="{Binding SelectedMapEntity.Title}" />
-                    </c:MCContentControl>
-                    <c:MCContentControl Header="宽度">
+                    </c:McContentControl>
+                    <c:McContentControl Header="宽度">
                       <TextBox
                         Classes="MCTextbox"
                         Text="{Binding SelectedMapEntity.Width}" />
-                    </c:MCContentControl>
-                    <c:MCContentControl Header="高度">
+                    </c:McContentControl>
+                    <c:McContentControl Header="高度">
                       <TextBox
                         Classes="MCTextbox"
                         Text="{Binding SelectedMapEntity.Height}" />
-                    </c:MCContentControl>
-                    <c:MCContentControl Header="背景色">
+                    </c:McContentControl>
+                    <c:McContentControl Header="背景色">
                       <ColorPicker
                         Color="{Binding SelectedMapEntity.Background,Mode=TwoWay}"
                         HorizontalAlignment="Left" />
-                    </c:MCContentControl>
-                    <c:MCContentControl Header="图片">
+                    </c:McContentControl>
+                    <c:McContentControl Header="图片">
                       <StackPanel Orientation="Horizontal" Spacing="16">
                         <c:MCButton Content="选择图片" Classes="ore" Padding="12 8"
                                     Command="{Binding ChangeImageCommand}"
@@ -87,7 +85,7 @@
                                     VerticalAlignment="Center">
                           </ComboBox>
                       </StackPanel>
-                    </c:MCContentControl>
+                    </c:McContentControl>
                     <ContentControl Content="{Binding SelectedMapEntity}">
                       <ContentControl.DataTemplates>
                         <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
@@ -100,22 +98,25 @@
             </TabItem>
             <TabItem Header="地图设置">
               <StackPanel>
-                <c:MCContentControl Header="画布宽度">
+                <c:McContentControl Header="初始金额">
+                  <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.StartingCash,Mode=TwoWay}" />
+                </c:McContentControl>
+                <c:McContentControl Header="画布宽度">
                   <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasWidth,Mode=TwoWay}" />
-                </c:MCContentControl>
-                <c:MCContentControl Header="画布高度">
+                </c:McContentControl>
+                <c:McContentControl Header="画布高度">
                   <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasHeight,Mode=TwoWay}" />
-                </c:MCContentControl>
-                <c:MCContentControl Header="画布背景色">
+                </c:McContentControl>
+                <c:McContentControl Header="画布背景色">
                   <ColorPicker
                     Color="{Binding CurrentMap.CanvasBackground}"
                     HorizontalAlignment="Left" />
-                </c:MCContentControl>
-                <c:MCContentControl Header="节点默认背景色">
+                </c:McContentControl>
+                <c:McContentControl Header="节点默认背景色">
                   <ColorPicker
                     Color="{Binding CurrentMap.NodeDefaultBackground,Mode=TwoWay}"
                     HorizontalAlignment="Left" />
-                </c:MCContentControl>
+                </c:McContentControl>
               </StackPanel>
             </TabItem>
           </TabControl>

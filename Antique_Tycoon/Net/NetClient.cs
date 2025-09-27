@@ -21,14 +21,13 @@ public class NetClient : NetBase
   private readonly UdpClient _udpClient = new();
   private TcpClient? _tcpClient;
   private readonly Dictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
-  private readonly Lazy<GameManager> _gameManagerLazy;
-  private GameManager GameManagerInstance => _gameManagerLazy.Value;
+  private readonly GameManager _gameManager;
   public event Action<ITcpMessage>? BroadcastMessageReceived;
   public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(3);
 
-  public NetClient(Lazy<GameManager> gameManagerLazy, string downloadPath)
+  public NetClient(GameManager gameManagerLazy, string downloadPath)
   {
-    _gameManagerLazy = gameManagerLazy;
+    _gameManager = gameManagerLazy;
     DownloadPath = downloadPath;
   }
 
@@ -40,7 +39,7 @@ public class NetClient : NetBase
     var result = await _udpClient.ReceiveAsync();
     var json = Encoding.UTF8.GetString(result.Buffer);
     var roomInfo = JsonSerializer.Deserialize(json, AppJsonContext.Default.RoomBaseInfo);
-    return roomInfo;
+    return roomInfo ?? throw new Exception("Could not deserialize room info");
   }
 
   private async Task HeartbeatLoopAsync(CancellationToken cancellation = default)
@@ -49,7 +48,7 @@ public class NetClient : NetBase
     {
       try
       {
-        _ = SendRequestAsync(new HeartbeatMessage { PlayerUuid = GameManagerInstance.LocalPlayer.Uuid }, cancellation);
+        _ = SendRequestAsync(new HeartbeatMessage { PlayerUuid = _gameManager.LocalPlayer.Uuid }, cancellation);
         await Task.Delay(HeartbeatInterval, cancellation);
       }
       catch (Exception ex)

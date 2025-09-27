@@ -14,6 +14,11 @@
   <Design.PreviewWith>
     <widgets:GameCanvas />
   </Design.PreviewWith>
+  <UserControl.Styles>
+    <Style Selector="c|NodeLinkControl c|Connector">
+      <Setter Property="IsEnabled" Value="{Binding #Me.IsEditing}"/>
+    </Style>
+  </UserControl.Styles>
   <Panel Background="{DynamicResource BorderBackgroundColor}">
     <c:XListBox
       x:Name="EntityListBox"
@@ -21,8 +26,8 @@
       ClipToBounds="False"
       ItemsSource="{Binding #Me.CurrentMap.Entities}"
       RenderTransformOrigin="0,0"
-      SelectedItem="{Binding #Me.TempSelectedMapEntity, Mode=OneWayToSource}"
-      SelectedItems="{Binding #Me.SelectedMapEntities}"
+      SelectedItem="{Binding #Me.SelectedMapEntity, Mode=OneWayToSource}"
+      SelectedItems="{Binding #Me.SelectedMapEntities,Mode=TwoWay}"
       SelectionMode="Multiple">
       <c:XListBox.RenderTransform>
         <TransformGroup>
@@ -32,7 +37,7 @@
       </c:XListBox.RenderTransform>
       <c:XListBox.DataTemplates>
         <DataTemplate DataType="node:NodeModel">
-          <!-- 设置top和Left是为了触发CanvasItemDragBehavior的监听，因为和listboxitem的top和left绑定的是相同的对象，所以变相监听到了listboxitem的top和left -->
+          <!-- 设置top和Left是为了触发CanvasItemDragBehavior的监听，因为和listboxItem的top和left绑定的是相同的对象，所以变相监听到了listboxItem的top和left -->
           <c:NodeLinkControl
             Canvas.Top="{Binding Top}"
             Canvas.Left="{Binding Left}"
@@ -41,6 +46,7 @@
             Map="{Binding #Me.CurrentMap, RelativeSource={RelativeSource AncestorType=c:XListBox}}">
             <Interaction.Behaviors>
               <i:CanvasItemDragBehavior
+                IsEnabled="{Binding #Me.IsEditing}"
                 SelectedItems="{Binding #Me.SelectedMapEntities}"
                 Scale="{Binding #Me.CurrentMap.Scale, RelativeSource={RelativeSource AncestorType=c:XListBox}}"
                 Offset="{Binding #Me.CurrentMap.Offset, RelativeSource={RelativeSource AncestorType=c:XListBox}}" />

@@ -18,20 +18,24 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
   private Point _lastPointerPosition;
   private IDisposable? _topSubscription;
   private IDisposable? _leftSubscription;
-  public double DragThreshold { get; set; }= 4;
+  public double DragThreshold { get; set; } = 4;
   [GeneratedDirectProperty] public partial IList<CanvasItemModel>? SelectedItems { get; set; }
   [GeneratedDirectProperty] public partial double Scale { get; set; }
 
   [GeneratedDirectProperty] public partial Point Offset { get; set; }
+
   protected override void OnAttached()
   {
     base.OnAttached();
     AssociatedObject.PointerPressed += AssociatedObjectOnPointerPressed;
     AssociatedObject.PointerReleased += AssociatedObjectOnPointerReleased;
     AssociatedObject.PointerMoved += AssociatedObjectOnPointerMoved;
-    _topSubscription = AssociatedObject.GetObservable(Canvas.TopProperty).Subscribe(_ => LayoutChanged.RaiseLayoutChanged(AssociatedObject));
-    _leftSubscription = AssociatedObject.GetObservable(Canvas.LeftProperty).Subscribe(_ => LayoutChanged.RaiseLayoutChanged(AssociatedObject));
+    _topSubscription = AssociatedObject.GetObservable(Canvas.TopProperty)
+      .Subscribe(_ => LayoutChanged.RaiseLayoutChanged(AssociatedObject));
+    _leftSubscription = AssociatedObject.GetObservable(Canvas.LeftProperty)
+      .Subscribe(_ => LayoutChanged.RaiseLayoutChanged(AssociatedObject));
   }
+
   private void AssociatedObjectOnSizeChanged(object? sender, SizeChangedEventArgs e) =>
     LayoutChanged.RaiseLayoutChanged(AssociatedObject);
 
@@ -48,21 +52,19 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
 
   private void AssociatedObjectOnPointerPressed(object? sender, PointerPressedEventArgs e)
   {
-    if (e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed)
-    {
-      _isDragging = true;
-      _lastPointerPosition = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
-      e.Pointer.Capture(AssociatedObject);
-    }
+    if (!e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed || !IsEnabled) return;
+    _isDragging = true;
+    _lastPointerPosition = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
+    e.Pointer.Capture(AssociatedObject);
   }
 
   private void AssociatedObjectOnPointerMoved(object? sender, PointerEventArgs e)
   {
-    if (!_isDragging) return;
+    if (!_isDragging || !IsEnabled) return;
 
     var currentPointerPosition = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var delta = currentPointerPosition - _lastPointerPosition;
-    
+
     if (!_isDragging)
     {
       if (Math.Abs(delta.X) > DragThreshold || Math.Abs(delta.Y) > DragThreshold)
@@ -75,8 +77,8 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
         return; // 阈值没到，直接退出
       }
     }
-    
-    
+
+
     var adjustedDelta = new Point(delta.X / Scale, delta.Y / Scale);
     // 增量叠加 每次移动10个单位
     var snappedDeltaX = Math.Round(adjustedDelta.X / 10) * 10;
@@ -92,6 +94,7 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
           nodeModel.Top += snappedDeltaY;
         }
       }
+
       _lastPointerPosition = new Point(
         _lastPointerPosition.X + snappedDeltaX * Scale,
         _lastPointerPosition.Y + snappedDeltaY * Scale
@@ -101,6 +104,7 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
 
   private void AssociatedObjectOnPointerReleased(object? sender, PointerReleasedEventArgs e)
   {
+    if (!IsEnabled) return;
     _isDragging = false;
     e.Pointer.Capture(null);
   }

@@ -16,8 +16,10 @@ namespace Antique_Tycoon.Services;
 
 public partial class GameManager : ObservableObject //todo 心跳超时逻辑应该在这里
 {
-  private readonly NetServer _netServer;
-  private readonly NetClient _netClient;
+  private readonly Lazy<NetServer> _netServerLazy;
+  private readonly Lazy<NetClient> _netClientLazy;
+  private NetServer NetServerInstance => _netServerLazy.Value;
+  private NetClient NetClientInstance => _netClientLazy.Value;
   private readonly MapFileService _mapFileService;
 
   private readonly ObservableDictionary<string, Player> _playersByUuid = [];
@@ -28,13 +30,11 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
   public int MaxPlayer { get; private set; } = 5;
 
-  public GameManager(NetServer netServer, NetClient netClient, MapFileService mapFileService)
+  public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService)
   {
-    _netServer = netServer;
-    _netClient = netClient;
+    _netServerLazy = netServerLazy;
+    _netClientLazy = netClientLazy;
     _mapFileService = mapFileService;
-    _netClient.BroadcastMessageReceived += NetClientOnBroadcastMessageReceived;
-    _netServer.ClientDisconnected += NetServerOnClientDisconnected;
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
   }
 
@@ -47,6 +47,12 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
 
+  public void ListenEvent()
+  {
+    NetClientInstance.BroadcastMessageReceived += NetClientOnBroadcastMessageReceived;
+    NetServerInstance.ClientDisconnected += NetServerOnClientDisconnected;
+  }
+
   private async Task NetServerOnClientDisconnected(TcpClient client)
   {
     var playerUuid = _clientToPlayerId[client];
@@ -57,7 +63,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       Id = Guid.NewGuid().ToString(),
       Players = Players
     };
-    await _netServer.BroadcastExcept(updateRoomResponse, client);
+    await NetServerInstance.BroadcastExcept(updateRoomResponse, client);
   }
 
   private void NetClientOnBroadcastMessageReceived(ITcpMessage message)
@@ -75,13 +81,13 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public async Task StartGameAsync()
   {
     var startMessage = new StartGameResponse();
-    await _netServer.Broadcast(startMessage, CancellationToken.None);
+    await NetServerInstance.Broadcast(startMessage, CancellationToken.None);
   }
 
   public void ExitRoom()
   {
     var exitRoomRequest = new ExitRoomRequest { PlayerUuid = LocalPlayer.Uuid };
-    _ = _netClient.SendRequestAsync(exitRoomRequest);
+    _ = NetClientInstance.SendRequestAsync(exitRoomRequest);
   }
 
   public async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)
@@ -94,7 +100,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         Message = "房间已满",
         ResponseStatus = RequestResult.Reject
       };
-      var data = _netServer.PackMessage(response);
+      var data = NetServerInstance.PackMessage(response);
       await client.GetStream().WriteAsync(data);
     }
     else
@@ -105,7 +111,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         Id = request.Id,
         // Players = Players
       };
-      await _netServer.SendResponseAsync(joinRoomResponse, client);
+      await NetServerInstance.SendResponseAsync(joinRoomResponse, client);
 
       var updateRoomResponse = new UpdateRoomResponse
       {
@@ -113,7 +119,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         Players = Players
       };
       _clientToPlayerId.Add(client, request.PlayerUuid);
-      await _netServer.Broadcast(updateRoomResponse);
+      await NetServerInstance.Broadcast(updateRoomResponse);
     }
   }
 
@@ -125,6 +131,19 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       Id = request.Id,
       Players = Players
     };
-    await _netServer.BroadcastExcept(updateRoomResponse, client);
+    await NetServerInstance.BroadcastExcept(updateRoomResponse, client);
+  }
+
+  public async Task DownloadMap(DownloadMapRequest request, TcpClient client)
+  {
+    if (_mapFileService.GetMapByHash(request.Hash) is { } map)
+    {
+      await NetServerInstance.SendFileAsync(_mapFileService.GetMapFileStream(map),
+        request.Id, $"{_mapFileService.GetMapFileHash(map)}.zip", TcpMessageType.DownloadMapResponse,
+        client);
+    }
+    else
+      await NetServerInstance.SendResponseAsync(
+        new DownloadMapResponse { Id = request.Id, ResponseStatus = RequestResult.Error }, client);
   }
 }

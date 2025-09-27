@@ -7,14 +7,13 @@ using Antique_Tycoon.Services;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;
 
-public class ExitRoomHandler(Lazy<GameManager> gameManagerLazy):ITcpMessageHandler
+public class ExitRoomHandler(GameManager gameManager):ITcpMessageHandler
 {
-  private GameManager GameManagerInstance => gameManagerLazy.Value;
   public bool CanHandle(TcpMessageType messageType) => messageType == TcpMessageType.ExitRoomRequest;
 
   public async Task HandleAsync(string json, TcpClient client)
   {
     if (JsonSerializer.Deserialize(json, AppJsonContext.Default.ExitRoomRequest) is { } exitRoomRequest)
-      await GameManagerInstance.ReceiveExitRoomRequest(exitRoomRequest, client);
+      await gameManager.ReceiveExitRoomRequest(exitRoomRequest, client);
   }
 }

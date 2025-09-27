@@ -27,7 +27,7 @@ public partial class GameCanvas : UserControl
   [GeneratedDirectProperty] public partial Map CurrentMap { get; set; }
   public Point PointerPosition { get; set; }
 
-  [GeneratedDirectProperty] public partial CanvasItemModel TempSelectedMapEntity { get; set; }
+  [GeneratedDirectProperty] public partial CanvasItemModel SelectedMapEntity { get; set; }
   [GeneratedDirectProperty] public partial ObservableCollection<CanvasItemModel> SelectedMapEntities { get; set; } = [];
 
   public GameCanvas()
