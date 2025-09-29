@@ -6,18 +6,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Views.Controls;
 
-public class MCButton : Button
+public class McButton : Button
 {
   private MediaPlayer _mediaPlayer;
   private static Media _pressedSound = new(App.Current.Services.GetRequiredService<LibVLC>(),"Assets/SFX/MCButtonPressed.mp3");
   // private static Media _pressedSound = new(App.Current.Services.GetRequiredService<LibVLC>(),"Assets/SFX/Sheep/say1.ogg");
-  public MCButton()
+  public McButton()
   {
     _mediaPlayer = new MediaPlayer(App.Current.Services.GetRequiredService<LibVLC>());
   }
   // 注册 DirectProperty
-  public static readonly DirectProperty<MCButton, bool> IsPlaySoundProperty =
-    AvaloniaProperty.RegisterDirect<MCButton, bool>(
+  public static readonly DirectProperty<McButton, bool> IsPlaySoundProperty =
+    AvaloniaProperty.RegisterDirect<McButton, bool>(
       nameof(IsPlaySound),   // 属性名
       o => o.IsPlaySound,    // Getter 委托
       (o, v) => o.IsPlaySound = v, // Setter 委托

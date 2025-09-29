@@ -30,7 +30,7 @@
             </Animation>
           </Style.Animations>
         </Style>
-        <Style Selector="c|MCButton.Width">
+        <Style Selector="c|McButton.Width">
           <Setter Property="Width" Value="200" />
         </Style>
       </Grid.Styles>
@@ -55,16 +55,16 @@
             </TextBlock.RenderTransform>
           </TextBlock>
         </Panel>
-        <c:MCButton
+        <c:McButton
           Classes="Width"
           Content="游戏"
           Command="{Binding NavigateToHallPageCommand,Mode=OneTime}"
           HorizontalAlignment="Center" />
-        <c:MCButton
+        <c:McButton
           Classes="Width"
           Command="{Binding NavigateToMapListPageCommand,Mode=OneTime}"
           Content="创意工坊" HorizontalAlignment="Center" />
-        <c:MCButton
+        <c:McButton
           Classes="Width"
           Command="{Binding NavigateToSettingPageCommand}"
           Content="设置" HorizontalAlignment="Center" />
@@ -74,7 +74,7 @@
                    Foreground="White"
                    HorizontalAlignment="Center" />
         <Image Width="64" Source="{Binding LocalPlayer.Avatar}" />
-        <c:MCButton Content="更衣室" Padding="8 12" HorizontalAlignment="Center" />
+        <c:McButton Content="更衣室" Padding="8 12" HorizontalAlignment="Center" />
       </StackPanel>
       <TextBlock Grid.Column="2"
                  Background="#cc000000"

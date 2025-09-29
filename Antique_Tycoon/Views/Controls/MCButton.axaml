@@ -2,10 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="using:Antique_Tycoon.Views.Controls">
   <Design.PreviewWith>
-    <c:MCButton Classes="ore" Content="Button" />
+    <c:McButton Classes="ore" Content="Button" />
   </Design.PreviewWith>
 
-  <Style Selector="c|MCButton">
+  <Style Selector="c|McButton">
     <Setter Property="IsPlaySound" Value="True" />
     <Setter Property="Padding" Value="64 16" />
     <Setter Property="CornerRadius" Value="0" />
@@ -15,13 +15,16 @@
     <Setter Property="BorderBrush" Value="#131313" />
     <Setter Property="Template">
       <ControlTemplate>
-        <StackPanel Height="{TemplateBinding Height}"
-                    Width="{TemplateBinding Width}">
-          <Rectangle Fill="Transparent"/>
-          <Border
-            Background="{TemplateBinding Background}"
-            BorderThickness="{TemplateBinding BorderThickness}"
-            BorderBrush="{TemplateBinding BorderBrush}">
+        <Grid RowDefinitions="Auto,*"
+              Height="{TemplateBinding Height}"
+              Width="{TemplateBinding Width}">
+          <Rectangle Grid.Row="0" Fill="Transparent" />
+          <Border Grid.Row="1"
+                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                  Background="{TemplateBinding Background}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  BorderBrush="{TemplateBinding BorderBrush}">
             <DockPanel LastChildFill="True">
               <Rectangle
                 DockPanel.Dock="Bottom"
@@ -45,7 +48,7 @@
               </Border>
             </DockPanel>
           </Border>
-        </StackPanel>
+        </Grid>
       </ControlTemplate>
     </Setter>
 
@@ -56,7 +59,7 @@
     </Style>
   </Style>
 
-  <Style Selector="c|MCButton.ore">
+  <Style Selector="c|McButton.ore">
     <Setter Property="Foreground" Value="White" />
     <Setter Property="Background" Value="#3C8527" />
     <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
@@ -66,20 +69,20 @@
         <Setter Property="BorderBrush" Value="#7FA277" />
       </Style>
     </Style>
-    <Style Selector="^>StackPanel>Border>DockPanel>Rectangle">
+    <Style Selector="^>Grid>Border>DockPanel>Rectangle">
       <Setter Property="Fill" Value="#1D4D13" />
     </Style>
-    <Style Selector="^:pressed>StackPanel>Rectangle">
+    <Style Selector="^:pressed>Grid>Rectangle">
       <Setter Property="Height" Value="5" />
     </Style>
-    <Style Selector="^:pressed>StackPanel>Border>DockPanel>Rectangle">
+    <Style Selector="^:pressed>Grid>Border>DockPanel>Rectangle">
       <Setter Property="Height" Value="0" />
     </Style>
   </Style>
 
-  <Style Selector="c|MCButton.Back">
-    <Setter Property="Foreground" Value="Black"/>
-    <Setter Property="Padding" Value="14 14 18 18"/>
+  <Style Selector="c|McButton.Back">
+    <Setter Property="Foreground" Value="Black" />
+    <Setter Property="Padding" Value="14 14 18 18" />
     <Setter Property="Template">
       <ControlTemplate>
         <Panel>

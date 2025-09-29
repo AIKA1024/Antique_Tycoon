@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,10 +65,9 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
       await netServer
         .CreateRoomAndListenAsync(RoomName, _gameManager.SelectedMap, _cts.Token);
     }
-    catch (OperationCanceledException e)
+    catch (OperationCanceledException ex)
     {
-      await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-        { Title = "出现异常！", Message = e.Message });
+      Debug.WriteLine($"监听房间任务被取消： {ex.Message}");
     }
   }
 

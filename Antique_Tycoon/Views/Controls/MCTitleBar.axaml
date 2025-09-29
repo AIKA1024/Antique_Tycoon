@@ -16,13 +16,13 @@
           Background="#E6E8EB"
           BorderBrush="#B1B2B5" BorderThickness="0 0 0 2">
           <Grid ColumnDefinitions="Auto,*,Auto">
-            <c:MCButton
+            <c:McButton
               Grid.Column="0"
               Classes="Back"
               Command="{x:Static cm:StaticCommands.BackCommand}"
               CommandParameter="{TemplateBinding DataContext}"
               FontSize="16">
-            </c:MCButton>
+            </c:McButton>
             <TextBlock
               Grid.Column="1"
               Text="{TemplateBinding Title}"

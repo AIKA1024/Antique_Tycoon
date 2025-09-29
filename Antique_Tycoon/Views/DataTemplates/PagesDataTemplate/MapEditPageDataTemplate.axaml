@@ -17,7 +17,7 @@
         Title="地图编辑器"
         Grid.Row="0"
         ZIndex="1">
-        <c:MCButton
+        <c:McButton
           Margin="0,0,8,0"
           Padding="8,4"
           VerticalAlignment="Center"
@@ -77,7 +77,7 @@
                     </c:McContentControl>
                     <c:McContentControl Header="图片">
                       <StackPanel Orientation="Horizontal" Spacing="16">
-                        <c:MCButton Content="选择图片" Classes="ore" Padding="12 8"
+                        <c:McButton Content="选择图片" Classes="ore" Padding="12 8"
                                     Command="{Binding ChangeImageCommand}"
                                     CommandParameter="{Binding SelectedMapEntity}" />
                           <ComboBox ItemsSource="{x:Static e:StretchEnumValuesExtension.Values}" 

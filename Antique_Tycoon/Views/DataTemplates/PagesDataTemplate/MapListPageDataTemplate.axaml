@@ -15,7 +15,7 @@
         Title="地图列表" />
 
       <StackPanel Grid.Row="1" Spacing="16" Margin="16 0">
-        <c:MCButton Classes="ore" Content="创建新地图"
+        <c:McButton Classes="ore" Content="创建新地图"
                     Command="{Binding ShowCreateDialogCommand}"
                     HorizontalAlignment="Right" />
 

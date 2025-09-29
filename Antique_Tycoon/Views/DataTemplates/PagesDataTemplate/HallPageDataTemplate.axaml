@@ -20,7 +20,7 @@
         Grid.Row="1"
         Margin="16,0"
         Spacing="8">
-        <c:MCButton
+        <c:McButton
           HorizontalAlignment="Right"
           Classes="ore"
           Command="{Binding NavigateToCreateRoomPageCommand}"

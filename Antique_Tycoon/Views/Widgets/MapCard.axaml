@@ -9,11 +9,11 @@
              mc:Ignorable="d"
              x:Class="Antique_Tycoon.Views.Widgets.MapCard">
   <UserControl.Styles>
-    <Style Selector="w|MapCard>c|MCButton>StackPanel>Border>DockPanel">
+    <Style Selector="w|MapCard>c|McButton>StackPanel>Border>DockPanel">
       <Setter Property="LastChildFill" Value="False" />
     </Style>
   </UserControl.Styles>
-  <c:MCButton x:DataType="m:Map" Padding="0" Command="{Binding $parent.Command}" CommandParameter="{Binding $parent.CommandParameter}">
+  <c:McButton x:DataType="m:Map" Padding="0" Command="{Binding $parent.Command}" CommandParameter="{Binding $parent.CommandParameter}">
     <Grid RowDefinitions="4*,*">
       <Image Grid.Row="0" Source="{Binding Cover,FallbackValue={x:Null}}" Stretch="Fill" />
       <Border Grid.Row="1" Padding="16">
@@ -21,5 +21,5 @@
                    VerticalAlignment="Center" HorizontalAlignment="Center" />
       </Border>
     </Grid>
-  </c:MCButton>
+  </c:McButton>
 </UserControl>

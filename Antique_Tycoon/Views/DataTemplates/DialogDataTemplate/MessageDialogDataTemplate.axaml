@@ -33,10 +33,10 @@
                        VerticalAlignment="Center" />
             <Border Padding="16" Background="{StaticResource BorderBackgroundBrush}">
               <StackPanel Spacing="12">
-                <c:MCButton Content="取消" HorizontalAlignment="Stretch" Padding="12"
+                <c:McButton Content="取消" HorizontalAlignment="Stretch" Padding="12"
                             IsVisible="{Binding IsShowCancelButton}"
                             Command="{Binding CancelCommand}" />
-                <c:MCButton Classes="ore" Content="确认" HorizontalAlignment="Stretch" Padding="12"
+                <c:McButton Classes="ore" Content="确认" HorizontalAlignment="Stretch" Padding="12"
                             IsVisible="{Binding IsShowConfirmButton}"
                             Command="{Binding ConfirmCommand}" />
               </StackPanel>
