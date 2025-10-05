@@ -1,3 +1,4 @@
+using System;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Services;
@@ -33,7 +34,32 @@ public partial class MainWindowViewModel : PageViewModelBase
   [RelayCommand]
   private void CloseMaskByMeshTap(DialogViewModelBase dialogViewModel)
   {
-    if (dialogViewModel is { IsLightDismissEnabled : true })
+    if (dialogViewModel is { IsLightDismissEnabled : false })
+      return;
+
+    if (IsDerivedFromGenericDialogViewModelBase(dialogViewModel.GetType()))
+      App.Current.Services.GetRequiredService<DialogService>().CloseDialogsAndClearResults(dialogViewModel);
+    else
       App.Current.Services.GetRequiredService<DialogService>().CloseDialog(dialogViewModel);
+  }
+
+  private bool IsDerivedFromGenericDialogViewModelBase(Type type)
+  {
+    // 递归检查继承链
+    var currentType = type;
+    while (currentType != null && currentType != typeof(object))
+    {
+      // 检查当前类型是否是泛型类型，且泛型定义是 DialogViewModelBase<>
+      if (currentType.IsGenericType &&
+          currentType.GetGenericTypeDefinition() == typeof(DialogViewModelBase<>))
+      {
+        return true;
+      }
+
+      // 继续检查父类
+      currentType = currentType.BaseType;
+    }
+
+    return false;
   }
 }

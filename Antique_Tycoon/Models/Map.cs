@@ -20,7 +20,8 @@ public partial class Map : ObservableObject
   public partial Point Offset { get; set; }
 
   [ObservableProperty]
-  [JsonIgnore] public partial Bitmap Cover { get; set; }
+  [JsonIgnore]
+  public partial Bitmap Cover { get; set; }
 
   [ObservableProperty]
   public partial double Scale { get; set; } = 1;
@@ -42,6 +43,10 @@ public partial class Map : ObservableObject
   [ObservableProperty]
   [JsonConverter(typeof(ColorJsonConverter))]
   public partial Color NodeDefaultBackground { get; set; } = Color.Parse("#eccc68");
+
+  [JsonIgnore] public NodeModel SpawnNode => (NodeModel)EntitiesDict[SpawnNodeUuid];
+  
+  public string SpawnNodeUuid { get; set; } = "";
 
   public ObservableCollection<CanvasItemModel> Entities
   {

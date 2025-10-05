@@ -9,8 +9,12 @@ namespace Antique_Tycoon.Models.Connections;
 
 public partial class Connection : CanvasItemModel
 {
-  [ObservableProperty] public partial Point StartConnectorAnchor { get; set; }
-  [ObservableProperty] public partial Point EndConnectorAnchor { get; set; }
+  [ObservableProperty]
+  [JsonIgnore]
+  public partial Point StartConnectorAnchor { get; set; }
+  [ObservableProperty]
+  [JsonIgnore]
+  public partial Point EndConnectorAnchor { get; set; }
   public string StartNodeId { get; set; }
   public string StartConnectorId { get; set; }
   public string EndNodeId { get; set; }

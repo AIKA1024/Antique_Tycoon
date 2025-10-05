@@ -16,6 +16,8 @@
   </Design.PreviewWith>
   <UserControl.Styles>
     <Style Selector="c|NodeLinkControl c|Connector">
+      <Setter Property="Opacity" Value="{Binding #Me.IsEditing}"/>
+      <Setter Property="IsHitTestVisible" Value="{Binding #Me.IsEditing}"/>
       <Setter Property="IsEnabled" Value="{Binding #Me.IsEditing}"/>
     </Style>
   </UserControl.Styles>
@@ -88,7 +90,7 @@
                       <Setter Property="CommandParameter" Value="{Binding $self.Header, Mode=OneTime}" />
                     </Style>
                   </StackPanel.Styles>
-                  <MenuItem Header="玩家出生点" />
+                  <MenuItem Header="玩家出生点"/>
                   <MenuItem Header="地产" />
                   <MenuItem Header="传送点" />
                 </StackPanel>

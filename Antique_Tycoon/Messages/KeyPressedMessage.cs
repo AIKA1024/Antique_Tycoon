@@ -3,9 +3,4 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Antique_Tycoon.Messages;
 
-public class KeyPressedMessage: ValueChangedMessage<KeyGesture>
-{
-  public KeyPressedMessage(KeyGesture value) : base(value)
-  {
-  }
-}
+public class KeyPressedMessage(KeyGesture value) : ValueChangedMessage<KeyGesture>(value);

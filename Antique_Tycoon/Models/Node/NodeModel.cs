@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 using Antique_Tycoon.Converters;
 using Antique_Tycoon.Converters.JsonConverter;
@@ -9,6 +10,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Models.Node;
 
@@ -67,6 +69,13 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
 
   public ConnectorJsonModel[] ConnectorModels { get; set; } =
     [new(), new(), new(), new()];
+  
+  [JsonIgnore]
+  [ObservableProperty]
+  public partial Player? Owner { get; set; }
+
+  [JsonIgnore]
+  public ObservableCollection<Player> PlayersHere { get; set; } = [];
 
   private bool _disposed;
   public void Dispose()

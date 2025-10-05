@@ -22,30 +22,30 @@ public partial class DialogService : ObservableObject
   {
     CurrentDialogViewModel = _dialogs.Count != 0 ? _dialogs[^1] : null;
   }
-  
+
   public Task ShowDialogAsync(DialogViewModelBase dialogViewModel)
   {
     _dialogs.Add(dialogViewModel);
-    var tcs = new TaskCompletionSource();
+    var tcs = new XTaskCompletionSource();
     _dialogTasks.Add(dialogViewModel, tcs);
     return tcs.Task;
   }
-  
-  public Task ShowDialogAsync(DialogViewModelBase dialogViewModel,Task task)
+
+  public Task ShowDialogAsync(DialogViewModelBase dialogViewModel, Task task)
   {
     _dialogs.Add(dialogViewModel);
     _dialogTasks.Add(dialogViewModel, task);
     return task;
   }
 
-  public Task<T> ShowDialogAsync<T>(DialogViewModelBase<T> dialogViewModel)
+  public Task<T?> ShowDialogAsync<T>(DialogViewModelBase<T?> dialogViewModel)
   {
     _dialogs.Add(dialogViewModel);
-    var tcs = new TaskCompletionSource<T>();
+    var tcs = new XTaskCompletionSource<T>();
     _dialogTasks.Add(dialogViewModel, tcs);
     return tcs.Task;
   }
-  
+
   /// <summary>
   /// 使用自定义的Task来等待窗口
   /// </summary>
@@ -54,27 +54,41 @@ public partial class DialogService : ObservableObject
   /// <typeparam name="T">任务返回值</typeparam>
   /// <typeparam name="T1">视图模型返回值（已丢弃）</typeparam>
   /// <returns>任务</returns>
-  public Task<T> ShowDialogAsync<T,T1>(DialogViewModelBase<T1> dialogViewModel,Task<T> task)
+  public Task<T> ShowDialogAsync<T, T1>(DialogViewModelBase<T1> dialogViewModel, Task<T> task)
   {
     _dialogs.Add(dialogViewModel);
     _dialogTasks.Add(dialogViewModel, task);
     return task;
   }
 
-  public void CloseDialog<T>(DialogViewModelBase<T> dialogViewModel,T result)
+  public void CloseDialogsAndClearResults(DialogViewModelBase dialogViewModel)
   {
     if (_dialogTasks.TryGetValue(dialogViewModel, out var obj) &&
-        obj is TaskCompletionSource<T> tcs)
+        obj is ISupportsClearResult tcs)
+    {
+      tcs.ClearResult();
+      _dialogTasks.Remove(dialogViewModel);
+    }
+
+    _dialogs.Remove(dialogViewModel);
+  }
+
+  public void CloseDialog<T>(DialogViewModelBase<T> dialogViewModel, T result)
+  {
+    if (_dialogTasks.TryGetValue(dialogViewModel, out var obj) &&
+        obj is XTaskCompletionSource<T> tcs)
     {
       tcs.SetResult(result);
       _dialogTasks.Remove(dialogViewModel);
     }
+
     _dialogs.Remove(dialogViewModel);
   }
+
   public void CloseDialog(DialogViewModelBase dialogViewModel)
   {
     if (_dialogTasks.TryGetValue(dialogViewModel, out var obj) &&
-        obj is TaskCompletionSource tcs)
+        obj is XTaskCompletionSource tcs)
     {
       tcs.SetResult();
       _dialogTasks.Remove(dialogViewModel);

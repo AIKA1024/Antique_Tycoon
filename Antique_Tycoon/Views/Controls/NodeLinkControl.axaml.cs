@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
 using Avalonia.Controls;

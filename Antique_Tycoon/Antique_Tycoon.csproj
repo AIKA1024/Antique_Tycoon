@@ -38,24 +38,24 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.6" />
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.5" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.5" />
+        <PackageReference Include="Avalonia" Version="11.3.7" />
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.7" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.7" />
         <PackageReference Include="Avalonia.ReactiveUI.Events" Version="0.10.22" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.5" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.5" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.7" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.7" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.5">
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.7">
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="HotAvalonia" Version="3.0.0" PrivateAssets="All" Publish="True" />
         <PackageReference Include="LibVLCSharp" Version="3.9.4" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
         <PackageReference Include="ObservableCollections" Version="3.3.4" />
-        <PackageReference Include="PropertyGenerator.Avalonia" Version="1.1.0" />
-        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2" />
+        <PackageReference Include="PropertyGenerator.Avalonia" Version="1.2.1" />
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.6.4" />
     </ItemGroup>
 
     <ItemGroup>

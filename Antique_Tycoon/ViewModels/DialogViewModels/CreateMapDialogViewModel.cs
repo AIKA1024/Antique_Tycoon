@@ -20,6 +20,9 @@ public partial class CreateMapDialogViewModel : DialogViewModelBase
       NavigateToMapEditPage();
   }
 
+  [RelayCommand]
+  private void Cancel() => CloseDialog();
+
   private void NavigateToMapEditPage()
   {
     CloseDialog();

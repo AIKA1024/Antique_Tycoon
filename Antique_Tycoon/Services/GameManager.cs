@@ -14,18 +14,22 @@ using ObservableCollections;
 
 namespace Antique_Tycoon.Services;
 
+/// <summary>
+/// 游戏数据核心服务，封装基本业务操作
+/// </summary>
 public partial class GameManager : ObservableObject //todo 心跳超时逻辑应该在这里
 {
   private readonly Lazy<NetServer> _netServerLazy;
   private readonly Lazy<NetClient> _netClientLazy;
-  private NetServer NetServerInstance => _netServerLazy.Value;
-  private NetClient NetClientInstance => _netClientLazy.Value;
+  
   private readonly MapFileService _mapFileService;
 
   private readonly ObservableDictionary<string, Player> _playersByUuid = [];
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
-  public Player LocalPlayer { get; private set; }
+  public NetServer NetServerInstance => _netServerLazy.Value;
+  public NetClient NetClientInstance => _netClientLazy.Value;
+  public Player LocalPlayer { get; set; }
   [ObservableProperty] public partial Map? SelectedMap { get; set; }
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
   public int MaxPlayer { get; private set; } = 5;

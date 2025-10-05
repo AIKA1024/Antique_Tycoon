@@ -1,9 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Services;
+using Antique_Tycoon.ViewModels.DialogViewModels;
 using Antique_Tycoon.ViewModels.PageViewModels;
 using Antique_Tycoon.Views.Controls;
 using Avalonia;
@@ -15,6 +18,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Widgets;
@@ -136,18 +140,30 @@ public partial class GameCanvas : UserControl
   [RelayCommand]
   private void CreateEntity(string type)
   {
-    Dispatcher.UIThread.Post(() =>
+    Dispatcher.UIThread.Post(async void () =>
     {
       switch (type)
       {
         case "玩家出生点":
-          CurrentMap.Entities.Add(new SpawnPoint
+          if (string.IsNullOrEmpty(CurrentMap.SpawnNodeUuid))
           {
-            Left = PointerPosition.X,
-            Top = PointerPosition.Y,
-            Title = "玩家出生点",
-            Background = CurrentMap.NodeDefaultBackground
-          });
+            var spawnPoint = new SpawnPoint
+            {
+              Left = PointerPosition.X,
+              Top = PointerPosition.Y,
+              Title = "玩家出生点",
+              Background = CurrentMap.NodeDefaultBackground
+            };
+            CurrentMap.Entities.Add(spawnPoint);
+            CurrentMap.SpawnNodeUuid = spawnPoint.Uuid;
+          }
+          else
+            await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(
+              new MessageDialogViewModel
+              {
+                Title = "提示",
+                Message = "只能有一个出生点"
+              });            
           break;
         case "地产":
           CurrentMap.Entities.Add(new Estate
@@ -171,6 +187,8 @@ public partial class GameCanvas : UserControl
       return;
     foreach (var model in target.ConnectorModels)
       model.CancelConnects(CurrentMap);
+    if (target.Uuid == CurrentMap.SpawnNodeUuid)
+      CurrentMap.SpawnNodeUuid = "";
     CurrentMap.Entities.Remove(target);
   }
 }

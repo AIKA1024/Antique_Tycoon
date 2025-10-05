@@ -39,17 +39,18 @@
           <Image Width="512" Source="../../Assets/Image/Title.png" />
           <TextBlock x:Name="SubTitleText"
                      Classes="Jump"
-                     Text="MineCraft Edition!"
+                     Text="Antique Tycoon Edition!"
                      FontSize="16"
-                     VerticalAlignment="Bottom"
+                     VerticalAlignment="Center"
                      HorizontalAlignment="Right"
+                     Margin="0 0 -100 -50"
                      Foreground="Gold">
             <TextBlock.Effect>
               <DropShadowEffect Color="#404000" BlurRadius="0" OffsetX="2.3" OffsetY="2.3" />
             </TextBlock.Effect>
             <TextBlock.RenderTransform>
               <TransformGroup>
-                <RotateTransform Angle="-22" />
+                <RotateTransform Angle="-23" />
                 <ScaleTransform />
               </TransformGroup>
             </TextBlock.RenderTransform>
@@ -74,7 +75,7 @@
                    Foreground="White"
                    HorizontalAlignment="Center" />
         <Image Width="64" Source="{Binding LocalPlayer.Avatar}" />
-        <c:McButton Content="更衣室" Padding="8 12" HorizontalAlignment="Center" />
+        <c:McButton Content="更衣室" Padding="8 12" HorizontalAlignment="Center" Command="{Binding ShowLockerRoomDialogCommand}"/>
       </StackPanel>
       <TextBlock Grid.Column="2"
                  Background="#cc000000"

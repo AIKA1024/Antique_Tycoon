@@ -4,7 +4,8 @@
   xmlns:c="using:Antique_Tycoon.Views.Controls"
   xmlns:controls="using:Antique_Tycoon.Views.Controls"
   xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
-  xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
+  xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
+  xmlns:models="clr-namespace:Antique_Tycoon.Models">
   <Design.PreviewWith>
     <controls:NodeLinkControl />
   </Design.PreviewWith>
@@ -30,8 +31,40 @@
             BorderThickness="{TemplateBinding BorderThickness}"
             ClipToBounds="True"
             CornerRadius="{TemplateBinding CornerRadius}">
-            <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+
+            <Panel>
+              <ContentPresenter Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}" />
+
+              <ItemsControl ItemsSource="{Binding PlayersHere}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Height="26">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel ItemSpacing="4" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="models:Player">
+                    <Border BorderBrush="White" BorderThickness="1"
+                            ToolTip.Tip="{Binding Name}">
+                      <Image Source="{Binding Avatar}"
+                             Height="24" />
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Panel>
           </Border>
+
+          <Border BorderBrush="White" BorderThickness="1"
+                  IsVisible="{Binding Owner,Converter={x:Static ObjectConverters.IsNotNull}}"
+                  ToolTip.Tip="{Binding Owner.Name,StringFormat={}{0}的资产}">
+            <Image Source="{Binding Owner.Avatar}"
+                   Height="16" />
+          </Border>
+
 
           <c:Connector
             HorizontalAlignment="Left"
@@ -41,7 +74,7 @@
             ActiveConnections="{Binding ActiveConnections}"
             LineCanvas="{Binding LineCanvas, RelativeSource={RelativeSource Mode=TemplatedParent}}"
             PassiveConnections="{Binding PassiveConnections}"
-            Uuid="{Binding Uuid}"/>
+            Uuid="{Binding Uuid}" />
           <c:Connector
             HorizontalAlignment="Center"
             VerticalAlignment="Top"

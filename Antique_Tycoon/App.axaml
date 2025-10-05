@@ -41,6 +41,8 @@
     <StaticResource ResourceKey="CreateNewMapDialogDataTemplate"/>
     <StaticResource ResourceKey="SelectMapDialogDataTemplate"/>
     <StaticResource ResourceKey="MessageDialogDataTemplate"/>
+    <StaticResource ResourceKey="LockerRoomDialogDataTemplate"/>
+    
     
   </Application.DataTemplates>
 </Application>

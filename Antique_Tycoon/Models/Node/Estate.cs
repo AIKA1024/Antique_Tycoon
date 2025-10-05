@@ -4,5 +4,4 @@ public partial class Estate:NodeModel
 {
   public int Value { get; set; }
   public int Level{ get; set; }
-  public Player? Owner { get; set; }
 }

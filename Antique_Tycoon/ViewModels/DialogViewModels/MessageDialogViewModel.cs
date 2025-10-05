@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
-public partial class MessageDialogViewModel : DialogViewModelBase<bool>
+public partial class MessageDialogViewModel : DialogViewModelBase<bool?>
 {
   [ObservableProperty] public partial string Title { get; set; } = "";
   [ObservableProperty] public partial string Message { get; set; } = "";
@@ -15,12 +15,14 @@ public partial class MessageDialogViewModel : DialogViewModelBase<bool>
   [RelayCommand]
   private void Confirm()
   {
-    App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this,true);
+    CloseDialog(true);
+    // App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this,true);
   }
   
   [RelayCommand]
   private void Cancel()
   {
-    App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this,false);
+    CloseDialog(false);
+    // App.Current.Services.GetRequiredService<DialogService>().CloseDialog(this,false);
   }
 }
