@@ -6,12 +6,14 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Net;
@@ -22,7 +24,6 @@ public class NetClient : NetBase
   private TcpClient? _tcpClient;
   private readonly Dictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
   private readonly GameManager _gameManager;
-  public event Action<ITcpMessage>? BroadcastMessageReceived;
   public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(3);
 
   public NetClient(GameManager gameManagerLazy, string downloadPath)
@@ -96,6 +97,7 @@ public class NetClient : NetBase
       case TcpMessageType.UpdateRoomResponse:
         var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
         message = updateRoomResponse;
+        WeakReferenceMessenger.Default.Send(new UpdateRoomMessage(updateRoomResponse.Players));
         break;
       case TcpMessageType.DownloadMapResponse:
         var downloadMapResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapResponse);
@@ -104,16 +106,19 @@ public class NetClient : NetBase
       case TcpMessageType.StartGameResponse:
         var startGameResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.StartGameResponse);
         message = startGameResponse;
+        WeakReferenceMessenger.Default.Send(new GameStartMessage());
+        break;
+      case TcpMessageType.TurnStartResponse:
+        var turnStartResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.TurnStartResponse);
+        message = turnStartResponse;
+        WeakReferenceMessenger.Default.Send(new TurnStartMessage(turnStartResponse.Player));
         break;
     }
 
     if (message == null)
       return Task.CompletedTask;
     if (!_pendingRequests.Remove(message.Id, out var tcs)) //证明不是客户端主动请求的，是服务器主动发送的
-    {
-      BroadcastMessageReceived?.Invoke(message);
       return Task.CompletedTask;
-    }
 
 
     tcs.SetResult(message);

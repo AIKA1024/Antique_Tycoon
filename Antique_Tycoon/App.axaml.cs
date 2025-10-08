@@ -32,9 +32,9 @@ public partial class App : Application
   {
     AvaloniaXamlLoader.Load(this);
     var gameManager = Services.GetRequiredService<GameManager>();
-    gameManager.AddLocalPlayer();
+    gameManager.SetupLocalPlayer();
     gameManager.SetDefaultMap();
-    gameManager.ListenEvent();
+    Services.GetRequiredService<GameRuleService>();// 启动gameRule
   }
 
   public App()
@@ -68,6 +68,7 @@ public partial class App : Application
     services.AddSingleton<MapFileService>();
     services.AddSingleton<DialogService>();
     services.AddSingleton<GameManager>();
+    services.AddSingleton<GameRuleService>();
     services.AddTransient<ITcpMessageHandler, JoinRoomHandler>();
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
     services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();

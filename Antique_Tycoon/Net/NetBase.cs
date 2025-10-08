@@ -229,6 +229,9 @@ public abstract class NetBase
       _ when type == typeof(DownloadMapResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.DownloadMapResponse,
         TcpMessageType.DownloadMapResponse),
+      _ when type == typeof(TurnStartResponse) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.TurnStartResponse,
+        TcpMessageType.TurnStartResponse),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

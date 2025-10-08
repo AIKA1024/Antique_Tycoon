@@ -4,12 +4,14 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using ObservableCollections;
 
 namespace Antique_Tycoon.Services;
@@ -40,9 +42,27 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _netClientLazy = netClientLazy;
     _mapFileService = mapFileService;
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
+    WeakReferenceMessenger.Default.Register<UpdateRoomMessage>(this, (_, message) =>
+    {
+      _playersByUuid.Clear();
+      foreach (var player in message.Value)
+        _playersByUuid[player.Uuid] = player;
+    });
+    WeakReferenceMessenger.Default.Register<ClientDisconnectedMessage>(this,async (_, message) =>
+    {
+      var playerUuid = _clientToPlayerId[message.Value];
+      _clientToPlayerId.Remove(message.Value);
+      _playersByUuid.Remove(playerUuid);
+      var updateRoomResponse = new UpdateRoomResponse
+      {
+        Id = Guid.NewGuid().ToString(),
+        Players = Players
+      };
+      await NetServerInstance.BroadcastExcept(updateRoomResponse, message.Value);
+    });
   }
 
-  public void AddLocalPlayer()
+  public void SetupLocalPlayer()
   {
     var localPlayer = new Player{IsHomeowner = true};
     LocalPlayer = localPlayer;
@@ -51,41 +71,13 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
 
-  public void ListenEvent()
-  {
-    NetClientInstance.BroadcastMessageReceived += NetClientOnBroadcastMessageReceived;
-    NetServerInstance.ClientDisconnected += NetServerOnClientDisconnected;
-  }
-
-  private async Task NetServerOnClientDisconnected(TcpClient client)
-  {
-    var playerUuid = _clientToPlayerId[client];
-    _clientToPlayerId.Remove(client);
-    _playersByUuid.Remove(playerUuid);
-    var updateRoomResponse = new UpdateRoomResponse
-    {
-      Id = Guid.NewGuid().ToString(),
-      Players = Players
-    };
-    await NetServerInstance.BroadcastExcept(updateRoomResponse, client);
-  }
-
-  private void NetClientOnBroadcastMessageReceived(ITcpMessage message)
-  {
-    switch (message)
-    {
-      case UpdateRoomResponse updateRoomResponse:
-        _playersByUuid.Clear();
-        foreach (var player in updateRoomResponse.Players)
-          _playersByUuid[player.Uuid] = player;
-        break;
-    }
-  }
-
+  public TcpClient FindClientByUuid(string uuid) => _clientToPlayerId.First(variable => variable.Value == uuid).Key;
+  
   public async Task StartGameAsync()
   {
     var startMessage = new StartGameResponse();
     await NetServerInstance.Broadcast(startMessage, CancellationToken.None);
+    WeakReferenceMessenger.Default.Send(new GameStartMessage());
   }
 
   public void ExitRoom()

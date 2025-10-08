@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
+using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
@@ -12,6 +13,7 @@ using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using ObservableCollections;
 
@@ -28,7 +30,7 @@ public partial class RoomPageViewModel : PageViewModelBase
   public Player LocalPlayer { get; }
 
 
-  public RoomPageViewModel(Map map, NetClient netClient, NetServer netServer,GameManager gameManager,
+  public RoomPageViewModel(Map map, NetClient netClient, NetServer netServer, GameManager gameManager,
     CancellationTokenSource? cts = null)
   {
     SelectedMap = map;
@@ -37,31 +39,23 @@ public partial class RoomPageViewModel : PageViewModelBase
     _gameManager = gameManager;
     Players = _gameManager.Players;
     LocalPlayer = _gameManager.LocalPlayer;
-    _client.BroadcastMessageReceived += ClientOnBroadcastMessageReceived;
     _gameManager.Players.CollectionChanged += OnPlayersChanged;
+    WeakReferenceMessenger.Default.Register<GameStartMessage>(this, (_, _) => App.Current.Services
+      .GetRequiredService<NavigationService>().Navigation(new GamePageViewModel(SelectedMap)));
   }
+
 
   private void OnPlayersChanged(object? sender, NotifyCollectionChangedEventArgs e)
   {
     // 简单地重新赋值，会触发 ViewModel 的 Players 属性的更新，并通知 UI
     Players = _gameManager.Players;
   }
-
-  private void ClientOnBroadcastMessageReceived(ITcpMessage message)
-  {
-    switch (message)
-    {
-      case StartGameResponse:
-        App.Current.Services.GetRequiredService<NavigationService>().Navigation(new GamePageViewModel(SelectedMap));
-        break;
-    }
-  }
+  
 
   [RelayCommand]
   private async Task StartGame()
   {
     await _gameManager.StartGameAsync();
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new GamePageViewModel(SelectedMap));
   }
 
   public override void OnBacked()

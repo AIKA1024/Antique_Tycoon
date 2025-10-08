@@ -64,9 +64,9 @@ public partial class DialogService : ObservableObject
   public void CloseDialogsAndClearResults(DialogViewModelBase dialogViewModel)
   {
     if (_dialogTasks.TryGetValue(dialogViewModel, out var obj) &&
-        obj is ISupportsClearResult tcs)
+        obj is ISupportsClearResult scr)
     {
-      tcs.ClearResult();
+      scr.ClearResult();
       _dialogTasks.Remove(dialogViewModel);
     }
 

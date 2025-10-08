@@ -9,11 +9,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Net.TcpMessageHandlers;
 using Antique_Tycoon.Services;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Timer = System.Timers.Timer;
 
@@ -29,7 +31,6 @@ public class NetServer : NetBase
   /// <summary>
   /// 服务器才会收到这个事件
   /// </summary>
-  public event Func<TcpClient,Task>? ClientDisconnected;//应该提供一个非异步的事件，但我自己用就这样吧
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
   public TimeSpan CheckOutlineInterval
@@ -69,12 +70,10 @@ public class NetServer : NetBase
     foreach (var kv in _clientLastActiveTimes)
     {
       long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-      if (now - kv.Value > DisconnectTimeout.TotalMilliseconds)
-      {
-        kv.Key.Close();
-        _clientLastActiveTimes.Remove(kv.Key);
-        ClientDisconnected?.Invoke(kv.Key);
-      }
+      if (!(now - kv.Value > DisconnectTimeout.TotalMilliseconds)) continue;
+      kv.Key.Close();
+      _clientLastActiveTimes.Remove(kv.Key);
+      WeakReferenceMessenger.Default.Send(new ClientDisconnectedMessage(kv.Key));
     }
   }
 
