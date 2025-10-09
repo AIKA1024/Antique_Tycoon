@@ -1,7 +1,10 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:dvm="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
-                    xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls">
+                    xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls"
+                    xmlns:cv="using:Antique_Tycoon.Converters"
+                    xmlns:i="using:Antique_Tycoon.Behaviors"
+                    xmlns:m="using:Antique_Tycoon.Models">
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
@@ -33,17 +36,33 @@
                    Watermark="名称"
                    Text="{Binding Player.Name}" />
           <Image Margin="16"
-                 Cursor="Hand"
                  Source="{Binding Player.Avatar}" Width="64" />
-          <StackPanel Spacing="8">
-            <Rectangle Height="3" Fill="{StaticResource LightedBorderBrush}" />
-            <controls:McButton Margin="16 0"
-                               Content="取消"
-                               Command="{Binding CancelCommand}" />
-            <controls:McButton Margin="16 0" Classes="ore" Content="确定"
-                               Command="{Binding SubmitCommand}" />
-            <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" />
-          </StackPanel>
+
+          <WrapPanel Margin="16" ItemSpacing="8" HorizontalAlignment="Center">
+            <WrapPanel.Styles>
+              <Style Selector="Image">
+                <Setter Property="Height" Value="32" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="i:Tap.Command" Value="{Binding ChangeRoleCommand}" />
+                <Setter Property="i:Tap.CommandParameter" Value="{Binding $self.Tag}"/>
+              </Style>
+            </WrapPanel.Styles>
+            <Image Source="../../Assets/Image/Avatar/Steve.png" Tag="{x:Static m:PlayerRole.Steve}" />
+            <Image Source="../../Assets/Image/Avatar/Pig.png" Tag="{x:Static m:PlayerRole.Pig}" />
+            <Image Source="../../Assets/Image/Avatar/Sheep.png" Tag="{x:Static m:PlayerRole.Sheep}" />
+            <Image Source="../../Assets/Image/Avatar/Creeper.png" Tag="{x:Static m:PlayerRole.Creeper}" />
+            <Image Source="../../Assets/Image/Avatar/Villager.png" Tag="{x:Static m:PlayerRole.Villager}" />
+            <Image Source="../../Assets/Image/Avatar/Zombie.png" Tag="{x:Static m:PlayerRole.Zombie}" />
+          </WrapPanel>
+          <!-- <StackPanel Spacing="8"> -->
+          <!--   <Rectangle Height="3" Fill="{StaticResource LightedBorderBrush}" /> -->
+          <!--   <controls:McButton Margin="16 0" -->
+          <!--                      Content="取消" -->
+          <!--                      Command="{Binding CancelCommand}" /> -->
+          <!--   <controls:McButton Margin="16 0" Classes="ore" Content="确定" -->
+          <!--                      Command="{Binding SubmitCommand}" /> -->
+          <!--   <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" /> -->
+          <!-- </StackPanel> -->
         </StackPanel>
       </StackPanel>
     </Border>

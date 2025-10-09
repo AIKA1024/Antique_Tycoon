@@ -12,7 +12,9 @@ using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using LibVLCSharp.Shared;
 using ObservableCollections;
+using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.Services;
 
@@ -23,6 +25,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 {
   private readonly Lazy<NetServer> _netServerLazy;
   private readonly Lazy<NetClient> _netClientLazy;
+  private readonly LibVLC  _libVLC;
   
   private readonly MapFileService _mapFileService;
 
@@ -36,11 +39,12 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
   public int MaxPlayer { get; private set; } = 5;
 
-  public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService)
+  public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,LibVLC libVLC)
   {
     _netServerLazy = netServerLazy;
     _netClientLazy = netClientLazy;
     _mapFileService = mapFileService;
+    _libVLC = libVLC;
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
     WeakReferenceMessenger.Default.Register<UpdateRoomMessage>(this, (_, message) =>
     {

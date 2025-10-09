@@ -1,13 +1,11 @@
-using Antique_Tycoon.Models;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using LibVLCSharp.Shared;
 using PropertyGenerator.Avalonia;
+using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.Views.Controls;
 
-public partial class PlayerEntity : TemplatedControl
+public partial class PlayerAvatar : TemplatedControl
 {
   [GeneratedDirectProperty]
   public partial Player Player { get; set; }

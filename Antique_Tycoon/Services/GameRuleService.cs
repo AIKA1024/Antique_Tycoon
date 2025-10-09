@@ -9,6 +9,7 @@ using Antique_Tycoon.Models.Node;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
+using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.Services;
 
@@ -17,8 +18,7 @@ namespace Antique_Tycoon.Services;
 /// </summary>
 public partial class GameRuleService : ObservableObject
 {
-  private MediaPlayer _sfxPlayer;
-  private static Media _turnStartSFX;
+  private readonly RoleStrategyFactory _strategyFactory; // 应该在回合结束时播放音效
   private readonly GameManager _gameManager;
   private readonly MapFileService _mapFileService;
   private int _currentTurnPlayerIndex;
@@ -31,17 +31,19 @@ public partial class GameRuleService : ObservableObject
 
   [ObservableProperty] public partial Player? Winner { get; set; }
 
-  public GameRuleService(GameManager gameManager, MapFileService mapFileService, LibVLC libVlc)
+  public GameRuleService(GameManager gameManager, MapFileService mapFileService, LibVLC libVlc,
+    RoleStrategyFactory strategyFactory)
   {
     _gameManager = gameManager;
     _mapFileService = mapFileService;
-    _sfxPlayer = new MediaPlayer(libVlc);
-    _turnStartSFX = new Media(libVlc, "Assets/SFX/LevelUp.ogg");
+    _strategyFactory = strategyFactory;
+    var sfxPlayer = new MediaPlayer(libVlc);
+    var turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
     WeakReferenceMessenger.Default.Register<GameStartMessage>(this, async (_, _) => await StartGameAsync());
     WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, (_, message) =>
     {
       if (message.Value == _gameManager.LocalPlayer)
-        _sfxPlayer.Play(_turnStartSFX);
+        sfxPlayer.Play(turnStartSfx);
     });
   }
 
@@ -67,6 +69,8 @@ public partial class GameRuleService : ObservableObject
     _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % _gameManager.Players.Count;
     WeakReferenceMessenger.Default.Send(new TurnStartMessage(CurrentTurnPlayer));
   }
+  
+  
 
   /// <summary>
   /// 玩家购买地产

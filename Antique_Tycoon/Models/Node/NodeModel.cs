@@ -1,16 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using Antique_Tycoon.Converters;
 using Antique_Tycoon.Converters.JsonConverter;
 using Antique_Tycoon.Models.Connections;
-using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Models.Node;
 

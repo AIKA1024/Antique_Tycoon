@@ -105,4 +105,9 @@
       <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\RoomPageDataTemplate.axaml" />
       <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\StartPageDataTemplate.axaml" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\SFX\Player\Cow\" />
+      <Folder Include="Assets\SFX\Player\Zombie\" />
+    </ItemGroup>
 </Project>

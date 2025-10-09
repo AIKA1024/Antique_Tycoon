@@ -1,21 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
-using Antique_Tycoon.Models.Net.Tcp;
-using Antique_Tycoon.Models.Net.Tcp.Request;
-using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
-using ObservableCollections;
+using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 

@@ -10,7 +10,7 @@ public class McButton : Button
 {
   private MediaPlayer _mediaPlayer;
   private static Media _pressedSound = new(App.Current.Services.GetRequiredService<LibVLC>(),"Assets/SFX/MCButtonPressed.mp3");
-  // private static Media _pressedSound = new(App.Current.Services.GetRequiredService<LibVLC>(),"Assets/SFX/Sheep/say1.ogg");
+  // private static Media _pressedSound = new(App.Current.Services.GetRequiredService<LibVLC>(),"Assets/SFX/Sheep/HappySound1.ogg");
   public McButton()
   {
     _mediaPlayer = new MediaPlayer(App.Current.Services.GetRequiredService<LibVLC>());

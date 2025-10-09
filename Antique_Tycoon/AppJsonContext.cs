@@ -6,7 +6,9 @@ using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Models.RoleBehaviors;
 using Avalonia.Media;
+using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon;
 [JsonSerializable(typeof(Player))]

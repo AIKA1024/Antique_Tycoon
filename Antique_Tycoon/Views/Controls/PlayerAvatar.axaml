@@ -2,10 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:Antique_Tycoon.Views.Controls">
   <Design.PreviewWith>
-    <controls:PlayerEntity />
+    <controls:PlayerAvatar />
   </Design.PreviewWith>
 
-  <ControlTheme TargetType="controls:PlayerEntity">
+  <ControlTheme TargetType="controls:PlayerAvatar">
     <Setter Property="Template">
       <ControlTemplate>
         <Image Source="{TemplateBinding Player}"/>

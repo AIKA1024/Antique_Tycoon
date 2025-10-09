@@ -1,6 +1,5 @@
-using Antique_Tycoon.Models;
-using Avalonia.Input;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.Messages;
 

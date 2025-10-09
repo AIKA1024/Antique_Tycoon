@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 
