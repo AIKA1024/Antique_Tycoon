@@ -116,8 +116,6 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     var mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(
       new RoomPageViewModel(mapFileService.LoadMap(mapDirPath),
-        App.Current.Services.GetRequiredService<NetClient>(),
-        App.Current.Services.GetRequiredService<NetServer>(),
         _gameManager));
   }
 

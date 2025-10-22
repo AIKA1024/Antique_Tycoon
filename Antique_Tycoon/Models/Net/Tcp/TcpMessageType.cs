@@ -14,4 +14,7 @@ public enum TcpMessageType : ushort
   DownloadMapRequest = 7,
   DownloadMapResponse = 8,
   TurnStartResponse = 9,
+  RollDiceRequest = 10,
+  RollDiceResponse = 11,
+  InitGameMessageResponse,
 }

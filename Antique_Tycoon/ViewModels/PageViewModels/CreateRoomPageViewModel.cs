@@ -56,8 +56,6 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
     var netServer = App.Current.Services.GetRequiredService<NetServer>();
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(
       _gameManager.SelectedMap,
-      App.Current.Services.GetRequiredService<NetClient>(),
-      netServer,
       _gameManager,
       _cts));
     try

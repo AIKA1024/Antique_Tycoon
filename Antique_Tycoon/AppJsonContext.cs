@@ -22,6 +22,9 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(DownloadMapRequest))]
 [JsonSerializable(typeof(DownloadMapResponse))]
 [JsonSerializable(typeof(TurnStartResponse))]
+[JsonSerializable(typeof(RollDiceRequest))]
+[JsonSerializable(typeof(RollDiceResponse))]
+[JsonSerializable(typeof(InitGameMessageResponse))]
 
 [JsonSerializable(typeof(Map))]
 [JsonSerializable(typeof(SpawnPoint))]

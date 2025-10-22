@@ -23,7 +23,9 @@
                 BorderBrush="{StaticResource LightedBorderBrush}">
           <TextBlock Text="{Binding Title}"
                      FontSize="16"
-                     FontWeight="ExtraBold" />
+                     FontWeight="ExtraBold"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
         </Border>
         <Border Background="#313233">
           <StackPanel>

@@ -87,41 +87,54 @@ public class NetClient : NetBase
 
   protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
-    ITcpMessage? message = null; //额外处理，调用方只需await方法就行，不需要在这里添加逻辑
+    ResponseBase? response = null; //额外处理，调用方只需await方法就行，不需要在这里添加逻辑
     switch (tcpMessageType)
     {
       case TcpMessageType.JoinRoomResponse:
         var joinRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomResponse);
-        message = joinRoomResponse;
+        response = joinRoomResponse;
         break;
       case TcpMessageType.UpdateRoomResponse:
         var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
-        message = updateRoomResponse;
+        response = updateRoomResponse;
         WeakReferenceMessenger.Default.Send(new UpdateRoomMessage(updateRoomResponse.Players));
         break;
       case TcpMessageType.DownloadMapResponse:
         var downloadMapResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapResponse);
-        message = downloadMapResponse;
+        response = downloadMapResponse;
         break;
       case TcpMessageType.StartGameResponse:
         var startGameResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.StartGameResponse);
-        message = startGameResponse;
+        response = startGameResponse;
         WeakReferenceMessenger.Default.Send(new GameStartMessage());
         break;
       case TcpMessageType.TurnStartResponse:
         var turnStartResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.TurnStartResponse);
-        message = turnStartResponse;
+        response = turnStartResponse;
         WeakReferenceMessenger.Default.Send(new TurnStartMessage(turnStartResponse.Player));
+        break;
+      case TcpMessageType.RollDiceResponse:
+        var rollDiceResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceResponse);
+        response = rollDiceResponse;
+        WeakReferenceMessenger.Default.Send(
+          new RollDiceMessage(rollDiceResponse.PlayerUuid, rollDiceResponse.DiceValue,
+            response.ResponseStatus == RequestResult.Success));
+        break;
+      case TcpMessageType.InitGameMessageResponse:
+        var initGameMessageResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.InitGameMessageResponse);
+        response = initGameMessageResponse;
+        WeakReferenceMessenger.Default.Send(
+          new InitGameMessage(initGameMessageResponse.Players, initGameMessageResponse.CurrentTurnPlayerIndex));
         break;
     }
 
-    if (message == null)
+    if (response == null)
       return Task.CompletedTask;
-    if (!_pendingRequests.Remove(message.Id, out var tcs)) //证明不是客户端主动请求的，是服务器主动发送的
+    if (!_pendingRequests.Remove(response.Id, out var tcs)) //证明不是客户端主动请求的，是服务器主动发送的
       return Task.CompletedTask;
 
 
-    tcs.SetResult(message);
+    tcs.SetResult(response);
     return tcs.Task;
   }
 

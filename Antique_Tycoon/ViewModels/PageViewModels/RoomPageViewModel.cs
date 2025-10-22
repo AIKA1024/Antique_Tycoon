@@ -20,24 +20,23 @@ public partial class RoomPageViewModel : PageViewModelBase
   private readonly CancellationTokenSource? _cancellationTokenSource; // 如果是加入别人的房间，这个就会是null
 
   private Map SelectedMap { get; }
-  private readonly NetClient _client;
   private readonly GameManager _gameManager;
   [ObservableProperty] public partial IList<Player> Players { get; set; }
   public Player LocalPlayer { get; }
 
 
-  public RoomPageViewModel(Map map, NetClient netClient, NetServer netServer, GameManager gameManager,
+  public RoomPageViewModel(Map map, GameManager gameManager,
     CancellationTokenSource? cts = null)
   {
     SelectedMap = map;
     _cancellationTokenSource = cts;
-    _client = netClient;
     _gameManager = gameManager;
     Players = _gameManager.Players;
     LocalPlayer = _gameManager.LocalPlayer;
     _gameManager.Players.CollectionChanged += OnPlayersChanged;
     WeakReferenceMessenger.Default.Register<GameStartMessage>(this, (_, _) => App.Current.Services
       .GetRequiredService<NavigationService>().Navigation(new GamePageViewModel(SelectedMap)));
+    App.Current.Services.GetRequiredService<GameRuleService>();// 启动gameRule
   }
 
 

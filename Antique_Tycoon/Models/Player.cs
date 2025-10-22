@@ -16,10 +16,14 @@ public partial class Player : ObservableObject, IDisposable
 
   [ObservableProperty] private int _money;
 
-  [JsonIgnore] [ObservableProperty] private Bitmap _avatar = Bitmap.DecodeToHeight(
+  [JsonIgnore] 
+  [ObservableProperty]
+  public partial Bitmap Avatar { get; private set; } = Bitmap.DecodeToHeight(
     AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png")), 64);
 
   public ObservableCollection<Antique> Antiques { get; set; } = [];
+  
+  public ObservableCollection<Estate>  Estates { get; set; } = [];
 
   public PlayerRole Role // todo 违反了开闭原则，但小项目不管了
   {

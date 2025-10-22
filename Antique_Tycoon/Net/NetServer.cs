@@ -13,6 +13,7 @@ using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net.TcpMessageHandlers;
 using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.Messaging;
@@ -64,6 +65,48 @@ public class NetServer : NetBase
 
     return "127.0.0.1"; // 回退
   }
+  
+  public TcpListener StartTcpListenerWithAutoRetry(int startPort)
+  {
+    int currentPort = startPort;
+    TcpListener? listener = null;
+
+    while (true) // 循环直到成功绑定
+    {
+      try
+      {
+        // 尝试绑定当前端口
+        listener = new TcpListener(IPAddress.Any, currentPort);
+        listener.Start();
+        Console.WriteLine($"成功绑定端口：{currentPort}");
+        return listener; // 成功则返回 listener
+      }
+      catch (SocketException ex)
+      {
+        // 仅处理“端口已占用”的错误（错误码 10048）
+        if (ex.ErrorCode == 10048)
+        {
+          Console.WriteLine($"端口 {currentPort} 已被占用，尝试端口 {currentPort + 1}...");
+          currentPort++; // 端口+1重试
+          listener?.Stop();
+          listener = null; // 释放失败的实例
+        }
+        else
+        {
+          // 其他网络错误（如权限不足、端口超出范围等），终止重试
+          Console.WriteLine($"非端口占用错误：{ex.Message}，停止重试。");
+          throw; // 抛出异常让上层处理
+        }
+      }
+      catch (Exception ex)
+      {
+        // 其他未知错误，终止重试
+        Console.WriteLine($"发生错误：{ex.Message}，停止重试。");
+        throw;
+      }
+    }
+  }
+
 
   private void CheckOutlinePlayer()
   {
@@ -93,7 +136,7 @@ public class NetServer : NetBase
     };
 
     _listener?.Dispose();
-    _listener = new TcpListener(IPAddress.Any, App.DefaultPort);
+    _listener = StartTcpListenerWithAutoRetry(App.DefaultPort);
     _listener.Start();
 
     var udpTask = HandleUdpDiscoveryAsync(roomInfo, cancellation);
@@ -148,14 +191,14 @@ public class NetServer : NetBase
     await client.GetStream().WriteAsync(data, cancellationToken);
   }
 
-  public async Task Broadcast<T>(T message, CancellationToken cancellationToken = default)where T : ITcpMessage
+  public async Task Broadcast<T>(T message, CancellationToken cancellationToken = default)where T : ResponseBase
   {
     var data = PackMessage(message);
     foreach (var client in _clientLastActiveTimes.Keys)
       await client.GetStream().WriteAsync(data, cancellationToken);
   }
   
-  public async Task BroadcastExcept<T>(T message,TcpClient excluded, CancellationToken cancellationToken = default)where T : ITcpMessage
+  public async Task BroadcastExcept<T>(T message,TcpClient excluded, CancellationToken cancellationToken = default)where T : ResponseBase
   {
     var data = PackMessage(message);
     foreach (var client in _clientLastActiveTimes.Keys)
@@ -174,7 +217,7 @@ public class NetServer : NetBase
     if (handlers.Length != 0)
       foreach (var handler in handlers)
         await handler.HandleAsync(json, client);
-    else
+    else if (tcpMessageType != TcpMessageType.HeartbeatMessage)
       Debug.WriteLine($"未定义{tcpMessageType}的处理方式");
 
     _clientLastActiveTimes[client] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();

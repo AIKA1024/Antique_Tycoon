@@ -34,7 +34,7 @@ public partial class App : Application
     var gameManager = Services.GetRequiredService<GameManager>();
     gameManager.SetupLocalPlayer();
     gameManager.SetDefaultMap();
-    Services.GetRequiredService<GameRuleService>();// 启动gameRule
+    // Services.GetRequiredService<GameRuleService>();// 启动gameRule
   }
 
   public App()
@@ -73,6 +73,7 @@ public partial class App : Application
     services.AddTransient<ITcpMessageHandler, JoinRoomHandler>();
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
     services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();
+    services.AddTransient<ITcpMessageHandler, RollDiceHandler>();
     services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<GameManager>(), DownloadMapPath));
     services.AddSingleton(sp => new Lazy<NetClient>(sp.GetRequiredService<NetClient>));
     services.AddSingleton<NetServer>(sp =>

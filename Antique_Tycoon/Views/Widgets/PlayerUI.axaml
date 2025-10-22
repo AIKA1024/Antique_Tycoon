@@ -4,23 +4,58 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:c="using:Antique_Tycoon.Views.Controls"
              xmlns:controlViewModels="clr-namespace:Antique_Tycoon.ViewModels.ControlViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="650"
              x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
-             x:DataType="controlViewModels:PlayerUIViewModel">
+             x:DataType="controlViewModels:PlayerUiViewModel">
   <UserControl.Styles>
     <Style Selector="Grid.Invisible">
       <Setter Property="Opacity" Value="0" />
+      <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
   </UserControl.Styles>
   <Design.DataContext>
-    <controlViewModels:PlayerUIViewModel />
+    <controlViewModels:PlayerUiViewModel />
   </Design.DataContext>
-  <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*"
+  <Grid RowDefinitions="*,Auto"
         Classes.Invisible="{Binding IsVisible}">
-    <c:PlayerCard Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-    <c:PlayerCard Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" />
-    <c:PlayerCard Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-    <c:PlayerCard Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+    
+    <StackPanel Grid.Row="1" Background="#A3703A">
+      <Rectangle Height="2" Fill="#694826"></Rectangle>
+      <Rectangle Height="5" Fill="#C58747"/>
+      <Grid Margin="16"
+            ColumnDefinitions="*,Auto,*">
+        <c:PlayerCard Grid.Column="0"
+                      Player="{Binding LocalPlayer}"
+                      HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+        
+        <StackPanel Grid.Column="1" HorizontalAlignment="Center"
+                    Orientation="Horizontal" Spacing="16">
+          <Border Background="#6D4B27" VerticalAlignment="Stretch"
+                  BorderBrush="#C58747" BorderThickness="2"
+                  Width="400">
+          </Border>
+          
+          <Border Background="#6D4B27" VerticalAlignment="Stretch"
+                  BorderBrush="#C58747" BorderThickness="2"
+                  Width="400">
+          </Border>
+          
+          <Border Background="#6D4B27" VerticalAlignment="Stretch"
+                  BorderBrush="#C58747" BorderThickness="2"
+                  Width="400">
+          </Border>
+          
+        </StackPanel>
+        
+        <c:McButton Grid.Column="2"
+                    Classes="ore"
+                    Padding="0"
+                    Command="{Binding RollDiceCommand}"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom">
+          <Image Source="../../Assets/Image/GameUI/Dice.png" Width="128"/>
+        </c:McButton>
+      </Grid>
+    </StackPanel>
     <Grid.Transitions>
       <Transitions>
         <DoubleTransition Property="Opacity" Duration="0:0:0.2" />

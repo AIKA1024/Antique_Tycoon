@@ -6,8 +6,8 @@
                     xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="600">
-        <pageViewModels:GamePageViewModel />
-      </ContentControl>
+      <pageViewModels:GamePageViewModel />
+    </ContentControl>
   </Design.PreviewWith>
   <DataTemplate x:Key="GamePageDataTemplate" DataType="pageViewModels:GamePageViewModel">
     <Grid Name="MainGrid"
@@ -16,8 +16,35 @@
       <Interaction.Behaviors>
         <i:ZoomPanBehavior />
       </Interaction.Behaviors>
-      <w:GameCanvas CurrentMap="{Binding Map}"/>
-      <w:PlayerUI x:Name="PlayerUI" Focusable="False" IsHitTestVisible="False"/>
+      <w:GameCanvas CurrentMap="{Binding Map}" />
+      <w:PlayerUI x:Name="PlayerUI" Focusable="False"/>
+      <TextBlock HorizontalAlignment="Center" IsHitTestVisible="False"
+                 FontSize="32" FontWeight="Black"
+                 Text="{Binding ReminderText}"
+                 Tag="{Binding IsShowReminderText,Mode=OneWay}">
+        <TextBlock.Transitions>
+          <Transitions>
+            <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+            <TransformOperationsTransition  Property="RenderTransform" Duration="0:0:0.2" />
+          </Transitions>
+        </TextBlock.Transitions>
+        <TextBlock.Styles>
+          <Style Selector="TextBlock[Tag=True]">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="RenderTransform" Value="translateY(100px)"/>
+          </Style>
+          <Style Selector="TextBlock[Tag=False]">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="RenderTransform" Value="translateY(-20px)"/>
+          </Style>
+        </TextBlock.Styles>
+      </TextBlock>
+      <TextBlock Text="{Binding RollDiceValue}" FontSize="36"
+        HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock.Effect>
+         <DropShadowDirectionEffect Direction="0" BlurRadius="5" ShadowDepth="20" Color="Black"/>
+        </TextBlock.Effect>
+      </TextBlock>
     </Grid>
   </DataTemplate>
 </ResourceDictionary>

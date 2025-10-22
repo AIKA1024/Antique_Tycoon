@@ -22,7 +22,7 @@ public partial class GameRuleService : ObservableObject
   private readonly GameManager _gameManager;
   private readonly MapFileService _mapFileService;
   private int _currentTurnPlayerIndex;
-  private Player CurrentTurnPlayer => _gameManager.Players[_currentTurnPlayerIndex]; // 当前回合玩家
+  public Player CurrentTurnPlayer => _gameManager.Players[_currentTurnPlayerIndex]; // 当前回合玩家
 
   // 游戏状态（可绑定到UI）
   [ObservableProperty] public partial int CurrentRound { get; set; }
@@ -45,21 +45,7 @@ public partial class GameRuleService : ObservableObject
       if (message.Value == _gameManager.LocalPlayer)
         sfxPlayer.Play(turnStartSfx);
     });
-  }
-
-  /// <summary>
-  /// 启动游戏（初始化回合、资源）
-  /// </summary>
-  public async Task StartGameAsync()
-  {
-    CurrentRound = 1;
-    IsGameOver = false;
-    Winner = null;
-    // 初始化所有玩家现金（从地图配置读取初始金额）
-    foreach (var player in _gameManager.Players)
-      player.Money = _gameManager.SelectedMap!.StartingCash;
-    _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
-    await NotifyCurrentPlayerTurnStart();
+    WeakReferenceMessenger.Default.Register<InitGameMessage>(this, (_,message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
   }
 
   private async Task NotifyCurrentPlayerTurnStart()
@@ -69,8 +55,48 @@ public partial class GameRuleService : ObservableObject
     _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % _gameManager.Players.Count;
     WeakReferenceMessenger.Default.Send(new TurnStartMessage(CurrentTurnPlayer));
   }
-  
-  
+
+  /// <summary>
+  /// 启动游戏（初始化回合、资源）
+  /// </summary>
+  public async Task StartGameAsync()
+  {
+    if (!_gameManager.LocalPlayer.IsHomeowner)
+      return;
+    CurrentRound = 1;
+    IsGameOver = false;
+    Winner = null;
+    // 初始化所有玩家现金（从地图配置读取初始金额）
+    foreach (var player in _gameManager.Players)
+      player.Money = _gameManager.SelectedMap!.StartingCash;
+    // _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
+    _currentTurnPlayerIndex = 1;
+    await _gameManager.NetServerInstance.Broadcast(new InitGameMessageResponse(
+      _gameManager.Players,
+      _currentTurnPlayerIndex
+    ));
+    await NotifyCurrentPlayerTurnStart();
+  }
+
+
+  public async Task RollDiceAsync()
+  {
+    var selfPlayer = _gameManager.LocalPlayer;
+    if (selfPlayer.IsHomeowner)
+    {
+      if (selfPlayer != CurrentTurnPlayer)
+      {
+        WeakReferenceMessenger.Default.Send(new RollDiceMessage(selfPlayer.Uuid, 0,false));
+        return;
+      }
+      int rollValue = Random.Shared.Next(1, 7);
+      await _gameManager.NetServerInstance.Broadcast(new RollDiceResponse("", selfPlayer.Uuid, rollValue));
+      WeakReferenceMessenger.Default.Send(new RollDiceMessage(selfPlayer.Uuid, rollValue));
+    }
+    else
+      await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest());
+  }
+
 
   /// <summary>
   /// 玩家购买地产

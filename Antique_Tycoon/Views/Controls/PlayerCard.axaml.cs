@@ -1,3 +1,4 @@
+using Antique_Tycoon.Models;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
@@ -21,6 +22,9 @@ public partial class PlayerCard : UserControl
       PseudoClasses.Set(":turn", value);
     }
   }
+  
+  [GeneratedDirectProperty]
+  public partial Player Player { get; set; }
 
   public PlayerCard()
   {

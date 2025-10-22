@@ -1,3 +1,4 @@
+using System;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Services;
 using Avalonia.Media.Imaging;
@@ -29,6 +30,9 @@ public partial class LockerRoomDialogViewModel : DialogViewModelBase<Player?>
   private void ChangeRole(PlayerRole role)
   {
     Player.Role = role;
-    App.Current.Services.GetRequiredService<RoleStrategyFactory>().GetSoundStrategy(role).PlayHappySound();
+    if (Random.Shared.Next(0, 2) == 0)
+      App.Current.Services.GetRequiredService<RoleStrategyFactory>().GetSoundStrategy(role).PlayHappySound();
+    else
+      App.Current.Services.GetRequiredService<RoleStrategyFactory>().GetSoundStrategy(role).PlayUnhappySound();
   }
 }
