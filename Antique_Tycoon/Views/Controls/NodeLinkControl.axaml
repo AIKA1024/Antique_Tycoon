@@ -39,10 +39,10 @@
               <ItemsControl ItemsSource="{Binding PlayersHere}"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Height="26">
+                            >
                 <ItemsControl.ItemsPanel>
                   <ItemsPanelTemplate>
-                    <WrapPanel ItemSpacing="4" />
+                    <WrapPanel ItemSpacing="4" LineSpacing="4" />
                   </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>

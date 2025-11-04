@@ -38,12 +38,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.7" />
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.7" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.7" />
+        <PackageReference Include="Avalonia" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.8" />
         <PackageReference Include="Avalonia.ReactiveUI.Events" Version="0.10.22" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.7" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.7" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.8" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.1.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -51,8 +51,8 @@
         <PackageReference Include="LibVLCSharp" Version="3.9.4" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
         <PackageReference Include="ObservableCollections" Version="3.3.4" />
-        <PackageReference Include="PropertyGenerator.Avalonia" Version="1.2.4" />
-        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.6.5" />
+        <PackageReference Include="PropertyGenerator.Avalonia" Version="1.2.6" />
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.6.6" />
     </ItemGroup>
 
     <ItemGroup>

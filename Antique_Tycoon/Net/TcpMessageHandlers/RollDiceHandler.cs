@@ -27,8 +27,8 @@ public class RollDiceHandler(GameRuleService gameRuleService, GameManager gameMa
       if (gameRuleService.CurrentTurnPlayer.Uuid == clientPlayerUuid)
       {
         int value = Random.Shared.Next(1, 7);
-        await gameManager.NetServerInstance.SendResponseAsync(
-          new RollDiceResponse(rollDiceRequest.Id,clientPlayerUuid, value), client);
+        await gameManager.NetServerInstance.Broadcast(
+          new RollDiceResponse(rollDiceRequest.Id,clientPlayerUuid, value));
         WeakReferenceMessenger.Default.Send(new RollDiceMessage(clientPlayerUuid, value));
       }
        
