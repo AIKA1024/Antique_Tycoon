@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Antique_Tycoon": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}
