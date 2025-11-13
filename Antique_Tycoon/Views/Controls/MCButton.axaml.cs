@@ -3,32 +3,18 @@ using Avalonia;
 using Avalonia.Controls;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;
+using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Controls;
 
-public class McButton : Button
+public partial class McButton : Button
 {
-  private MediaPlayer _mediaPlayer;
+  private MediaPlayer _mediaPlayer = new MediaPlayer(App.Current.Services.GetRequiredService<LibVLC>());
   private static Media _pressedSound = new(App.Current.Services.GetRequiredService<LibVLC>(),"Assets/SFX/MCButtonPressed.mp3");
   // private static Media _pressedSound = new(App.Current.Services.GetRequiredService<LibVLC>(),"Assets/SFX/Sheep/HappySound1.ogg");
-  public McButton()
-  {
-    _mediaPlayer = new MediaPlayer(App.Current.Services.GetRequiredService<LibVLC>());
-  }
-  // 注册 DirectProperty
-  public static readonly DirectProperty<McButton, bool> IsPlaySoundProperty =
-    AvaloniaProperty.RegisterDirect<McButton, bool>(
-      nameof(IsPlaySound),   // 属性名
-      o => o.IsPlaySound,    // Getter 委托
-      (o, v) => o.IsPlaySound = v, // Setter 委托
-      true); // 默认值
-
-  // 公共属性
-  public bool IsPlaySound
-  {
-    get;
-    set => SetAndRaise(IsPlaySoundProperty, ref field, value);
-  }
+  
+  [GeneratedDirectProperty(true)]
+  public partial bool IsPlaySound { get; set; }
 
   protected override void OnClick()
   {

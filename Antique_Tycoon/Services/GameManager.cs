@@ -83,6 +83,9 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       throw new InvalidOperationException("客户端不能调用此方法");
     return _clientToPlayerId[client];
   }
+
+  public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
+  
   
   public async Task StartGameAsync()
   {

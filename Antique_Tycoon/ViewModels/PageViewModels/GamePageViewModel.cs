@@ -39,7 +39,16 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<RollDiceMessage>(this,async (_, message) =>
     {
       if (message.Success)
+      {
         RollDiceValue = message.DiceValue;
+        
+        //todo 这里可以有多个路线可以走，应该让玩家选择一下，才知道目的地的uuid是多少,还要和服务器再通信一次
+        
+        Player currentPlayer = _gameManager.GetPlayerByUuid(message.PlayerUuid);
+        WeakReferenceMessenger.Default.Send(
+          new PlayerMoveMessage(currentPlayer,currentPlayer.CurrentNodeUuId)
+        );
+      }
       else
       {
         await _dialogService.ShowDialogAsync(new MessageDialogViewModel

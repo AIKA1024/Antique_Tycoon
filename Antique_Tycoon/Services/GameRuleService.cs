@@ -66,9 +66,12 @@ public partial class GameRuleService : ObservableObject
     CurrentRound = 1;
     IsGameOver = false;
     Winner = null;
-    // 初始化所有玩家现金（从地图配置读取初始金额）
+    // 初始化所有玩家（从地图配置读取初始金额）
     foreach (var player in _gameManager.Players)
+    {
       player.Money = _gameManager.SelectedMap!.StartingCash;
+      player.CurrentNodeUuId = _gameManager.SelectedMap!.SpawnNodeUuid;
+    }
     // _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
     _currentTurnPlayerIndex = 1;
     await _gameManager.NetServerInstance.Broadcast(new InitGameMessageResponse(
