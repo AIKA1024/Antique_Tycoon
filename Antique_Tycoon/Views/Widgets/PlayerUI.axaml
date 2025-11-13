@@ -52,6 +52,7 @@
                     Padding="0"
                     Command="{Binding RollDiceCommand}"
                     HorizontalAlignment="Right" VerticalAlignment="Bottom">
+          <!--todo 这个资源还没提交 -->
           <Image Source="../../Assets/Image/GameUI/Dice.png" Width="128"/>
         </c:McButton>
       </Grid>

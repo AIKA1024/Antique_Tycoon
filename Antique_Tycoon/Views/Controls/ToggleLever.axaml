@@ -5,7 +5,7 @@
     <controls:ToggleLever />
   </Design.PreviewWith>
 
-  <ControlTheme>
+  <ControlTheme TargetType="controls:ToggleLever">
     <Setter Property="Template">
       <ControlTemplate>
         <TextBlock Text="Templated Control" />

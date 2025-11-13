@@ -156,4 +156,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       await NetServerInstance.SendResponseAsync(
         new DownloadMapResponse { Id = request.Id, ResponseStatus = RequestResult.Error }, client);
   }
+  
+  
 }

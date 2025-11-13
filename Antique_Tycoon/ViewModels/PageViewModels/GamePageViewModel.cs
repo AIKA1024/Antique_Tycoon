@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Services;
@@ -41,13 +42,21 @@ public partial class GamePageViewModel : PageViewModelBase
       if (message.Success)
       {
         RollDiceValue = message.DiceValue;
-        
-        //todo 这里可以有多个路线可以走，应该让玩家选择一下，才知道目的地的uuid是多少,还要和服务器再通信一次
-        
         Player currentPlayer = _gameManager.GetPlayerByUuid(message.PlayerUuid);
-        WeakReferenceMessenger.Default.Send(
-          new PlayerMoveMessage(currentPlayer,currentPlayer.CurrentNodeUuId)
-        );
+        var selectableNodes =
+          Map.GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, message.DiceValue);
+
+        await _dialogService.ShowDialogAsync(new MessageDialogViewModel()
+        {
+            Title = "可以选择的格子",
+            Message = string.Join(",", selectableNodes.Select(n=>n.Title))
+        });
+        
+        //todo 这里可以有多个路线可以走，应该显示ui让玩家选择一下，才知道目的地的uuid是多少,还要和服务器再通信一次
+        
+        // WeakReferenceMessenger.Default.Send(
+        //   new PlayerMoveMessage(currentPlayer,currentPlayer.CurrentNodeUuId)
+        // );
       }
       else
       {
