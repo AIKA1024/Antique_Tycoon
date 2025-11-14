@@ -241,6 +241,12 @@ public abstract class NetBase
       _ when type == typeof(InitGameMessageResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.InitGameMessageResponse,
         TcpMessageType.InitGameMessageResponse),
+      _ when type == typeof(PlayerMoveRequest) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.PlayerMoveRequest,
+        TcpMessageType.PlayerMoveRequest),
+      _ when type == typeof(PlayerMoveResponse) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.PlayerMoveResponse,
+        TcpMessageType.PlayerMoveResponse),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

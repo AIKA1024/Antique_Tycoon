@@ -126,6 +126,11 @@ public class NetClient : NetBase
         WeakReferenceMessenger.Default.Send(
           new InitGameMessage(initGameMessageResponse.Players, initGameMessageResponse.CurrentTurnPlayerIndex));
         break;
+      case TcpMessageType.PlayerMoveResponse:
+        var playerMoveResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveResponse);
+        response = playerMoveResponse;
+        WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(playerMoveResponse.PlayerUuid,playerMoveResponse.DestinationNodeUuid));
+        break;
     }
 
     if (response == null)

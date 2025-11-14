@@ -100,6 +100,11 @@ public partial class GameRuleService : ObservableObject
       await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest());
   }
 
+  public async Task PlayerMove(string nodeUuid)
+  {
+    await _gameManager.NetClientInstance.SendRequestAsync(new PlayerMoveRequest(_gameManager.LocalPlayer.Uuid, nodeUuid));
+  }
+
 
   /// <summary>
   /// 玩家购买地产

@@ -3,9 +3,8 @@ using Antique_Tycoon.Views.Controls;
 
 namespace Antique_Tycoon.Messages;
 
-public class PlayerMoveMessage(Player player, NodeLinkControl from, NodeLinkControl to)
+public class PlayerMoveMessage(string player,  string to)
 {
-  public Player Player { get; set; } = player;
-  public NodeLinkControl From { get; set; } = from;
-  public NodeLinkControl To { get; set; } = to;
+  public string PlayerUuid { get; set; } = player;
+  public string NodeToUuid { get; set; } = to;
 }

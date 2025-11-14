@@ -17,4 +17,6 @@ public enum TcpMessageType : ushort
   RollDiceRequest = 10,
   RollDiceResponse = 11,
   InitGameMessageResponse,
+  PlayerMoveRequest,
+  PlayerMoveResponse,
 }
