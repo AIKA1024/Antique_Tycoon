@@ -16,7 +16,11 @@
       <Interaction.Behaviors>
         <i:ZoomPanBehavior />
       </Interaction.Behaviors>
-      <w:GameCanvas CurrentMap="{Binding Map}" />
+      <w:GameCanvas CurrentMap="{Binding Map}">
+        <Interaction.Behaviors>
+          <i:GameCanvasMaskBehavior/>
+        </Interaction.Behaviors>
+      </w:GameCanvas>
       <w:PlayerUI x:Name="PlayerUI" Focusable="False"/>
       <TextBlock HorizontalAlignment="Center" IsHitTestVisible="False"
                  FontSize="32" FontWeight="Black"
@@ -39,7 +43,7 @@
           </Style>
         </TextBlock.Styles>
       </TextBlock>
-      <TextBlock Text="{Binding RollDiceValue}" FontSize="36"
+      <TextBlock Text="{Binding RollDiceValue}" FontSize="36" IsHitTestVisible="False"
         HorizontalAlignment="Center" VerticalAlignment="Center">
         <TextBlock.Effect>
          <DropShadowDirectionEffect Direction="0" BlurRadius="5" ShadowDepth="20" Color="Black"/>
