@@ -30,8 +30,8 @@ public class GameCanvasMaskBehavior : Behavior<GameCanvas>
             var maskBorder = new Border
             {
                 Background = Brushes.Black,
-                Opacity = 0.5,
-                ZIndex = 2,
+                Opacity = 0.6,
+                ZIndex = 1,
                 Width = _targetCanvas.Bounds.Width,
                 Height = _targetCanvas.Bounds.Height
             };

@@ -14,4 +14,5 @@ namespace Antique_Tycoon.Models.Node;
 public partial class CanvasItemModel:ObservableObject
 {
   [ObservableProperty] public partial string Uuid { get; set; } = Guid.NewGuid().ToString();
+  [ObservableProperty] public partial int ZIndex { get; set; }
 }
