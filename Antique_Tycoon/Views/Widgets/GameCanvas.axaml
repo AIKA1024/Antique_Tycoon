@@ -79,6 +79,7 @@
             Height="{Binding #Me.CurrentMap.CanvasHeight}"
             i:ShowFlyoutBehavior.PointerPosition="{Binding #Me.PointerPosition, Mode=OneWayToSource}"
             Background="{Binding #Me.CurrentMap.CanvasBackground, Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}">
+            <!-- 这个也可以放给行为来添加 -->
             <FlyoutBase.AttachedFlyout>
               <Flyout>
                 <StackPanel>
@@ -133,6 +134,9 @@
           </Setter>
         </Style>
         <Style x:DataType="node:NodeModel" Selector="c|XListBoxItem.NodeModel">
+          <Setter Property="i:Tap.Command" Value="{Binding #Me.NodeClickedCommand}"/>
+          <Setter Property="i:Tap.CommandParameter" Value="{Binding Uuid}"/>
+          <Setter Property="Background" Value="Transparent"/>
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Style Selector="^:selected">

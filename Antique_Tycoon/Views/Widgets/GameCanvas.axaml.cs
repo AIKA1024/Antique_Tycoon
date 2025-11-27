@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
+using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
@@ -18,6 +19,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
 
@@ -190,5 +192,12 @@ public partial class GameCanvas : UserControl
     if (target.Uuid == CurrentMap.SpawnNodeUuid)
       CurrentMap.SpawnNodeUuid = "";
     CurrentMap.Entities.Remove(target);
+  }
+
+  [RelayCommand]
+  private void NodeClicked(string uuid)//todo 不知道为什么不触发
+  {
+    WeakReferenceMessenger.Default.Send(
+      new NodeClickedMessage(uuid));
   }
 }
