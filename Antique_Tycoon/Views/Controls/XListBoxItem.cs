@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 
 namespace Antique_Tycoon.Views.Controls;
@@ -30,6 +31,7 @@ public class XListBoxItem : ListBoxItem
       var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
       if (!_dragging) // 点击而非拖动
       {
+        RaiseEvent(new TappedEventArgs(TappedEvent, e));
         if (!ctrl)
           SelectItem(e);
         else

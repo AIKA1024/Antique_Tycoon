@@ -195,7 +195,7 @@ public partial class GameCanvas : UserControl
   }
 
   [RelayCommand]
-  private void NodeClicked(string uuid)//todo 不知道为什么不触发
+  private void NodeClicked(string uuid)
   {
     WeakReferenceMessenger.Default.Send(
       new NodeClickedMessage(uuid));
