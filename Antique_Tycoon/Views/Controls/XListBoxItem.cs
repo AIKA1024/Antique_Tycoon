@@ -37,7 +37,7 @@ public class XListBoxItem : ListBoxItem
         else
         {
           var xListBox = this.FindAncestorOfType<XListBox>();
-          int index = xListBox?.SelectedItems.IndexOf(DataContext) ?? -1;
+          int index = xListBox?.SelectedItems?.IndexOf(DataContext) ?? -1;
           if (index > -1)
             xListBox?.SelectedItems?.RemoveAt(index);
           else

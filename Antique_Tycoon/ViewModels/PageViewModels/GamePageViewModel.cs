@@ -64,17 +64,18 @@ public partial class GamePageViewModel : PageViewModelBase
         });
         _isHighlightMode = true;
         foreach (var node in selectableNodes)
-        {
-          node.ZIndex = 2;
-        }
+          node.ZIndex = 2;//todo 感觉还是把这个设置为4好一点 遮罩设置为3好一点
         
         //todo 这里可以有多个路线可以走，应该显示ui让玩家选择一下，才知道目的地的uuid是多少,还要和服务器再通信一次
         var selectedNodeUuid = await AwaitNodeClickAsync();
-        await _dialogService.ShowDialogAsync(new MessageDialogViewModel()
+        await _dialogService.ShowDialogAsync(new MessageDialogViewModel
         {
           Title = "选择结果",
           Message = $"你选择了{((NodeModel)map.EntitiesDict[selectedNodeUuid]).Title}"
         });
+        
+        foreach (var node in selectableNodes)
+          node.ZIndex = 1;
         // WeakReferenceMessenger.Default.Send(
         //   new PlayerMoveMessage(currentPlayer,currentPlayer.CurrentNodeUuId)
         // );
