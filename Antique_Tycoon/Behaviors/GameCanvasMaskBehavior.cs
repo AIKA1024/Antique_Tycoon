@@ -31,7 +31,7 @@ public class GameCanvasMaskBehavior : Behavior<GameCanvas>
             {
                 Background = Brushes.Black,
                 Opacity = 0.6,
-                ZIndex = 1,
+                ZIndex = 3,
                 Width = _targetCanvas.Bounds.Width,
                 Height = _targetCanvas.Bounds.Height
             };

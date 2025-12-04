@@ -112,7 +112,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
       return;
     }
 
-    _gameManager.LocalPlayer.IsHomeowner = false;
+    _gameManager.LocalPlayer.IsRoomOwner = false;
     var mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(
       new RoomPageViewModel(mapFileService.LoadMap(mapDirPath),

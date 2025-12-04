@@ -10,13 +10,12 @@ namespace Antique_Tycoon.Models;
 
 public partial class Player : ObservableObject, IDisposable
 {
-  public string Uuid = Guid.NewGuid().ToString();
+  public string Uuid { get; set; } = Guid.NewGuid().ToString();
 
   [ObservableProperty] private string _name = "史蒂夫";
 
   [ObservableProperty] private int _money;
 
-  [JsonIgnore] 
   public string CurrentNodeUuId { get; set; } = "";
 
   [JsonIgnore] 
@@ -57,7 +56,7 @@ public partial class Player : ObservableObject, IDisposable
     }
   } = PlayerRole.Steve;
 
-  [ObservableProperty] public partial bool IsHomeowner { get; set; }
+  [ObservableProperty] public partial bool IsRoomOwner { get; set; }
 
   public void Dispose()
   {

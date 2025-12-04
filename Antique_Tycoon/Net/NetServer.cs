@@ -29,11 +29,15 @@ public class NetServer : NetBase
   private readonly Dictionary<TcpClient, long> _clientLastActiveTimes = [];
   private readonly Timer _timer = new();
   private readonly IEnumerable<ITcpMessageHandler> _messageHandlers;
-  /// <summary>
-  /// 服务器才会收到这个事件
-  /// </summary>
+#if Debug
+  public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(9999999999);
+#else
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
-
+#endif
+  
+  /// <summary>
+  /// 心跳包间隔
+  /// </summary>
   public TimeSpan CheckOutlineInterval
   {
     get;

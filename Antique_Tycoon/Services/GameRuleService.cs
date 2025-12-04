@@ -61,7 +61,7 @@ public partial class GameRuleService : ObservableObject
   /// </summary>
   public async Task StartGameAsync()
   {
-    if (!_gameManager.LocalPlayer.IsHomeowner)
+    if (!_gameManager.LocalPlayer.IsRoomOwner)
       return;
     CurrentRound = 1;
     IsGameOver = false;
@@ -72,8 +72,8 @@ public partial class GameRuleService : ObservableObject
       player.Money = _gameManager.SelectedMap!.StartingCash;
       player.CurrentNodeUuId = _gameManager.SelectedMap!.SpawnNodeUuid;
     }
-    _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
-    // _currentTurnPlayerIndex = 1;
+    // _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
+    _currentTurnPlayerIndex = 1;
     await _gameManager.NetServerInstance.Broadcast(new InitGameMessageResponse(
       _gameManager.Players,
       _currentTurnPlayerIndex
@@ -85,7 +85,7 @@ public partial class GameRuleService : ObservableObject
   public async Task RollDiceAsync()
   {
     var selfPlayer = _gameManager.LocalPlayer;
-    if (selfPlayer.IsHomeowner)
+    if (selfPlayer.IsRoomOwner)
     {
       if (selfPlayer != CurrentTurnPlayer)
       {
@@ -100,9 +100,15 @@ public partial class GameRuleService : ObservableObject
       await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest());
   }
 
-  public async Task PlayerMove(string nodeUuid)
+  public async Task PlayerMove(string destinationNodeUuid)
   {
-    await _gameManager.NetClientInstance.SendRequestAsync(new PlayerMoveRequest(_gameManager.LocalPlayer.Uuid, nodeUuid));
+    if (_gameManager.LocalPlayer.IsRoomOwner)
+    {
+      await _gameManager.NetServerInstance.Broadcast(new PlayerMoveResponse(_gameManager.LocalPlayer.Uuid, destinationNodeUuid));
+      WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(_gameManager.LocalPlayer.Uuid,destinationNodeUuid));
+    }
+    else
+      await _gameManager.NetClientInstance.SendRequestAsync(new PlayerMoveRequest(_gameManager.LocalPlayer.Uuid, destinationNodeUuid));
   }
 
 
@@ -130,7 +136,7 @@ public partial class GameRuleService : ObservableObject
     WeakReferenceMessenger.Default.Send(new EstateBoughtMessage(player, estate));
 
     // 联机场景：同步地产归属到其他客户端
-    if (!player.IsHomeowner)
+    if (!player.IsRoomOwner)
     {
       await _gameManager.NetClientInstance.SendRequestAsync(new UpdateEstateOwnerRequest
       {

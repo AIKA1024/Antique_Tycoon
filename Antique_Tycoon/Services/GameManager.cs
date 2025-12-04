@@ -68,7 +68,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public void SetupLocalPlayer()
   {
-    var localPlayer = new Player{IsHomeowner = true};
+    var localPlayer = new Player{IsRoomOwner = true};
     LocalPlayer = localPlayer;
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
   }
@@ -79,7 +79,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public string GetPlayerUuidByTcpClient(TcpClient client)
   {
-    if (!LocalPlayer.IsHomeowner)
+    if (!LocalPlayer.IsRoomOwner)
       throw new InvalidOperationException("客户端不能调用此方法");
     return _clientToPlayerId[client];
   }

@@ -56,7 +56,7 @@ public partial class RoomPageViewModel : PageViewModelBase
   public override void OnBacked()
   {
     base.OnBacked();
-    if (!LocalPlayer.IsHomeowner)
+    if (!LocalPlayer.IsRoomOwner)
       _gameManager.ExitRoom();
     _cancellationTokenSource?.Cancel();
   }

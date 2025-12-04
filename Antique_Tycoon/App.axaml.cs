@@ -74,6 +74,7 @@ public partial class App : Application
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
     services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();
     services.AddTransient<ITcpMessageHandler, RollDiceHandler>();
+    services.AddTransient<ITcpMessageHandler, PlayerMoveHandler>();
     services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<GameManager>(), DownloadMapPath));
     services.AddSingleton(sp => new Lazy<NetClient>(sp.GetRequiredService<NetClient>));
     services.AddSingleton<NetServer>(sp =>
