@@ -24,6 +24,7 @@ public class GameCanvasMaskBehavior : Behavior<GameCanvas>
     protected override void OnAttached()
     {
         base.OnAttached();
+        WeakReferenceMessenger.Default.Register<GameMaskShowMessage>(this,ReceiveGameMaskShowMessage);
         Dispatcher.UIThread.Post(() =>
         {
             var listBox = AssociatedObject.FindLogicalDescendantOfType<XListBox>();
@@ -43,8 +44,6 @@ public class GameCanvasMaskBehavior : Behavior<GameCanvas>
             Canvas.SetTop(_targetMaskBorder, 0);
             _targetCanvas.Children.Add(_targetMaskBorder);
         });
-        
-        WeakReferenceMessenger.Default.Register<GameMaskShowMessage>(this,ReceiveGameMaskShowMessage);
     }
 
     private void ReceiveGameMaskShowMessage(object recipient, GameMaskShowMessage message)

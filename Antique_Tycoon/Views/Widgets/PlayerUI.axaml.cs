@@ -12,6 +12,7 @@ namespace Antique_Tycoon.Views.Widgets;
 
 public partial class PlayerUI : UserControl
 {
+  
   public PlayerUI()
   {
     InitializeComponent();
@@ -37,7 +38,6 @@ public partial class PlayerUI : UserControl
         UpdatePlayerInfo(player, data);
       }
     });
-
     WeakReferenceMessenger.Default.Register<UpdatePlayerInfoMessage>(this, (_, m) =>
     {
       if (playerUiViewModel.LocalPlayer.Uuid == m.Value.Uuid)
@@ -50,6 +50,8 @@ public partial class PlayerUI : UserControl
       UpdatePlayerInfo(player, m.Value);
     });
   }
+
+
 
   private void UpdatePlayerInfo(Player target, Player data)
   {

@@ -48,7 +48,7 @@ public partial class GameRuleService : ObservableObject
     WeakReferenceMessenger.Default.Register<InitGameMessage>(this, (_,message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
   }
 
-  private async Task NotifyCurrentPlayerTurnStart()
+  private async Task NotifyCurrentPlayerTurnStart()//todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
   {
     var turnStartResponse = new TurnStartResponse { Player = CurrentTurnPlayer };
     await _gameManager.NetServerInstance.Broadcast(turnStartResponse);
@@ -78,6 +78,7 @@ public partial class GameRuleService : ObservableObject
       _gameManager.Players,
       _currentTurnPlayerIndex
     ));
+    await Task.Delay(1000);// 等待各监听事件绑定完成
     await NotifyCurrentPlayerTurnStart();
   }
 
