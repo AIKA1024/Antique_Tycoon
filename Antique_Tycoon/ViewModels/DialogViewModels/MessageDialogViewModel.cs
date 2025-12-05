@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
-public partial class MessageDialogViewModel : DialogViewModelBase<bool?>
+public partial class MessageDialogViewModel : DialogViewModelBase<bool>
 {
   [ObservableProperty] public partial string Title { get; set; } = "";
   [ObservableProperty] public partial string Message { get; set; } = "";
