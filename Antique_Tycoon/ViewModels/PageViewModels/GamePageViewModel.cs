@@ -101,27 +101,22 @@ public partial class GamePageViewModel : PageViewModelBase
             Player currentPlayer = _gameManager.GetPlayerByUuid(message.PlayerUuid);
             var selectableNodes =
                 Map.GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, message.DiceValue).ToArray();
-
-            await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-            {
-                Title = "可以选择的格子",
-                Message = string.Join(",", selectableNodes.Select(n => n.Title))
-            });
+            WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(true));
+            // await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+            // {
+            //     Title = "可以选择的格子",
+            //     Message = string.Join(",", selectableNodes.Select(n => n.Title))
+            // });
             _isHighlightMode = true;
             foreach (var node in selectableNodes)
-                node.ZIndex = 4; //todo 遮罩还有一点小问题
+                node.ZIndex = 4;
 
             var selectedNodeUuid = await AwaitNodeClickAsync();
             await _gameRuleService.PlayerMove(selectedNodeUuid);
-            // await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-            // {
-            //     Title = "选择结果",
-            //     Message = $"你选择了{((NodeModel)Map.EntitiesDict[selectedNodeUuid]).Title}"
-            // });
-
             foreach (var node in selectableNodes)
                 node.ZIndex = 1;
             _isHighlightMode = false;
+            WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(false));
         }
         else
         {
@@ -141,5 +136,6 @@ public partial class GamePageViewModel : PageViewModelBase
         NodeModel destinationModelmodel = (NodeModel)Map.EntitiesDict[message.DestinationNodeUuid];
         currentModelmodel.PlayersHere.Remove(player);
         destinationModelmodel.PlayersHere.Add(player);
+        player.CurrentNodeUuId = destinationModelmodel.Uuid;
     }
 }
