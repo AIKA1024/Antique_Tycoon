@@ -142,7 +142,7 @@
           <Style Selector="^:selected">
             <Setter Property="ZIndex" Value="2" />
             <Style Selector="^ /template/ ContentPresenter>c|NodeLinkControl">
-              <Setter Property="BorderBrush" Value="#1e90ff" />
+              <Setter Property="BorderBrush" Value="{StaticResource NodeSelectedBrush}" />
             </Style>
           </Style>
         </Style>

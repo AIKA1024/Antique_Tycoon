@@ -154,7 +154,6 @@ public partial class GameCanvas : UserControl
               Left = PointerPosition.X,
               Top = PointerPosition.Y,
               Title = "玩家出生点",
-              Background = CurrentMap.NodeDefaultBackground
             };
             CurrentMap.Entities.Add(spawnPoint);
             CurrentMap.SpawnNodeUuid = spawnPoint.Uuid;
@@ -173,7 +172,6 @@ public partial class GameCanvas : UserControl
             Left = PointerPosition.X,
             Top = PointerPosition.Y,
             Title = "某生态群系",
-            Background = CurrentMap.NodeDefaultBackground
           });
           break;
         case "自定义事件":

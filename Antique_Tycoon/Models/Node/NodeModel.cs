@@ -43,12 +43,12 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
     set => SetProperty(ref field, value);
   } = 150;
 
-  [JsonConverter(typeof(ColorJsonConverter))]
-  public Color Background
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = Color.Parse("#eccc68");
+  // [JsonConverter(typeof(ColorJsonConverter))]
+  // public Color Background
+  // {
+  //   get;
+  //   set => SetProperty(ref field, value);
+  // } = Color.Parse("#eccc68");
 
   public Stretch CoverStretch
   {

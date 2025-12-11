@@ -40,9 +40,9 @@ public partial class Map : ObservableObject
   [JsonConverter(typeof(ColorJsonConverter))]
   public partial Color CanvasBackground { get; set; } = Color.Parse("#262626");
 
-  [ObservableProperty]
-  [JsonConverter(typeof(ColorJsonConverter))]
-  public partial Color NodeDefaultBackground { get; set; } = Color.Parse("#eccc68");
+  // [ObservableProperty]
+  // [JsonConverter(typeof(ColorJsonConverter))]
+  // public partial Color NodeDefaultBackground { get; set; } = Color.Parse("#eccc68");
 
   [JsonIgnore] public NodeModel SpawnNode => (NodeModel)EntitiesDict[SpawnNodeUuid];
   

@@ -41,6 +41,7 @@ public partial class GamePageViewModel : PageViewModelBase
         WeakReferenceMessenger.Default.Register<InitGameMessage>(this, ReceiveInitGameMessage);
         WeakReferenceMessenger.Default.Register<RollDiceMessage>(this, ReceiveRollDiceMessage);
         WeakReferenceMessenger.Default.Register<PlayerMoveMessage>(this, ReceivePlayerMoveMessage);
+        WeakReferenceMessenger.Default.Register<UpdateEstateInfoMessage>(this, ReceiveUpdateEstateInfoMessage);
     }
 
     private async Task<string> AwaitNodeClickAsync()
@@ -137,5 +138,12 @@ public partial class GamePageViewModel : PageViewModelBase
         currentModelmodel.PlayersHere.Remove(player);
         destinationModelmodel.PlayersHere.Add(player);
         player.CurrentNodeUuId = destinationModelmodel.Uuid;
+    }
+
+    private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoMessage message)
+    {
+        var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
+        estate.Owner = _gameManager.GetPlayerByUuid(message.PlayerUuid);
+        estate.Level = message.Level;
     }
 }

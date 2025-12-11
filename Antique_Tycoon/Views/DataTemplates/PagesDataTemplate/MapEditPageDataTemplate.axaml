@@ -70,11 +70,6 @@
                         Classes="MCTextbox"
                         Text="{Binding SelectedMapEntity.Height}" />
                     </c:McContentControl>
-                    <c:McContentControl Header="背景色">
-                      <ColorPicker
-                        Color="{Binding SelectedMapEntity.Background,Mode=TwoWay}"
-                        HorizontalAlignment="Left" />
-                    </c:McContentControl>
                     <c:McContentControl Header="图片">
                       <StackPanel Orientation="Horizontal" Spacing="16">
                         <c:McButton Content="选择图片" Classes="ore" Padding="12 8"
@@ -110,11 +105,6 @@
                 <c:McContentControl Header="画布背景色">
                   <ColorPicker
                     Color="{Binding CurrentMap.CanvasBackground}"
-                    HorizontalAlignment="Left" />
-                </c:McContentControl>
-                <c:McContentControl Header="节点默认背景色">
-                  <ColorPicker
-                    Color="{Binding CurrentMap.NodeDefaultBackground,Mode=TwoWay}"
                     HorizontalAlignment="Left" />
                 </c:McContentControl>
               </StackPanel>

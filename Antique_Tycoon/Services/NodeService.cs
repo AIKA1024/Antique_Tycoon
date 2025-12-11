@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Request;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 
@@ -8,7 +10,7 @@ namespace Antique_Tycoon.Services;
 
 public class NodeService(DialogService dialogService)
 {
-    public async Task<Action<GameManager>?> HandleStepOnNodeLocalAsync(NodeModel node, Player player)
+    public async Task<Func<GameManager,Task>?> HandleStepOnNodeLocalAsync(NodeModel node, Player player)
     {
         switch (node)
         {
@@ -21,21 +23,32 @@ public class NodeService(DialogService dialogService)
         return null;
     }
 
-    private async Task<Action<GameManager>?> HandleEstateAsync(Estate estate, Player player)
+    private async Task<Func<GameManager,Task>?> HandleEstateAsync(Estate estate, Player player)
     {
-        if (estate.Owner==null && player.Money >= estate.Value)
-        { 
-            bool result = await dialogService.ShowDialogAsync(new MessageDialogViewModel
-                { Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}",IsShowCancelButton = true,IsLightDismissEnabled = false});
-            if (result)
-                return gameManager =>
+        if (estate.Owner == null && player.Money >= estate.Value)
+        {
+            bool isConfirm = await dialogService.ShowDialogAsync(new MessageDialogViewModel
+            {
+                Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
+                IsLightDismissEnabled = false
+            });
+            if (isConfirm)
+                return async gameManager =>
                 {
                     if (gameManager.LocalPlayer.IsRoomOwner)
                     {
-                        //gameManager.NetServerInstance.Broadcast() todo 广播购买地产
+                        player.Money -= estate.Value;
+                        var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+                        await gameManager.NetServerInstance.Broadcast(message);
+                    }
+                    else
+                    {
+                        var message = new UpdateEstateInfoRequest(player.Uuid, estate.Uuid);
+                        await gameManager.NetClientInstance.SendRequestAsync(message);
                     }
                 };
         }
+
         return null;
     }
 }

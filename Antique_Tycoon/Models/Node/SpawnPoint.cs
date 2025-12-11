@@ -1,4 +1,6 @@
+using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Models.Node;
 

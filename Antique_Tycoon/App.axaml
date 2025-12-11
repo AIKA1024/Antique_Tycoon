@@ -4,6 +4,15 @@
              RequestedThemeVariant="Dark">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <MergeResourceInclude Source="/Views/DataTemplates/AllPageDataTemplate.axaml" />
+        <MergeResourceInclude Source="Themes/Colors.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+  
   <Application.Styles>
     <FluentTheme />
   </Application.Styles>
@@ -17,14 +26,7 @@
     <!-- <StyleInclude Source="Views/Styles/MenuFlyoutPresenter.axaml" /> -->
     <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
   </Application.Styles>
-  <Application.Resources>
-    <ResourceDictionary>
-      <ResourceDictionary.MergedDictionaries>
-        <MergeResourceInclude Source="/Views/DataTemplates/AllPageDataTemplate.axaml" />
-        <MergeResourceInclude Source="Themes/Colors.axaml"/>
-      </ResourceDictionary.MergedDictionaries>
-    </ResourceDictionary>
-  </Application.Resources>
+
   
   <Application.DataTemplates>
     <StaticResource ResourceKey="CreateRoomPageDataTemplate"/>

@@ -5,6 +5,10 @@
   <Color x:Key="LightedBorderColor">#5A5B5C</Color>
   <Color x:Key="BorderBackgroundColor">#48494A</Color>
   <Color x:Key="BorderBottomColor">#323334</Color>
+  <SolidColorBrush x:Key="UnownedEstateBrush" Color="#eccc68"/>
+  <SolidColorBrush x:Key="MyEstateBrush" Color="#2ed573"/>
+  <SolidColorBrush x:Key="OpponentEstateBrush" Color="#ff6b81"/>
+  <SolidColorBrush x:Key="NodeSelectedBrush" Color="#70a1ff"/>
   <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
   <SolidColorBrush x:Key="LightedBorderBrush" Color="{StaticResource LightedBorderColor}" />
   <SolidColorBrush x:Key="BorderBackgroundBrush" Color="{StaticResource BorderBackgroundColor}" />

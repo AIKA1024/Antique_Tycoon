@@ -14,7 +14,7 @@
     <Setter Property="Padding" Value="16" />
     <Setter Property="BorderThickness" Value="2" />
     <Setter Property="CornerRadius" Value="4" />
-    <Setter Property="Background" Value="#ECCC68" />
+    <Setter Property="Background" Value="{Binding Owner.Uuid,Converter={cv:OwnerToBackgroundConverter},FallbackValue={StaticResource UnownedEstateBrush}}" />
     <Setter Property="Foreground" Value="Black" />
     <Setter Property="NodeModel" Value="{Binding}" />
     <Setter Property="LineCanvas" Value="{Binding RelativeSource={RelativeSource AncestorType=Canvas}}" />
@@ -25,13 +25,12 @@
           Height="{Binding Height}"
           TextElement.Foreground="{TemplateBinding Foreground}">
           <Border
+            Background="{TemplateBinding Background}"
             Padding="{TemplateBinding Padding}"
-            Background="{Binding Background, Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}"
             BorderBrush="{TemplateBinding BorderBrush}"
             BorderThickness="{TemplateBinding BorderThickness}"
             ClipToBounds="True"
             CornerRadius="{TemplateBinding CornerRadius}">
-
             <Panel>
               <ContentPresenter Content="{TemplateBinding Content}"
                                 ContentTemplate="{TemplateBinding ContentTemplate}" />
@@ -48,9 +47,15 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate DataType="models:Player">
                     <Border BorderBrush="White" BorderThickness="1"
+                            CornerRadius="2"
+                            ClipToBounds="True"
                             ToolTip.Tip="{Binding Name}">
                       <Image Source="{Binding Avatar}"
-                             Height="24" />
+                             Height="24">
+                        <Image.Clip>
+                          <RectangleGeometry Rect="0,0,24,24" RadiusX="2" RadiusY="2"/>
+                        </Image.Clip>
+                      </Image>
                     </Border>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -58,11 +63,21 @@
             </Panel>
           </Border>
 
-          <Border BorderBrush="White" BorderThickness="1"
+          <Border 
+            CornerRadius="2"
+            Margin="2 2 0 0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            ClipToBounds="True"
+            BorderBrush="White" BorderThickness="1"  
                   IsVisible="{Binding Owner,Converter={x:Static ObjectConverters.IsNotNull}}"
                   ToolTip.Tip="{Binding Owner.Name,StringFormat={}{0}的资产}">
             <Image Source="{Binding Owner.Avatar}"
-                   Height="16" />
+                   Height="16">
+              <Image.Clip>
+                <RectangleGeometry Rect="0,0,16,16" RadiusX="2" RadiusY="2"/>
+              </Image.Clip>
+            </Image>
           </Border>
 
 
