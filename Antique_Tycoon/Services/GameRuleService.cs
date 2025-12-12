@@ -74,8 +74,8 @@ public partial class GameRuleService : ObservableObject
             player.CurrentNodeUuId = _gameManager.SelectedMap!.SpawnNodeUuid;
         }
 
-        _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
-        // _currentTurnPlayerIndex = 1;
+        // _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
+        _currentTurnPlayerIndex = 1;
         await _gameManager.NetServerInstance.Broadcast(new InitGameMessageResponse(
             _gameManager.Players,
             _currentTurnPlayerIndex

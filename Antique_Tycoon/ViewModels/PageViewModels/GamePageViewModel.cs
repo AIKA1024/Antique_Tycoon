@@ -18,6 +18,7 @@ public partial class GamePageViewModel : PageViewModelBase
     private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
     private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
     private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
+    private readonly NodeService _nodeService= App.Current.Services.GetRequiredService<NodeService>();
 
     [ObservableProperty] private string _reminderText = "轮到你啦";
     [ObservableProperty] private int _rollDiceValue;
@@ -102,22 +103,22 @@ public partial class GamePageViewModel : PageViewModelBase
             Player currentPlayer = _gameManager.GetPlayerByUuid(message.PlayerUuid);
             var selectableNodes =
                 Map.GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, message.DiceValue).ToArray();
-            WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(true));
-            // await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-            // {
-            //     Title = "可以选择的格子",
-            //     Message = string.Join(",", selectableNodes.Select(n => n.Title))
-            // });
-            _isHighlightMode = true;
-            foreach (var node in selectableNodes)
-                node.ZIndex = 4;
+            if (selectableNodes.Length == 1)
+                await _gameRuleService.PlayerMove(selectableNodes[0].Uuid);
+            else if (selectableNodes.Length > 1)
+            {
+                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(true));
+                _isHighlightMode = true;
+                foreach (var node in selectableNodes)
+                    node.ZIndex = 4;
 
-            var selectedNodeUuid = await AwaitNodeClickAsync();
-            await _gameRuleService.PlayerMove(selectedNodeUuid);
-            foreach (var node in selectableNodes)
-                node.ZIndex = 1;
-            _isHighlightMode = false;
-            WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(false));
+                var selectedNodeUuid = await AwaitNodeClickAsync();
+                await _gameRuleService.PlayerMove(selectedNodeUuid);
+                foreach (var node in selectableNodes)
+                    node.ZIndex = 1;
+                _isHighlightMode = false;
+                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(false));
+            }
         }
         else
         {
@@ -129,7 +130,7 @@ public partial class GamePageViewModel : PageViewModelBase
         }
     }
 
-    private void ReceivePlayerMoveMessage(object sender, PlayerMoveMessage message)
+    private async void ReceivePlayerMoveMessage(object sender, PlayerMoveMessage message)
     {
         Player player = _gameManager.GetPlayerByUuid(message.PlayerUuid);
         string playerCurrentNodeUuid = player.CurrentNodeUuId;
@@ -138,6 +139,13 @@ public partial class GamePageViewModel : PageViewModelBase
         currentModelmodel.PlayersHere.Remove(player);
         destinationModelmodel.PlayersHere.Add(player);
         player.CurrentNodeUuId = destinationModelmodel.Uuid;
+
+        if (player ==  _gameManager.LocalPlayer)
+        {
+            var func = await _nodeService.HandleStepOnNodeLocalAsync(destinationModelmodel, player);
+            if (func!=null)
+                await func.Invoke(_gameManager);
+        }
     }
 
     private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoMessage message)

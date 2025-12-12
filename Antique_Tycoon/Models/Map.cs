@@ -32,6 +32,8 @@ public partial class Map : ObservableObject
   
   [ObservableProperty] public partial int StartingCash { get; set; } = 10000;
   
+  [ObservableProperty] public partial int SpawnPointCashReward  { get; set; } = 2000;
+  
   [ObservableProperty]
   [JsonIgnore]// 这个值通过另外的Hash文件读取
   public partial string Hash { get; set; } = "";
@@ -39,10 +41,6 @@ public partial class Map : ObservableObject
   [ObservableProperty]
   [JsonConverter(typeof(ColorJsonConverter))]
   public partial Color CanvasBackground { get; set; } = Color.Parse("#262626");
-
-  // [ObservableProperty]
-  // [JsonConverter(typeof(ColorJsonConverter))]
-  // public partial Color NodeDefaultBackground { get; set; } = Color.Parse("#eccc68");
 
   [JsonIgnore] public NodeModel SpawnNode => (NodeModel)EntitiesDict[SpawnNodeUuid];
   

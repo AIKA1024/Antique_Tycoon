@@ -14,7 +14,7 @@
     <Setter Property="Padding" Value="16" />
     <Setter Property="BorderThickness" Value="2" />
     <Setter Property="CornerRadius" Value="4" />
-    <Setter Property="Background" Value="{Binding Owner.Uuid,Converter={cv:OwnerToBackgroundConverter},FallbackValue={StaticResource UnownedEstateBrush}}" />
+    <Setter Property="Background" Value="{Binding Owner,Converter={cv:OwnerToBackgroundConverter},FallbackValue={StaticResource UnownedEstateBrush}}" />
     <Setter Property="Foreground" Value="Black" />
     <Setter Property="NodeModel" Value="{Binding}" />
     <Setter Property="LineCanvas" Value="{Binding RelativeSource={RelativeSource AncestorType=Canvas}}" />
