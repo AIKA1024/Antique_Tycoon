@@ -13,7 +13,7 @@ namespace Antique_Tycoon.Services;
 
 public class NodeService(DialogService dialogService)
 {
-    public async Task<Func<GameManager,Task>?> HandleStepOnNodeLocalAsync(NodeModel node, Player player)
+    public async Task<Func<GameManager,Task>?> GetStepOnNodeHandlerAsync(NodeModel node, Player player)
     {
         switch (node)
         {
@@ -21,7 +21,6 @@ public class NodeService(DialogService dialogService)
                 return await HandleEstateAsync(estate, player);
             case SpawnPoint:
                 return await HandleSpawnPointAsync(player);
-                break;
         }
 
         return null;

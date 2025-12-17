@@ -10,7 +10,7 @@
       <ContentControl.DataTemplates>
         <StaticResource ResourceKey="LockerRoomDialogDataTemplate" />
       </ContentControl.DataTemplates>
-      <dvm:CreateMapDialogViewModel />
+      <dvm:LockerRoomDialogViewModel />
     </ContentControl>
   </Design.PreviewWith>
 
@@ -34,7 +34,7 @@
           <TextBox Margin="16"
                    Classes="MCTextbox"
                    Watermark="名称"
-                   Text="{Binding Player.Name}" />
+                   Text="{Binding Player.Name,Mode=TwoWay}" />
           <Image Margin="16"
                  Source="{Binding Player.Avatar}" Width="64" />
 

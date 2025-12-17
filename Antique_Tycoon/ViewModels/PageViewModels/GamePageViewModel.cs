@@ -142,7 +142,7 @@ public partial class GamePageViewModel : PageViewModelBase
 
         if (player ==  _gameManager.LocalPlayer)
         {
-            var func = await _nodeService.HandleStepOnNodeLocalAsync(destinationModelmodel, player);
+            var func = await _nodeService.GetStepOnNodeHandlerAsync(destinationModelmodel, player);
             if (func!=null)
                 await func.Invoke(_gameManager);
         }

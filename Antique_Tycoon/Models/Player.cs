@@ -31,7 +31,7 @@ public partial class Player : ObservableObject, IDisposable
   public PlayerRole Role // todo 违反了开闭原则，但小项目不管了
   {
     // ReSharper disable once PropertyFieldKeywordIsNeverAssigned
-    get => field;
+    get;
     set
     {
       Avatar.Dispose();
@@ -53,6 +53,7 @@ public partial class Player : ObservableObject, IDisposable
           AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Zombie.png")), 64),
         _ => Avatar
       };
+      field = value;
     }
   } = PlayerRole.Steve;
 
