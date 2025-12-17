@@ -49,7 +49,7 @@ public class NodeService(DialogService dialogService)
                     }
                     else
                     {
-                        var message = new UpdateEstateInfoRequest(player.Uuid, estate.Uuid);
+                        var message = new UpdateEstateInfoRequest(player.Uuid, estate.Uuid);//todo 服务器还没有处理这个消息
                         await gameManager.NetClientInstance.SendRequestAsync(message);
                     }
                 };

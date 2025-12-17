@@ -26,7 +26,7 @@ public partial class PlayerUiViewModel:PageViewModelBase
   
   private void ReceiveTurnStartMessage(object recipient, TurnStartMessage message)//todo 可能需要定期问服务器到自己没，因为网络不可靠
   {
-    if (message.Value == LocalPlayer)
+    if (message.Value == LocalPlayer.Uuid)
       IsRollButtonEnable = true;
   }
   

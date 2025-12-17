@@ -9,7 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;
 
-public class PlayerMoveHandler(GameManager gameManager):ITcpMessageHandler
+public class PlayerMoveHandler(GameRuleService gameRuleService,GameManager gameManager):ITcpMessageHandler
 {
     public bool CanHandle(TcpMessageType messageType) =>  messageType == TcpMessageType.PlayerMoveRequest;
 
@@ -19,6 +19,8 @@ public class PlayerMoveHandler(GameManager gameManager):ITcpMessageHandler
         {
             await gameManager.NetServerInstance.Broadcast(new PlayerMoveResponse(playerMoveRequest.PlayerUuid,playerMoveRequest.DestinationNodeUuid));
             WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(playerMoveRequest.PlayerUuid,playerMoveRequest.DestinationNodeUuid));
+            if (playerMoveRequest.IsEndTurn)
+               await gameRuleService.AdvanceToNextPlayerTurnAsync();
         }
     }
 }

@@ -3,4 +3,4 @@ using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.Messages;
 
-public class TurnStartMessage(Player value): ValueChangedMessage<Player>(value);
+public class TurnStartMessage(string value): ValueChangedMessage<string>(value);

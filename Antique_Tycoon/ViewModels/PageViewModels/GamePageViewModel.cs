@@ -71,7 +71,7 @@ public partial class GamePageViewModel : PageViewModelBase
     private void ReceiveTurnStartMessage(object sender, TurnStartMessage message)
     {
         IsShowReminderText = false;
-        if (message.Value == _gameManager.LocalPlayer)
+        if (message.Value == _gameManager.LocalPlayer.Uuid)
             IsShowReminderText = true;
     }
 

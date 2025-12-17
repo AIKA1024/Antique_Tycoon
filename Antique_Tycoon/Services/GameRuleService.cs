@@ -42,19 +42,19 @@ public partial class GameRuleService : ObservableObject
         WeakReferenceMessenger.Default.Register<GameStartMessage>(this, async (_, _) => await StartGameAsync());
         WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, (_, message) =>
         {
-            if (message.Value == _gameManager.LocalPlayer)
+            if (message.Value == _gameManager.LocalPlayer.Uuid)
                 sfxPlayer.Play(turnStartSfx);
         });
         WeakReferenceMessenger.Default.Register<InitGameMessage>(this,
             (_, message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
     }
 
-    private async Task NotifyCurrentPlayerTurnStart() //todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
+    public async Task AdvanceToNextPlayerTurnAsync() //todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
     {
-        var turnStartResponse = new TurnStartResponse { Player = CurrentTurnPlayer };
-        await _gameManager.NetServerInstance.Broadcast(turnStartResponse);
         _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % _gameManager.Players.Count;
-        WeakReferenceMessenger.Default.Send(new TurnStartMessage(CurrentTurnPlayer));
+        var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
+        await _gameManager.NetServerInstance.Broadcast(turnStartResponse);
+        WeakReferenceMessenger.Default.Send(new TurnStartMessage(CurrentTurnPlayer.Uuid));
     }
 
     /// <summary>
@@ -74,16 +74,15 @@ public partial class GameRuleService : ObservableObject
             player.CurrentNodeUuId = _gameManager.SelectedMap!.SpawnNodeUuid;
         }
 
-        // _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
-        _currentTurnPlayerIndex = 1;
+        _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
+        // _currentTurnPlayerIndex = 1;
         await _gameManager.NetServerInstance.Broadcast(new InitGameMessageResponse(
             _gameManager.Players,
             _currentTurnPlayerIndex
         ));
-        await Task.Delay(1000); // 等待各监听事件绑定完成
-        await NotifyCurrentPlayerTurnStart();
+        await Task.Yield(); // 等待各监听事件绑定完成
+        await AdvanceToNextPlayerTurnAsync();
     }
-
 
     public async Task RollDiceAsync()
     {

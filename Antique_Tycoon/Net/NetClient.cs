@@ -112,7 +112,7 @@ public class NetClient : NetBase
             case TcpMessageType.TurnStartResponse:
                 var turnStartResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.TurnStartResponse);
                 response = turnStartResponse;
-                WeakReferenceMessenger.Default.Send(new TurnStartMessage(turnStartResponse.Player));
+                WeakReferenceMessenger.Default.Send(new TurnStartMessage(turnStartResponse.PlayerUuid));
                 break;
             case TcpMessageType.RollDiceResponse:
                 var rollDiceResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceResponse);
