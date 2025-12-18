@@ -19,8 +19,6 @@ public class PlayerMoveHandler(GameRuleService gameRuleService,GameManager gameM
         {
             await gameManager.NetServerInstance.Broadcast(new PlayerMoveResponse(playerMoveRequest.PlayerUuid,playerMoveRequest.DestinationNodeUuid));
             WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(playerMoveRequest.PlayerUuid,playerMoveRequest.DestinationNodeUuid));
-            if (playerMoveRequest.IsEndTurn)
-               await gameRuleService.AdvanceToNextPlayerTurnAsync();
         }
     }
 }

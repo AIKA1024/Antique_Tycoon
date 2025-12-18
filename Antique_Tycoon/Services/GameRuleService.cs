@@ -49,7 +49,7 @@ public partial class GameRuleService : ObservableObject
             (_, message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
     }
 
-    public async Task AdvanceToNextPlayerTurnAsync() //todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
+    private async Task AdvanceToNextPlayerTurnAsync() //todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
     {
         _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % _gameManager.Players.Count;
         var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
@@ -86,6 +86,7 @@ public partial class GameRuleService : ObservableObject
 
     public async Task RollDiceAsync()
     {
+        int rollValue;
         var selfPlayer = _gameManager.LocalPlayer;
         if (selfPlayer.IsRoomOwner)
         {
@@ -95,12 +96,43 @@ public partial class GameRuleService : ObservableObject
                 return;
             }
 
-            int rollValue = Random.Shared.Next(1, 7);
+            rollValue = Random.Shared.Next(1, 7);
             await _gameManager.NetServerInstance.Broadcast(new RollDiceResponse("", selfPlayer.Uuid, rollValue));
-            WeakReferenceMessenger.Default.Send(new RollDiceMessage(selfPlayer.Uuid, rollValue));
+            WeakReferenceMessenger.Default.Send(new RollDiceMessage(selfPlayer.Uuid, rollValue));// 直接把逻辑在这里处理，别让gamepageviewmodel处理了
         }
         else
-            await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest());
+            rollValue = ((RollDiceResponse)await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest())).DiceValue;
+        
+        if (message.Success)
+        {
+            Player currentPlayer = _gameManager.GetPlayerByUuid(message.PlayerUuid);
+            var selectableNodes =
+                Map.GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, message.DiceValue).ToArray();
+            if (selectableNodes.Length == 1)
+                await _gameRuleService.PlayerMove(selectableNodes[0].Uuid);
+            else if (selectableNodes.Length > 1)
+            {
+                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(true));
+                _isHighlightMode = true;
+                foreach (var node in selectableNodes)
+                    node.ZIndex = 4;
+
+                var selectedNodeUuid = await AwaitNodeClickAsync();
+                await _gameRuleService.PlayerMove(selectedNodeUuid);
+                foreach (var node in selectableNodes)
+                    node.ZIndex = 1;
+                _isHighlightMode = false;
+                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(false));
+            }
+        }
+        else
+        {
+            await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+            {
+                Title = "错误",
+                Message = "投骰子失败，可能现在还没轮到你"
+            });
+        }
     }
 
     public async Task PlayerMove(string destinationNodeUuid)
