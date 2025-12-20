@@ -5,7 +5,9 @@ using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
@@ -18,173 +20,83 @@ namespace Antique_Tycoon.Services;
 /// </summary>
 public partial class GameRuleService : ObservableObject
 {
-    private readonly RoleStrategyFactory _strategyFactory; // 应该在回合结束时播放音效
-    private readonly GameManager _gameManager;
-    private readonly MapFileService _mapFileService;
-    private int _currentTurnPlayerIndex;
-    public Player CurrentTurnPlayer => _gameManager.Players[_currentTurnPlayerIndex]; // 当前回合玩家
+  private readonly GameManager _gameManager;
+  private readonly DialogService _dialogService;
+  
+  // 应该在回合结束时播放音效
 
-    // 游戏状态（可绑定到UI）
-    [ObservableProperty] public partial int CurrentRound { get; set; }
+  public GameRuleService(GameManager gameManager, DialogService dialogService, LibVLC libVlc,
+    RoleStrategyFactory strategyFactory)
+  {
+    _gameManager = gameManager;
+    _dialogService = dialogService;
+    WeakReferenceMessenger.Default.Register<PlayerMoveMessage>(this,ReceivePlayerMove);
+  }
 
-    [ObservableProperty] public partial bool IsGameOver { get; set; }
+  private async void ReceivePlayerMove(object recipient, PlayerMoveMessage message)
+  {
+    if (_gameManager.LocalPlayer.IsRoomOwner)
+      await HandleStepOnNodeAsync(_gameManager.LocalPlayer, (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.DestinationNodeUuid]);
+  }
 
-    [ObservableProperty] public partial Player? Winner { get; set; }
 
-    public GameRuleService(GameManager gameManager, MapFileService mapFileService, LibVLC libVlc,
-        RoleStrategyFactory strategyFactory)
+  public async Task HandleStepOnNodeAsync(Player player,NodeModel node)// 应该是只给服务器调用，客户端接收回应后在显示可用操作
+  {
+    switch (node)
     {
-        _gameManager = gameManager;
-        _mapFileService = mapFileService;
-        _strategyFactory = strategyFactory;
-        var sfxPlayer = new MediaPlayer(libVlc);
-        var turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
-        WeakReferenceMessenger.Default.Register<GameStartMessage>(this, async (_, _) => await StartGameAsync());
-        WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, (_, message) =>
+      case Estate estate:
+        await HandleEstateAsync(player,estate);
+        break;
+      case SpawnPoint:
+        await HandleSpawnPointAsync(player);
+        break;
+    }
+  }
+
+  /// <summary>
+  /// 处理踩到地产格子的方法
+  /// </summary>
+  /// <param name="estate">地产</param>
+  /// <param name="player">玩家</param>
+  private async Task HandleEstateAsync( Player player,Estate estate)
+  {
+    if (estate.Owner == null && player.Money >= estate.Value)
+    {
+      if (player.IsRoomOwner)
+      {
+        bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
         {
-            if (message.Value == _gameManager.LocalPlayer.Uuid)
-                sfxPlayer.Play(turnStartSfx);
+          Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
+          IsLightDismissEnabled = false
         });
-        WeakReferenceMessenger.Default.Register<InitGameMessage>(this,
-            (_, message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
-    }
-
-    private async Task AdvanceToNextPlayerTurnAsync() //todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
-    {
-        _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % _gameManager.Players.Count;
-        var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
-        await _gameManager.NetServerInstance.Broadcast(turnStartResponse);
-        WeakReferenceMessenger.Default.Send(new TurnStartMessage(CurrentTurnPlayer.Uuid));
-    }
-
-    /// <summary>
-    /// 启动游戏（初始化回合、资源）
-    /// </summary>
-    public async Task StartGameAsync()
-    {
-        if (!_gameManager.LocalPlayer.IsRoomOwner)
-            return;
-        CurrentRound = 1;
-        IsGameOver = false;
-        Winner = null;
-        // 初始化所有玩家（从地图配置读取初始金额）
-        foreach (var player in _gameManager.Players)
-        {
-            player.Money = _gameManager.SelectedMap!.StartingCash;
-            player.CurrentNodeUuId = _gameManager.SelectedMap!.SpawnNodeUuid;
-        }
-
-        _currentTurnPlayerIndex = Random.Shared.Next(_gameManager.Players.Count);
-        // _currentTurnPlayerIndex = 1;
-        await _gameManager.NetServerInstance.Broadcast(new InitGameMessageResponse(
-            _gameManager.Players,
-            _currentTurnPlayerIndex
-        ));
-        await Task.Yield(); // 等待各监听事件绑定完成
-        await AdvanceToNextPlayerTurnAsync();
-    }
-
-    public async Task RollDiceAsync()
-    {
-        int rollValue;
-        var selfPlayer = _gameManager.LocalPlayer;
-        if (selfPlayer.IsRoomOwner)
-        {
-            if (selfPlayer != CurrentTurnPlayer)
-            {
-                WeakReferenceMessenger.Default.Send(new RollDiceMessage(selfPlayer.Uuid, 0, false));
-                return;
-            }
-
-            rollValue = Random.Shared.Next(1, 7);
-            await _gameManager.NetServerInstance.Broadcast(new RollDiceResponse("", selfPlayer.Uuid, rollValue));
-            WeakReferenceMessenger.Default.Send(new RollDiceMessage(selfPlayer.Uuid, rollValue));// 直接把逻辑在这里处理，别让gamepageviewmodel处理了
-        }
-        else
-            rollValue = ((RollDiceResponse)await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest())).DiceValue;
-        
-        if (message.Success)
-        {
-            Player currentPlayer = _gameManager.GetPlayerByUuid(message.PlayerUuid);
-            var selectableNodes =
-                Map.GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, message.DiceValue).ToArray();
-            if (selectableNodes.Length == 1)
-                await _gameRuleService.PlayerMove(selectableNodes[0].Uuid);
-            else if (selectableNodes.Length > 1)
-            {
-                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(true));
-                _isHighlightMode = true;
-                foreach (var node in selectableNodes)
-                    node.ZIndex = 4;
-
-                var selectedNodeUuid = await AwaitNodeClickAsync();
-                await _gameRuleService.PlayerMove(selectedNodeUuid);
-                foreach (var node in selectableNodes)
-                    node.ZIndex = 1;
-                _isHighlightMode = false;
-                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(false));
-            }
-        }
-        else
-        {
-            await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-            {
-                Title = "错误",
-                Message = "投骰子失败，可能现在还没轮到你"
-            });
-        }
-    }
-
-    public async Task PlayerMove(string destinationNodeUuid)
-    {
-        if (_gameManager.LocalPlayer.IsRoomOwner)
-        {
-            await _gameManager.NetServerInstance.Broadcast(new PlayerMoveResponse(_gameManager.LocalPlayer.Uuid,
-                destinationNodeUuid));
-            WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(_gameManager.LocalPlayer.Uuid,
-                destinationNodeUuid));
-        }
-        else
-            await _gameManager.NetClientInstance.SendRequestAsync(new PlayerMoveRequest(_gameManager.LocalPlayer.Uuid,
-                destinationNodeUuid));
-    }
-
-
-    /// <summary>
-    /// 玩家购买地产
-    /// </summary>
-    /// <param name="player">购买玩家</param>
-    /// <param name="estate">目标地产</param>
-    /// <returns>购买结果（成功/失败原因）</returns>
-    public async Task<(bool Success, string Message)> BuyEstateAsync(Player player, Estate estate)
-    {
-        // 规则1：只能购买无主地产
-        if (estate.Owner != null)
-            return (false, "该地产已被其他玩家拥有！");
-
-        // 规则2：玩家现金需 ≥ 地产价值
-        if (player.Money < estate.Value)
-            return (false, "现金不足，无法购买！");
-
-        // 执行购买逻辑
+        if (!isConfirm) return;
         player.Money -= estate.Value;
-        estate.Owner = player;
-
-        // 通知UI：地产购买成功
-        WeakReferenceMessenger.Default.Send(new EstateBoughtMessage(player, estate));
-
-        // 联机场景：同步地产归属到其他客户端
-        if (!player.IsRoomOwner)
+        var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+        await _gameManager.NetServerInstance.Broadcast(message);
+        WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(player.Uuid,
+          estate.Uuid, 1));
+      }
+      else
+      {
+        var buyEstateActionMessage = new BuyEstateAction(estate.Uuid);
+        var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+        var buyEstateRequest = await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction,BuyEstateRequest>(buyEstateActionMessage,client);
+        if (buyEstateRequest.IsConfirm)
         {
-            await _gameManager.NetClientInstance.SendRequestAsync(
-                new UpdateEstateInfoRequest(player.Uuid, estate.Uuid));
+          player.Money -= estate.Value;
+          estate.Owner = player;
+          var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+          await _gameManager.NetServerInstance.Broadcast(message);
+          WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(player.Uuid,
+            estate.Uuid, 1));
         }
-        else
-        {
-            // 房主广播更新
-            await _gameManager.NetServerInstance.Broadcast(new UpdateEstateInfoResponse(estate.Uuid, player.Uuid));
-        }
-
-        return (true, $"成功购买「{estate.Title}」！");
+      }
     }
+  }
+  
+  private Task HandleSpawnPointAsync(Player player)
+  {
+    player.Money += _gameManager.SelectedMap.SpawnPointCashReward;
+    return Task.CompletedTask;
+  }
 }

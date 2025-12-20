@@ -14,7 +14,8 @@
       <StackPanel>
         <TextBlock Text="{Binding Level,StringFormat={}{0}级}"
                    HorizontalAlignment="Center"
-                   Margin="0 -16 0 0" />
+                   Margin="0 -16 0 0"
+                   Opacity="{Binding Owner,Converter={x:Static ObjectConverters.IsNotNull}}"/>
         <TextBlock Text="{Binding Title}"
                    FontSize="16"
                    FontWeight="Black"

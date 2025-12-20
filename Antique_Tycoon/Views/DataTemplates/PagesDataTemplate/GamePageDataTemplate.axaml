@@ -18,7 +18,7 @@
       </Interaction.Behaviors>
       <w:GameCanvas CurrentMap="{Binding Map}">
         <Interaction.Behaviors>
-          <i:GameCanvasMaskBehavior/>
+          <i:ListenSelectNodeBehavior/>
         </Interaction.Behaviors>
       </w:GameCanvas>
       <w:PlayerUI x:Name="PlayerUI" Focusable="False"/>

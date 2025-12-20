@@ -88,7 +88,7 @@ public class NetClient : NetBase
 
     protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
     {
-        ResponseBase? response = null; //额外处理，调用方只需await方法就行，不需要在这里添加逻辑
+        ITcpMessage? response = null; //额外处理，调用方只需await方法就行，不需要在这里添加逻辑
         switch (tcpMessageType)
         {
             case TcpMessageType.JoinRoomResponse:
@@ -119,7 +119,7 @@ public class NetClient : NetBase
                 response = rollDiceResponse;
                 WeakReferenceMessenger.Default.Send(
                     new RollDiceMessage(rollDiceResponse.PlayerUuid, rollDiceResponse.DiceValue,
-                        response.ResponseStatus == RequestResult.Success));
+                        ((ResponseBase)response).ResponseStatus == RequestResult.Success));
                 break;
             case TcpMessageType.InitGameMessageResponse:
                 var initGameMessageResponse =
@@ -134,6 +134,11 @@ public class NetClient : NetBase
                 response = playerMoveResponse;
                 WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(playerMoveResponse.PlayerUuid,
                     playerMoveResponse.DestinationNodeUuid));
+                break;
+            case TcpMessageType.BuyEstateAction:
+                var buyEstateAction = JsonSerializer.Deserialize(json, AppJsonContext.Default.BuyEstateAction);
+                response = buyEstateAction;
+                WeakReferenceMessenger.Default.Send(buyEstateAction);
                 break;
             case TcpMessageType.UpdateEstateInfoResponse:
                 var updateEstateOwnerResponse =

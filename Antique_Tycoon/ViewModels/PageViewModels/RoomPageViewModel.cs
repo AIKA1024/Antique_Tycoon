@@ -36,7 +36,7 @@ public partial class RoomPageViewModel : PageViewModelBase
     _gameManager.Players.CollectionChanged += OnPlayersChanged;
     WeakReferenceMessenger.Default.Register<GameStartMessage>(this, (_, _) => App.Current.Services
       .GetRequiredService<NavigationService>().Navigation(new GamePageViewModel(SelectedMap)));
-    App.Current.Services.GetRequiredService<GameRuleService>();// 启动gameRule
+    // App.Current.Services.GetRequiredService<GameRuleService>();// 启动gameRule
   }
 
 

@@ -29,10 +29,11 @@ public class NetServer : NetBase
   private readonly Dictionary<TcpClient, long> _clientLastActiveTimes = [];
   private readonly Timer _timer = new();
   private readonly IEnumerable<ITcpMessageHandler> _messageHandlers;
+  private readonly System.Collections.Concurrent.ConcurrentDictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
 #if Debug
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(9999999999);
 #else
-  public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(10);
+  public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(15);
 #endif
   
   /// <summary>
@@ -194,6 +195,45 @@ public class NetServer : NetBase
     var data = PackMessage(message);
     await client.GetStream().WriteAsync(data, cancellationToken);
   }
+  
+  public async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
+    TRequest message, 
+    TcpClient client, 
+    TimeSpan? timeout = null) 
+    where TRequest : ServiceRequest 
+    where TResponse : ITcpMessage
+  {
+    // 确保消息有 ID (通常在构造函数或发送前生成 GUID)
+    if (string.IsNullOrEmpty(message.Id))
+    {
+      message.Id = Guid.NewGuid().ToString();
+    }
+
+    var tcs = new TaskCompletionSource<ITcpMessage>();
+    _pendingRequests[message.Id] = tcs;
+
+    try
+    {
+      // 发送消息
+      await SendResponseAsync(message, client);
+
+      // 设置超时处理（可选，防止客户端掉线导致服务器逻辑永久卡死）
+      var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(30);
+      using var cts = new CancellationTokenSource(effectiveTimeout);
+        
+      // 等待结果或超时
+      using (cts.Token.Register(() => tcs.TrySetCanceled()))
+      {
+        var response = await tcs.Task;
+        return (TResponse)response;
+      }
+    }
+    finally
+    {
+      // 无论成功失败，移除请求追踪
+      _pendingRequests.TryRemove(message.Id, out _);
+    }
+  }
 
   public async Task Broadcast<T>(T message, CancellationToken cancellationToken = default)where T : ResponseBase
   {
@@ -216,6 +256,27 @@ public class NetServer : NetBase
 
   protected override async Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
+    try
+    {
+      var baseMsg = (ITcpMessage)JsonSerializer.Deserialize(json, GetJsonTypeInfo(tcpMessageType)); // 服务器发送询问客户端要不要后，客户端还是返回的请求
+
+      if (baseMsg != null && !string.IsNullOrEmpty(baseMsg.Id))
+      {
+        // 2. 检查是否在挂起列表中
+        if (_pendingRequests.TryRemove(baseMsg.Id, out var tcs))
+        {
+          tcs.SetResult(baseMsg);
+          return; // 如果是回复，则不再走下面的普通 Handler 逻辑
+        }
+      }
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(tcpMessageType.ToString());
+      Console.WriteLine(e);
+      throw;
+    }
+    
     var handlers = _messageHandlers.Where(h => h.CanHandle(tcpMessageType)).ToArray();
 
     if (handlers.Length != 0)

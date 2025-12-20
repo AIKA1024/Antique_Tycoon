@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Request;
+using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
@@ -16,15 +18,13 @@ public partial class GamePageViewModel : PageViewModelBase
 {
     [ObservableProperty] private Map _map;
     private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
-    private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
+    // private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
     private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
-    private readonly NodeService _nodeService= App.Current.Services.GetRequiredService<NodeService>();
 
     [ObservableProperty] private string _reminderText = "轮到你啦";
     [ObservableProperty] private int _rollDiceValue;
     [ObservableProperty] private bool _isShowReminderText;
 
-    private TaskCompletionSource<string>? _nodeClickTcs;
 
     /// <summary>
     /// 是否在高亮给玩家选择卡片阶段
@@ -37,36 +37,29 @@ public partial class GamePageViewModel : PageViewModelBase
         foreach (var player in _gameManager.Players)
             Map.SpawnNode.PlayersHere.Add(player);
 
-        WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
+        // WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
         WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, ReceiveTurnStartMessage);
         WeakReferenceMessenger.Default.Register<InitGameMessage>(this, ReceiveInitGameMessage);
         WeakReferenceMessenger.Default.Register<RollDiceMessage>(this, ReceiveRollDiceMessage);
         WeakReferenceMessenger.Default.Register<PlayerMoveMessage>(this, ReceivePlayerMoveMessage);
         WeakReferenceMessenger.Default.Register<UpdateEstateInfoMessage>(this, ReceiveUpdateEstateInfoMessage);
+        WeakReferenceMessenger.Default.Register<BuyEstateAction>(this ,ReceiveBuyEstateAction);
     }
 
-    private async Task<string> AwaitNodeClickAsync()
+    private async void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
     {
-        // 2. 初始化 TaskCompletionSource，用于阻塞等待
-        _nodeClickTcs = new TaskCompletionSource<string>();
-
-        // 3. 等待点击结果（非 UI 阻塞，可 await）
-        var selectedCardUuid = await _nodeClickTcs.Task;
-
-        // 5. 返回选中的卡片 UUID
-        return selectedCardUuid;
+        var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
+        bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+        {
+            Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
+            IsLightDismissEnabled = false
+        });
+        if (isConfirm)
+            await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest(message.Id,_gameManager.LocalPlayer.Uuid, estate.Uuid));//扣钱逻辑让服务器发送更新金额要求
+        else
+            await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest());// 和服务器表示不买
     }
 
-
-    private void ReceiveNodeClicked(object sender, NodeClickedMessage message)
-    {
-        // 过滤无效点击：仅处理「高亮模式下」的点击
-        if (!_isHighlightMode) return;
-
-        // 触发 TaskCompletionSource 完成，返回结果
-        _nodeClickTcs?.SetResult(message.NodeUuid);
-        _nodeClickTcs = null; // 重置，避免重复触发
-    }
 
     private void ReceiveTurnStartMessage(object sender, TurnStartMessage message)
     {
@@ -92,45 +85,12 @@ public partial class GamePageViewModel : PageViewModelBase
         IsShowReminderText = true;
     }
 
-    private async void ReceiveRollDiceMessage(object sender, RollDiceMessage message)
+    private void ReceiveRollDiceMessage(object sender, RollDiceMessage message)
     {
         RollDiceValue = message.DiceValue;
-        if (message.PlayerUuid!= _gameManager.LocalPlayer.Uuid)
-            return;
-        
-        if (message.Success)
-        {
-            Player currentPlayer = _gameManager.GetPlayerByUuid(message.PlayerUuid);
-            var selectableNodes =
-                Map.GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, message.DiceValue).ToArray();
-            if (selectableNodes.Length == 1)
-                await _gameRuleService.PlayerMove(selectableNodes[0].Uuid);
-            else if (selectableNodes.Length > 1)
-            {
-                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(true));
-                _isHighlightMode = true;
-                foreach (var node in selectableNodes)
-                    node.ZIndex = 4;
-
-                var selectedNodeUuid = await AwaitNodeClickAsync();
-                await _gameRuleService.PlayerMove(selectedNodeUuid);
-                foreach (var node in selectableNodes)
-                    node.ZIndex = 1;
-                _isHighlightMode = false;
-                WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(false));
-            }
-        }
-        else
-        {
-            await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-            {
-                Title = "错误",
-                Message = "投骰子失败，可能现在还没轮到你"
-            });
-        }
     }
 
-    private async void ReceivePlayerMoveMessage(object sender, PlayerMoveMessage message)
+    private async void ReceivePlayerMoveMessage(object sender, PlayerMoveMessage message)//todo 踩到格子后有什么操作应该是服务器发送后再执行，而不是自己本地判断
     {
         Player player = _gameManager.GetPlayerByUuid(message.PlayerUuid);
         string playerCurrentNodeUuid = player.CurrentNodeUuId;
@@ -140,12 +100,10 @@ public partial class GamePageViewModel : PageViewModelBase
         destinationModelmodel.PlayersHere.Add(player);
         player.CurrentNodeUuId = destinationModelmodel.Uuid;
 
-        if (player ==  _gameManager.LocalPlayer)
-        {
-            var func = await _nodeService.GetStepOnNodeHandlerAsync(destinationModelmodel, player);
-            if (func!=null)
-                await func.Invoke(_gameManager);
-        }
+        // if (player ==  _gameManager.LocalPlayer)//todo 踩到格子后的逻辑让服务器来处理，而不是本地判断
+        // {
+        //     await _gameRuleService.HandleStepOnNodeAsync(destinationModelmodel, player);
+        // }
     }
 
     private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoMessage message)

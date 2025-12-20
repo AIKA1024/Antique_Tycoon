@@ -205,6 +205,33 @@ public abstract class NetBase
     }
   }
 
+  public JsonTypeInfo GetJsonTypeInfo(TcpMessageType type)
+  {
+    return type switch
+    {
+      // --- 对于所有 Request 类型，如果你使用了多态注解，统一返回 RequestBase ---
+      TcpMessageType.JoinRoomRequest => AppJsonContext.Default.JoinRoomRequest,
+        TcpMessageType.BuyEstateRequest => AppJsonContext.Default.BuyEstateRequest,
+        TcpMessageType.ExitRoomRequest => AppJsonContext.Default.ExitRoomRequest,
+        TcpMessageType.HeartbeatMessage => AppJsonContext.Default.HeartbeatMessage,
+        TcpMessageType.PlayerMoveRequest => AppJsonContext.Default.PlayerMoveRequest,
+        TcpMessageType.RollDiceRequest => AppJsonContext.Default.RollDiceRequest, 
+        TcpMessageType.DownloadMapRequest => AppJsonContext.Default.DownloadMapRequest,
+
+      // --- 对于 Response 类型，返回具体的类型 ---
+      TcpMessageType.JoinRoomResponse => AppJsonContext.Default.JoinRoomResponse,
+      TcpMessageType.UpdateRoomResponse => AppJsonContext.Default.UpdateRoomResponse,
+      TcpMessageType.StartGameResponse => AppJsonContext.Default.StartGameResponse,
+      TcpMessageType.RollDiceResponse => AppJsonContext.Default.RollDiceResponse,
+      TcpMessageType.PlayerMoveResponse => AppJsonContext.Default.PlayerMoveResponse,
+      TcpMessageType.DownloadMapResponse => AppJsonContext.Default.DownloadMapResponse,
+      TcpMessageType.UpdateEstateInfoResponse => AppJsonContext.Default.UpdateEstateInfoResponse,
+      TcpMessageType.TurnStartResponse => AppJsonContext.Default.TurnStartResponse,
+      TcpMessageType.InitGameMessageResponse => AppJsonContext.Default.InitGameMessageResponse,
+
+      _ => throw new NotSupportedException($"未定义消息类型 {type} 的 JSON 解析上下文")
+    };
+  }
 
   private static (JsonTypeInfo<T> JsonType, TcpMessageType tcpMessageType) GetTypeInfo<T>(T message)
     where T : ITcpMessage
@@ -247,9 +274,9 @@ public abstract class NetBase
       _ when type == typeof(PlayerMoveResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.PlayerMoveResponse,
         TcpMessageType.PlayerMoveResponse),
-      _ when type == typeof(UpdateEstateInfoRequest) => (
-        (JsonTypeInfo<T>)(object)AppJsonContext.Default.UpdateEstateInfoRequest,
-        UpdateEstateOwnerRequest: TcpMessageType.UpdateEstateInfoRequest),
+      _ when type == typeof(BuyEstateRequest) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.BuyEstateRequest,
+        UpdateEstateOwnerRequest: TcpMessageType.BuyEstateRequest),
       _ when type == typeof(UpdateEstateInfoResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.UpdateEstateInfoResponse,
         UpdateEstateOwnerResponse: TcpMessageType.UpdateEstateInfoResponse),

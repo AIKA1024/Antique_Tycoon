@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;
 
-public class RollDiceHandler(GameRuleService gameRuleService, GameManager gameManager)
+public class RollDiceHandler(GameManager gameManager)
   : ITcpMessageHandler
 {
   public bool CanHandle(TcpMessageType messageType)
@@ -24,7 +24,7 @@ public class RollDiceHandler(GameRuleService gameRuleService, GameManager gameMa
     if (JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceRequest) is { } rollDiceRequest)
     {
       string clientPlayerUuid = gameManager.GetPlayerUuidByTcpClient(client);
-      if (gameRuleService.CurrentTurnPlayer.Uuid == clientPlayerUuid)
+      if (gameManager.CurrentTurnPlayer.Uuid == clientPlayerUuid)
       {
         int value = Random.Shared.Next(1, 7);
         await gameManager.NetServerInstance.Broadcast(

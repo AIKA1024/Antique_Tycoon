@@ -1,6 +1,10 @@
+using System.Collections.Generic;
+using Antique_Tycoon.Models.Node;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+
 namespace Antique_Tycoon.Messages;
 
-public class GameMaskShowMessage(bool isShowMask)
+public class GameMaskShowMessage(NodeModel[] selectableNodes):AsyncRequestMessage<string>
 {
-    public bool IsShowMask = isShowMask;
+  public NodeModel[] SelectableNodes => selectableNodes;
 }

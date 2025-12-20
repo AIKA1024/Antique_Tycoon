@@ -9,7 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;
 
-public class PlayerMoveHandler(GameRuleService gameRuleService,GameManager gameManager):ITcpMessageHandler
+public class PlayerMoveHandler(GameManager gameManager):ITcpMessageHandler
 {
     public bool CanHandle(TcpMessageType messageType) =>  messageType == TcpMessageType.PlayerMoveRequest;
 

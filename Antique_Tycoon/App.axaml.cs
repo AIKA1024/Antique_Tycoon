@@ -34,7 +34,7 @@ public partial class App : Application
     var gameManager = Services.GetRequiredService<GameManager>();
     gameManager.SetupLocalPlayer();
     gameManager.SetDefaultMap();
-    // Services.GetRequiredService<GameRuleService>();// 启动gameRule
+    Services.GetRequiredService<GameRuleService>();// 启动gameRule todo 后面有多种规则后，需要按需实例化
   }
 
   public App()
@@ -69,7 +69,6 @@ public partial class App : Application
     services.AddSingleton<DialogService>();
     services.AddSingleton<GameManager>();
     services.AddSingleton<GameRuleService>();
-    services.AddSingleton<NodeService>();
     services.AddSingleton<RoleStrategyFactory>();
     services.AddTransient<ITcpMessageHandler, JoinRoomHandler>();
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();

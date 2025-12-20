@@ -33,7 +33,7 @@ public partial class PlayerUiViewModel:PageViewModelBase
   [RelayCommand]
   private async Task RollDiceAsync()
   {
-    await App.Current.Services.GetRequiredService<GameRuleService>().RollDiceAsync();
+    await App.Current.Services.GetRequiredService<GameManager>().RollDiceAsync();
     await Task.Delay(1000);
   }
 }

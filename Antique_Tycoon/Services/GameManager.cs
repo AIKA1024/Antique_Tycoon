@@ -4,12 +4,14 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net;
+using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
@@ -23,10 +25,15 @@ namespace Antique_Tycoon.Services;
 /// </summary>
 public partial class GameManager : ObservableObject //todo 心跳超时逻辑应该在这里
 {
-  private readonly Lazy<NetServer> _netServerLazy;//如果依赖注入后，需要NetServer、NetClient的同时需要GameManager，只需要拿GameManager就行了
+  private readonly Lazy<NetServer> _netServerLazy; //如果依赖注入后，需要NetServer、NetClient的同时需要GameManager，只需要拿GameManager就行了
+
   private readonly Lazy<NetClient> _netClientLazy;
-  private readonly LibVLC  _libVlc;
-  
+
+  // private readonly GameRuleService _gameRuleService;
+  private readonly DialogService _dialogService;
+  private readonly LibVLC _libVlc;
+  private readonly RoleStrategyFactory _strategyFactory;
+
   private readonly MapFileService _mapFileService;
 
   private readonly ObservableDictionary<string, Player> _playersByUuid = [];
@@ -38,13 +45,32 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   [ObservableProperty] public partial Map? SelectedMap { get; set; }
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
   public int MaxPlayer { get; private set; } = 5;
+  private int _currentTurnPlayerIndex;
+  [ObservableProperty] public partial int CurrentRound { get; set; }
 
-  public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,LibVLC libVlc)
+  [ObservableProperty] public partial bool IsGameOver { get; set; }
+
+  [ObservableProperty] public partial Player? Winner { get; set; }
+  public Player CurrentTurnPlayer => Players[_currentTurnPlayerIndex]; // 当前回合玩家
+
+  public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
+    DialogService dialogService, LibVLC libVlc, RoleStrategyFactory strategyFactory)
   {
     _netServerLazy = netServerLazy;
     _netClientLazy = netClientLazy;
     _mapFileService = mapFileService;
+    _dialogService = dialogService;
     _libVlc = libVlc;
+    _strategyFactory = strategyFactory;
+    var sfxPlayer = new MediaPlayer(libVlc);
+    var turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
+    WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, (_, message) =>
+    {
+      if (message.Value == LocalPlayer.Uuid)
+        sfxPlayer.Play(turnStartSfx);
+    });
+    WeakReferenceMessenger.Default.Register<InitGameMessage>(this,
+      (_, message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
     WeakReferenceMessenger.Default.Register<UpdateRoomMessage>(this, (_, message) =>
     {
@@ -52,7 +78,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       foreach (var player in message.Value)
         _playersByUuid[player.Uuid] = player;
     });
-    WeakReferenceMessenger.Default.Register<ClientDisconnectedMessage>(this,async (_, message) =>
+    WeakReferenceMessenger.Default.Register<ClientDisconnectedMessage>(this, async (_, message) =>
     {
       var playerUuid = _clientToPlayerId[message.Value];
       _clientToPlayerId.Remove(message.Value);
@@ -68,14 +94,15 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public void SetupLocalPlayer()
   {
-    var localPlayer = new Player{IsRoomOwner = true};
+    var localPlayer = new Player { IsRoomOwner = true };
     LocalPlayer = localPlayer;
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
   }
 
   public void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
 
-  public TcpClient GetClientByUuid(string uuid) => _clientToPlayerId.First(variable => variable.Value == uuid).Key;
+  public TcpClient GetClientByPlayerUuid(string uuid) =>
+    _clientToPlayerId.First(variable => variable.Value == uuid).Key;
 
   public string GetPlayerUuidByTcpClient(TcpClient client)
   {
@@ -85,14 +112,128 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   }
 
   public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
-  
-  
+
+  private async Task AdvanceToNextPlayerTurnAsync() //todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
+  {
+    _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % Players.Count;
+    var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
+    await NetServerInstance.Broadcast(turnStartResponse);
+    WeakReferenceMessenger.Default.Send(new TurnStartMessage(CurrentTurnPlayer.Uuid));
+  }
+
   public async Task StartGameAsync()
   {
     var startMessage = new StartGameResponse();
     await NetServerInstance.Broadcast(startMessage, CancellationToken.None);
     WeakReferenceMessenger.Default.Send(new GameStartMessage());
+    if (!LocalPlayer.IsRoomOwner)
+      return;
+    CurrentRound = 1;
+    IsGameOver = false;
+    Winner = null;
+    // 初始化所有玩家（从地图配置读取初始金额）
+    foreach (var player in Players)
+    {
+      player.Money = SelectedMap!.StartingCash;
+      player.CurrentNodeUuId = SelectedMap!.SpawnNodeUuid;
+    }
+
+    _currentTurnPlayerIndex = Random.Shared.Next(Players.Count);
+    // _currentTurnPlayerIndex = 1;
+    await NetServerInstance.Broadcast(new InitGameMessageResponse(
+      Players,
+      _currentTurnPlayerIndex
+    ));
+    await Task.Yield(); // 等待各监听事件绑定完成
+    await AdvanceToNextPlayerTurnAsync();
   }
+
+  private async Task HandleDiceRollResult(string playerUuid, int diceValue)
+  {
+    if (diceValue <= 0) return;
+
+    Player currentPlayer = GetPlayerByUuid(playerUuid);
+
+    // 1. 计算可选路径
+    var selectableNodes = SelectedMap
+      .GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, diceValue)
+      .ToArray();
+
+    if (selectableNodes.Length == 1)
+    {
+      // 只有一条路，直接走
+      await PlayerMove(selectableNodes[0].Uuid);
+    }
+    else if (selectableNodes.Length > 1)
+    {
+      // 多条路，通过信使请求 UI 层进行选择，并等待返回
+      // 这里的 GameMaskShowMessage 建议参考上一条回答改成 AsyncRequestMessage
+      var message = new GameMaskShowMessage(selectableNodes);
+      WeakReferenceMessenger.Default.Send(message);
+
+      // 等待玩家在 UI 上点击后的结果
+      var selectedNodeUuid = await message.Response;
+      await PlayerMove(selectedNodeUuid);
+    }
+  }
+
+  public async Task RollDiceAsync()
+  {
+    int finalDiceValue;
+    string targetPlayerUuid = LocalPlayer.Uuid;
+
+    if (LocalPlayer.IsRoomOwner)
+    {
+      // --- 房主逻辑 ---
+      if (LocalPlayer != CurrentTurnPlayer)
+      {
+        WeakReferenceMessenger.Default.Send(new RollDiceMessage(LocalPlayer.Uuid, 0, false));
+        return;
+      }
+
+      finalDiceValue = Random.Shared.Next(1, 7);
+      await NetServerInstance.Broadcast(new RollDiceResponse("", LocalPlayer.Uuid, finalDiceValue));
+      WeakReferenceMessenger.Default.Send(new RollDiceMessage(LocalPlayer.Uuid, finalDiceValue));
+    }
+    else
+    {
+      // --- 客户端逻辑 ---
+      var response = await NetClientInstance.SendRequestAsync(new RollDiceRequest()) as RollDiceResponse;
+
+      if (response != null && response.DiceValue != 0)
+      {
+        finalDiceValue = response.DiceValue;
+        targetPlayerUuid = response.PlayerUuid;
+      }
+      else
+      {
+        await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+        {
+          Title = "错误",
+          Message = "投骰子失败，可能现在还没轮到你"
+        });
+        return; // 失败则退出
+      }
+    }
+
+    // --- 汇合点：无论哪种身份，只要拿到了合法的骰子值，就执行移动逻辑 ---
+    await HandleDiceRollResult(targetPlayerUuid, finalDiceValue);
+  }
+
+  private async Task PlayerMove(string destinationNodeUuid)
+  {
+    if (LocalPlayer.IsRoomOwner)
+    {
+      await NetServerInstance.Broadcast(new PlayerMoveResponse(LocalPlayer.Uuid,
+        destinationNodeUuid));
+      WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(LocalPlayer.Uuid,
+        destinationNodeUuid));
+    }
+    else
+      await NetClientInstance.SendRequestAsync(new PlayerMoveRequest(LocalPlayer.Uuid,
+        destinationNodeUuid));
+  }
+
 
   public void ExitRoom()
   {
@@ -156,6 +297,4 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       await NetServerInstance.SendResponseAsync(
         new DownloadMapResponse { Id = request.Id, ResponseStatus = RequestResult.Error }, client);
   }
-  
-  
 }

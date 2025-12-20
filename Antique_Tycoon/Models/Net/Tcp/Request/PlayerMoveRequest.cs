@@ -2,13 +2,8 @@ using System;
 
 namespace Antique_Tycoon.Models.Net.Tcp.Request;
 
-public class PlayerMoveRequest : GameMessageRequest
+public class PlayerMoveRequest(string playerUuid, string destinationNodeUuid) : RequestBase
 {
-    public string DestinationNodeUuid { get; set; }
-
-    public PlayerMoveRequest(string playerUuid, string destinationNodeUuid)
-    {
-        PlayerUuid = playerUuid;
-        DestinationNodeUuid =  destinationNodeUuid;
-    }
+    public string DestinationNodeUuid { get; set; } = destinationNodeUuid;
+    public string PlayerUuid { get; set; } = playerUuid;
 }

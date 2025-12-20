@@ -28,7 +28,6 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 {
   private readonly Timer _timer = new(2000);
   private bool _disposed;
-  private readonly NetClient _client;
   private readonly GameManager _gameManager;
 
   [ObservableProperty]
@@ -38,7 +37,6 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 
   public HallPageViewModel(NetClient client, GameManager gameManager)
   {
-    _client = client;
     _gameManager = gameManager;
     _timer.Elapsed += async (s, e) => { await UpdateRoomList(s, e); };
   }
@@ -57,7 +55,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 
   private async Task UpdateRoomList(object? sender, ElapsedEventArgs e)
   {
-    var roomNetInfo = await _client.DiscoverRoomAsync();
+    var roomNetInfo = await _gameManager.NetClientInstance.DiscoverRoomAsync();
     if (RoomList.Any(r => Equals(r.Ip, roomNetInfo.Ip)))
       return;
     RoomList.Add(roomNetInfo);
@@ -74,7 +72,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   {
     var dialogService = App.Current.Services.GetRequiredService<DialogService>();
     var iPEndPoint = new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port);
-    await _client.ConnectServer(iPEndPoint);
+    await _gameManager.NetClientInstance.ConnectServer(iPEndPoint);
     var mapZipPath = Path.Join(App.Current.DownloadMapPath, $"{roomInfo.Hash}.zip");
     var mapDirPath = Path.Join(App.Current.DownloadMapPath, roomInfo.Hash);
     if (!Directory.Exists(mapDirPath))
@@ -125,13 +123,13 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     {
       Player = _gameManager.LocalPlayer
     };
-    return (JoinRoomResponse)await _client.SendRequestAsync(joinRoomRequest, cancellation);
+    return (JoinRoomResponse)await _gameManager.NetClientInstance.SendRequestAsync(joinRoomRequest, cancellation);
   }
 
   private async Task<DownloadMapResponse> DownloadMapAsync(string hash, CancellationToken cancellation = default)
   {
     var downloadMapRequest = new DownloadMapRequest(hash);
-    return (DownloadMapResponse)await _client.SendRequestAsync(downloadMapRequest, cancellation);
+    return (DownloadMapResponse)await _gameManager.NetClientInstance.SendRequestAsync(downloadMapRequest, cancellation);
   }
 
   public void Dispose()
