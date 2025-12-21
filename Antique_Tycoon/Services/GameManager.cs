@@ -41,8 +41,10 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
-  public Player LocalPlayer { get; set; }
-  [ObservableProperty] public partial Map? SelectedMap { get; set; }
+  public Player LocalPlayer { get; set; }//todo 服务器后续发送的玩家和这个本地玩家会出现uuid相同，但其他数据不同的情况，现在还不知道怎么办
+  public Map? SelectedMap { get; set; }
+  public string RoomOwnerUuid { get; set; } = "";
+  public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
   public int MaxPlayer { get; private set; } = 5;
   private int _currentTurnPlayerIndex;
@@ -94,8 +96,9 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public void SetupLocalPlayer()
   {
-    var localPlayer = new Player { IsRoomOwner = true };
+    var localPlayer = new Player();
     LocalPlayer = localPlayer;
+    RoomOwnerUuid = LocalPlayer.Uuid;
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
   }
 
@@ -106,14 +109,15 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public string GetPlayerUuidByTcpClient(TcpClient client)
   {
-    if (!LocalPlayer.IsRoomOwner)
+    if (!IsRoomOwner)
       throw new InvalidOperationException("客户端不能调用此方法");
     return _clientToPlayerId[client];
   }
 
   public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
 
-  private async Task AdvanceToNextPlayerTurnAsync() //todo 到下一个回合时，这个方法没有调用（回合逻辑没写，每回合应该计算各种逻辑，现在回合还不会结束）
+  //切换刀下一个玩家的回合
+  public async Task AdvanceToNextPlayerTurnAsync()
   {
     _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % Players.Count;
     var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
@@ -126,7 +130,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     var startMessage = new StartGameResponse();
     await NetServerInstance.Broadcast(startMessage, CancellationToken.None);
     WeakReferenceMessenger.Default.Send(new GameStartMessage());
-    if (!LocalPlayer.IsRoomOwner)
+    if (!IsRoomOwner)
       return;
     CurrentRound = 1;
     IsGameOver = false;
@@ -182,7 +186,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     int finalDiceValue;
     string targetPlayerUuid = LocalPlayer.Uuid;
 
-    if (LocalPlayer.IsRoomOwner)
+    if (IsRoomOwner)
     {
       // --- 房主逻辑 ---
       if (LocalPlayer != CurrentTurnPlayer)
@@ -222,7 +226,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   private async Task PlayerMove(string destinationNodeUuid)
   {
-    if (LocalPlayer.IsRoomOwner)
+    if (IsRoomOwner)
     {
       await NetServerInstance.Broadcast(new PlayerMoveResponse(LocalPlayer.Uuid,
         destinationNodeUuid));
@@ -245,7 +249,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   {
     if (_playersByUuid.Count >= MaxPlayer)
     {
-      var response = new JoinRoomResponse
+      var response = new JoinRoomResponse(LocalPlayer.Uuid)
       {
         Id = request.Id,
         Message = "房间已满",
@@ -257,7 +261,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     else
     {
       _playersByUuid.TryAdd(request.PlayerUuid, request.Player);
-      var joinRoomResponse = new JoinRoomResponse
+      var joinRoomResponse = new JoinRoomResponse(LocalPlayer.Uuid)
       {
         Id = request.Id,
         // Players = Players

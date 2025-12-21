@@ -85,7 +85,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
         IsLightDismissEnabled = false,
         IsShowConfirmButton = false
       };
-      var result = await dialogService.ShowDialogAsync(messageVm,task);
+      var result = await dialogService.ShowDialogAsync(messageVm, task);
       if (result.ResponseStatus != RequestResult.Success)
       {
         messageVm.Title = "警告";
@@ -93,6 +93,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
         messageVm.IsLightDismissEnabled = true;
         return;
       }
+
       messageVm.CloseDialog();
       ZipFile.ExtractToDirectory(mapZipPath, mapDirPath);
       File.Delete(mapZipPath);
@@ -110,11 +111,12 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
       return;
     }
 
-    _gameManager.LocalPlayer.IsRoomOwner = false;
+    _gameManager.RoomOwnerUuid = response.RoomOwnerUuid;
     var mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
+    var map = mapFileService.LoadMap(mapDirPath);
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(
-      new RoomPageViewModel(mapFileService.LoadMap(mapDirPath),
-        _gameManager));
+      new RoomPageViewModel(map, _gameManager));
+    _gameManager.SelectedMap = map;
   }
 
   private async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)

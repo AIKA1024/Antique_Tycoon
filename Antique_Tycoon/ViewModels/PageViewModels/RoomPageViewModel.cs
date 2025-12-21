@@ -24,6 +24,7 @@ public partial class RoomPageViewModel : PageViewModelBase
   [ObservableProperty] public partial IList<Player> Players { get; set; }
   public Player LocalPlayer { get; }
 
+  public bool StartButtonVisible => _gameManager.IsRoomOwner;
 
   public RoomPageViewModel(Map map, GameManager gameManager,
     CancellationTokenSource? cts = null)
@@ -56,7 +57,7 @@ public partial class RoomPageViewModel : PageViewModelBase
   public override void OnBacked()
   {
     base.OnBacked();
-    if (!LocalPlayer.IsRoomOwner)
+    if (!_gameManager.IsRoomOwner)
       _gameManager.ExitRoom();
     _cancellationTokenSource?.Cancel();
   }

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 
 namespace Antique_Tycoon.Net;
 
@@ -276,10 +277,16 @@ public abstract class NetBase
         TcpMessageType.PlayerMoveResponse),
       _ when type == typeof(BuyEstateRequest) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.BuyEstateRequest,
-        UpdateEstateOwnerRequest: TcpMessageType.BuyEstateRequest),
+        TcpMessageType.BuyEstateRequest),
       _ when type == typeof(UpdateEstateInfoResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.UpdateEstateInfoResponse,
-        UpdateEstateOwnerResponse: TcpMessageType.UpdateEstateInfoResponse),
+        TcpMessageType.UpdateEstateInfoResponse),
+      _ when type == typeof(UpdatePlayerInfoResponse) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.UpdatePlayerInfoResponse,
+        TcpMessageType.UpdatePlayerInfoResponse),
+      _ when type == typeof(BuyEstateAction) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.BuyEstateAction,
+        TcpMessageType.BuyEstateAction),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

@@ -211,22 +211,26 @@ public class NetServer : NetBase
 
     var tcs = new TaskCompletionSource<ITcpMessage>();
     _pendingRequests[message.Id] = tcs;
-
+    
+    var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(30);
     try
     {
       // 发送消息
-      await SendResponseAsync(message, client);
-
+      await SendResponseAsync(message, client);//只计算
       // 设置超时处理（可选，防止客户端掉线导致服务器逻辑永久卡死）
-      var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(30);
+      
       using var cts = new CancellationTokenSource(effectiveTimeout);
-        
+      
       // 等待结果或超时
-      using (cts.Token.Register(() => tcs.TrySetCanceled()))
+      await using (cts.Token.Register(() => tcs.TrySetCanceled()))
       {
         var response = await tcs.Task;
         return (TResponse)response;
       }
+    }
+    catch (OperationCanceledException)
+    {
+      throw new TimeoutException($"客户端在 {effectiveTimeout.TotalSeconds} 秒内未响应请求: {typeof(TRequest).Name}");
     }
     finally
     {

@@ -1,17 +1,24 @@
+using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.ControlViewModels;
 using Avalonia.Controls;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Widgets;
 
 public partial class PlayerUI : UserControl
 {
+  
+  [GeneratedDirectProperty]
+  public partial ObservableCollection<String> Messages { get; set; }
   
   public PlayerUI()
   {
@@ -38,20 +45,13 @@ public partial class PlayerUI : UserControl
         UpdatePlayerInfo(player, data);
       }
     });
-    WeakReferenceMessenger.Default.Register<UpdatePlayerInfoMessage>(this, (_, m) =>
+    WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, (_, m) =>
     {
-      if (playerUiViewModel.LocalPlayer.Uuid == m.Value.Uuid)
-      {
-        UpdatePlayerInfo(playerUiViewModel.LocalPlayer, m.Value);
-        return;
-      }
-
-      var player = playerUiViewModel.OtherPlayers.First(p => p.Uuid == m.Value.Uuid);
-      UpdatePlayerInfo(player, m.Value);
+      var player = playerUiViewModel.OtherPlayers.First(p => p.Uuid == m.ChangedPlayer.Uuid);
+      UpdatePlayerInfo(player, m.ChangedPlayer);
+      Messages.Add(m.UpdateMessage);
     });
   }
-
-
 
   private void UpdatePlayerInfo(Player target, Player data)
   {

@@ -6,7 +6,8 @@
              xmlns:controlViewModels="clr-namespace:Antique_Tycoon.ViewModels.ControlViewModels"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="650"
              x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
-             x:DataType="controlViewModels:PlayerUiViewModel">
+             x:DataType="controlViewModels:PlayerUiViewModel"
+             x:Name="Me">
   <UserControl.Styles>
     <Style Selector="Grid.Invisible">
       <Setter Property="Opacity" Value="0" />
@@ -18,7 +19,13 @@
   </Design.DataContext>
   <Grid RowDefinitions="*,Auto"
         Classes.Invisible="{Binding IsVisible}">
-    
+    <UniformGrid Columns="3">
+      <StackPanel/>
+      <StackPanel/>
+      <c:McContentControl>
+        <ListBox ItemsSource="{Binding #Me.Messages}"/>
+      </c:McContentControl>
+    </UniformGrid>
     <StackPanel Grid.Row="1" Background="#A3703A">
       <Rectangle Height="2" Fill="#694826"></Rectangle>
       <Rectangle Height="5" Fill="#C58747"/>

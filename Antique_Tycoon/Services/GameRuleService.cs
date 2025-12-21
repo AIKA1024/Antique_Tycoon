@@ -18,7 +18,7 @@ namespace Antique_Tycoon.Services;
 /// <summary>
 /// 游戏规则核心服务，封装所有玩法逻辑
 /// </summary>
-public partial class GameRuleService : ObservableObject
+public class GameRuleService : ObservableObject
 {
   private readonly GameManager _gameManager;
   private readonly DialogService _dialogService;
@@ -35,12 +35,12 @@ public partial class GameRuleService : ObservableObject
 
   private async void ReceivePlayerMove(object recipient, PlayerMoveMessage message)
   {
-    if (_gameManager.LocalPlayer.IsRoomOwner)
-      await HandleStepOnNodeAsync(_gameManager.LocalPlayer, (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.DestinationNodeUuid]);
+    if (_gameManager.IsRoomOwner)
+      await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid), (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.DestinationNodeUuid]);
   }
 
 
-  public async Task HandleStepOnNodeAsync(Player player,NodeModel node)// 应该是只给服务器调用，客户端接收回应后在显示可用操作
+  private async Task HandleStepOnNodeAsync(Player player,NodeModel node)// 应该是只给服务器调用，客户端接收回应后在显示可用操作
   {
     switch (node)
     {
@@ -51,6 +51,7 @@ public partial class GameRuleService : ObservableObject
         await HandleSpawnPointAsync(player);
         break;
     }
+    await _gameManager.AdvanceToNextPlayerTurnAsync();
   }
 
   /// <summary>
@@ -58,11 +59,11 @@ public partial class GameRuleService : ObservableObject
   /// </summary>
   /// <param name="estate">地产</param>
   /// <param name="player">玩家</param>
-  private async Task HandleEstateAsync( Player player,Estate estate)
+  private async Task HandleEstateAsync(Player player,Estate estate)
   {
     if (estate.Owner == null && player.Money >= estate.Value)
     {
-      if (player.IsRoomOwner)
+      if (_gameManager.RoomOwnerUuid == player.Uuid)
       {
         bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
         {
@@ -80,23 +81,36 @@ public partial class GameRuleService : ObservableObject
       {
         var buyEstateActionMessage = new BuyEstateAction(estate.Uuid);
         var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-        var buyEstateRequest = await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction,BuyEstateRequest>(buyEstateActionMessage,client);
-        if (buyEstateRequest.IsConfirm)
+        try
         {
-          player.Money -= estate.Value;
-          estate.Owner = player;
-          var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
-          await _gameManager.NetServerInstance.Broadcast(message);
-          WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(player.Uuid,
-            estate.Uuid, 1));
+          var buyEstateRequest =
+            await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
+              buyEstateActionMessage, client,TimeSpan.FromSeconds(10));
+          if (buyEstateRequest.IsConfirm)
+          {
+            player.Money -= estate.Value;
+            estate.Owner = player;
+            var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+            await _gameManager.NetServerInstance.Broadcast(message);
+            WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(player.Uuid,
+              estate.Uuid, 1));
+          }
+        }
+        catch (OperationCanceledException e)
+        {
+          
         }
       }
     }
   }
   
-  private Task HandleSpawnPointAsync(Player player)
+  private async Task HandleSpawnPointAsync(Player player)
   {
-    player.Money += _gameManager.SelectedMap.SpawnPointCashReward;
-    return Task.CompletedTask;
+    var bonus= _gameManager.SelectedMap.SpawnPointCashReward;
+    player.Money += bonus;
+      var message =
+        new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money - bonus}->{player.Money}");
+      await _gameManager.NetServerInstance.Broadcast(message);
+      WeakReferenceMessenger.Default.Send(message);
   }
 }

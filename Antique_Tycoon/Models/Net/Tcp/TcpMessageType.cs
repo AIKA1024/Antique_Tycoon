@@ -12,6 +12,7 @@ public enum TcpMessageType : ushort
   BuyEstateAction,
   BuyEstateRequest,
   UpdateEstateInfoResponse,
+  UpdatePlayerInfoResponse,
   ExitRoomRequest,
   StartGameResponse,
   DownloadMapRequest,

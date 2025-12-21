@@ -18,10 +18,10 @@ public class OwnerToBackgroundConverter : MarkupExtension, IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var player = value as Player;
-        if (player == _gameManager.LocalPlayer)
-            return (SolidColorBrush)App.Current.FindResource("MyEstateBrush");
         if (player == null)
             return (SolidColorBrush)App.Current.FindResource("UnownedEstateBrush");
+        if (player.Uuid == _gameManager.LocalPlayer.Uuid)
+            return (SolidColorBrush)App.Current.FindResource("MyEstateBrush");
         return (SolidColorBrush)App.Current.FindResource("OpponentEstateBrush");
     }
 

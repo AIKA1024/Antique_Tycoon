@@ -57,8 +57,6 @@ public partial class Player : ObservableObject, IDisposable
     }
   } = PlayerRole.Steve;
 
-  [ObservableProperty] public partial bool IsRoomOwner { get; set; }
-
   public void Dispose()
   {
     Avatar.Dispose();

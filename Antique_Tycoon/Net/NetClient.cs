@@ -147,6 +147,12 @@ public class NetClient : NetBase
                 WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(updateEstateOwnerResponse.OwnerUuid,
                     updateEstateOwnerResponse.EstateUuid, updateEstateOwnerResponse.Level));
                 break;
+            case TcpMessageType.UpdatePlayerInfoResponse:
+                var updatePlayerInfoResponse =
+                    JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateEstateInfoResponse);
+                response = updatePlayerInfoResponse;
+                WeakReferenceMessenger.Default.Send(updatePlayerInfoResponse);
+                break;
         }
 
         if (response == null)
