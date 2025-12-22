@@ -1,8 +1,7 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
-using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
@@ -39,11 +38,11 @@ public partial class GamePageViewModel : PageViewModelBase
             Map.SpawnNode.PlayersHere.Add(player);
 
         // WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
-        WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, ReceiveTurnStartMessage);
+        WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
         WeakReferenceMessenger.Default.Register<InitGameMessageResponse>(this, ReceiveInitGameMessage);
-        WeakReferenceMessenger.Default.Register<RollDiceMessage>(this, ReceiveRollDiceMessage);
-        WeakReferenceMessenger.Default.Register<PlayerMoveMessage>(this, ReceivePlayerMoveMessage);
-        WeakReferenceMessenger.Default.Register<UpdateEstateInfoMessage>(this, ReceiveUpdateEstateInfoMessage);
+        WeakReferenceMessenger.Default.Register<RollDiceResponse>(this, ReceiveRollDiceMessage);
+        WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveMessage);
+        WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
         WeakReferenceMessenger.Default.Register<BuyEstateAction>(this ,ReceiveBuyEstateAction);
     }
 
@@ -62,10 +61,10 @@ public partial class GamePageViewModel : PageViewModelBase
     }
 
 
-    private void ReceiveTurnStartMessage(object sender, TurnStartMessage message)
+    private void ReceiveTurnStartMessage(object sender, TurnStartResponse message)
     {
         IsShowReminderText = false;
-        if (message.Value == _gameManager.LocalPlayer.Uuid)
+        if (message.PlayerUuid == _gameManager.LocalPlayer.Uuid)
             IsShowReminderText = true;
     }
 
@@ -86,12 +85,21 @@ public partial class GamePageViewModel : PageViewModelBase
         IsShowReminderText = true;
     }
 
-    private void ReceiveRollDiceMessage(object sender, RollDiceMessage message)
+    private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)
     {
-        RollDiceValue = message.DiceValue;
+        if (message.ResponseStatus!= RequestResult.Success)
+        {
+            await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+            {
+                Title = "错误",
+                Message = "投骰子失败，可能现在还没轮到你"
+            });
+        }
+        else
+            RollDiceValue = message.DiceValue;
     }
 
-    private async void ReceivePlayerMoveMessage(object sender, PlayerMoveMessage message)//todo 踩到格子后有什么操作应该是服务器发送后再执行，而不是自己本地判断
+    private void ReceivePlayerMoveMessage(object sender, PlayerMoveResponse message)
     {
         Player player = _gameManager.GetPlayerByUuid(message.PlayerUuid);
         string playerCurrentNodeUuid = player.CurrentNodeUuId;
@@ -102,10 +110,10 @@ public partial class GamePageViewModel : PageViewModelBase
         player.CurrentNodeUuId = destinationModelmodel.Uuid;
     }
 
-    private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoMessage message)
+    private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoResponse message)
     {
         var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
-        estate.Owner = _gameManager.GetPlayerByUuid(message.PlayerUuid);
+        estate.Owner = _gameManager.GetPlayerByUuid(message.OwnerUuid);
         estate.Level = message.Level;
     }
 }

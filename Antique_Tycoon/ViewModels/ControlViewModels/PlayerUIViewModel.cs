@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.PageViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -21,12 +22,12 @@ public partial class PlayerUiViewModel:PageViewModelBase
 
   public PlayerUiViewModel()
   {
-    WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, ReceiveTurnStartMessage);
+    WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
   }
   
-  private void ReceiveTurnStartMessage(object recipient, TurnStartMessage message)//todo 可能需要定期问服务器到自己没，因为网络不可靠
+  private void ReceiveTurnStartMessage(object recipient, TurnStartResponse message)//todo 可能需要定期问服务器到自己没，因为网络不可靠
   {
-    if (message.Value == LocalPlayer.Uuid)
+    if (message.PlayerUuid == LocalPlayer.Uuid)
       RollButtonEnable = true;
   }
   

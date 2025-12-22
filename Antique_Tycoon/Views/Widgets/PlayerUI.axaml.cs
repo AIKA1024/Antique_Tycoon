@@ -31,9 +31,9 @@ public partial class PlayerUI : UserControl
       if (m.Value.Key == Key.Tab)
         playerUiViewModel.IsVisible = !playerUiViewModel.IsVisible;
     });
-    WeakReferenceMessenger.Default.Register<UpdateRoomMessage>(this, (_, m) =>
+    WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, (_, m) =>
     {
-      foreach (var data in m.Value)
+      foreach (var data in m.Players)
       {
         if (playerUiViewModel.LocalPlayer.Uuid == data.Uuid)
         {

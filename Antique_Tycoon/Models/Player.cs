@@ -12,9 +12,9 @@ public partial class Player : ObservableObject, IDisposable
 {
   public string Uuid { get; set; } = Guid.NewGuid().ToString();
 
-  [ObservableProperty] private string _name = "史蒂夫";
+  [ObservableProperty] public partial string Name { get; set; } = "史蒂夫";
 
-  [ObservableProperty] private int _money;
+  [ObservableProperty] public partial int Money { get; set; }
 
   public string CurrentNodeUuId { get; set; } = "";
 

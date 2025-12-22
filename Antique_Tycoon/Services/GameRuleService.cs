@@ -30,10 +30,10 @@ public class GameRuleService : ObservableObject
   {
     _gameManager = gameManager;
     _dialogService = dialogService;
-    WeakReferenceMessenger.Default.Register<PlayerMoveMessage>(this,ReceivePlayerMove);
+    WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this,ReceivePlayerMove);
   }
 
-  private async void ReceivePlayerMove(object recipient, PlayerMoveMessage message)
+  private async void ReceivePlayerMove(object recipient, PlayerMoveResponse message)
   {
     if (_gameManager.IsRoomOwner)
       await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid), (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.DestinationNodeUuid]);
@@ -74,8 +74,7 @@ public class GameRuleService : ObservableObject
         player.Money -= estate.Value;
         var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
         await _gameManager.NetServerInstance.Broadcast(message);
-        WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(player.Uuid,
-          estate.Uuid, 1));
+        WeakReferenceMessenger.Default.Send(message);
       }
       else
       {
@@ -92,8 +91,7 @@ public class GameRuleService : ObservableObject
             estate.Owner = player;
             var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
             await _gameManager.NetServerInstance.Broadcast(message);
-            WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(player.Uuid,
-              estate.Uuid, 1));
+            WeakReferenceMessenger.Default.Send(message);
           }
         }
         catch (OperationCanceledException e)

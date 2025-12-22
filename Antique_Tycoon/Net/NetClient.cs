@@ -98,7 +98,7 @@ public class NetClient : NetBase
             case TcpMessageType.UpdateRoomResponse:
                 var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
                 response = updateRoomResponse;
-                WeakReferenceMessenger.Default.Send(new UpdateRoomMessage(updateRoomResponse.Players));
+                WeakReferenceMessenger.Default.Send(updateRoomResponse);
                 break;
             case TcpMessageType.DownloadMapResponse:
                 var downloadMapResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapResponse);
@@ -112,14 +112,12 @@ public class NetClient : NetBase
             case TcpMessageType.TurnStartResponse:
                 var turnStartResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.TurnStartResponse);
                 response = turnStartResponse;
-                WeakReferenceMessenger.Default.Send(new TurnStartMessage(turnStartResponse.PlayerUuid));
+                WeakReferenceMessenger.Default.Send(turnStartResponse);
                 break;
             case TcpMessageType.RollDiceResponse:
                 var rollDiceResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceResponse);
                 response = rollDiceResponse;
-                WeakReferenceMessenger.Default.Send(
-                    new RollDiceMessage(rollDiceResponse.PlayerUuid, rollDiceResponse.DiceValue,
-                        ((ResponseBase)response).ResponseStatus == RequestResult.Success));
+                WeakReferenceMessenger.Default.Send(rollDiceResponse);
                 break;
             case TcpMessageType.InitGameMessageResponse:
                 var initGameMessageResponse =
@@ -130,8 +128,7 @@ public class NetClient : NetBase
             case TcpMessageType.PlayerMoveResponse:
                 var playerMoveResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveResponse);
                 response = playerMoveResponse;
-                WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(playerMoveResponse.PlayerUuid,
-                    playerMoveResponse.DestinationNodeUuid));
+                WeakReferenceMessenger.Default.Send(playerMoveResponse);
                 break;
             case TcpMessageType.BuyEstateAction:
                 var buyEstateAction = JsonSerializer.Deserialize(json, AppJsonContext.Default.BuyEstateAction);
@@ -142,8 +139,7 @@ public class NetClient : NetBase
                 var updateEstateOwnerResponse =
                     JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateEstateInfoResponse);
                 response = updateEstateOwnerResponse;
-                WeakReferenceMessenger.Default.Send(new UpdateEstateInfoMessage(updateEstateOwnerResponse.OwnerUuid,
-                    updateEstateOwnerResponse.EstateUuid, updateEstateOwnerResponse.Level));
+                WeakReferenceMessenger.Default.Send(updateEstateOwnerResponse);
                 break;
             case TcpMessageType.UpdatePlayerInfoResponse:
                 var updatePlayerInfoResponse =

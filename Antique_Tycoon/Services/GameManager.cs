@@ -66,18 +66,18 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _strategyFactory = strategyFactory;
     var sfxPlayer = new MediaPlayer(libVlc);
     var turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
-    WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, (_, message) =>
+    WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
     {
-      if (message.Value == LocalPlayer.Uuid)
+      if (message.PlayerUuid == LocalPlayer.Uuid)
         sfxPlayer.Play(turnStartSfx);
     });
     WeakReferenceMessenger.Default.Register<InitGameMessageResponse>(this,
       (_, message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
-    WeakReferenceMessenger.Default.Register<UpdateRoomMessage>(this, (_, message) =>
+    WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, (_, message) =>
     {
       _playersByUuid.Clear();
-      foreach (var player in message.Value)
+      foreach (var player in message.Players)
         _playersByUuid[player.Uuid] = player;
     });
     WeakReferenceMessenger.Default.Register<ClientDisconnectedMessage>(this, async (_, message) =>
@@ -122,7 +122,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % Players.Count;
     var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
     await NetServerInstance.Broadcast(turnStartResponse);
-    WeakReferenceMessenger.Default.Send(new TurnStartMessage(CurrentTurnPlayer.Uuid));
+    WeakReferenceMessenger.Default.Send(turnStartResponse);
   }
 
   public async Task StartGameAsync()
@@ -191,13 +191,14 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       // --- 房主逻辑 ---
       if (LocalPlayer != CurrentTurnPlayer)
       {
-        WeakReferenceMessenger.Default.Send(new RollDiceMessage(LocalPlayer.Uuid, 0, false));
+        WeakReferenceMessenger.Default.Send(new RollDiceResponse("",LocalPlayer.Uuid,  0){ResponseStatus = RequestResult.Reject});
         return;
       }
 
       finalDiceValue = Random.Shared.Next(1, 7);
-      await NetServerInstance.Broadcast(new RollDiceResponse("", LocalPlayer.Uuid, finalDiceValue));
-      WeakReferenceMessenger.Default.Send(new RollDiceMessage(LocalPlayer.Uuid, finalDiceValue));
+      var response = new RollDiceResponse("",LocalPlayer.Uuid, finalDiceValue);
+      await NetServerInstance.Broadcast(response);
+      WeakReferenceMessenger.Default.Send(response);
     }
     else
     {
@@ -210,14 +211,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         targetPlayerUuid = response.PlayerUuid;
       }
       else
-      {
-        await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-        {
-          Title = "错误",
-          Message = "投骰子失败，可能现在还没轮到你"
-        });
         return; // 失败则退出
-      }
     }
 
     // --- 汇合点：无论哪种身份，只要拿到了合法的骰子值，就执行移动逻辑 ---
@@ -228,10 +222,9 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   {
     if (IsRoomOwner)
     {
-      await NetServerInstance.Broadcast(new PlayerMoveResponse(LocalPlayer.Uuid,
-        destinationNodeUuid));
-      WeakReferenceMessenger.Default.Send(new PlayerMoveMessage(LocalPlayer.Uuid,
-        destinationNodeUuid));
+      var response = new PlayerMoveResponse(LocalPlayer.Uuid, destinationNodeUuid);
+      await NetServerInstance.Broadcast(response);
+      WeakReferenceMessenger.Default.Send(response);
     }
     else
       await NetClientInstance.SendRequestAsync(new PlayerMoveRequest(LocalPlayer.Uuid,
