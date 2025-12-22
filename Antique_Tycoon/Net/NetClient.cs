@@ -107,7 +107,7 @@ public class NetClient : NetBase
             case TcpMessageType.StartGameResponse:
                 var startGameResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.StartGameResponse);
                 response = startGameResponse;
-                WeakReferenceMessenger.Default.Send(new GameStartMessage());
+                WeakReferenceMessenger.Default.Send(startGameResponse);
                 break;
             case TcpMessageType.TurnStartResponse:
                 var turnStartResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.TurnStartResponse);
@@ -125,9 +125,7 @@ public class NetClient : NetBase
                 var initGameMessageResponse =
                     JsonSerializer.Deserialize(json, AppJsonContext.Default.InitGameMessageResponse);
                 response = initGameMessageResponse;
-                WeakReferenceMessenger.Default.Send(
-                    new InitGameMessage(initGameMessageResponse.Players,
-                        initGameMessageResponse.CurrentTurnPlayerIndex));
+                WeakReferenceMessenger.Default.Send(initGameMessageResponse);
                 break;
             case TcpMessageType.PlayerMoveResponse:
                 var playerMoveResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveResponse);

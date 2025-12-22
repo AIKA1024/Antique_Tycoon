@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -35,7 +36,7 @@ public partial class RoomPageViewModel : PageViewModelBase
     Players = _gameManager.Players;
     LocalPlayer = _gameManager.LocalPlayer;
     _gameManager.Players.CollectionChanged += OnPlayersChanged;
-    WeakReferenceMessenger.Default.Register<GameStartMessage>(this, (_, _) => App.Current.Services
+    WeakReferenceMessenger.Default.Register<StartGameResponse>(this, (_, _) => App.Current.Services
       .GetRequiredService<NavigationService>().Navigation(new GamePageViewModel(SelectedMap)));
     // App.Current.Services.GetRequiredService<GameRuleService>();// 启动gameRule
   }

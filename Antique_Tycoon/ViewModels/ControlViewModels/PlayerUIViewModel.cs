@@ -16,7 +16,7 @@ public partial class PlayerUiViewModel:PageViewModelBase
 {
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
-  [ObservableProperty] private bool _isRollButtonEnable;
+  [ObservableProperty] private bool _rollButtonEnable;
   public ObservableCollection<Player> OtherPlayers { get; } = [];
 
   public PlayerUiViewModel()
@@ -27,7 +27,7 @@ public partial class PlayerUiViewModel:PageViewModelBase
   private void ReceiveTurnStartMessage(object recipient, TurnStartMessage message)//todo 可能需要定期问服务器到自己没，因为网络不可靠
   {
     if (message.Value == LocalPlayer.Uuid)
-      IsRollButtonEnable = true;
+      RollButtonEnable = true;
   }
   
   [RelayCommand]

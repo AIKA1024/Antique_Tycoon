@@ -4,6 +4,7 @@ using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Request;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
@@ -39,7 +40,7 @@ public partial class GamePageViewModel : PageViewModelBase
 
         // WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
         WeakReferenceMessenger.Default.Register<TurnStartMessage>(this, ReceiveTurnStartMessage);
-        WeakReferenceMessenger.Default.Register<InitGameMessage>(this, ReceiveInitGameMessage);
+        WeakReferenceMessenger.Default.Register<InitGameMessageResponse>(this, ReceiveInitGameMessage);
         WeakReferenceMessenger.Default.Register<RollDiceMessage>(this, ReceiveRollDiceMessage);
         WeakReferenceMessenger.Default.Register<PlayerMoveMessage>(this, ReceivePlayerMoveMessage);
         WeakReferenceMessenger.Default.Register<UpdateEstateInfoMessage>(this, ReceiveUpdateEstateInfoMessage);
@@ -68,7 +69,7 @@ public partial class GamePageViewModel : PageViewModelBase
             IsShowReminderText = true;
     }
 
-    private void ReceiveInitGameMessage(object sender, InitGameMessage message)
+    private void ReceiveInitGameMessage(object sender, InitGameMessageResponse message)
     {
         foreach (var localPlayerData in _gameManager.Players)
         {
@@ -99,11 +100,6 @@ public partial class GamePageViewModel : PageViewModelBase
         currentModelmodel.PlayersHere.Remove(player);
         destinationModelmodel.PlayersHere.Add(player);
         player.CurrentNodeUuId = destinationModelmodel.Uuid;
-
-        // if (player ==  _gameManager.LocalPlayer)//todo 踩到格子后的逻辑让服务器来处理，而不是本地判断
-        // {
-        //     await _gameRuleService.HandleStepOnNodeAsync(destinationModelmodel, player);
-        // }
     }
 
     private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoMessage message)

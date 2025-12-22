@@ -71,7 +71,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       if (message.Value == LocalPlayer.Uuid)
         sfxPlayer.Play(turnStartSfx);
     });
-    WeakReferenceMessenger.Default.Register<InitGameMessage>(this,
+    WeakReferenceMessenger.Default.Register<InitGameMessageResponse>(this,
       (_, message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
     WeakReferenceMessenger.Default.Register<UpdateRoomMessage>(this, (_, message) =>
@@ -129,7 +129,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   {
     var startMessage = new StartGameResponse();
     await NetServerInstance.Broadcast(startMessage, CancellationToken.None);
-    WeakReferenceMessenger.Default.Send(new GameStartMessage());
+    WeakReferenceMessenger.Default.Send(startMessage);
     if (!IsRoomOwner)
       return;
     CurrentRound = 1;
