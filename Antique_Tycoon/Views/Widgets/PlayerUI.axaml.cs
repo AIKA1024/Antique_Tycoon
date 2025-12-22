@@ -16,15 +16,15 @@ namespace Antique_Tycoon.Views.Widgets;
 
 public partial class PlayerUI : UserControl
 {
-  
-  [GeneratedDirectProperty]
-  public partial ObservableCollection<String> Messages { get; set; }
+  private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+
+  [GeneratedDirectProperty] public partial ObservableCollection<String> Messages { get; set; } = [];
   
   public PlayerUI()
   {
     InitializeComponent();
     var playerUiViewModel = new PlayerUiViewModel
-      { LocalPlayer = App.Current.Services.GetRequiredService<GameManager>().LocalPlayer };
+      { LocalPlayer = _gameManager.LocalPlayer };
     DataContext = playerUiViewModel;
     WeakReferenceMessenger.Default.Register<KeyPressedMessage>(this, (_, m) =>
     {
@@ -47,9 +47,18 @@ public partial class PlayerUI : UserControl
     });
     WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, (_, m) =>
     {
-      var player = playerUiViewModel.OtherPlayers.First(p => p.Uuid == m.ChangedPlayer.Uuid);
-      UpdatePlayerInfo(player, m.ChangedPlayer);
-      Messages.Add(m.UpdateMessage);
+      if (m.ChangedPlayer.Uuid == playerUiViewModel.LocalPlayer.Uuid)
+      {
+        UpdatePlayerInfo(_gameManager.LocalPlayer, m.ChangedPlayer);
+        Messages.Add(m.UpdateMessage);
+        return;
+      }
+      var player = playerUiViewModel.OtherPlayers.FirstOrDefault(p => p.Uuid == m.ChangedPlayer.Uuid);
+      if (player != null)
+      {
+        UpdatePlayerInfo(player, m.ChangedPlayer);
+        Messages.Add(m.UpdateMessage);
+      }
     });
   }
 

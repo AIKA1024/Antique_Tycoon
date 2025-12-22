@@ -102,7 +102,7 @@ public class GameRuleService : ObservableObject
     }
   }
   
-  private async Task HandleSpawnPointAsync(Player player)
+  private async Task HandleSpawnPointAsync(Player player)//todo 不正确，应该路过就给钱，而不是踩到，并且踩到就炸了，不知道为什么
   {
     var bonus= _gameManager.SelectedMap.SpawnPointCashReward;
     player.Money += bonus;

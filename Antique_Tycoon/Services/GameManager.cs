@@ -37,11 +37,13 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private readonly MapFileService _mapFileService;
 
   private readonly ObservableDictionary<string, Player> _playersByUuid = [];
+  
+  private string localPlayerUuid;
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
-  public Player LocalPlayer { get; set; }//todo 服务器后续发送的玩家和这个本地玩家会出现uuid相同，但其他数据不同的情况，现在还不知道怎么办
+  public Player LocalPlayer => _playersByUuid[localPlayerUuid];
   public Map? SelectedMap { get; set; }
   public string RoomOwnerUuid { get; set; } = "";
   public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
@@ -97,8 +99,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public void SetupLocalPlayer()
   {
     var localPlayer = new Player();
-    LocalPlayer = localPlayer;
-    RoomOwnerUuid = LocalPlayer.Uuid;
+    localPlayerUuid = localPlayer.Uuid;
+    RoomOwnerUuid = localPlayerUuid;
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
   }
 
