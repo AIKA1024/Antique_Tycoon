@@ -229,6 +229,7 @@ public abstract class NetBase
       TcpMessageType.UpdateEstateInfoResponse => AppJsonContext.Default.UpdateEstateInfoResponse,
       TcpMessageType.TurnStartResponse => AppJsonContext.Default.TurnStartResponse,
       TcpMessageType.InitGameMessageResponse => AppJsonContext.Default.InitGameResponse,
+      TcpMessageType.ExitRoomResponse => AppJsonContext.Default.ExitRoomResponse,
 
       _ => throw new NotSupportedException($"未定义消息类型 {type} 的 JSON 解析上下文")
     };
@@ -287,6 +288,9 @@ public abstract class NetBase
       _ when type == typeof(BuyEstateAction) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.BuyEstateAction,
         TcpMessageType.BuyEstateAction),
+      _ when type == typeof(ExitRoomResponse) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.ExitRoomResponse,
+        TcpMessageType.ExitRoomResponse),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

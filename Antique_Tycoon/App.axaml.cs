@@ -5,15 +5,18 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
+using System.Threading.Tasks;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.Net.TcpMessageHandlers;
 using Antique_Tycoon.Services;
 using Avalonia.Markup.Xaml;
 using Antique_Tycoon.ViewModels;
+using Antique_Tycoon.ViewModels.DialogViewModels;
 using Antique_Tycoon.Views;
 using Antique_Tycoon.Views.Windows;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,9 +35,10 @@ public partial class App : Application
   {
     AvaloniaXamlLoader.Load(this);
     var gameManager = Services.GetRequiredService<GameManager>();
-    gameManager.SetupLocalPlayer();
-    gameManager.SetDefaultMap();
+    gameManager.Initialize();
+    
     Services.GetRequiredService<GameRuleService>();// 启动gameRule todo 后面有多种规则后，需要按需实例化
+    
   }
 
   public App()
@@ -42,6 +46,83 @@ public partial class App : Application
     Services = ConfigureServices();
     Directory.CreateDirectory(MapPath);
     Directory.CreateDirectory(DownloadMapPath);
+  }
+  
+  private static void ExitApplication(int exitCode = 0)
+  {
+    // 获取当前应用的生命周期实例（跨平台通用）
+    var appLifetime = Application.Current?.ApplicationLifetime;
+    
+    if (appLifetime == null)
+    {
+      // 兜底：生命周期未初始化时，强制终止进程
+      Environment.Exit(exitCode);
+      return;
+    }
+
+    // 桌面端（Windows/macOS/Linux）
+    if (appLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+    {
+      desktopLifetime.Shutdown(exitCode);
+    }
+    // 移动端/单窗口应用（如Android/iOS）
+    else if (appLifetime is ISingleViewApplicationLifetime singleViewLifetime)
+    {
+      // 移动端通过终止进程实现退出（符合移动端行为）
+      Environment.Exit(exitCode);
+    }
+    // 其他未知生命周期：兜底退出
+    else
+    {
+      Environment.Exit(exitCode);
+    }
+  }
+
+  private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+  {
+    try
+    {
+      // 标记异常为已观察，避免进程崩溃
+      e.SetObserved();
+      var ex = e.Exception.Flatten().InnerException;
+      Console.WriteLine($"未处理的异步任务异常：{ex.Message}\r\n{ex.StackTrace}");
+
+      // 核心：切换到UI线程执行弹窗（避免跨线程访问）
+      var task = Dispatcher.UIThread.InvokeAsync(async () =>
+      {
+        try
+        {
+          // 确保DialogService已初始化
+          var dialogService = Services.GetRequiredService<DialogService>();
+          await dialogService.ShowDialogAsync(new MessageDialogViewModel
+          {
+            Title = "严重错误",
+            Message = $"{ex.Message}\r\n程序即将关闭",
+            IsShowCancelButton = false // 错误弹窗不允许取消
+          });
+        }
+        catch (Exception dialogEx)
+        {
+          // 弹窗失败时降级输出
+          Console.WriteLine($"弹窗显示失败：{dialogEx.Message}");
+        }
+        finally
+        {
+          // 无论弹窗是否成功，最终执行退出
+          ExitApplication();
+        }
+      });
+
+      // 等待UI线程操作完成（避免进程提前退出）
+      task.Wait();
+    }
+    catch (Exception handlerEx)
+    {
+      // 捕获事件处理程序自身的异常，避免崩溃
+      Console.WriteLine($"异常处理程序出错：{handlerEx.Message}");
+      // 兜底退出
+      Environment.Exit(1);
+    }
   }
 
   public override void OnFrameworkInitializationCompleted()
@@ -55,6 +136,7 @@ public partial class App : Application
     }
 
     base.OnFrameworkInitializationCompleted();
+    TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
   }
 
   private IServiceProvider ConfigureServices()

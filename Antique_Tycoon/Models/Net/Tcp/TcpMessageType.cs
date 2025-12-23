@@ -14,6 +14,7 @@ public enum TcpMessageType : ushort
   UpdateEstateInfoResponse,
   UpdatePlayerInfoResponse,
   ExitRoomRequest,
+  ExitRoomResponse,
   StartGameResponse,
   DownloadMapRequest,
   DownloadMapResponse,

@@ -24,6 +24,7 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(UpdateEstateInfoResponse))]
 [JsonSerializable(typeof(UpdatePlayerInfoResponse))]
 [JsonSerializable(typeof(ExitRoomRequest))]
+[JsonSerializable(typeof(ExitRoomResponse))]
 [JsonSerializable(typeof(StartGameResponse))]
 [JsonSerializable(typeof(DownloadMapRequest))]
 [JsonSerializable(typeof(DownloadMapResponse))]

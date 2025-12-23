@@ -99,7 +99,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
       File.Delete(mapZipPath);
     }
 
-    var response = await JoinRoomAsync();
+    var response = await JoinRoomAsync();//todo 第三个人连接不知道为什么报错
     if (response.ResponseStatus != RequestResult.Success)
     {
       await dialogService.ShowDialogAsync(

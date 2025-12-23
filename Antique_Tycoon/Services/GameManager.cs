@@ -78,15 +78,38 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
     WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameResponse);
     WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
-    WeakReferenceMessenger.Default.Register<ClientDisconnectedMessage>(this, ReceiveClientDisconnectedMessage);
+    WeakReferenceMessenger.Default.Register<ExitRoomResponse>(this, (_,request) => _playersByUuid.Remove(request.PlayerUuid));
     //因为要更新其他玩家的信息，所以也要监听这个消息
     WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
   }
+
+  public void Initialize()
+  {
+    SetupLocalPlayer();
+    SetDefaultMap();
+    _netServerLazy.Value.ClientDisConnected += ClientDisConnected;
+  }
+
+  /// <summary>
+  /// 服务器通过心跳发现玩家掉线
+  /// </summary>
+  /// <param name="client">掉线客户端</param>
+  private async void ClientDisConnected(TcpClient client)
+  {
+    var playerUuid = _clientToPlayerId[client];
+    _clientToPlayerId.Remove(client);
+    _playersByUuid.Remove(playerUuid);
+    var exitRoomResponse = new ExitRoomResponse(playerUuid);
+    await NetServerInstance.BroadcastExcept(exitRoomResponse, client);
+    WeakReferenceMessenger.Default.Send(exitRoomResponse);
+  }
+
   private void ReceiveInitGameResponse(object _, InitGameResponse message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex;
   private void ReceiveUpdateRoomResponse(object _, UpdateRoomResponse message)
   {
     _playersByUuid.Clear();
-    foreach (var player in message.Players) _playersByUuid[player.Uuid] = player;
+    foreach (var player in message.Players)
+      _playersByUuid[player.Uuid] = player;
   }
 
   private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
@@ -99,17 +122,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     destinationModelmodel.PlayersHere.Add(player);
     player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
-  
-  private async void ReceiveClientDisconnectedMessage(object _, ClientDisconnectedMessage message)
-  {
-    var playerUuid = _clientToPlayerId[message.Value];
-    _clientToPlayerId.Remove(message.Value);
-    _playersByUuid.Remove(playerUuid);
-    var updateRoomResponse = new UpdateRoomResponse { Id = Guid.NewGuid().ToString(), Players = Players };
-    await NetServerInstance.BroadcastExcept(updateRoomResponse, message.Value);
-  }
 
-  public void SetupLocalPlayer()
+  private void SetupLocalPlayer()
   {
     var localPlayer = new Player();
     localPlayerUuid = localPlayer.Uuid;
@@ -117,7 +131,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
   }
 
-  public void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
+  private void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
 
   public TcpClient GetClientByPlayerUuid(string uuid) =>
     _clientToPlayerId.First(variable => variable.Value == uuid).Key;
@@ -263,8 +277,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         Message = "房间已满",
         ResponseStatus = RequestResult.Reject
       };
-      var data = NetServerInstance.PackMessage(response);
-      await client.GetStream().WriteAsync(data);
+      await NetServerInstance.SendResponseAsync(response, client);
     }
     else
     {
@@ -272,7 +285,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       var joinRoomResponse = new JoinRoomResponse(LocalPlayer.Uuid)
       {
         Id = request.Id,
-        // Players = Players
       };
       await NetServerInstance.SendResponseAsync(joinRoomResponse, client);
 
@@ -284,17 +296,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       _clientToPlayerId.Add(client, request.PlayerUuid);
       await NetServerInstance.Broadcast(updateRoomResponse);
     }
-  }
-
-  public async Task ReceiveExitRoomRequest(ExitRoomRequest request, TcpClient client)
-  {
-    _playersByUuid.Remove(request.PlayerUuid);
-    var updateRoomResponse = new UpdateRoomResponse
-    {
-      Id = request.Id,
-      Players = Players
-    };
-    await NetServerInstance.BroadcastExcept(updateRoomResponse, client);
   }
 
   public async Task DownloadMap(DownloadMapRequest request, TcpClient client)

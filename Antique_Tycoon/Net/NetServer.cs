@@ -36,6 +36,8 @@ public class NetServer : NetBase
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(15);
 #endif
   
+  public event Action<TcpClient> ClientDisConnected;
+  
   /// <summary>
   /// 心跳包间隔
   /// </summary>
@@ -54,7 +56,7 @@ public class NetServer : NetBase
     DownloadPath = downloadPath;
     _messageHandlers = messageHandlers;
     _localIPv4 = GetLocalIPv4();
-    _timer.Elapsed += (_, _) => CheckOutlinePlayer();
+    _timer.Elapsed += (_, _) => CheckOutlineClient();
     _timer.Start();
   }
 
@@ -113,7 +115,7 @@ public class NetServer : NetBase
   }
 
 
-  private void CheckOutlinePlayer()
+  private void CheckOutlineClient()
   {
     foreach (var kv in _clientLastActiveTimes)
     {
@@ -121,7 +123,7 @@ public class NetServer : NetBase
       if (!(now - kv.Value > DisconnectTimeout.TotalMilliseconds)) continue;
       kv.Key.Close();
       _clientLastActiveTimes.Remove(kv.Key);
-      WeakReferenceMessenger.Default.Send(new ClientDisconnectedMessage(kv.Key));
+      ClientDisConnected?.Invoke(kv.Key);
     }
   }
 
@@ -176,18 +178,19 @@ public class NetServer : NetBase
     {
       var client = await _listener.AcceptTcpClientAsync(cancellation);
       _clientLastActiveTimes.TryAdd(client, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-      _ = HandleTcpClientAsync(client); // 处理连接（不要阻塞主循环）
+      // _ = HandleTcpClientAsync(client); // 处理连接（不要阻塞主循环）
+      await ReceiveLoopAsync(client);
     }
   }
 
   /// <summary>
   /// 处理Tcp消息
   /// </summary>
-  private async Task HandleTcpClientAsync(TcpClient client)
-  {
-    // await using var stream = client.GetStream();
-    await ReceiveLoopAsync(client);
-  }
+  // private async Task HandleTcpClientAsync(TcpClient client)
+  // {
+  //   // await using var stream = client.GetStream();
+  //   await ReceiveLoopAsync(client);
+  // }
 
   public async Task SendResponseAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
     where T : ITcpMessage
