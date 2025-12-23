@@ -37,6 +37,7 @@ public partial class App : Application
     var gameManager = Services.GetRequiredService<GameManager>();
     gameManager.Initialize();
     Services.GetRequiredService<GameRuleService>();// 启动gameRule todo 后面有多种规则后，需要按需实例化
+    
   }
 
   public App()

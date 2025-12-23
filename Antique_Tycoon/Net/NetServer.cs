@@ -246,7 +246,26 @@ public class NetServer : NetBase
   {
     var data = PackMessage(message);
     foreach (var client in _clientLastActiveTimes.Keys)
-      await client.GetStream().WriteAsync(data, cancellationToken);
+      try
+      {
+        await client.GetStream().WriteAsync(data, cancellationToken);
+      }
+      catch (Exception e)
+      {
+        switch (e)
+        {
+          case SocketException s:
+          case InvalidOperationException i:
+              Console.WriteLine(e);
+              Console.WriteLine("连接已断开");
+              _clientLastActiveTimes.Remove(client);
+              client.Close();
+              ClientDisConnected?.Invoke(client);
+            break;
+          default:
+            throw;
+        }
+      }
   }
   
   public async Task BroadcastExcept<T>(T message,TcpClient excluded, CancellationToken cancellationToken = default)where T : ResponseBase

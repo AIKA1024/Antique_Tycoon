@@ -32,7 +32,8 @@
             <TextBlock Text="{Binding Message}"
                        FontSize="24"
                        Margin="16"
-                       VerticalAlignment="Center" />
+                       VerticalAlignment="Center" 
+                       TextWrapping="Wrap"/>
             <Border Padding="16" Background="{StaticResource BorderBackgroundBrush}">
               <StackPanel Spacing="12">
                 <c:McButton Content="取消" HorizontalAlignment="Stretch" Padding="12"

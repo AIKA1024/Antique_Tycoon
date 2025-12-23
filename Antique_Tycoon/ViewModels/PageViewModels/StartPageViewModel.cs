@@ -40,9 +40,7 @@ public partial class StartPageViewModel : PageViewModelBase
   private async Task ShowLockerRoomDialog()
   {
     var lockerRoomDialogViewModel = new LockerRoomDialogViewModel();
-    var player = await App.Current.Services.GetRequiredService<DialogService>()
+    await App.Current.Services.GetRequiredService<DialogService>()
       .ShowDialogAsync(lockerRoomDialogViewModel);
-    // if (player != null)
-    //   App.Current.Services.GetRequiredService<GameManager>().LocalPlayer = player;
   }
 }
