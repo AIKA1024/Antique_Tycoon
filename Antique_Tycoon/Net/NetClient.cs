@@ -121,7 +121,7 @@ public class NetClient : NetBase
                 break;
             case TcpMessageType.InitGameMessageResponse:
                 var initGameMessageResponse =
-                    JsonSerializer.Deserialize(json, AppJsonContext.Default.InitGameMessageResponse);
+                    JsonSerializer.Deserialize(json, AppJsonContext.Default.InitGameResponse);
                 response = initGameMessageResponse;
                 WeakReferenceMessenger.Default.Send(initGameMessageResponse);
                 break;

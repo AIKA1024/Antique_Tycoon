@@ -37,8 +37,8 @@ public class GameRuleService : ObservableObject
   {
     if (_gameManager.IsRoomOwner)
       await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid), (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.DestinationNodeUuid]);
+    
   }
-
 
   private async Task HandleStepOnNodeAsync(Player player,NodeModel node)// 应该是只给服务器调用，客户端接收回应后在显示可用操作
   {

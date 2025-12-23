@@ -30,7 +30,7 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(TurnStartResponse))]
 [JsonSerializable(typeof(RollDiceRequest))]
 [JsonSerializable(typeof(RollDiceResponse))]
-[JsonSerializable(typeof(InitGameMessageResponse))]
+[JsonSerializable(typeof(InitGameResponse))]
 [JsonSerializable(typeof(PlayerMoveRequest))]
 [JsonSerializable(typeof(PlayerMoveResponse))]
 

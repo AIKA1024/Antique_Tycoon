@@ -10,6 +10,7 @@ using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -73,27 +74,39 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       if (message.PlayerUuid == LocalPlayer.Uuid)
         sfxPlayer.Play(turnStartSfx);
     });
-    WeakReferenceMessenger.Default.Register<InitGameMessageResponse>(this,
-      (_, message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex);
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
-    WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, (_, message) =>
-    {
-      _playersByUuid.Clear();
-      foreach (var player in message.Players)
-        _playersByUuid[player.Uuid] = player;
-    });
-    WeakReferenceMessenger.Default.Register<ClientDisconnectedMessage>(this, async (_, message) =>
-    {
-      var playerUuid = _clientToPlayerId[message.Value];
-      _clientToPlayerId.Remove(message.Value);
-      _playersByUuid.Remove(playerUuid);
-      var updateRoomResponse = new UpdateRoomResponse
-      {
-        Id = Guid.NewGuid().ToString(),
-        Players = Players
-      };
-      await NetServerInstance.BroadcastExcept(updateRoomResponse, message.Value);
-    });
+
+    WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameResponse);
+    WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
+    WeakReferenceMessenger.Default.Register<ClientDisconnectedMessage>(this, ReceiveClientDisconnectedMessage);
+    //因为要更新其他玩家的信息，所以也要监听这个消息
+    WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
+  }
+  private void ReceiveInitGameResponse(object _, InitGameResponse message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex;
+  private void ReceiveUpdateRoomResponse(object _, UpdateRoomResponse message)
+  {
+    _playersByUuid.Clear();
+    foreach (var player in message.Players) _playersByUuid[player.Uuid] = player;
+  }
+
+  private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
+  {
+    Player player = GetPlayerByUuid(message.PlayerUuid);
+    string playerCurrentNodeUuid = player.CurrentNodeUuId;
+    NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
+    NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.DestinationNodeUuid];
+    currentModelmodel.PlayersHere.Remove(player);
+    destinationModelmodel.PlayersHere.Add(player);
+    player.CurrentNodeUuId = destinationModelmodel.Uuid;
+  }
+  
+  private async void ReceiveClientDisconnectedMessage(object _, ClientDisconnectedMessage message)
+  {
+    var playerUuid = _clientToPlayerId[message.Value];
+    _clientToPlayerId.Remove(message.Value);
+    _playersByUuid.Remove(playerUuid);
+    var updateRoomResponse = new UpdateRoomResponse { Id = Guid.NewGuid().ToString(), Players = Players };
+    await NetServerInstance.BroadcastExcept(updateRoomResponse, message.Value);
   }
 
   public void SetupLocalPlayer()
@@ -146,7 +159,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
     _currentTurnPlayerIndex = Random.Shared.Next(Players.Count);
     // _currentTurnPlayerIndex = 1;
-    await NetServerInstance.Broadcast(new InitGameMessageResponse(
+    await NetServerInstance.Broadcast(new InitGameResponse(
       Players,
       _currentTurnPlayerIndex
     ));

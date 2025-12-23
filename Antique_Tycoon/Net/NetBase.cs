@@ -228,7 +228,7 @@ public abstract class NetBase
       TcpMessageType.DownloadMapResponse => AppJsonContext.Default.DownloadMapResponse,
       TcpMessageType.UpdateEstateInfoResponse => AppJsonContext.Default.UpdateEstateInfoResponse,
       TcpMessageType.TurnStartResponse => AppJsonContext.Default.TurnStartResponse,
-      TcpMessageType.InitGameMessageResponse => AppJsonContext.Default.InitGameMessageResponse,
+      TcpMessageType.InitGameMessageResponse => AppJsonContext.Default.InitGameResponse,
 
       _ => throw new NotSupportedException($"未定义消息类型 {type} 的 JSON 解析上下文")
     };
@@ -266,8 +266,8 @@ public abstract class NetBase
       _ when type == typeof(RollDiceResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.RollDiceResponse,
         TcpMessageType.RollDiceResponse),
-      _ when type == typeof(InitGameMessageResponse) => (
-        (JsonTypeInfo<T>)(object)AppJsonContext.Default.InitGameMessageResponse,
+      _ when type == typeof(InitGameResponse) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.InitGameResponse,
         TcpMessageType.InitGameMessageResponse),
       _ when type == typeof(PlayerMoveRequest) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.PlayerMoveRequest,

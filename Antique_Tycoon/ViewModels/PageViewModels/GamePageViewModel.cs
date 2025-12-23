@@ -39,9 +39,8 @@ public partial class GamePageViewModel : PageViewModelBase
 
         // WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
         WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
-        WeakReferenceMessenger.Default.Register<InitGameMessageResponse>(this, ReceiveInitGameMessage);
+        WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameMessage);
         WeakReferenceMessenger.Default.Register<RollDiceResponse>(this, ReceiveRollDiceMessage);
-        WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveMessage);
         WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
         WeakReferenceMessenger.Default.Register<BuyEstateAction>(this ,ReceiveBuyEstateAction);
     }
@@ -68,7 +67,7 @@ public partial class GamePageViewModel : PageViewModelBase
             IsShowReminderText = true;
     }
 
-    private void ReceiveInitGameMessage(object sender, InitGameMessageResponse message)
+    private void ReceiveInitGameMessage(object sender, InitGameResponse message)
     {
         foreach (var localPlayerData in _gameManager.Players)
         {
@@ -97,17 +96,6 @@ public partial class GamePageViewModel : PageViewModelBase
         }
         else
             RollDiceValue = message.DiceValue;
-    }
-
-    private void ReceivePlayerMoveMessage(object sender, PlayerMoveResponse message)
-    {
-        Player player = _gameManager.GetPlayerByUuid(message.PlayerUuid);
-        string playerCurrentNodeUuid = player.CurrentNodeUuId;
-        NodeModel currentModelmodel = (NodeModel)Map.EntitiesDict[playerCurrentNodeUuid];
-        NodeModel destinationModelmodel = (NodeModel)Map.EntitiesDict[message.DestinationNodeUuid];
-        currentModelmodel.PlayersHere.Remove(player);
-        destinationModelmodel.PlayersHere.Add(player);
-        player.CurrentNodeUuId = destinationModelmodel.Uuid;
     }
 
     private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoResponse message)
