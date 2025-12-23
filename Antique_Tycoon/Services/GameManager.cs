@@ -49,7 +49,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public string RoomOwnerUuid { get; set; } = "";
   public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
-  public int MaxPlayer { get; private set; } = 5;
+  public int MaxPlayer { get; private set; } = 5;//todo 应该由地图决定
   private int _currentTurnPlayerIndex;
   [ObservableProperty] public partial int CurrentRound { get; set; }
 
@@ -267,7 +267,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _ = NetClientInstance.SendRequestAsync(exitRoomRequest);
   }
 
-  public async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)
+  public async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)//todo 逻辑应该移动到TcpHandler中
   {
     if (_playersByUuid.Count >= MaxPlayer)
     {

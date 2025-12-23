@@ -69,20 +69,7 @@ public class NetClient : NetBase
         _tcpClient?.Dispose();
         _tcpClient = new TcpClient();
         await _tcpClient.ConnectAsync(ipEndPoint, cancellation);
-        _ = ReceiveLoopAsync(_tcpClient, cancellation).ContinueWith(
-            task => 
-            {
-                // 检查任务是否出错
-                if (task.Exception != null)
-                {
-                    // 扁平化AggregateException（异步任务的异常通常包装在AggregateException中）
-                    var innerEx = task.Exception.Flatten().InnerException;
-                    Console.WriteLine($"ReceiveLoopAsync 出错：{innerEx.Message}");
-                    throw innerEx;
-                }
-            },
-            TaskContinuationOptions.OnlyOnFaulted // 仅当任务出错时执行
-        );
+        _ = ReceiveLoopAsync(_tcpClient, cancellation);
         _ = HeartbeatLoopAsync(cancellation); // 开始循环发送心跳包
     }
 
