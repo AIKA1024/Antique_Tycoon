@@ -189,26 +189,24 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     Player currentPlayer = GetPlayerByUuid(playerUuid);
 
     // 1. 计算可选路径
-    var selectableNodes = SelectedMap
+    var pathDic = SelectedMap
       .GetPathsAtExactStep(currentPlayer.CurrentNodeUuId, diceValue);
 
-    var nodeDictionary = selectableNodes.ToDictionary(list => list[^1]);
-
-    if (selectableNodes.Count == 1)
+    if (pathDic.Count == 1)
     {
       // 只有一条路，直接走
-      await PlayerMove(selectableNodes[0].Select(n=>n.Uuid).ToArray());
+      await PlayerMove(pathDic.Values.First());
     }
-    else if (selectableNodes.Count > 1)
+    else if (pathDic.Count > 1)
     {
       // 多条路，通过信使请求 UI 层进行选择，并等待返回
       // 这里的 GameMaskShowMessage 建议参考上一条回答改成 AsyncRequestMessage
-      var message = new GameMaskShowMessage(nodeDictionary.Keys.ToArray());
+      var message = new GameMaskShowMessage(pathDic.Values.Select(l=>l[^1]).ToList(),SelectedMap);
       WeakReferenceMessenger.Default.Send(message);
 
       // 等待玩家在 UI 上点击后的结果
       var selectedNode = (NodeModel)SelectedMap.EntitiesDict[await message.Response];
-      await PlayerMove(nodeDictionary[selectedNode].Select(n=>n.Uuid).ToArray());
+      await PlayerMove(pathDic[selectedNode.Uuid]);
     }
   }
 
@@ -249,7 +247,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     await HandleDiceRollResult(targetPlayerUuid, finalDiceValue);
   }
 
-  private async Task PlayerMove(string[] path)
+  private async Task PlayerMove(List<string> path)
   {
     if (IsRoomOwner)
     {
