@@ -35,8 +35,9 @@ public class GameRuleService : ObservableObject
 
   private async void ReceivePlayerMove(object recipient, PlayerMoveResponse message)
   {
+    await Task.Yield();
     if (_gameManager.IsRoomOwner)
-      await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid), (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.DestinationNodeUuid]);
+      await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid), (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.Path[^1]]);
     
   }
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
@@ -41,6 +42,12 @@ public partial class GameCanvas : UserControl
     InitializeComponent();
     AddHandler(Connector.ConnectedEvent, OnConnectorConnected, RoutingStrategies.Bubble);
     AddHandler(Connector.CancelConnectEvent, OnConnectorCancelConnect, RoutingStrategies.Bubble);
+    WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this,ReceivePlayerMoveResponse);
+  }
+
+  private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
+  {
+    //todo 添加玩家移动动画
   }
 
   private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)

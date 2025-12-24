@@ -112,13 +112,14 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       _playersByUuid[player.Uuid] = player;
   }
 
-  private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
+  private async void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
   {
     Player player = GetPlayerByUuid(message.PlayerUuid);
     string playerCurrentNodeUuid = player.CurrentNodeUuId;
     NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
-    NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.DestinationNodeUuid];
+    NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
     currentModelmodel.PlayersHere.Remove(player);
+    await Task.Yield();
     destinationModelmodel.PlayersHere.Add(player);
     player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
@@ -189,24 +190,25 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
     // 1. 计算可选路径
     var selectableNodes = SelectedMap
-      .GetNodesAtExactStepViaActiveConnections(currentPlayer.CurrentNodeUuId, diceValue)
-      .ToArray();
+      .GetPathsAtExactStep(currentPlayer.CurrentNodeUuId, diceValue);
 
-    if (selectableNodes.Length == 1)
+    var nodeDictionary = selectableNodes.ToDictionary(list => list[^1]);
+
+    if (selectableNodes.Count == 1)
     {
       // 只有一条路，直接走
-      await PlayerMove(selectableNodes[0].Uuid);
+      await PlayerMove(selectableNodes[0].Select(n=>n.Uuid).ToArray());
     }
-    else if (selectableNodes.Length > 1)
+    else if (selectableNodes.Count > 1)
     {
       // 多条路，通过信使请求 UI 层进行选择，并等待返回
       // 这里的 GameMaskShowMessage 建议参考上一条回答改成 AsyncRequestMessage
-      var message = new GameMaskShowMessage(selectableNodes);
+      var message = new GameMaskShowMessage(nodeDictionary.Keys.ToArray());
       WeakReferenceMessenger.Default.Send(message);
 
       // 等待玩家在 UI 上点击后的结果
-      var selectedNodeUuid = await message.Response;
-      await PlayerMove(selectedNodeUuid);
+      var selectedNode = (NodeModel)SelectedMap.EntitiesDict[await message.Response];
+      await PlayerMove(nodeDictionary[selectedNode].Select(n=>n.Uuid).ToArray());
     }
   }
 
@@ -247,17 +249,16 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     await HandleDiceRollResult(targetPlayerUuid, finalDiceValue);
   }
 
-  private async Task PlayerMove(string destinationNodeUuid)
+  private async Task PlayerMove(string[] path)
   {
     if (IsRoomOwner)
     {
-      var response = new PlayerMoveResponse(LocalPlayer.Uuid, destinationNodeUuid);
+      var response = new PlayerMoveResponse(LocalPlayer.Uuid, path);
       await NetServerInstance.Broadcast(response);
       WeakReferenceMessenger.Default.Send(response);
     }
     else
-      await NetClientInstance.SendRequestAsync(new PlayerMoveRequest(LocalPlayer.Uuid,
-        destinationNodeUuid));
+      await NetClientInstance.SendRequestAsync(new PlayerMoveRequest(LocalPlayer.Uuid, path));
   }
 
 
@@ -282,10 +283,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     else
     {
       _playersByUuid.TryAdd(request.PlayerUuid, request.Player);
-      var joinRoomResponse = new JoinRoomResponse(LocalPlayer.Uuid)
-      {
-        Id = request.Id,
-      };
+      var joinRoomResponse = new JoinRoomResponse(LocalPlayer.Uuid) { Id = request.Id };
       await NetServerInstance.SendResponseAsync(joinRoomResponse, client);
 
       var updateRoomResponse = new UpdateRoomResponse

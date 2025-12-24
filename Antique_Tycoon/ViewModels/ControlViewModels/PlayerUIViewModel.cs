@@ -25,7 +25,7 @@ public partial class PlayerUiViewModel:PageViewModelBase
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
   }
   
-  private void ReceiveTurnStartMessage(object recipient, TurnStartResponse message)//todo 可能需要定期问服务器到自己没，因为网络不可靠
+  private void ReceiveTurnStartMessage(object recipient, TurnStartResponse message)
   {
     if (message.PlayerUuid == LocalPlayer.Uuid)
       RollButtonEnable = true;

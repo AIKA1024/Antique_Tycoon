@@ -17,7 +17,7 @@ public class PlayerMoveHandler(GameManager gameManager):ITcpMessageHandler
     {
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveRequest) is { } playerMoveRequest)
         {
-            var response = new PlayerMoveResponse(playerMoveRequest.PlayerUuid, playerMoveRequest.DestinationNodeUuid)
+            var response = new PlayerMoveResponse(playerMoveRequest.PlayerUuid, playerMoveRequest.Path)
                 { Id = playerMoveRequest.Id };
             await gameManager.NetServerInstance.Broadcast(response);
             WeakReferenceMessenger.Default.Send(response);
