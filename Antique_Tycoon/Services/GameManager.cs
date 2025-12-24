@@ -45,7 +45,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
   public Player LocalPlayer => _playersByUuid[localPlayerUuid];
-  public Map? SelectedMap { get; set; }
+  [ObservableProperty]
+  public partial Map? SelectedMap { get; set; }
   public string RoomOwnerUuid { get; set; } = "";
   public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
@@ -119,7 +120,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
     NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
     currentModelmodel.PlayersHere.Remove(player);
-    await Task.Yield();
+    //todo 这里要通知启动动画
     destinationModelmodel.PlayersHere.Add(player);
     player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
