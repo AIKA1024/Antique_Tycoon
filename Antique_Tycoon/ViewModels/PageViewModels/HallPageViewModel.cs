@@ -121,10 +121,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 
   private async Task<JoinRoomResponse> JoinRoomAsync(CancellationToken cancellation = default)
   {
-    var joinRoomRequest = new JoinRoomRequest
-    {
-      Player = _gameManager.LocalPlayer
-    };
+    var joinRoomRequest = new JoinRoomRequest { Player = _gameManager.LocalPlayer };
     return (JoinRoomResponse)await _gameManager.NetClientInstance.SendRequestAsync(joinRoomRequest, cancellation);
   }
 

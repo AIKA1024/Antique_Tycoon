@@ -178,8 +178,7 @@ public class NetServer : NetBase
     {
       var client = await _listener.AcceptTcpClientAsync(cancellation);
       _clientLastActiveTimes.TryAdd(client, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-      // _ = HandleTcpClientAsync(client); // 处理连接（不要阻塞主循环）
-      await ReceiveLoopAsync(client);
+      _ = ReceiveLoopAsync(client,cancellation); // 处理连接（不要阻塞主循环）
     }
   }
 
