@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
@@ -120,7 +121,9 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
     NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
     currentModelmodel.PlayersHere.Remove(player);
-    //todo 这里要通知启动动画
+    var animationMessage = WeakReferenceMessenger.Default.Send(new StartPlayerMoveAnimation(player, message.Path));
+    Task animationTask = await animationMessage.Response;
+    await animationTask;
     destinationModelmodel.PlayersHere.Add(player);
     player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
