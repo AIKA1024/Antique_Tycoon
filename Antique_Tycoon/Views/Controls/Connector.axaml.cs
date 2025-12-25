@@ -79,7 +79,7 @@ public partial class Connector : TemplatedControl
     base.OnLoaded(e);
     LayoutChanged.AddLayoutChangedHandler(this.GetVisualAncestors().OfType<NodeLinkControl>().FirstOrDefault(),
       OnNodeLocationChanged);
-    OnNodeLocationChanged(null, null);
+    OnNodeLocationChanged(null, null);//触发开局布局
   }
 
   private void OnNodeLocationChanged(object? sender, RoutedEventArgs e)

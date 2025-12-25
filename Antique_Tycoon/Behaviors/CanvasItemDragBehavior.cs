@@ -5,7 +5,6 @@ using Antique_Tycoon.Views.Windows;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
@@ -30,6 +29,7 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
     AssociatedObject.PointerPressed += AssociatedObjectOnPointerPressed;
     AssociatedObject.PointerReleased += AssociatedObjectOnPointerReleased;
     AssociatedObject.PointerMoved += AssociatedObjectOnPointerMoved;
+    AssociatedObject.SizeChanged += AssociatedObjectOnSizeChanged;
     _topSubscription = AssociatedObject.GetObservable(Canvas.TopProperty)
       .Subscribe(_ => LayoutChanged.RaiseLayoutChanged(AssociatedObject));
     _leftSubscription = AssociatedObject.GetObservable(Canvas.LeftProperty)
@@ -49,6 +49,8 @@ public partial class CanvasItemDragBehavior : Behavior<Control>
     _topSubscription?.Dispose();
     _leftSubscription?.Dispose();
   }
+
+    
 
   private void AssociatedObjectOnPointerPressed(object? sender, PointerPressedEventArgs e)
   {

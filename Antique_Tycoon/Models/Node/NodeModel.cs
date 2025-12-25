@@ -1,8 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using Antique_Tycoon.Converters.JsonConverter;
 using Antique_Tycoon.Models.Connections;
+using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -13,6 +13,8 @@ namespace Antique_Tycoon.Models.Node;
 
 public abstract partial class NodeModel : CanvasItemModel, IDisposable
 {
+  private double _lastWidth;
+  private double _lastHeight;
   public double Left
   {
     get;
@@ -42,6 +44,28 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
     get;
     set => SetProperty(ref field, value);
   } = 150;
+  
+  public bool IsAutoSize
+  {
+    get;
+    set
+    {
+      if (value)
+      {
+        _lastWidth = Width;
+        _lastHeight = Height;
+        Width = double.NaN;
+        Height = double.NaN;
+      }
+      else
+      {
+        Width = _lastWidth;
+        Height = _lastHeight;
+      }
+
+      SetProperty(ref field, value);
+    }
+  }
 
   // [JsonConverter(typeof(ColorJsonConverter))]
   // public Color Background
