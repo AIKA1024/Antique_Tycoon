@@ -59,8 +59,11 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
       }
       else
       {
-        Width = _lastWidth;
-        Height = _lastHeight;
+        if (_lastWidth != 0 && _lastHeight != 0)
+        {
+          Width = _lastWidth;
+          Height = _lastHeight;
+        }
       }
 
       SetProperty(ref field, value);
