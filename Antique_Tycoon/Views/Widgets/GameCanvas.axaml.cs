@@ -89,7 +89,10 @@ public partial class GameCanvas : UserControl
             var center = control.Bounds.Center;
             return new Point(center.X - border.Bounds.Width / 2.0, center.Y - border.Bounds.Height / 2.0);
         }
-
+        
+        _canvas.Children.Add(border);
+        border.UpdateLayout();
+        
         // 1. 设置初始位置 (Nodes[0] 的中心)
         var startPos = GetCenterPosition(nodes[0]);
         Canvas.SetLeft(border, startPos.X);
@@ -97,7 +100,7 @@ public partial class GameCanvas : UserControl
 
         var transform = new TranslateTransform();
         border.RenderTransform = transform;
-        _canvas.Children.Add(border);
+        
 
         foreach (var node in nodes[1..])
         {
