@@ -65,5 +65,14 @@
         </StackPanel>
       </ControlTemplate>
     </Setter>
+    
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="#58585A"/>
+      <Setter Property="Background" Value="#B1B2B5"/>
+      <Setter Property="BorderBrush" Value="#58585A"/>
+      <Style Selector="^>StackPanel>Rectangle">
+        <Setter Property="Fill" Value="#58585A"/>
+      </Style>
+    </Style>
   </Style>
 </Styles>

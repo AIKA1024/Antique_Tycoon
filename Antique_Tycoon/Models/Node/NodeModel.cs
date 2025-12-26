@@ -10,11 +10,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Models.Node;
 
-
 public abstract partial class NodeModel : CanvasItemModel, IDisposable
 {
-  private double _lastWidth;
-  private double _lastHeight;
+  const double DefaultWidth = 120;
+  const double DefaultHeight = 150;
+
   public double Left
   {
     get;
@@ -33,18 +33,18 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
     set => SetProperty(ref field, value);
   } = "";
 
-  public double Width
+  public double? Width
   {
     get;
     set => SetProperty(ref field, value);
-  } = 120;
+  } = DefaultWidth;
 
-  public double Height
+  public double? Height
   {
     get;
     set => SetProperty(ref field, value);
-  } = 150;
-  
+  } = DefaultHeight;
+
   public bool IsAutoSize
   {
     get;
@@ -52,17 +52,64 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
     {
       if (value)
       {
-        _lastWidth = Width;
-        _lastHeight = Height;
-        Width = double.NaN;
-        Height = double.NaN;
+        Width = null;
+        Height = null;
       }
       else
       {
-        if (_lastWidth != 0 && _lastHeight != 0)
+        double.TryParse(WidthDisplayText, out var width);
+        double.TryParse(HeightDisplayText, out var height);
+        if (width !=0 && height !=0)
         {
-          Width = _lastWidth;
-          Height = _lastHeight;
+          Width = width;
+          Height = height;
+        }
+      }
+
+      SetProperty(ref field, value);
+      OnPropertyChanged(nameof(WidthDisplayText));
+    }
+  }
+
+  [JsonIgnore]
+  public string WidthDisplayText
+  {
+    get;
+    set
+    {
+      if (!IsAutoSize)
+      {
+        // 当用户在 TextBox 输入并回车/失去焦点时
+        if (double.TryParse(value, out var result))
+        {
+          Width = result;
+        }
+        else
+        {
+          Width = double.NaN; // 解析失败（如输入空）则回退到 Auto
+        }
+      }
+
+      SetProperty(ref field, value);
+    }
+  }
+
+  [JsonIgnore]
+  public string HeightDisplayText
+  {
+    get;
+    set
+    {
+      if (!IsAutoSize)
+      {
+        // 当用户在 TextBox 输入并回车/失去焦点时
+        if (double.TryParse(value, out var result))
+        {
+          Height = result;
+        }
+        else
+        {
+          Height = double.NaN; // 解析失败（如输入空）则回退到 Auto
         }
       }
 
@@ -92,15 +139,13 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
 
   public ConnectorJsonModel[] ConnectorModels { get; set; } =
     [new(), new(), new(), new()];
-  
-  [JsonIgnore]
-  [ObservableProperty]
-  public partial Player? Owner { get; set; }
 
-  [JsonIgnore]
-  public ObservableCollection<Player> PlayersHere { get; set; } = [];
+  [JsonIgnore] [ObservableProperty] public partial Player? Owner { get; set; }
+
+  [JsonIgnore] public ObservableCollection<Player> PlayersHere { get; set; } = [];
 
   private bool _disposed;
+
   public void Dispose()
   {
     if (_disposed) return;

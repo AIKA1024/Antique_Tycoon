@@ -61,18 +61,18 @@
                         Text="{Binding SelectedMapEntity.Title}" />
                     </c:McContentControl>
                     <c:McContentControl Header="节点尺寸">
-                      <StackPanel>
+                      <StackPanel Spacing="8">
                         <TextBlock Text="宽度"/>
                         <TextBox
                           Classes="MCTextbox"
                           IsEnabled="{Binding !SelectedMapEntity.IsAutoSize}"
-                          Text="{Binding SelectedMapEntity.Width}" />
-                        <TextBlock Text="高度" Margin="0 12 0 0"/>
+                          Text="{Binding SelectedMapEntity.WidthDisplayText}" />
+                        <TextBlock Text="高度"/>
                         <TextBox
                           Classes="MCTextbox"
                           IsEnabled="{Binding !SelectedMapEntity.IsAutoSize}"
-                          Text="{Binding SelectedMapEntity.Height}" />
-                      <ToggleSwitch Content="自适应大小" Margin="0 12 0 0" IsChecked="{Binding SelectedMapEntity.IsAutoSize}"/>
+                          Text="{Binding SelectedMapEntity.HeightDisplayText}" />
+                      <ToggleSwitch Content="自适应大小" IsChecked="{Binding SelectedMapEntity.IsAutoSize}"/>
                       </StackPanel>
                     </c:McContentControl>
                     <c:McContentControl Header="图片">
