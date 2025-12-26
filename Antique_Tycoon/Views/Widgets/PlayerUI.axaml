@@ -57,7 +57,6 @@
         <c:McButton Grid.Column="2"
                     Classes="ore"
                     Padding="0"
-                    IsEnabled="{Binding RollButtonEnable}"
                     Command="{Binding RollDiceCommand}"
                     HorizontalAlignment="Right" VerticalAlignment="Bottom">
           <Image Source="../../Assets/Image/GameUI/Dice.png" Width="128"/>

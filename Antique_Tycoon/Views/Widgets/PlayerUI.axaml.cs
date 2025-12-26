@@ -47,16 +47,16 @@ public partial class PlayerUI : UserControl
     });
     WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, (_, m) =>
     {
-      if (m.ChangedPlayer.Uuid == playerUiViewModel.LocalPlayer.Uuid)
+      if (m.Player.Uuid == playerUiViewModel.LocalPlayer.Uuid)
       {
-        UpdatePlayerInfo(_gameManager.LocalPlayer, m.ChangedPlayer);
+        UpdatePlayerInfo(_gameManager.LocalPlayer, m.Player);
         Messages.Add(m.UpdateMessage);
         return;
       }
-      var player = playerUiViewModel.OtherPlayers.FirstOrDefault(p => p.Uuid == m.ChangedPlayer.Uuid);
+      var player = playerUiViewModel.OtherPlayers.FirstOrDefault(p => p.Uuid == m.Player.Uuid);
       if (player != null)
       {
-        UpdatePlayerInfo(player, m.ChangedPlayer);
+        UpdatePlayerInfo(player, m.Player);
         Messages.Add(m.UpdateMessage);
       }
     });

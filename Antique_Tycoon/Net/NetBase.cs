@@ -97,7 +97,10 @@ public abstract class NetBase
             _ = ProcessMessageAsync(type, json, client).ContinueWith(t =>
             {
               if (t.Exception != null)
+              {
                 Console.WriteLine($"ProcessMessageAsync failed: {t.Exception}");
+                throw t.Exception;
+              }
             }, TaskContinuationOptions.OnlyOnFaulted);
             break;
         }

@@ -13,29 +13,37 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.ControlViewModels;
 
-public partial class PlayerUiViewModel:PageViewModelBase
+public partial class PlayerUiViewModel : PageViewModelBase
 {
+  private readonly AnimationManager _animationManager = App.Current.Services.GetRequiredService<AnimationManager>();
+
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
-  [ObservableProperty] private bool _rollButtonEnable;
+
+  // public bool RollButtonEnable
+  // {
+  //   get => field && !_animationManager.HasAnimationRunning;
+  //   set => SetProperty(ref field, value);
+  // } = true;
+
   public ObservableCollection<Player> OtherPlayers { get; } = [];
 
   public PlayerUiViewModel()
   {
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
   }
-  
+
   private void ReceiveTurnStartMessage(object recipient, TurnStartResponse message)
   {
-    if (message.PlayerUuid == LocalPlayer.Uuid)
-      RollButtonEnable = true;
+    // if (message.PlayerUuid == LocalPlayer.Uuid)
+      // RollButtonEnable = true;
   }
-  
+
   [RelayCommand]
   private async Task RollDiceAsync()
   {
+    if (_animationManager.HasAnimationRunning)
+      return;
     await App.Current.Services.GetRequiredService<GameManager>().RollDiceAsync();
-    await Task.Delay(1000);
   }
 }
-

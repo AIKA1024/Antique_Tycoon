@@ -56,7 +56,7 @@ public partial class GamePageViewModel : PageViewModelBase
             IsLightDismissEnabled = false
         });
         if (isConfirm)
-            await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest(message.Id,_gameManager.LocalPlayer.Uuid, estate.Uuid));//扣钱逻辑让服务器发送更新金额要求
+            await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest(message.Id,_gameManager.LocalPlayer.Uuid, estate.Uuid));
         else
             await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest());// 和服务器表示不买
     }

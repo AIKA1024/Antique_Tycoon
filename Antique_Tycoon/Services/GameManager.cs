@@ -204,7 +204,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       // 多条路，通过信使请求 UI 层进行选择，并等待返回
       // 这里的 GameMaskShowMessage 建议参考上一条回答改成 AsyncRequestMessage
       var message = new GameMaskShowMessage(pathDic.Values.Select(l=>l[^1]).ToList(),SelectedMap);
-      WeakReferenceMessenger.Default.Send(message);
+      await WeakReferenceMessenger.Default.Send(message);
 
       // 等待玩家在 UI 上点击后的结果
       var selectedNode = (NodeModel)SelectedMap.EntitiesDict[await message.Response];
@@ -234,9 +234,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     else
     {
       // --- 客户端逻辑 ---
-      var response = await NetClientInstance.SendRequestAsync(new RollDiceRequest()) as RollDiceResponse;
 
-      if (response != null && response.DiceValue != 0)
+      if (await NetClientInstance.SendRequestAsync(new RollDiceRequest()) is RollDiceResponse { ResponseStatus: RequestResult.Success } response)
       {
         finalDiceValue = response.DiceValue;
         targetPlayerUuid = response.PlayerUuid;

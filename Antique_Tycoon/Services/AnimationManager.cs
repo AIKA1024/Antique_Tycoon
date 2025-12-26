@@ -9,6 +9,8 @@ namespace Antique_Tycoon.Services;
 public class AnimationManager
 {
     private readonly Dictionary<string, Task> _animationTasks = [];
+    
+    public bool HasAnimationRunning => _animationTasks.Count > 0; 
 
     public async Task StartPlayerMoveAnimation(Player player, List<string> path, string token)
     {

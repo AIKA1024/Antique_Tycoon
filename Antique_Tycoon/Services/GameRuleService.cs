@@ -113,8 +113,7 @@ public class GameRuleService : ObservableObject
         var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
         player.Money += bonus;
         var message =
-            new UpdatePlayerInfoResponse(player,
-                $"{player.Name}路过了出生点，获得{bonus} {player.Money - bonus}->{player.Money}");
+            new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money - bonus}->{player.Money}");
         await _gameManager.NetServerInstance.Broadcast(message);
         WeakReferenceMessenger.Default.Send(message);
     }

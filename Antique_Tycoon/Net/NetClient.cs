@@ -143,7 +143,7 @@ public class NetClient : NetBase
                 break;
             case TcpMessageType.UpdatePlayerInfoResponse:
                 var updatePlayerInfoResponse =
-                    JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateEstateInfoResponse);
+                    JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdatePlayerInfoResponse);
                 response = updatePlayerInfoResponse;
                 WeakReferenceMessenger.Default.Send(updatePlayerInfoResponse);
                 break;
