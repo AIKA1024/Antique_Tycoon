@@ -52,7 +52,10 @@ public partial class GameCanvas : UserControl
         AddHandler(Connector.CancelConnectEvent, OnConnectorCancelConnect, RoutingStrategies.Bubble);
         WeakReferenceMessenger.Default.Register<StartPlayerMoveAnimation>(this, ReceivePlayerMoveAnimationMessage);
     }
-
+    
+    ~GameCanvas(){
+        WeakReferenceMessenger.Default.Unregister<StartPlayerMoveAnimation>(this);
+    }
 
     private async Task StartPlayerMoveAnimationAsync(StartPlayerMoveAnimation message)
     {

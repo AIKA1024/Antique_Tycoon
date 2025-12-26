@@ -34,24 +34,24 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   // private readonly GameRuleService _gameRuleService;
   private readonly LibVLC _libVlc;
   private readonly RoleStrategyFactory _strategyFactory;
-  private readonly AnimationManager  _animationManager;
+  private readonly AnimationManager _animationManager;
 
   private readonly MapFileService _mapFileService;
 
   private readonly ObservableDictionary<string, Player> _playersByUuid = [];
-  
+
   private string _localPlayerUuid;
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
+  public readonly SemaphoreSlim GameActionLock = new SemaphoreSlim(1, 1);
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
   public Player LocalPlayer => _playersByUuid[_localPlayerUuid];
-  [ObservableProperty]
-  public partial Map? SelectedMap { get; set; }
+  [ObservableProperty] public partial Map? SelectedMap { get; set; }
   public string RoomOwnerUuid { get; set; } = "";
   public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
-  public int MaxPlayer { get; private set; } = 5;//todo 应该由地图决定
+  public int MaxPlayer { get; private set; } = 5; //todo 应该由地图决定
   private int _currentTurnPlayerIndex;
   [ObservableProperty] public partial int CurrentRound { get; set; }
 
@@ -61,7 +61,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public Player CurrentTurnPlayer => Players[_currentTurnPlayerIndex]; // 当前回合玩家
 
   public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
-    LibVLC libVlc, RoleStrategyFactory strategyFactory,AnimationManager animationManager)
+    LibVLC libVlc, RoleStrategyFactory strategyFactory, AnimationManager animationManager)
   {
     _netServerLazy = netServerLazy;
     _netClientLazy = netClientLazy;
@@ -80,7 +80,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
     WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameResponse);
     WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
-    WeakReferenceMessenger.Default.Register<ExitRoomResponse>(this, (_,request) => _playersByUuid.Remove(request.PlayerUuid));
+    WeakReferenceMessenger.Default.Register<ExitRoomResponse>(this,
+      (_, request) => _playersByUuid.Remove(request.PlayerUuid));
     //因为要更新其他玩家的信息，所以也要监听这个消息
     WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
   }
@@ -106,7 +107,9 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     WeakReferenceMessenger.Default.Send(exitRoomResponse);
   }
 
-  private void ReceiveInitGameResponse(object _, InitGameResponse message) => _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex;
+  private void ReceiveInitGameResponse(object _, InitGameResponse message) =>
+    _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex;
+
   private void ReceiveUpdateRoomResponse(object _, UpdateRoomResponse message)
   {
     _playersByUuid.Clear();
@@ -121,7 +124,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
     NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
     currentModelmodel.PlayersHere.Remove(player);
-    await _animationManager.StartPlayerMoveAnimation(player,message.Path,message.Id);
+    await _animationManager.StartPlayerMoveAnimation(player, message.Path, message.Id);
     destinationModelmodel.PlayersHere.Add(player);
     player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
@@ -188,7 +191,15 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   {
     if (diceValue <= 0) return;
 
+    // 锁内二次校验：防止等待期间玩家/状态变化
+    if (CurrentTurnPlayer?.Uuid != playerUuid)
+    {
+      Console.WriteLine($"玩家{playerUuid}已非当前回合玩家，终止移动逻辑");
+      return;
+    }
+
     Player currentPlayer = GetPlayerByUuid(playerUuid);
+    if (currentPlayer == null) return;
 
     // 1. 计算可选路径
     var pathDic = SelectedMap
@@ -202,8 +213,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     else if (pathDic.Count > 1)
     {
       // 多条路，通过信使请求 UI 层进行选择，并等待返回
-      // 这里的 GameMaskShowMessage 建议参考上一条回答改成 AsyncRequestMessage
-      var message = new GameMaskShowMessage(pathDic.Values.Select(l=>l[^1]).ToList(),SelectedMap);
+      var message = new GameMaskShowMessage(pathDic.Values.Select(l => l[^1]).ToList(), SelectedMap);
       await WeakReferenceMessenger.Default.Send(message);
 
       // 等待玩家在 UI 上点击后的结果
@@ -214,38 +224,72 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public async Task RollDiceAsync()
   {
-    int finalDiceValue;
-    string targetPlayerUuid = LocalPlayer.Uuid;
-
-    if (IsRoomOwner)
+    // 2. 全局锁：复用 GameManager 的异步锁，3秒超时防止死等
+    bool lockAcquired = false;
+    try
     {
-      // --- 房主逻辑 ---
-      if (LocalPlayer != CurrentTurnPlayer)
+      lockAcquired = await GameActionLock.WaitAsync(TimeSpan.FromSeconds(3));
+      if (!lockAcquired)
       {
-        WeakReferenceMessenger.Default.Send(new RollDiceResponse("",LocalPlayer.Uuid,  0){ResponseStatus = RequestResult.Reject});
+        // 锁超时：拒绝重复投骰子
+        WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
+          { ResponseStatus = RequestResult.Reject });
         return;
       }
 
-      finalDiceValue = Random.Shared.Next(1, 7);
-      var response = new RollDiceResponse("",LocalPlayer.Uuid, finalDiceValue);
-      await NetServerInstance.Broadcast(response);
-      WeakReferenceMessenger.Default.Send(response);
-    }
-    else
-    {
-      // --- 客户端逻辑 ---
-
-      if (await NetClientInstance.SendRequestAsync(new RollDiceRequest()) is RollDiceResponse { ResponseStatus: RequestResult.Success } response)
+      // 3. 锁内二次校验：防止等待期间回合已切换
+      if (CurrentTurnPlayer?.Uuid != LocalPlayer.Uuid)
       {
-        finalDiceValue = response.DiceValue;
-        targetPlayerUuid = response.PlayerUuid;
+        WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
+          { ResponseStatus = RequestResult.Reject });
+        return;
+      }
+
+      int finalDiceValue = 0;
+      string targetPlayerUuid = LocalPlayer.Uuid;
+
+      if (IsRoomOwner)
+      {
+        // --- 房主（服务器）逻辑 ---
+        finalDiceValue = Random.Shared.Next(1, 7);
+        var response = new RollDiceResponse("", LocalPlayer.Uuid, finalDiceValue);
+        await NetServerInstance.Broadcast(response);
+        WeakReferenceMessenger.Default.Send(response);
       }
       else
-        return; // 失败则退出
-    }
+      {
+        // --- 客户端逻辑 ---
+        if (await NetClientInstance.SendRequestAsync(new RollDiceRequest()) is RollDiceResponse
+            {
+              ResponseStatus: RequestResult.Success
+            } response)
+        {
+          finalDiceValue = response.DiceValue;
+          targetPlayerUuid = response.PlayerUuid;
+        }
+        else
+          return; // 失败则退出
+      }
 
-    // --- 汇合点：无论哪种身份，只要拿到了合法的骰子值，就执行移动逻辑 ---
-    await HandleDiceRollResult(targetPlayerUuid, finalDiceValue);
+      // --- 汇合点：执行移动逻辑（已受锁保护）---
+      await HandleDiceRollResult(targetPlayerUuid, finalDiceValue);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"投骰子处理失败：{ex.Message}");
+      WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
+      {
+        ResponseStatus = RequestResult.Reject
+      });
+    }
+    finally
+    {
+      // 4. 释放锁：仅在成功获取锁时释放
+      if (lockAcquired)
+      {
+        GameActionLock.Release();
+      }
+    }
   }
 
   private async Task PlayerMove(List<string> path)
@@ -267,7 +311,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _ = NetClientInstance.SendRequestAsync(exitRoomRequest);
   }
 
-  public async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client)//todo 逻辑应该移动到TcpHandler中
+  public async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client) //todo 逻辑应该移动到TcpHandler中
   {
     if (_playersByUuid.Count >= MaxPlayer)
     {

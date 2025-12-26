@@ -45,5 +45,6 @@ public partial class PlayerUiViewModel : PageViewModelBase
     if (_animationManager.HasAnimationRunning)
       return;
     await App.Current.Services.GetRequiredService<GameManager>().RollDiceAsync();
+    await Task.Delay(1000);
   }
 }

@@ -17,6 +17,9 @@ public class PlayerMoveHandler(GameManager gameManager):ITcpMessageHandler
     {
         if (JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveRequest) is { } playerMoveRequest)
         {
+            if (playerMoveRequest.PlayerUuid != gameManager.CurrentTurnPlayer.Uuid)
+                return;
+            
             var response = new PlayerMoveResponse(playerMoveRequest.PlayerUuid, playerMoveRequest.Path)
                 { Id = playerMoveRequest.Id };
             await gameManager.NetServerInstance.Broadcast(response);

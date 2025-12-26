@@ -1,5 +1,6 @@
 using System;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
@@ -27,7 +28,7 @@ public class GameRuleService : ObservableObject
     // 应该在回合结束时播放音效
 
     public GameRuleService(GameManager gameManager, DialogService dialogService, LibVLC libVlc,
-        RoleStrategyFactory strategyFactory,AnimationManager animationManager)
+        RoleStrategyFactory strategyFactory, AnimationManager animationManager)
     {
         _gameManager = gameManager;
         _dialogService = dialogService;
@@ -35,27 +36,93 @@ public class GameRuleService : ObservableObject
         WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMove);
     }
 
+    /// <summary>
+    /// 接收玩家移动响应（核心入口，添加锁保护）
+    /// </summary>
     private async void ReceivePlayerMove(object recipient, PlayerMoveResponse message)
     {
-        if (_gameManager.IsRoomOwner)
-            await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid),
-                (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.Path[^1]], message.Id);
+        // 1. 快速校验：非当前玩家直接拒绝
+        var currentPlayer = _gameManager.CurrentTurnPlayer;
+        if (currentPlayer == null || currentPlayer.Uuid != message.PlayerUuid)
+        {
+            Console.WriteLine($"玩家{message.PlayerUuid}非当前回合玩家，拒绝移动请求");
+            return;
+        }
+
+        // 2. 异步锁：防止同一玩家重复请求（3秒超时，避免死等）
+        if (!await _gameManager.GameActionLock.WaitAsync(TimeSpan.FromSeconds(3)))
+        {
+            Console.WriteLine($"玩家{message.PlayerUuid}请求繁忙，拒绝重复移动请求");
+            return;
+        }
+
+        try
+        {
+            // 3. 锁内二次校验：防止等待期间玩家已切换
+            if (_gameManager.CurrentTurnPlayer.Uuid != message.PlayerUuid)
+            {
+                Console.WriteLine($"玩家{message.PlayerUuid}回合已切换，拒绝移动请求");
+                return;
+            }
+
+            // 4. 执行核心逻辑，并获取回合是否结束的结果
+            bool isTurnFinished = await HandleStepOnNodeAsync(
+                _gameManager.GetPlayerByUuid(message.PlayerUuid),
+                (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.Path[^1]], 
+                message.Id);
+
+            // 5. 仅当回合结束时，才切换到下一个玩家（核心调整）
+            if (isTurnFinished)
+            {
+                await _gameManager.AdvanceToNextPlayerTurnAsync();
+                Console.WriteLine($"玩家{message.PlayerUuid}回合结束，切换到下一个玩家");
+            }
+            else
+            {
+                Console.WriteLine($"玩家{message.PlayerUuid}回合未结束，可继续操作");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"处理玩家移动失败：{e.Message}");
+        }
+        finally
+        {
+            // 6. 释放锁：无论成功/失败，必须释放
+            _gameManager.GameActionLock.Release();
+        }
     }
 
-    private async Task
-        HandleStepOnNodeAsync(Player player, NodeModel node, string animationToken) // 应该是只给服务器调用，客户端接收回应后在显示可用操作
+    /// <summary>
+    /// 处理踩到格子的逻辑（修改返回值：是否结束当前玩家回合）
+    /// </summary>
+    /// <param name="player">玩家</param>
+    /// <param name="node">踩到的格子</param>
+    /// <param name="animationToken">动画标识</param>
+    /// <returns>是否结束当前回合</returns>
+    private async Task<bool> HandleStepOnNodeAsync(Player player, NodeModel node, string animationToken)
     {
         switch (node)
         {
             case Estate estate:
-                await HandleEstateAsync(player, estate,animationToken);
-                break;
+                await HandleEstateAsync(player, estate, animationToken);
+                // 普通地产格子：处理完后回合结束
+                return true;
+            
             case SpawnPoint:
                 await HandleSpawnPointAsync(player);
-                break;
+                // 出生点：处理完后回合结束（你可根据需求修改为 false，比如路过出生点可再投骰子）
+                return true;
+            
+            // 扩展：可添加其他格子类型（比如抽奖/双倍骰子格子），返回 false 表示回合不结束
+            // case LotteryNode lotteryNode:
+            //     await HandleLotteryAsync(player, lotteryNode);
+            //     return false; // 抽奖后可继续投骰子
+            
+            default:
+                // 未知格子：默认结束回合
+                return true;
         }
-
-        await _gameManager.AdvanceToNextPlayerTurnAsync();
     }
 
     /// <summary>
@@ -64,7 +131,7 @@ public class GameRuleService : ObservableObject
     /// <param name="player">玩家</param>
     /// <param name="estate">地产</param>
     /// <param name="animationToken">要等待的动画token</param>
-    private async Task HandleEstateAsync(Player player, Estate estate,string animationToken)
+    private async Task HandleEstateAsync(Player player, Estate estate, string animationToken)
     {
         if (estate.Owner == null && player.Money >= estate.Value)
         {
@@ -84,7 +151,7 @@ public class GameRuleService : ObservableObject
             }
             else
             {
-                var buyEstateActionMessage = new BuyEstateAction(animationToken,estate.Uuid);
+                var buyEstateActionMessage = new BuyEstateAction(animationToken, estate.Uuid);
                 var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
                 try
                 {
@@ -108,7 +175,7 @@ public class GameRuleService : ObservableObject
         }
     }
 
-    private async Task HandleSpawnPointAsync(Player player) //todo 不正确，应该路过就给钱，而不是踩到，并且踩到就炸了，不知道为什么
+    private async Task HandleSpawnPointAsync(Player player)
     {
         var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
         player.Money += bonus;
