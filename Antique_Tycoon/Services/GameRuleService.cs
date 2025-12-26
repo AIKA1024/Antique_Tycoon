@@ -37,19 +37,18 @@ public class GameRuleService : ObservableObject
 
     private async void ReceivePlayerMove(object recipient, PlayerMoveResponse message)
     {
-        await Task.Yield();
         if (_gameManager.IsRoomOwner)
             await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid),
                 (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.Path[^1]], message.Id);
     }
 
     private async Task
-        HandleStepOnNodeAsync(Player player, NodeModel node, string playerMoveResponseId) // 应该是只给服务器调用，客户端接收回应后在显示可用操作
+        HandleStepOnNodeAsync(Player player, NodeModel node, string animationToken) // 应该是只给服务器调用，客户端接收回应后在显示可用操作
     {
         switch (node)
         {
             case Estate estate:
-                await HandleEstateAsync(player, estate,playerMoveResponseId);
+                await HandleEstateAsync(player, estate,animationToken);
                 break;
             case SpawnPoint:
                 await HandleSpawnPointAsync(player);
@@ -64,14 +63,14 @@ public class GameRuleService : ObservableObject
     /// </summary>
     /// <param name="player">玩家</param>
     /// <param name="estate">地产</param>
-    /// <param name="playerMoveResponseId">玩家移动消息的id</param>
-    private async Task HandleEstateAsync(Player player, Estate estate,string playerMoveResponseId)
+    /// <param name="animationToken">要等待的动画token</param>
+    private async Task HandleEstateAsync(Player player, Estate estate,string animationToken)
     {
         if (estate.Owner == null && player.Money >= estate.Value)
         {
             if (_gameManager.RoomOwnerUuid == player.Uuid)
             {
-                await _animationManager.WaitAnimation(playerMoveResponseId);
+                await _animationManager.WaitAnimation(animationToken);
                 bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
                 {
                     Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
@@ -85,13 +84,13 @@ public class GameRuleService : ObservableObject
             }
             else
             {
-                var buyEstateActionMessage = new BuyEstateAction(playerMoveResponseId,estate.Uuid);
+                var buyEstateActionMessage = new BuyEstateAction(animationToken,estate.Uuid);
                 var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
                 try
                 {
                     var buyEstateRequest =
                         await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
-                            buyEstateActionMessage, client, TimeSpan.FromSeconds(10));
+                            buyEstateActionMessage, client, TimeSpan.FromSeconds(30));
                     if (buyEstateRequest.IsConfirm)
                     {
                         player.Money -= estate.Value;
@@ -101,8 +100,9 @@ public class GameRuleService : ObservableObject
                         WeakReferenceMessenger.Default.Send(message);
                     }
                 }
-                catch (OperationCanceledException e)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e.Message);
                 }
             }
         }

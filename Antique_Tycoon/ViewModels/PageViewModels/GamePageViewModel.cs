@@ -48,7 +48,7 @@ public partial class GamePageViewModel : PageViewModelBase
 
     private async void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
     {
-        await _animationManager.WaitAnimation(message.PlayerMoveResponseId);
+        await _animationManager.WaitAnimation(message.WaitAnimationToken);
         var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
         bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
         {

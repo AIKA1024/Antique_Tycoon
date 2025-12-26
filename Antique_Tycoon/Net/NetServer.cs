@@ -30,7 +30,7 @@ public class NetServer : NetBase
   private readonly Timer _timer = new();
   private readonly IEnumerable<ITcpMessageHandler> _messageHandlers;
   private readonly System.Collections.Concurrent.ConcurrentDictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
-#if Debug
+#if DEBUG
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(9999999999);
 #else
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(15);
