@@ -63,47 +63,41 @@ public partial class GameCanvas : UserControl
         if (nodes.Length < 1) return;
 
         // 建立 Node 与 Control 的映射，方便获取 Bounds
-        var nodeControlsDic = new Dictionary<NodeModel, NodeLinkControl>();
+        var nodeControlsDic = new Dictionary<NodeModel, Control>();
         foreach (var node in nodes)
         foreach (var canvasItem in _canvas.Children)
-            if (canvasItem is NodeLinkControl nodeControl && node == nodeControl.DataContext as NodeModel)
+            if (canvasItem is ListBoxItem listBoxItem && node == listBoxItem.DataContext as NodeModel)
             {
-                nodeControlsDic.Add(node, nodeControl);
+                nodeControlsDic.Add(node, listBoxItem);
                 break;
             }
 
-        const double imgWidth = 24;
-        const double imgHeight = 24; // 假设高度也是 32
-        var image = new Image { Source = message.Player.Avatar, Width = imgWidth, Height = imgHeight };
+        var image = new Image { Source = message.Player.Avatar, Width = 24, Height = 24 };
+        var border = new Border
+        {
+            Child = image, BorderBrush = Brushes.White,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(4),
+            ClipToBounds = true,
+            ZIndex = 3
+        };
 
         // --- 核心逻辑：计算居中位置的辅助方法 ---
         Point GetCenterPosition(NodeModel node)
         {
-            if (nodeControlsDic.TryGetValue(node, out var control))
-            {
-                // 使用 Control 的 Bounds 来获取精确的中心点
-                // Bounds.Center 是相对于 Canvas 的中心位置
-                var center = control.Bounds.Center;
-                return new Point(center.X - (imgWidth / 2.0), center.Y - (imgHeight / 2.0));
-            }
-
-            // 回退方案：如果没找到 Control，使用 NodeModel 的基础坐标
-            return new Point(
-                node.Left + (node.Width / 2.0) - (imgWidth / 2.0),
-                node.Top + (node.Height / 2.0) - (imgHeight / 2.0));
+            var control = nodeControlsDic[node];
+            var center = control.Bounds.Center;
+            return new Point(center.X - border.Bounds.Width / 2.0, center.Y - border.Bounds.Height / 2.0);
         }
 
         // 1. 设置初始位置 (Nodes[0] 的中心)
         var startPos = GetCenterPosition(nodes[0]);
-        Canvas.SetLeft(image, startPos.X);
-        Canvas.SetTop(image, startPos.Y);
+        Canvas.SetLeft(border, startPos.X);
+        Canvas.SetTop(border, startPos.Y);
 
         var transform = new TranslateTransform();
-        image.RenderTransform = transform;
-        _canvas.Children.Add(image);
-
-        double currentOffsetX = 0;
-        double currentOffsetY = 0;
+        border.RenderTransform = transform;
+        _canvas.Children.Add(border);
 
         foreach (var node in nodes[1..])
         {
@@ -115,20 +109,14 @@ public partial class GameCanvas : UserControl
             {
                 Duration = TimeSpan.FromMilliseconds(500),
                 Easing = new CubicEaseInOut(),
+                FillMode = FillMode.Forward,
                 Children =
                 {
                     new KeyFrame
                     {
-                        Cue = new Cue(0.0),
-                        Setters = {
-                            new Setter(TranslateTransform.XProperty, currentOffsetX),
-                            new Setter(TranslateTransform.YProperty, currentOffsetY)
-                        }
-                    },
-                    new KeyFrame
-                    {
                         Cue = new Cue(1.0),
-                        Setters = {
+                        Setters =
+                        {
                             new Setter(TranslateTransform.XProperty, targetX),
                             new Setter(TranslateTransform.YProperty, targetY)
                         }
@@ -136,24 +124,12 @@ public partial class GameCanvas : UserControl
                 }
             };
 
-            // 关键改动 2: 在运行新动画之前，强制同步一次本地值，确保动画起点和当前位置物理对齐
-            transform.X = currentOffsetX;
-            transform.Y = currentOffsetY;
-
             // 运行动画
-            await animation.RunAsync(image);
-
-            // 关键改动 3: 动画结束后，立即更新 currentOffset 供下一轮使用
-            currentOffsetX = targetX;
-            currentOffsetY = targetY;
-    
-            // 关键改动 4: 再次强制同步本地值
-            transform.X = targetX;
-            transform.Y = targetY;
-
+            await animation.RunAsync(border);
+            await Task.Delay(100);
         }
 
-        _canvas.Children.Remove(image);
+        _canvas.Children.Remove(border);
     }
 
     private void ReceivePlayerMoveAnimationMessage(object recipient, StartPlayerMoveAnimation message)
