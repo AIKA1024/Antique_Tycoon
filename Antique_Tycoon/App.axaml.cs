@@ -73,6 +73,7 @@ public partial class App : Application
     services.AddSingleton<GameManager>();
     services.AddSingleton<GameRuleService>();
     services.AddSingleton<RoleStrategyFactory>();
+    services.AddSingleton<AnimationManager>();
     services.AddTransient<ITcpMessageHandler, JoinRoomHandler>();
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
     services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();

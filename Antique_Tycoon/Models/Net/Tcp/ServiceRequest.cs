@@ -6,4 +6,6 @@ public abstract class ServiceRequest:ITcpMessage
 {
   public string Id { get; set; } = "";
   public long Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+  
+  public string PlayerMoveResponseId { get; set; } = "";
 }

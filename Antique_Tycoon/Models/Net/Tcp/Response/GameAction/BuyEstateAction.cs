@@ -4,7 +4,7 @@ public class BuyEstateAction:ActionBase
 {
   public string EstateUuid { get; set; }
 
-  public BuyEstateAction(string estateUuid)
+  public BuyEstateAction(string playerMoveResponseId,string estateUuid):base(playerMoveResponseId)
   {
     EstateUuid =  estateUuid;
   }

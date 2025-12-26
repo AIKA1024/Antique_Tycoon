@@ -108,7 +108,7 @@ public partial class GameCanvas : UserControl
             var animation = new Animation
             {
                 Duration = TimeSpan.FromMilliseconds(500),
-                Easing = new CubicEaseInOut(),
+                Easing = new QuarticEaseInOut(),
                 FillMode = FillMode.Forward,
                 Children =
                 {
@@ -126,7 +126,6 @@ public partial class GameCanvas : UserControl
 
             // 运行动画
             await animation.RunAsync(border);
-            await Task.Delay(100);
         }
 
         _canvas.Children.Remove(border);

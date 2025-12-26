@@ -20,96 +20,102 @@ namespace Antique_Tycoon.Services;
 /// </summary>
 public class GameRuleService : ObservableObject
 {
-  private readonly GameManager _gameManager;
-  private readonly DialogService _dialogService;
-  
-  // 应该在回合结束时播放音效
+    private readonly GameManager _gameManager;
+    private readonly DialogService _dialogService;
+    private readonly AnimationManager _animationManager;
 
-  public GameRuleService(GameManager gameManager, DialogService dialogService, LibVLC libVlc,
-    RoleStrategyFactory strategyFactory)
-  {
-    _gameManager = gameManager;
-    _dialogService = dialogService;
-    WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this,ReceivePlayerMove);
-  }
+    // 应该在回合结束时播放音效
 
-  private async void ReceivePlayerMove(object recipient, PlayerMoveResponse message)
-  {
-    await Task.Yield();
-    if (_gameManager.IsRoomOwner)
-      await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid), (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.Path[^1]]);
-    
-  }
-
-  private async Task HandleStepOnNodeAsync(Player player,NodeModel node)// 应该是只给服务器调用，客户端接收回应后在显示可用操作
-  {
-    switch (node)
+    public GameRuleService(GameManager gameManager, DialogService dialogService, LibVLC libVlc,
+        RoleStrategyFactory strategyFactory,AnimationManager animationManager)
     {
-      case Estate estate:
-        await HandleEstateAsync(player,estate);
-        break;
-      case SpawnPoint:
-        await HandleSpawnPointAsync(player);
-        break;
+        _gameManager = gameManager;
+        _dialogService = dialogService;
+        _animationManager = animationManager;
+        WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMove);
     }
-    await _gameManager.AdvanceToNextPlayerTurnAsync();
-  }
 
-  /// <summary>
-  /// 处理踩到地产格子的方法
-  /// </summary>
-  /// <param name="estate">地产</param>
-  /// <param name="player">玩家</param>
-  private async Task HandleEstateAsync(Player player,Estate estate)
-  {
-    if (estate.Owner == null && player.Money >= estate.Value)
+    private async void ReceivePlayerMove(object recipient, PlayerMoveResponse message)
     {
-      if (_gameManager.RoomOwnerUuid == player.Uuid)
-      {
-        bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+        await Task.Yield();
+        if (_gameManager.IsRoomOwner)
+            await HandleStepOnNodeAsync(_gameManager.GetPlayerByUuid(message.PlayerUuid),
+                (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.Path[^1]], message.Id);
+    }
+
+    private async Task
+        HandleStepOnNodeAsync(Player player, NodeModel node, string playerMoveResponseId) // 应该是只给服务器调用，客户端接收回应后在显示可用操作
+    {
+        switch (node)
         {
-          Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
-          IsLightDismissEnabled = false
-        });
-        if (!isConfirm) return;
-        player.Money -= estate.Value;
-        var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+            case Estate estate:
+                await HandleEstateAsync(player, estate,playerMoveResponseId);
+                break;
+            case SpawnPoint:
+                await HandleSpawnPointAsync(player);
+                break;
+        }
+
+        await _gameManager.AdvanceToNextPlayerTurnAsync();
+    }
+
+    /// <summary>
+    /// 处理踩到地产格子的方法
+    /// </summary>
+    /// <param name="player">玩家</param>
+    /// <param name="estate">地产</param>
+    /// <param name="playerMoveResponseId">玩家移动消息的id</param>
+    private async Task HandleEstateAsync(Player player, Estate estate,string playerMoveResponseId)
+    {
+        if (estate.Owner == null && player.Money >= estate.Value)
+        {
+            if (_gameManager.RoomOwnerUuid == player.Uuid)
+            {
+                await _animationManager.WaitAnimation(playerMoveResponseId);
+                bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+                {
+                    Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
+                    IsLightDismissEnabled = false
+                });
+                if (!isConfirm) return;
+                player.Money -= estate.Value;
+                var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+                await _gameManager.NetServerInstance.Broadcast(message);
+                WeakReferenceMessenger.Default.Send(message);
+            }
+            else
+            {
+                var buyEstateActionMessage = new BuyEstateAction(playerMoveResponseId,estate.Uuid);
+                var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+                try
+                {
+                    var buyEstateRequest =
+                        await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
+                            buyEstateActionMessage, client, TimeSpan.FromSeconds(10));
+                    if (buyEstateRequest.IsConfirm)
+                    {
+                        player.Money -= estate.Value;
+                        estate.Owner = player;
+                        var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+                        await _gameManager.NetServerInstance.Broadcast(message);
+                        WeakReferenceMessenger.Default.Send(message);
+                    }
+                }
+                catch (OperationCanceledException e)
+                {
+                }
+            }
+        }
+    }
+
+    private async Task HandleSpawnPointAsync(Player player) //todo 不正确，应该路过就给钱，而不是踩到，并且踩到就炸了，不知道为什么
+    {
+        var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
+        player.Money += bonus;
+        var message =
+            new UpdatePlayerInfoResponse(player,
+                $"{player.Name}路过了出生点，获得{bonus} {player.Money - bonus}->{player.Money}");
         await _gameManager.NetServerInstance.Broadcast(message);
         WeakReferenceMessenger.Default.Send(message);
-      }
-      else
-      {
-        var buyEstateActionMessage = new BuyEstateAction(estate.Uuid);
-        var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-        try
-        {
-          var buyEstateRequest =
-            await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
-              buyEstateActionMessage, client,TimeSpan.FromSeconds(10));
-          if (buyEstateRequest.IsConfirm)
-          {
-            player.Money -= estate.Value;
-            estate.Owner = player;
-            var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
-            await _gameManager.NetServerInstance.Broadcast(message);
-            WeakReferenceMessenger.Default.Send(message);
-          }
-        }
-        catch (OperationCanceledException e)
-        {
-          
-        }
-      }
     }
-  }
-  
-  private async Task HandleSpawnPointAsync(Player player)//todo 不正确，应该路过就给钱，而不是踩到，并且踩到就炸了，不知道为什么
-  {
-    var bonus= _gameManager.SelectedMap.SpawnPointCashReward;
-    player.Money += bonus;
-      var message =
-        new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money - bonus}->{player.Money}");
-      await _gameManager.NetServerInstance.Broadcast(message);
-      WeakReferenceMessenger.Default.Send(message);
-  }
 }

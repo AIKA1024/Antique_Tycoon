@@ -20,6 +20,7 @@ public partial class GamePageViewModel : PageViewModelBase
     private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
     // private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
     private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
+    private readonly AnimationManager _animationManager = App.Current.Services.GetRequiredService<AnimationManager>();
 
     [ObservableProperty] private string _reminderText = "轮到你啦";
     [ObservableProperty] private int _rollDiceValue;
@@ -47,6 +48,7 @@ public partial class GamePageViewModel : PageViewModelBase
 
     private async void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
     {
+        await _animationManager.WaitAnimation(message.PlayerMoveResponseId);
         var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
         bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
         {

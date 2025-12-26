@@ -32,20 +32,20 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private readonly Lazy<NetClient> _netClientLazy;
 
   // private readonly GameRuleService _gameRuleService;
-  private readonly DialogService _dialogService;
   private readonly LibVLC _libVlc;
   private readonly RoleStrategyFactory _strategyFactory;
+  private readonly AnimationManager  _animationManager;
 
   private readonly MapFileService _mapFileService;
 
   private readonly ObservableDictionary<string, Player> _playersByUuid = [];
   
-  private string localPlayerUuid;
+  private string _localPlayerUuid;
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
-  public Player LocalPlayer => _playersByUuid[localPlayerUuid];
+  public Player LocalPlayer => _playersByUuid[_localPlayerUuid];
   [ObservableProperty]
   public partial Map? SelectedMap { get; set; }
   public string RoomOwnerUuid { get; set; } = "";
@@ -61,14 +61,14 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public Player CurrentTurnPlayer => Players[_currentTurnPlayerIndex]; // 当前回合玩家
 
   public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
-    DialogService dialogService, LibVLC libVlc, RoleStrategyFactory strategyFactory)
+    LibVLC libVlc, RoleStrategyFactory strategyFactory,AnimationManager animationManager)
   {
     _netServerLazy = netServerLazy;
     _netClientLazy = netClientLazy;
     _mapFileService = mapFileService;
-    _dialogService = dialogService;
     _libVlc = libVlc;
     _strategyFactory = strategyFactory;
+    _animationManager = animationManager;
     var sfxPlayer = new MediaPlayer(libVlc);
     var turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
@@ -121,9 +121,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
     NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
     currentModelmodel.PlayersHere.Remove(player);
-    var animationMessage = WeakReferenceMessenger.Default.Send(new StartPlayerMoveAnimation(player, message.Path));
-    Task animationTask = await animationMessage.Response;
-    await animationTask;
+    await _animationManager.StartPlayerMoveAnimation(player,message.Path,message.Id);
     destinationModelmodel.PlayersHere.Add(player);
     player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
@@ -131,8 +129,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private void SetupLocalPlayer()
   {
     var localPlayer = new Player();
-    localPlayerUuid = localPlayer.Uuid;
-    RoomOwnerUuid = localPlayerUuid;
+    _localPlayerUuid = localPlayer.Uuid;
+    RoomOwnerUuid = _localPlayerUuid;
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
   }
 
