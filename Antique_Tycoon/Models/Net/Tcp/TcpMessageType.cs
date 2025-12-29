@@ -19,9 +19,12 @@ public enum TcpMessageType : ushort
   DownloadMapRequest,
   DownloadMapResponse,
   TurnStartResponse,
+  RollDiceAction,
   RollDiceRequest,
   RollDiceResponse,
   InitGameMessageResponse,
   PlayerMoveRequest,
   PlayerMoveResponse,
+  SelectDestinationAction,
+  SelectDestinationRequest,
 }

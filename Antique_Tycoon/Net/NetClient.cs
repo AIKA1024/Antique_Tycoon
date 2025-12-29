@@ -114,6 +114,11 @@ public class NetClient : NetBase
                 response = turnStartResponse;
                 WeakReferenceMessenger.Default.Send(turnStartResponse);
                 break;
+            case TcpMessageType.RollDiceAction:
+                var rollDiceAction = JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceAction);
+                response = rollDiceAction;
+                WeakReferenceMessenger.Default.Send(rollDiceAction);
+                break;
             case TcpMessageType.RollDiceResponse:
                 var rollDiceResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceResponse);
                 response = rollDiceResponse;
@@ -124,6 +129,11 @@ public class NetClient : NetBase
                     JsonSerializer.Deserialize(json, AppJsonContext.Default.InitGameResponse);
                 response = initGameMessageResponse;
                 WeakReferenceMessenger.Default.Send(initGameMessageResponse);
+                break;
+            case TcpMessageType.SelectDestinationAction:
+                var selectDestinationAction = JsonSerializer.Deserialize(json, AppJsonContext.Default.SelectDestinationAction);
+                response = selectDestinationAction;
+                WeakReferenceMessenger.Default.Send(selectDestinationAction);
                 break;
             case TcpMessageType.PlayerMoveResponse:
                 var playerMoveResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveResponse);

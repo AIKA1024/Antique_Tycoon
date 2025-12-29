@@ -17,6 +17,7 @@ using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
+using Microsoft.Extensions.DependencyInjection;
 using ObservableCollections;
 using Player = Antique_Tycoon.Models.Player;
 
@@ -52,13 +53,13 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
   public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
   public int MaxPlayer { get; private set; } = 5; //todo 应该由地图决定
-  private int _currentTurnPlayerIndex;
+  public int CurrentTurnPlayerIndex { get; set; }
   [ObservableProperty] public partial int CurrentRound { get; set; }
 
   [ObservableProperty] public partial bool IsGameOver { get; set; }
 
   [ObservableProperty] public partial Player? Winner { get; set; }
-  public Player CurrentTurnPlayer => Players[_currentTurnPlayerIndex]; // 当前回合玩家
+  public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家
 
   public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
     LibVLC libVlc, RoleStrategyFactory strategyFactory, AnimationManager animationManager)
@@ -108,7 +109,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   }
 
   private void ReceiveInitGameResponse(object _, InitGameResponse message) =>
-    _currentTurnPlayerIndex = message.CurrentTurnPlayerIndex;
+    CurrentTurnPlayerIndex = message.CurrentTurnPlayerIndex;
 
   private void ReceiveUpdateRoomResponse(object _, UpdateRoomResponse message)
   {
@@ -150,15 +151,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   }
 
   public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
-
-  //切换刀下一个玩家的回合
-  public async Task AdvanceToNextPlayerTurnAsync()
-  {
-    _currentTurnPlayerIndex = (_currentTurnPlayerIndex + 1) % Players.Count;
-    var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
-    await NetServerInstance.Broadcast(turnStartResponse);
-    WeakReferenceMessenger.Default.Send(turnStartResponse);
-  }
+  
 
   public async Task StartGameAsync()
   {
@@ -177,119 +170,124 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       player.CurrentNodeUuId = SelectedMap!.SpawnNodeUuid;
     }
 
-    _currentTurnPlayerIndex = Random.Shared.Next(Players.Count);
-    // _currentTurnPlayerIndex = 1;
+    CurrentTurnPlayerIndex = Random.Shared.Next(Players.Count);
+    // CurrentTurnPlayerIndex = 1;
     await NetServerInstance.Broadcast(new InitGameResponse(
       Players,
-      _currentTurnPlayerIndex
+      CurrentTurnPlayerIndex
     ));
     await Task.Yield(); // 等待各监听事件绑定完成
-    await AdvanceToNextPlayerTurnAsync();
+    
+    //通知游戏开始
+    CurrentTurnPlayerIndex = (CurrentTurnPlayerIndex + 1) % Players.Count;
+    var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
+    await NetServerInstance.Broadcast(turnStartResponse);
+    WeakReferenceMessenger.Default.Send(turnStartResponse);
   }
 
-  private async Task HandleDiceRollResult(string playerUuid, int diceValue)
-  {
-    if (diceValue <= 0) return;
-
-    // 锁内二次校验：防止等待期间玩家/状态变化
-    if (CurrentTurnPlayer?.Uuid != playerUuid)
-    {
-      Console.WriteLine($"玩家{playerUuid}已非当前回合玩家，终止移动逻辑");
-      return;
-    }
-
-    Player currentPlayer = GetPlayerByUuid(playerUuid);
-    if (currentPlayer == null) return;
-
-    // 1. 计算可选路径
-    var pathDic = SelectedMap
-      .GetPathsAtExactStep(currentPlayer.CurrentNodeUuId, diceValue);
-
-    if (pathDic.Count == 1)
-    {
-      // 只有一条路，直接走
-      await PlayerMove(pathDic.Values.First());
-    }
-    else if (pathDic.Count > 1)
-    {
-      // 多条路，通过信使请求 UI 层进行选择，并等待返回
-      var message = new GameMaskShowMessage(pathDic.Values.Select(l => l[^1]).ToList(), SelectedMap);
-      await WeakReferenceMessenger.Default.Send(message);
-
-      // 等待玩家在 UI 上点击后的结果
-      var selectedNode = (NodeModel)SelectedMap.EntitiesDict[await message.Response];
-      await PlayerMove(pathDic[selectedNode.Uuid]);
-    }
-  }
+  // private async Task HandleDiceRollResult(string playerUuid, int diceValue)
+  // {
+  //   if (diceValue <= 0) return;
+  //
+  //   // 锁内二次校验：防止等待期间玩家/状态变化
+  //   if (CurrentTurnPlayer?.Uuid != playerUuid)
+  //   {
+  //     Console.WriteLine($"玩家{playerUuid}已非当前回合玩家，终止移动逻辑");
+  //     return;
+  //   }
+  //
+  //   Player currentPlayer = GetPlayerByUuid(playerUuid);
+  //   if (currentPlayer == null) return;
+  //
+  //   // 1. 计算可选路径
+  //   var pathDic = SelectedMap
+  //     .GetPathsAtExactStep(currentPlayer.CurrentNodeUuId, diceValue);
+  //
+  //   if (pathDic.Count == 1)
+  //   {
+  //     // 只有一条路，直接走
+  //     await PlayerMove(pathDic.Values.First());
+  //   }
+  //   else if (pathDic.Count > 1)
+  //   {
+  //     // 多条路，通过信使请求 UI 层进行选择，并等待返回
+  //     var message = new GameMaskShowMessage(pathDic.Values.Select(l => l[^1]).ToList(), SelectedMap);
+  //     await WeakReferenceMessenger.Default.Send(message);
+  //
+  //     // 等待玩家在 UI 上点击后的结果
+  //     var selectedNode = (NodeModel)SelectedMap.EntitiesDict[await message.Response];
+  //     await PlayerMove(pathDic[selectedNode.Uuid]);
+  //   }
+  // }
 
   public async Task RollDiceAsync()
   {
     // 2. 全局锁：复用 GameManager 的异步锁，3秒超时防止死等
-    bool lockAcquired = false;
-    try
-    {
-      lockAcquired = await GameActionLock.WaitAsync(TimeSpan.FromSeconds(3));
-      if (!lockAcquired)
-      {
-        // 锁超时：拒绝重复投骰子
-        WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
-          { ResponseStatus = RequestResult.Reject });
-        return;
-      }
-
-      // 3. 锁内二次校验：防止等待期间回合已切换
-      if (CurrentTurnPlayer?.Uuid != LocalPlayer.Uuid)
-      {
-        WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
-          { ResponseStatus = RequestResult.Reject });
-        return;
-      }
-
-      int finalDiceValue = 0;
-      string targetPlayerUuid = LocalPlayer.Uuid;
-
-      if (IsRoomOwner)
-      {
-        // --- 房主（服务器）逻辑 ---
-        finalDiceValue = Random.Shared.Next(1, 7);
-        var response = new RollDiceResponse("", LocalPlayer.Uuid, finalDiceValue);
-        await NetServerInstance.Broadcast(response);
-        WeakReferenceMessenger.Default.Send(response);
-      }
-      else
-      {
-        // --- 客户端逻辑 ---
-        if (await NetClientInstance.SendRequestAsync(new RollDiceRequest()) is RollDiceResponse
-            {
-              ResponseStatus: RequestResult.Success
-            } response)
-        {
-          finalDiceValue = response.DiceValue;
-          targetPlayerUuid = response.PlayerUuid;
-        }
-        else
-          return; // 失败则退出
-      }
-
-      // --- 汇合点：执行移动逻辑（已受锁保护）---
-      await HandleDiceRollResult(targetPlayerUuid, finalDiceValue);
-    }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"投骰子处理失败：{ex.Message}");
-      WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
-      {
-        ResponseStatus = RequestResult.Reject
-      });
-    }
-    finally
-    {
-      // 4. 释放锁：仅在成功获取锁时释放
-      if (lockAcquired)
-      {
-        GameActionLock.Release();
-      }
-    }
+    // bool lockAcquired = false;
+    // try
+    // {
+    //   lockAcquired = await GameActionLock.WaitAsync(TimeSpan.FromSeconds(3));
+    //   if (!lockAcquired)
+    //   {
+    //     // 锁超时：拒绝重复投骰子
+    //     WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
+    //       { ResponseStatus = RequestResult.Reject });
+    //     return;
+    //   }
+    //
+    //   // 3. 锁内二次校验：防止等待期间回合已切换
+    //   if (CurrentTurnPlayer?.Uuid != LocalPlayer.Uuid)
+    //   {
+    //     WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
+    //       { ResponseStatus = RequestResult.Reject });
+    //     return;
+    //   }
+    //
+    //   int finalDiceValue = 0;
+    //   string targetPlayerUuid = LocalPlayer.Uuid;
+    //
+    //   if (IsRoomOwner)
+    //   {
+    //     // --- 房主（服务器）逻辑 ---
+    //     finalDiceValue = Random.Shared.Next(1, 7);
+    //     var response = new RollDiceResponse("", LocalPlayer.Uuid, finalDiceValue);
+    //     await NetServerInstance.Broadcast(response);
+    //     WeakReferenceMessenger.Default.Send(response);
+    //   }
+    //   else
+    //   {
+    //     // --- 客户端逻辑 ---
+    //     if (await NetClientInstance.SendRequestAsync(new RollDiceRequest()) is RollDiceResponse
+    //         {
+    //           ResponseStatus: RequestResult.Success
+    //         } response)
+    //     {
+    //       finalDiceValue = response.DiceValue;
+    //       targetPlayerUuid = response.PlayerUuid;
+    //     }
+    //     else
+    //       return; // 失败则退出
+    //   }
+    //
+    //   // --- 汇合点：执行移动逻辑（已受锁保护）---
+    //   await HandleDiceRollResult(targetPlayerUuid, finalDiceValue);
+    // }
+    // catch (Exception ex)
+    // {
+    //   Console.WriteLine($"投骰子处理失败：{ex.Message}");
+    //   WeakReferenceMessenger.Default.Send(new RollDiceResponse("", LocalPlayer.Uuid, 0)
+    //   {
+    //     ResponseStatus = RequestResult.Reject
+    //   });
+    // }
+    // finally
+    // {
+    //   // 4. 释放锁：仅在成功获取锁时释放
+    //   if (lockAcquired)
+    //   {
+    //     GameActionLock.Release();
+    //   }
+    // }
   }
 
   private async Task PlayerMove(List<string> path)

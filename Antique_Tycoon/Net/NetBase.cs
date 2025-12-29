@@ -213,14 +213,18 @@ public abstract class NetBase
   {
     return type switch
     {
-      // --- 对于所有 Request 类型，如果你使用了多态注解，统一返回 RequestBase ---
+      TcpMessageType.BuyEstateAction => AppJsonContext.Default.BuyEstateAction,
+      TcpMessageType.RollDiceAction => AppJsonContext.Default.RollDiceAction,
+      TcpMessageType.SelectDestinationAction =>  AppJsonContext.Default.SelectDestinationAction,
+      
       TcpMessageType.JoinRoomRequest => AppJsonContext.Default.JoinRoomRequest,
-        TcpMessageType.BuyEstateRequest => AppJsonContext.Default.BuyEstateRequest,
-        TcpMessageType.ExitRoomRequest => AppJsonContext.Default.ExitRoomRequest,
-        TcpMessageType.HeartbeatMessage => AppJsonContext.Default.HeartbeatMessage,
-        TcpMessageType.PlayerMoveRequest => AppJsonContext.Default.PlayerMoveRequest,
-        TcpMessageType.RollDiceRequest => AppJsonContext.Default.RollDiceRequest, 
-        TcpMessageType.DownloadMapRequest => AppJsonContext.Default.DownloadMapRequest,
+      TcpMessageType.BuyEstateRequest => AppJsonContext.Default.BuyEstateRequest,
+      TcpMessageType.ExitRoomRequest => AppJsonContext.Default.ExitRoomRequest,
+      TcpMessageType.HeartbeatMessage => AppJsonContext.Default.HeartbeatMessage,
+      TcpMessageType.PlayerMoveRequest => AppJsonContext.Default.PlayerMoveRequest,
+      TcpMessageType.RollDiceRequest => AppJsonContext.Default.RollDiceRequest,
+      TcpMessageType.DownloadMapRequest => AppJsonContext.Default.DownloadMapRequest,
+      TcpMessageType.SelectDestinationRequest => AppJsonContext.Default.SelectDestinationRequest,
 
       // --- 对于 Response 类型，返回具体的类型 ---
       TcpMessageType.JoinRoomResponse => AppJsonContext.Default.JoinRoomResponse,
@@ -264,6 +268,9 @@ public abstract class NetBase
       _ when type == typeof(TurnStartResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.TurnStartResponse,
         TcpMessageType.TurnStartResponse),
+      _ when type == typeof(RollDiceAction) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.RollDiceAction,
+        TcpMessageType.RollDiceAction),
       _ when type == typeof(RollDiceRequest) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.RollDiceRequest,
         TcpMessageType.RollDiceRequest),
@@ -294,6 +301,12 @@ public abstract class NetBase
       _ when type == typeof(ExitRoomResponse) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.ExitRoomResponse,
         TcpMessageType.ExitRoomResponse),
+      _ when type == typeof(SelectDestinationAction) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.SelectDestinationAction,
+        TcpMessageType.SelectDestinationAction),
+      _ when type == typeof(SelectDestinationRequest) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.SelectDestinationRequest,
+        TcpMessageType.SelectDestinationRequest),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

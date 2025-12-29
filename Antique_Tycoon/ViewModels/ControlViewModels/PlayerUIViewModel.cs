@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.PageViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,18 +20,21 @@ public partial class PlayerUiViewModel : PageViewModelBase
 
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
+  private string rollDiceActionId = "";
 
-  // public bool RollButtonEnable
-  // {
-  //   get => field && !_animationManager.HasAnimationRunning;
-  //   set => SetProperty(ref field, value);
-  // } = true;
+  [ObservableProperty] public partial bool RollButtonEnable { get; set; }
 
   public ObservableCollection<Player> OtherPlayers { get; } = [];
 
   public PlayerUiViewModel()
   {
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
+    WeakReferenceMessenger.Default.Register<RollDiceAction>(this,ReceiveRollDiceAction);
+  }
+
+  private void ReceiveRollDiceAction(object recipient, RollDiceAction message)
+  {
+    RollButtonEnable = true;
   }
 
   private void ReceiveTurnStartMessage(object recipient, TurnStartResponse message)
@@ -44,7 +48,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
   {
     if (_animationManager.HasAnimationRunning)
       return;
+    RollButtonEnable = false;
     await App.Current.Services.GetRequiredService<GameManager>().RollDiceAsync();
-    await Task.Delay(1000);
   }
 }
