@@ -20,9 +20,9 @@ public partial class PlayerUiViewModel : PageViewModelBase
 
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
-  private string rollDiceActionId = "";
+  private string _rollDiceActionId = "";
 
-  [ObservableProperty] public partial bool RollButtonEnable { get; set; }
+  [ObservableProperty] public partial bool RollButtonEnable { get; set; } = false;
 
   public ObservableCollection<Player> OtherPlayers { get; } = [];
 
@@ -35,6 +35,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
   private void ReceiveRollDiceAction(object recipient, RollDiceAction message)
   {
     RollButtonEnable = true;
+    _rollDiceActionId = message.Id;
   }
 
   private void ReceiveTurnStartMessage(object recipient, TurnStartResponse message)
@@ -49,6 +50,6 @@ public partial class PlayerUiViewModel : PageViewModelBase
     if (_animationManager.HasAnimationRunning)
       return;
     RollButtonEnable = false;
-    await App.Current.Services.GetRequiredService<GameManager>().RollDiceAsync();
+    await App.Current.Services.GetRequiredService<GameRuleService>().RollDiceAsync(_rollDiceActionId);
   }
 }

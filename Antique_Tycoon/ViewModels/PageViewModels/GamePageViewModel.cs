@@ -58,7 +58,7 @@ public partial class GamePageViewModel : PageViewModelBase
         if (isConfirm)
             await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest(message.Id,_gameManager.LocalPlayer.Uuid, estate.Uuid));
         else
-            await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest());// 和服务器表示不买
+            await _gameManager.NetClientInstance.SendRequestAsync(new BuyEstateRequest{Id = message.Id,IsConfirm = false});// 和服务器表示不买
     }
 
 

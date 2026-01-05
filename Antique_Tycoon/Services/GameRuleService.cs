@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
@@ -26,7 +27,6 @@ public class GameRuleService : ObservableObject
   private readonly GameManager _gameManager;
   private readonly DialogService _dialogService;
   private readonly AnimationManager _animationManager;
-  private readonly TaskCompletionSource<int> GetRollDiceValueTCS = new();
 
   // 应该在回合结束时播放音效
 
@@ -53,19 +53,19 @@ public class GameRuleService : ObservableObject
   {
     if (!_gameManager.IsRoomOwner)
       return;
-    
-    string currentTurnPlayerUuid = _gameManager.CurrentTurnPlayer.Uuid;
+
+    await Task.Yield(); //todo 先这样等待一下ui注册事件了先
+
     while (!_gameManager.IsGameOver)
     {
-      if (currentTurnPlayerUuid == _gameManager.LocalPlayer.Uuid)
-      {
-        WeakReferenceMessenger.Default.Send(new RollDiceResponse("",currentTurnPlayerUuid,Random.Shared.Next(1, 7)));
-      }
-      
-      var client = _gameManager.GetClientByPlayerUuid(currentTurnPlayerUuid);
+      string currentTurnPlayerUuid = _gameManager.CurrentTurnPlayer.Uuid;
       //默认都是玩家想要移动，开始投骰子
       int rollDiceValue = Random.Shared.Next(1, 7);
       RollDiceResponse rollDiceResponse = new RollDiceResponse("", currentTurnPlayerUuid, rollDiceValue);
+      var client = _gameManager.GetClientByPlayerUuid(currentTurnPlayerUuid);
+
+      if (currentTurnPlayerUuid == _gameManager.LocalPlayer.Uuid)
+        WeakReferenceMessenger.Default.Send(rollDiceResponse);
       try
       {
         var rollDiceRequest =
@@ -98,7 +98,9 @@ public class GameRuleService : ObservableObject
           Console.WriteLine("玩家选择目的地超时，默认第一个");
         }
       }
+
       var playerMoveResponse = new PlayerMoveResponse(currentTurnPlayerUuid, selectPath);
+      WeakReferenceMessenger.Default.Send(playerMoveResponse);
       await _gameManager.NetServerInstance.Broadcast(playerMoveResponse);
 
       await HandleStepOnNodeAsync(
@@ -107,6 +109,19 @@ public class GameRuleService : ObservableObject
         playerMoveResponse.Id);
 
       await AdvanceToNextPlayerTurnAsync();
+    }
+  }
+
+  public async Task RollDiceAsync(string actionMessageId)
+  {
+    if (_gameManager.IsRoomOwner)
+    {
+      TaskCompletionSource<ITcpMessage> tsc = _gameManager.NetServerInstance.GetPendingRequestsTask(actionMessageId);
+      tsc.SetResult(new RollDiceRequest(actionMessageId));
+    }
+    else
+    {
+      await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest(actionMessageId));
     }
   }
 

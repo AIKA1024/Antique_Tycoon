@@ -59,7 +59,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   [ObservableProperty] public partial bool IsGameOver { get; set; }
 
   [ObservableProperty] public partial Player? Winner { get; set; }
-  public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家
+  public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家 
 
   public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
     LibVLC libVlc, RoleStrategyFactory strategyFactory, AnimationManager animationManager)
@@ -79,7 +79,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     });
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
 
-    WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameResponse);
     WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
     WeakReferenceMessenger.Default.Register<ExitRoomResponse>(this,
       (_, request) => _playersByUuid.Remove(request.PlayerUuid));
@@ -107,9 +106,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     await NetServerInstance.BroadcastExcept(exitRoomResponse, client);
     WeakReferenceMessenger.Default.Send(exitRoomResponse);
   }
-
-  private void ReceiveInitGameResponse(object _, InitGameResponse message) =>
-    CurrentTurnPlayerIndex = message.CurrentTurnPlayerIndex;
 
   private void ReceiveUpdateRoomResponse(object _, UpdateRoomResponse message)
   {
@@ -140,8 +136,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   private void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
 
-  public TcpClient GetClientByPlayerUuid(string uuid) =>
-    _clientToPlayerId.First(variable => variable.Value == uuid).Key;
+  public TcpClient? GetClientByPlayerUuid(string uuid) =>
+    _clientToPlayerId.FirstOrDefault(variable => variable.Value == uuid).Key;
 
   public string GetPlayerUuidByTcpClient(TcpClient client)
   {
@@ -176,13 +172,13 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       Players,
       CurrentTurnPlayerIndex
     ));
-    await Task.Yield(); // 等待各监听事件绑定完成
     
     //通知游戏开始
     CurrentTurnPlayerIndex = (CurrentTurnPlayerIndex + 1) % Players.Count;
     var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
     await NetServerInstance.Broadcast(turnStartResponse);
     WeakReferenceMessenger.Default.Send(turnStartResponse);
+    // await Task.Yield(); // 等待各监听事件绑定完成
   }
 
   // private async Task HandleDiceRollResult(string playerUuid, int diceValue)

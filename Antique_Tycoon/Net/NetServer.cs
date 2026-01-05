@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,6 +15,7 @@ using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Net.TcpMessageHandlers;
 using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.Messaging;
@@ -29,7 +31,7 @@ public class NetServer : NetBase
   private readonly Dictionary<TcpClient, long> _clientLastActiveTimes = [];
   private readonly Timer _timer = new();
   private readonly IEnumerable<ITcpMessageHandler> _messageHandlers;
-  private readonly System.Collections.Concurrent.ConcurrentDictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
+  private readonly ConcurrentDictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
 #if DEBUG
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(9999999999);
 #else
@@ -198,11 +200,13 @@ public class NetServer : NetBase
     await client.GetStream().WriteAsync(data, cancellationToken);
   }
   
+  public TaskCompletionSource<ITcpMessage> GetPendingRequestsTask(string id) => _pendingRequests[id];
+  
   public async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
     TRequest message, 
-    TcpClient client, 
+    TcpClient? client, 
     TimeSpan? timeout = null) 
-    where TRequest : ServiceRequest 
+    where TRequest : ActionBase 
     where TResponse : ITcpMessage
   {
     // 确保消息有 ID (通常在构造函数或发送前生成 GUID)
@@ -218,9 +222,12 @@ public class NetServer : NetBase
     try
     {
       // 发送消息
-      await SendResponseAsync(message, client);//只计算
-      // 设置超时处理（可选，防止客户端掉线导致服务器逻辑永久卡死）
+      if (client == null)
+        WeakReferenceMessenger.Default.Send(message);
+      else
+        await SendResponseAsync(message, client);
       
+      // 设置超时处理（可选，防止客户端掉线导致服务器逻辑永久卡死）
       using var cts = new CancellationTokenSource(effectiveTimeout);
       
       // 等待结果或超时
