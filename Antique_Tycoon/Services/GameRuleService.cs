@@ -124,63 +124,6 @@ public class GameRuleService : ObservableObject
   }
 
   /// <summary>
-  /// 接收玩家移动响应（核心入口，添加锁保护）
-  /// </summary>
-  // private async void ReceivePlayerMove(object recipient, PlayerMoveResponse message)
-  // {
-  //   // 1. 快速校验：非当前玩家直接拒绝
-  //   var currentPlayer = _gameManager.CurrentTurnPlayer;
-  //   if (currentPlayer == null || currentPlayer.Uuid != message.PlayerUuid)
-  //   {
-  //     Console.WriteLine($"玩家{message.PlayerUuid}非当前回合玩家，拒绝移动请求");
-  //     return;
-  //   }
-  //
-  //   // 2. 异步锁：防止同一玩家重复请求（3秒超时，避免死等）
-  //   if (!await _gameManager.GameActionLock.WaitAsync(TimeSpan.FromSeconds(3)))
-  //   {
-  //     Console.WriteLine($"玩家{message.PlayerUuid}请求繁忙，拒绝重复移动请求");
-  //     return;
-  //   }
-  //
-  //   try
-  //   {
-  //     // 3. 锁内二次校验：防止等待期间玩家已切换
-  //     if (_gameManager.CurrentTurnPlayer.Uuid != message.PlayerUuid)
-  //     {
-  //       Console.WriteLine($"玩家{message.PlayerUuid}回合已切换，拒绝移动请求");
-  //       return;
-  //     }
-  //
-  //     // 4. 执行核心逻辑，并获取回合是否结束的结果
-  //     bool isTurnFinished = await HandleStepOnNodeAsync(
-  //       _gameManager.GetPlayerByUuid(message.PlayerUuid),
-  //       (NodeModel)_gameManager.SelectedMap.EntitiesDict[message.Path[^1]],
-  //       message.Id);
-  //
-  //     // 5. 仅当回合结束时，才切换到下一个玩家（核心调整）
-  //     if (isTurnFinished)
-  //     {
-  //       await AdvanceToNextPlayerTurnAsync();
-  //       Console.WriteLine($"玩家{message.PlayerUuid}回合结束，切换到下一个玩家");
-  //     }
-  //     else
-  //     {
-  //       Console.WriteLine($"玩家{message.PlayerUuid}回合未结束，可继续操作");
-  //     }
-  //   }
-  //   catch (Exception e)
-  //   {
-  //     Console.WriteLine($"处理玩家移动失败：{e.Message}");
-  //   }
-  //   finally
-  //   {
-  //     // 6. 释放锁：无论成功/失败，必须释放
-  //     _gameManager.GameActionLock.Release();
-  //   }
-  // }
-
-  /// <summary>
   /// 处理踩到格子的逻辑（修改返回值：是否结束当前玩家回合）
   /// </summary>
   /// <param name="player">玩家</param>
@@ -199,6 +142,10 @@ public class GameRuleService : ObservableObject
       case SpawnPoint:
         await HandleSpawnPointAsync(player);
         // 出生点：处理完后回合结束（你可根据需求修改为 false，比如路过出生点可再投骰子）
+        return true;
+      
+      case Mine:
+
         return true;
 
       // 扩展：可添加其他格子类型（比如抽奖/双倍骰子格子），返回 false 表示回合不结束
@@ -270,5 +217,10 @@ public class GameRuleService : ObservableObject
       new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money - bonus}->{player.Money}");
     await _gameManager.NetServerInstance.Broadcast(message);
     WeakReferenceMessenger.Default.Send(message);
+  }
+  
+  private async Task HandleMineAsync(Player player)
+  {
+    
   }
 }

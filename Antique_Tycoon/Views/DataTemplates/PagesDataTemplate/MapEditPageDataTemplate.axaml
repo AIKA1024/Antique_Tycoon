@@ -90,6 +90,7 @@
                       <ContentControl.DataTemplates>
                         <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
                         <StaticResource ResourceKey="EstateDetailDataTemplate" />
+                        <StaticResource ResourceKey="MineDetailDataTemplate" />
                       </ContentControl.DataTemplates>
                     </ContentControl>
                   </StackPanel>

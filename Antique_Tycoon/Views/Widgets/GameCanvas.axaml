@@ -56,6 +56,7 @@
             <c:NodeLinkControl.DataTemplates>
               <StaticResource ResourceKey="SpawnPointDataTemplate" />
               <StaticResource ResourceKey="EstateDataTemplate" />
+              <StaticResource ResourceKey="MineDataTemplate" />
             </c:NodeLinkControl.DataTemplates>
             <c:NodeLinkControl.KeyBindings>
               <KeyBinding Gesture="Delete" Command="{Binding #Me.RemoveEntityCommand}"
@@ -93,6 +94,7 @@
                   </StackPanel.Styles>
                   <MenuItem Header="玩家出生点"/>
                   <MenuItem Header="地产" />
+                  <MenuItem Header="矿洞"/>
                   <MenuItem Header="传送点" />
                 </StackPanel>
               </Flyout>

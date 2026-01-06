@@ -275,6 +275,14 @@ public partial class GameCanvas : UserControl
                         Title = "某生态群系",
                     });
                     break;
+                case "矿洞":
+                    CurrentMap.Entities.Add(new Mine
+                    {
+                        Left = PointerPosition.X,
+                        Top = PointerPosition.Y,
+                        Title = "矿洞"
+                    });
+                    break;
                 case "自定义事件":
                     break;
             }

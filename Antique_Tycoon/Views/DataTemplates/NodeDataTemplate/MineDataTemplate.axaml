@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
+                    xmlns:c="using:Antique_Tycoon.Views.Controls"
+                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+                    xmlns:i="clr-namespace:Antique_Tycoon.Behaviors">
+  <Design.PreviewWith>
+    <ContentControl>
+      <node:Mine Title="矿洞" />
+    </ContentControl>
+  </Design.PreviewWith>
+
+  <DataTemplate x:Key="MineDataTemplate" x:DataType="node:Mine">
+    <StackPanel>
+      <TextBlock Text="{Binding Title}"
+                 FontSize="16"
+                 FontWeight="Black"
+                 HorizontalAlignment="Center" />
+      <Image
+        Margin="0 16 0 0"
+        Source="{Binding Cover}"
+        Stretch="{Binding CoverStretch}" />
+    </StackPanel>
+  </DataTemplate>
+</ResourceDictionary>

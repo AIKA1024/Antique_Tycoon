@@ -29,6 +29,7 @@
 
   
   <Application.DataTemplates>
+    <!-- page -->
     <StaticResource ResourceKey="CreateRoomPageDataTemplate"/>
     <StaticResource ResourceKey="MapListPageDataTemplate"/>
     <StaticResource ResourceKey="GamePageDataTemplate"/>
@@ -37,14 +38,15 @@
     <StaticResource ResourceKey="RoomPageDataTemplate"/>
     <StaticResource ResourceKey="MapEditPageDataTemplate"/>
     
+    <!-- Node -->
     <StaticResource ResourceKey="SpawnPointDataTemplate"/>
     <StaticResource ResourceKey="EstateDataTemplate"/>
+    <StaticResource ResourceKey="MineDataTemplate"/>
     
+    <!-- Dialog -->
     <StaticResource ResourceKey="CreateNewMapDialogDataTemplate"/>
     <StaticResource ResourceKey="SelectMapDialogDataTemplate"/>
     <StaticResource ResourceKey="MessageDialogDataTemplate"/>
     <StaticResource ResourceKey="LockerRoomDialogDataTemplate"/>
-    
-    
   </Application.DataTemplates>
 </Application>

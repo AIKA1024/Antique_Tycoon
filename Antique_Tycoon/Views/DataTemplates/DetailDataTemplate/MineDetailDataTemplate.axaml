@@ -6,18 +6,18 @@
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
-        <StaticResource ResourceKey="EstateDetailDataTemplate" />
+        <StaticResource ResourceKey="MineDetailDataTemplate" />
       </ContentControl.DataTemplates>
-      <node:Estate />
+      <node:Mine />
     </ContentControl>
   </Design.PreviewWith>
   
-  <DataTemplate x:Key="EstateDetailDataTemplate" x:DataType="node:Estate">
+  <DataTemplate x:Key="MineDetailDataTemplate" x:DataType="node:Mine">
     <StackPanel>
-      <c:McContentControl Header="价格">
+      <c:McContentControl Header="收费">
         <TextBox
           Classes="MCTextbox"
-          Text="{Binding Value}" />
+          Text="{Binding Charge}" />
       </c:McContentControl>
     </StackPanel>
   </DataTemplate>
