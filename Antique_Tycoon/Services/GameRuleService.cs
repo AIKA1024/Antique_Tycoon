@@ -169,22 +169,6 @@ public class GameRuleService : ObservableObject
   {
     if (estate.Owner == null && player.Money >= estate.Value)
     {
-      if (_gameManager.RoomOwnerUuid == player.Uuid)
-      {
-        await _animationManager.WaitAnimation(animationToken);
-        bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-        {
-          Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
-          IsLightDismissEnabled = false
-        });
-        if (!isConfirm) return;
-        player.Money -= estate.Value;
-        var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
-        await _gameManager.NetServerInstance.Broadcast(message);
-        WeakReferenceMessenger.Default.Send(message);
-      }
-      else
-      {
         var buyEstateActionMessage = new BuyEstateAction(animationToken, estate.Uuid);
         var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
         try
@@ -205,7 +189,6 @@ public class GameRuleService : ObservableObject
         {
           Console.WriteLine(e.Message);
         }
-      }
     }
   }
 
