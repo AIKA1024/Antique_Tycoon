@@ -64,8 +64,6 @@ public class GameRuleService : ObservableObject
       RollDiceResponse rollDiceResponse = new RollDiceResponse("", currentTurnPlayerUuid, rollDiceValue);
       var client = _gameManager.GetClientByPlayerUuid(currentTurnPlayerUuid);
 
-      if (currentTurnPlayerUuid == _gameManager.LocalPlayer.Uuid)
-        WeakReferenceMessenger.Default.Send(rollDiceResponse);
       try
       {
         var rollDiceRequest =
@@ -73,12 +71,12 @@ public class GameRuleService : ObservableObject
             .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
         rollDiceResponse = new RollDiceResponse(rollDiceRequest.Id, currentTurnPlayerUuid, rollDiceValue);
       }
-      catch (OperationCanceledException e)
+      catch (TimeoutException e)
       {
         Console.WriteLine("玩家回合超时");
       }
-
       await _gameManager.NetServerInstance.Broadcast(rollDiceResponse);
+      WeakReferenceMessenger.Default.Send(rollDiceResponse);
       var nodeDic = _gameManager.SelectedMap.GetPathsAtExactStep(_gameManager.CurrentTurnPlayer.CurrentNodeUuId,
         rollDiceValue);
       var selectPath = nodeDic.First().Value;
@@ -93,7 +91,7 @@ public class GameRuleService : ObservableObject
               selectDestinationAction, client);
           selectPath = nodeDic[selectDestinationRequest.DestinationUuid];
         }
-        catch (OperationCanceledException e)
+        catch (TimeoutException e)
         {
           Console.WriteLine("玩家选择目的地超时，默认第一个");
         }
