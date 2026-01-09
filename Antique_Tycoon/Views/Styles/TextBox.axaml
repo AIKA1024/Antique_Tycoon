@@ -7,7 +7,7 @@
   </Design.PreviewWith>
 
   <Style Selector="TextBox.MCTextbox">
-    <Setter Property="FontFamily" Value="微软雅黑"/>
+    <Setter Property="FontFamily" Value="微软雅黑" />
     <Setter Property="Cursor" Value="Ibeam" />
     <Setter Property="Background" Value="#313233" />
     <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
@@ -19,59 +19,62 @@
     <Setter Property="Template">
       <ControlTemplate>
         <StackPanel Background="{TemplateBinding Background}">
-          <Rectangle VerticalAlignment="Top" Height="4" Fill="#242425" />
-          <Border BorderBrush="{TemplateBinding BorderBrush}"
-                  BorderThickness="{TemplateBinding BorderThickness}"
-                  Padding="{TemplateBinding Padding}">
-            <ScrollViewer Name="PART_ScrollViewer" HorizontalScrollBarVisibility="Hidden"
-                          VerticalScrollBarVisibility="Hidden">
-              <Panel>
-                <TextBlock Name="PART_Watermark"
-                           Opacity="0.5"
-                           Text="{TemplateBinding Watermark}"
-                           TextAlignment="{TemplateBinding TextAlignment}"
-                           TextWrapping="{TemplateBinding TextWrapping}"
-                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                  <TextBlock.IsVisible>
-                    <MultiBinding Converter="{x:Static BoolConverters.And}">
-                      <Binding ElementName="PART_TextPresenter" Path="PreeditText"
-                               Converter="{x:Static StringConverters.IsNullOrEmpty}" />
-                      <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text"
-                               Converter="{x:Static StringConverters.IsNullOrEmpty}" />
-                    </MultiBinding>
-                  </TextBlock.IsVisible>
-                </TextBlock>
-                <TextPresenter Name="PART_TextPresenter"
-                               Text="{TemplateBinding Text, Mode=TwoWay}"
-                               CaretBlinkInterval="{TemplateBinding CaretBlinkInterval}"
-                               CaretIndex="{TemplateBinding CaretIndex}"
-                               SelectionStart="{TemplateBinding SelectionStart}"
-                               SelectionEnd="{TemplateBinding SelectionEnd}"
-                               TextAlignment="{TemplateBinding TextAlignment}"
-                               TextWrapping="{TemplateBinding TextWrapping}"
-                               LineHeight="{TemplateBinding LineHeight}"
-                               LetterSpacing="{TemplateBinding LetterSpacing}"
-                               PasswordChar="{TemplateBinding PasswordChar}"
-                               RevealPassword="{TemplateBinding RevealPassword}"
-                               SelectionBrush="{TemplateBinding SelectionBrush}"
-                               SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
-                               CaretBrush="{TemplateBinding CaretBrush}"
-                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-              </Panel>
-            </ScrollViewer>
-          </Border>
+          <Panel>
+            <Rectangle VerticalAlignment="Top" Height="6" Fill="#242425" />
+            <Border BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Padding="{TemplateBinding Padding}">
+              <ScrollViewer Name="PART_ScrollViewer" HorizontalScrollBarVisibility="Hidden"
+                            VerticalScrollBarVisibility="Hidden">
+                <Panel>
+                  <TextBlock Name="PART_Watermark"
+                             Opacity="0.5"
+                             Text="{TemplateBinding Watermark}"
+                             TextAlignment="{TemplateBinding TextAlignment}"
+                             TextWrapping="{TemplateBinding TextWrapping}"
+                             HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                             VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                    <TextBlock.IsVisible>
+                      <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <Binding ElementName="PART_TextPresenter" Path="PreeditText"
+                                 Converter="{x:Static StringConverters.IsNullOrEmpty}" />
+                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text"
+                                 Converter="{x:Static StringConverters.IsNullOrEmpty}" />
+                      </MultiBinding>
+                    </TextBlock.IsVisible>
+                  </TextBlock>
+                  <TextPresenter Name="PART_TextPresenter"
+                                 Text="{TemplateBinding Text, Mode=TwoWay}"
+                                 CaretBlinkInterval="{TemplateBinding CaretBlinkInterval}"
+                                 CaretIndex="{TemplateBinding CaretIndex}"
+                                 SelectionStart="{TemplateBinding SelectionStart}"
+                                 SelectionEnd="{TemplateBinding SelectionEnd}"
+                                 TextAlignment="{TemplateBinding TextAlignment}"
+                                 TextWrapping="{TemplateBinding TextWrapping}"
+                                 LineHeight="{TemplateBinding LineHeight}"
+                                 LetterSpacing="{TemplateBinding LetterSpacing}"
+                                 PasswordChar="{TemplateBinding PasswordChar}"
+                                 RevealPassword="{TemplateBinding RevealPassword}"
+                                 SelectionBrush="{TemplateBinding SelectionBrush}"
+                                 SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                                 CaretBrush="{TemplateBinding CaretBrush}"
+                                 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </Panel>
+              </ScrollViewer>
+            </Border>
+          </Panel>
+
         </StackPanel>
       </ControlTemplate>
     </Setter>
-    
+
     <Style Selector="^:disabled">
-      <Setter Property="Foreground" Value="#58585A"/>
-      <Setter Property="Background" Value="#B1B2B5"/>
-      <Setter Property="BorderBrush" Value="#58585A"/>
+      <Setter Property="Foreground" Value="#58585A" />
+      <Setter Property="Background" Value="#B1B2B5" />
+      <Setter Property="BorderBrush" Value="#58585A" />
       <Style Selector="^>StackPanel>Rectangle">
-        <Setter Property="Fill" Value="#58585A"/>
+        <Setter Property="Fill" Value="#58585A" />
       </Style>
     </Style>
   </Style>
