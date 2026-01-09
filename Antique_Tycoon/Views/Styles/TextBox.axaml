@@ -73,8 +73,8 @@
       <Setter Property="Foreground" Value="#58585A" />
       <Setter Property="Background" Value="#B1B2B5" />
       <Setter Property="BorderBrush" Value="#58585A" />
-      <Style Selector="^>StackPanel>Rectangle">
-        <Setter Property="Fill" Value="#58585A" />
+      <Style Selector="^>StackPanel>Panel>Rectangle">
+        <Setter Property="Fill" Value="#8C8D90" />
       </Style>
     </Style>
   </Style>
