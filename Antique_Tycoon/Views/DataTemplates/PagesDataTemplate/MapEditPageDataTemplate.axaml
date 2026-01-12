@@ -3,6 +3,8 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:e="using:Antique_Tycoon.Extensions"
   xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
+  xmlns:n="clr-namespace:Antique_Tycoon.Models.Node"
+  xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
   xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
   <Design.PreviewWith>
@@ -30,7 +32,7 @@
              Background="Transparent">
         <widgets:GameCanvas IsEditing="True" CurrentMap="{Binding CurrentMap}"
                             SelectedMapEntities="{Binding SelectedMapEntities,Mode=OneWayToSource}"
-                            SelectedMapEntity="{Binding TempSelectedMapEntity,Mode=OneWayToSource}"/>
+                            SelectedMapEntity="{Binding TempSelectedMapEntity,Mode=OneWayToSource}" />
 
         <!-- DetailPanel -->
         <Border
@@ -39,7 +41,7 @@
           HorizontalAlignment="Right"
           BorderThickness="2 0 0 0"
           BorderBrush="Black">
-          <TabControl Padding="0" Width="260">
+          <TabControl Padding="0" Width="280">
             <TabControl.Styles>
               <Style Selector="TabControl TabItem TextBox.MCTextbox">
                 <Setter Property="FontSize" Value="16" />
@@ -62,28 +64,28 @@
                     </c:McContentControl>
                     <c:McContentControl Header="节点尺寸">
                       <StackPanel Spacing="8">
-                        <TextBlock Text="宽度"/>
+                        <TextBlock Text="宽度" />
                         <TextBox
                           Classes="MCTextbox"
                           IsEnabled="{Binding !SelectedMapEntity.IsAutoSize}"
                           Text="{Binding SelectedMapEntity.WidthDisplayText}" />
-                        <TextBlock Text="高度"/>
+                        <TextBlock Text="高度" />
                         <TextBox
                           Classes="MCTextbox"
                           IsEnabled="{Binding !SelectedMapEntity.IsAutoSize}"
                           Text="{Binding SelectedMapEntity.HeightDisplayText}" />
-                      <ToggleSwitch Content="自适应大小" IsChecked="{Binding SelectedMapEntity.IsAutoSize}"/>
+                        <ToggleSwitch Content="自适应大小" IsChecked="{Binding SelectedMapEntity.IsAutoSize}" />
                       </StackPanel>
                     </c:McContentControl>
                     <c:McContentControl Header="图片">
                       <StackPanel Orientation="Horizontal" Spacing="16">
                         <c:McButton Content="选择图片" Classes="ore" Padding="12 8"
-                                    Command="{Binding ChangeImageCommand}"
+                                    Command="{Binding ChangeNodeImageCommand}"
                                     CommandParameter="{Binding SelectedMapEntity}" />
-                          <ComboBox ItemsSource="{x:Static e:StretchEnumValuesExtension.Values}" 
-                                    SelectedItem="{Binding SelectedMapEntity.CoverStretch}"
-                                    VerticalAlignment="Center">
-                          </ComboBox>
+                        <ComboBox ItemsSource="{x:Static e:StretchEnumValuesExtension.Values}"
+                                  SelectedItem="{Binding SelectedMapEntity.CoverStretch}"
+                                  VerticalAlignment="Center">
+                        </ComboBox>
                       </StackPanel>
                     </c:McContentControl>
                     <ContentControl Content="{Binding SelectedMapEntity}">
@@ -98,22 +100,81 @@
               </Panel>
             </TabItem>
             <TabItem Header="地图设置">
-              <StackPanel>
-                <c:McContentControl Header="初始金额">
-                  <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.StartingCash,Mode=TwoWay}" />
-                </c:McContentControl>
-                <c:McContentControl Header="画布宽度">
-                  <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasWidth,Mode=TwoWay}" />
-                </c:McContentControl>
-                <c:McContentControl Header="画布高度">
-                  <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasHeight,Mode=TwoWay}" />
-                </c:McContentControl>
-                <c:McContentControl Header="画布背景色">
-                  <ColorPicker
-                    Color="{Binding CurrentMap.CanvasBackground}"
-                    HorizontalAlignment="Left" />
-                </c:McContentControl>
-              </StackPanel>
+              <ScrollViewer>
+                <StackPanel>
+                  <c:McContentControl Header="初始金额">
+                    <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.StartingCash,Mode=TwoWay}" />
+                  </c:McContentControl>
+                  <c:McContentControl Header="画布宽度">
+                    <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasWidth,Mode=TwoWay}" />
+                  </c:McContentControl>
+                  <c:McContentControl Header="画布高度">
+                    <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasHeight,Mode=TwoWay}" />
+                  </c:McContentControl>
+                  <c:McContentControl Header="画布背景色">
+                    <ColorPicker
+                      Color="{Binding CurrentMap.CanvasBackground}"
+                      HorizontalAlignment="Left" />
+                  </c:McContentControl>
+                  <c:McContentControl Header="人数上限">
+                    <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.MaxPlayer}" />
+                  </c:McContentControl>
+                  <c:McContentControl Header="古玩列表" HorizontalAlignment="Stretch">
+                    <StackPanel>
+                      <ItemsControl ItemsSource="{Binding AntiqueMapItems}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Spacing="1" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.DataTemplates>
+                          <DataTemplate DataType="n:AntiqueMapItem">
+                            <Panel>
+                              <Border Padding="16" Background="#313233"
+                                      BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+                                <DockPanel>
+                                  <Border DockPanel.Dock="Left" CornerRadius="4" Padding="4"
+                                          ClipToBounds="True"
+                                          Cursor="Hand"
+                                          VerticalAlignment="Center"
+                                          Background="#191A1C"
+                                          BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                          i:Tap.Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).ChangeAntiqueImageCommand}"
+                                          i:Tap.CommandParameter="{Binding}">
+                                    <Image Width="36" IsHitTestVisible="False"
+                                           Source="{Binding AntiqueItem.Image}" />
+                                  </Border>
+                                  <UniformGrid DockPanel.Dock="Right"
+                                               Margin="12 0 0 0"
+                                               Columns="2" RowSpacing="4">
+                                    <TextBlock Text="名字" VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding AntiqueItem.Name}" Watermark="名字"/>
+                                    <TextBlock Text="价格" VerticalAlignment="Center"/>
+                                    <TextBox Text="{Binding AntiqueItem.Value}" Watermark="价格" />
+                                    <TextBlock Text="骰子点数" VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding AntiqueItem.Dice}" Watermark="骰子点数"/>
+                                    <TextBlock Text="留存数量" VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding Amount}" Watermark="留存数量"/>
+                                  </UniformGrid>
+                                </DockPanel>
+                              </Border>
+                              <Button DockPanel.Dock="Right" Content="×"
+                                      CornerRadius="0"
+                                      Margin="1" Padding="2"
+                                      VerticalContentAlignment="Center"
+                                      HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                                      Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).RemoveAntiqueCommand}"
+                                      CommandParameter="{Binding}"/>
+                            </Panel>
+                          </DataTemplate>
+                        </ItemsControl.DataTemplates>
+                      </ItemsControl>
+                      <c:McButton Content="添加新古玩" Margin="16" Padding="12 8"
+                                  Command="{Binding AddNewAntiqueCommand}" />
+                    </StackPanel>
+                  </c:McContentControl>
+                </StackPanel>
+              </ScrollViewer>
             </TabItem>
           </TabControl>
         </Border>

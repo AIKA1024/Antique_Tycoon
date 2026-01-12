@@ -18,7 +18,7 @@
                  HorizontalAlignment="Center" />
       <Image
         Margin="0 16 0 0"
-        Source="{Binding Cover}"
+        Source="{Binding Image}"
         Stretch="{Binding CoverStretch}" />
     </StackPanel>
   </DataTemplate>

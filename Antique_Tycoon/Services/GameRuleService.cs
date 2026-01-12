@@ -49,6 +49,26 @@ public class GameRuleService : ObservableObject
     WeakReferenceMessenger.Default.Send(turnStartResponse);
   }
 
+  private async Task<RollDiceResponse> GetRollDiceAsync(TcpClient? client)
+  {
+    int rollDiceValue = Random.Shared.Next(1, 7);
+    RollDiceResponse rollDiceResponse = new RollDiceResponse("", _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
+    try
+    {
+      var rollDiceRequest =
+        await _gameManager.NetServerInstance
+          .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
+      rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
+      rollDiceResponse = new RollDiceResponse(rollDiceRequest.Id, _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
+    }
+    catch (TimeoutException e)
+    {
+      Console.WriteLine("玩家回合超时");
+    }
+
+    return rollDiceResponse;
+  }
+
   private async Task StartGameRule()
   {
     if (!_gameManager.IsRoomOwner)
@@ -59,26 +79,13 @@ public class GameRuleService : ObservableObject
     while (!_gameManager.IsGameOver)
     {
       string currentTurnPlayerUuid = _gameManager.CurrentTurnPlayer.Uuid;
-      //默认都是玩家想要移动，开始投骰子
-      int rollDiceValue = Random.Shared.Next(1, 7);
-      RollDiceResponse rollDiceResponse = new RollDiceResponse("", currentTurnPlayerUuid, rollDiceValue);
-      var client = _gameManager.GetClientByPlayerUuid(currentTurnPlayerUuid);
+      var client = _gameManager.GetClientByPlayerUuid(_gameManager.CurrentTurnPlayer.Uuid);
+      var rollDiceResponse = await GetRollDiceAsync(client);
 
-      try
-      {
-        var rollDiceRequest =
-          await _gameManager.NetServerInstance
-            .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
-        rollDiceResponse = new RollDiceResponse(rollDiceRequest.Id, currentTurnPlayerUuid, rollDiceValue);
-      }
-      catch (TimeoutException e)
-      {
-        Console.WriteLine("玩家回合超时");
-      }
       await _gameManager.NetServerInstance.Broadcast(rollDiceResponse);
       WeakReferenceMessenger.Default.Send(rollDiceResponse);
       var nodeDic = _gameManager.SelectedMap.GetPathsAtExactStep(_gameManager.CurrentTurnPlayer.CurrentNodeUuId,
-        rollDiceValue);
+        rollDiceResponse.DiceValue);
       var selectPath = nodeDic.First().Value;
 
       if (nodeDic.Count > 1)
@@ -110,18 +117,7 @@ public class GameRuleService : ObservableObject
     }
   }
 
-  public async Task RollDiceAsync(string actionMessageId)
-  {
-    if (_gameManager.IsRoomOwner)
-    {
-      TaskCompletionSource<ITcpMessage> tsc = _gameManager.NetServerInstance.GetPendingRequestsTask(actionMessageId);
-      tsc.SetResult(new RollDiceRequest(actionMessageId));
-    }
-    else
-    {
-      await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest(actionMessageId));
-    }
-  }
+  
 
   /// <summary>
   /// 处理踩到格子的逻辑（修改返回值：是否结束当前玩家回合）
@@ -143,9 +139,9 @@ public class GameRuleService : ObservableObject
         await HandleSpawnPointAsync(player);
         // 出生点：处理完后回合结束（你可根据需求修改为 false，比如路过出生点可再投骰子）
         return true;
-      
-      case Mine:
 
+      case Mine:
+        await HandleMineAsync(player);
         return true;
 
       // 扩展：可添加其他格子类型（比如抽奖/双倍骰子格子），返回 false 表示回合不结束
@@ -169,26 +165,26 @@ public class GameRuleService : ObservableObject
   {
     if (estate.Owner == null && player.Money >= estate.Value)
     {
-        var buyEstateActionMessage = new BuyEstateAction(animationToken, estate.Uuid);
-        var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-        try
+      var buyEstateActionMessage = new BuyEstateAction(animationToken, estate.Uuid);
+      var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+      try
+      {
+        var buyEstateRequest =
+          await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
+            buyEstateActionMessage, client, TimeSpan.FromSeconds(30));
+        if (buyEstateRequest.IsConfirm)
         {
-          var buyEstateRequest =
-            await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
-              buyEstateActionMessage, client, TimeSpan.FromSeconds(30));
-          if (buyEstateRequest.IsConfirm)
-          {
-            player.Money -= estate.Value;
-            estate.Owner = player;
-            var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
-            await _gameManager.NetServerInstance.Broadcast(message);
-            WeakReferenceMessenger.Default.Send(message);
-          }
+          player.Money -= estate.Value;
+          estate.Owner = player;
+          var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+          await _gameManager.NetServerInstance.Broadcast(message);
+          WeakReferenceMessenger.Default.Send(message);
         }
-        catch (Exception e)
-        {
-          Console.WriteLine(e.Message);
-        }
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine(e.Message);
+      }
     }
   }
 
@@ -201,9 +197,36 @@ public class GameRuleService : ObservableObject
     await _gameManager.NetServerInstance.Broadcast(message);
     WeakReferenceMessenger.Default.Send(message);
   }
-  
+
   private async Task HandleMineAsync(Player player)
   {
-    
+    if (_gameManager.SelectedMap.Antiques.Count == 0)
+      return;
+    var antique = _gameManager.SelectedMap.Antiques[Random.Shared.Next(0, _gameManager.SelectedMap.Antiques.Count)];
+    var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid);
+    var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+    WeakReferenceMessenger.Default.Send(antique);
+    await _gameManager.NetServerInstance.Broadcast(antiqueChangeResponse);
+    var rollDiceResponse = await GetRollDiceAsync(client);
+    var getAntiqueResultResponse = new GetAntiqueResultResponse(antique.Uuid, player.Uuid,rollDiceResponse.DiceValue >= antique.Dice);
+    WeakReferenceMessenger.Default.Send(getAntiqueResultResponse);
+    await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse);//todo 还没做收到消息的逻辑
+  }
+  
+  /// <summary>
+  /// 玩家请求投骰子
+  /// </summary>
+  /// <param name="actionMessageId">服务器的行动id</param>
+  public async Task RollDiceAsync(string actionMessageId)
+  {
+    if (_gameManager.IsRoomOwner)
+    {
+      TaskCompletionSource<ITcpMessage> tsc = _gameManager.NetServerInstance.GetPendingRequestsTask(actionMessageId);
+      tsc.SetResult(new RollDiceRequest(actionMessageId));
+    }
+    else
+    {
+      await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest(actionMessageId));
+    }
   }
 }

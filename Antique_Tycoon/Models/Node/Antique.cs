@@ -10,6 +10,12 @@ namespace Antique_Tycoon.Models.Node;
 public class Antique : ObservableObject,IDisposable
 {
   public string Uuid { get; set; } = Guid.NewGuid().ToString();
+  
+  /// <summary>
+  /// 用于保存地图后，确定是不是同一种古玩，Uuid是不同的
+  /// </summary>
+  public int Index { get; set; }
+  
   public string Name { get; set; } = "";
   public int Value { get; set; }
 

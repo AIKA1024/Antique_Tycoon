@@ -42,6 +42,7 @@
     <StaticResource ResourceKey="SpawnPointDataTemplate"/>
     <StaticResource ResourceKey="EstateDataTemplate"/>
     <StaticResource ResourceKey="MineDataTemplate"/>
+    <StaticResource ResourceKey="AntiqueDataTemplate"/>
     
     <!-- Dialog -->
     <StaticResource ResourceKey="CreateNewMapDialogDataTemplate"/>

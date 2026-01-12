@@ -237,6 +237,8 @@ public abstract class NetBase
       TcpMessageType.TurnStartResponse => AppJsonContext.Default.TurnStartResponse,
       TcpMessageType.InitGameMessageResponse => AppJsonContext.Default.InitGameResponse,
       TcpMessageType.ExitRoomResponse => AppJsonContext.Default.ExitRoomResponse,
+      TcpMessageType.AntiqueChanceResponse => AppJsonContext.Default.AntiqueChanceResponse,
+      TcpMessageType.GetAntiqueResultResponse => AppJsonContext.Default.GetAntiqueResultResponse,
 
       _ => throw new NotSupportedException($"未定义消息类型 {type} 的 JSON 解析上下文")
     };
@@ -307,6 +309,12 @@ public abstract class NetBase
       _ when type == typeof(SelectDestinationRequest) => (
         (JsonTypeInfo<T>)(object)AppJsonContext.Default.SelectDestinationRequest,
         TcpMessageType.SelectDestinationRequest),
+      _ when type == typeof(AntiqueChanceResponse) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.AntiqueChanceResponse,
+        TcpMessageType.AntiqueChanceResponse),
+      _ when type == typeof(GetAntiqueResultResponse) => (
+        (JsonTypeInfo<T>)(object)AppJsonContext.Default.GetAntiqueResultResponse,
+        TcpMessageType.GetAntiqueResultResponse),
       // 更多类型...
       _ => throw new NotSupportedException($"类型 {typeof(T).Name} 未注册在 JSON 上下文中")
     };

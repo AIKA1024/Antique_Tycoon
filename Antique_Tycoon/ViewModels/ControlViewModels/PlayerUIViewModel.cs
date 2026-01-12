@@ -1,10 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
+using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.PageViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -17,9 +19,11 @@ namespace Antique_Tycoon.ViewModels.ControlViewModels;
 public partial class PlayerUiViewModel : PageViewModelBase
 {
   private readonly AnimationManager _animationManager = App.Current.Services.GetRequiredService<AnimationManager>();
+  private readonly GameManager _gameManger = App.Current.Services.GetRequiredService<GameManager>();
 
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
+  [ObservableProperty] private Antique _antique;//todo 这个要搞一个父类，表示要展示的卡片的基本信息
   private string _rollDiceActionId = "";
 
   [ObservableProperty] public partial bool RollButtonEnable { get; set; } = false;
@@ -30,6 +34,12 @@ public partial class PlayerUiViewModel : PageViewModelBase
   {
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
     WeakReferenceMessenger.Default.Register<RollDiceAction>(this,ReceiveRollDiceAction);
+    WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this,ReceiveAntiqueChanceResponse);
+  }
+
+  private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
+  {
+    Antique = _gameManger.SelectedMap.Antiques.First(a => a.Uuid == message.AntiqueUuid);
   }
 
   private void ReceiveRollDiceAction(object recipient, RollDiceAction message)

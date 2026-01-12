@@ -27,4 +27,6 @@ public enum TcpMessageType : ushort
   PlayerMoveResponse,
   SelectDestinationAction,
   SelectDestinationRequest,
+  AntiqueChanceResponse,
+  GetAntiqueResultResponse
 }

@@ -22,7 +22,7 @@
                    Text="{Binding Bonus,StringFormat=经过起点领取{0}元}" />
         <Image
           Margin="0 16 0 0"
-          Source="{Binding Cover}"
+          Source="{Binding Image}"
           Stretch="{Binding CoverStretch}" />
       </StackPanel>
   </DataTemplate>

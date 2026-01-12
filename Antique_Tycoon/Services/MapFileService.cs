@@ -131,13 +131,16 @@ public class MapFileService
   {
     var rootDirectoryPath = Path.Combine(App.Current.MapPath, map.Name);
     var imageDirectoryPath = Path.Combine(rootDirectoryPath, ImageFolderName);
+    var imageCacheDict = new Dictionary<string, bool>();
     if (!Directory.Exists(imageDirectoryPath))
       Directory.CreateDirectory(imageDirectoryPath);
+    
     foreach (var entity in map.Entities)
       if (entity is NodeModel node)
       {
         node.ImageHash = node.Image.GetGuid();
         var imageFullPath = Path.Combine(imageDirectoryPath, node.ImageHash);
+        imageCacheDict.TryAdd(node.ImageHash, true);
         if (File.Exists(imageFullPath))
           continue;
         node.Image.Save(imageFullPath);
@@ -145,11 +148,18 @@ public class MapFileService
     foreach (var antique in map.Antiques)
     {
       antique.ImageHash = antique.Image.GetGuid();
+      imageCacheDict.TryAdd(antique.ImageHash, true);
       if (File.Exists(Path.Combine(imageDirectoryPath, antique.ImageHash)))
         continue;
       antique.Image.Save(Path.Combine(imageDirectoryPath, antique.ImageHash));
     }
     map.Cover.Save(Path.Combine(rootDirectoryPath, "Cover.png"));
+
+    foreach (var filePath in Directory.GetFiles(imageDirectoryPath))
+    {
+      if (!imageCacheDict.ContainsKey(Path.GetFileName(filePath)))//没有在字典里，说明是之前的图片，现在没用了，要删除
+        File.Delete(filePath);
+    }
     
     var jsonStr = JsonSerializer.Serialize(map, AppJsonContext.Default.Map);
     var jsonPath = Path.Combine(Path.Combine(rootDirectoryPath, JsonFileName));

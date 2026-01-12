@@ -46,6 +46,12 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<RollDiceResponse>(this, ReceiveRollDiceMessage);
     WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
     WeakReferenceMessenger.Default.Register<BuyEstateAction>(this, ReceiveBuyEstateAction);
+    WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
+  }
+
+  private void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
+  {
+    WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,Map));//转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
   }
 
   private async void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)

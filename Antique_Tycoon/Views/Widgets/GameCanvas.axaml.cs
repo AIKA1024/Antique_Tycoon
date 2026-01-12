@@ -71,7 +71,7 @@ public partial class GameCanvas : UserControl
         foreach (var canvasItem in _canvas.Children)
             if (canvasItem is ListBoxItem listBoxItem && node == listBoxItem.DataContext as NodeModel)
             {
-                nodeControlsDic.Add(node, listBoxItem);
+                nodeControlsDic.TryAdd(node, listBoxItem);
                 break;
             }
 

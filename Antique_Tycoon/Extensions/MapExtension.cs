@@ -68,7 +68,7 @@ private static void FindPathsRecursive(
             var targetNode = (NodeModel)targetEntity;
 
             // 防环检测：检查Uuid是否已在路径中（替代原NodeModel的Contains）
-            if (currentPathUuids.Contains(targetNode.Uuid)) continue;
+            // if (currentPathUuids.Contains(targetNode.Uuid)) continue;
 
             // 添加目标节点的Uuid到路径
             currentPathUuids.Add(targetNode.Uuid);

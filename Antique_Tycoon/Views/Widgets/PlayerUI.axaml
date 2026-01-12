@@ -11,7 +11,7 @@
   <UserControl.Styles>
     <Style Selector="Grid.Invisible">
       <Setter Property="Opacity" Value="0" />
-      <Setter Property="IsHitTestVisible" Value="False"/>
+      <Setter Property="IsHitTestVisible" Value="False" />
     </Style>
   </UserControl.Styles>
   <Design.DataContext>
@@ -20,47 +20,59 @@
   <Grid RowDefinitions="*,Auto"
         Classes.Invisible="{Binding IsVisible}">
     <UniformGrid Columns="3">
-      <StackPanel/>
-      <StackPanel/>
+      <StackPanel />
+      <Border CornerRadius="8"
+              Padding="16"
+              IsVisible="{Binding  Antique,Converter={x:Static ObjectConverters.IsNotNull}}"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Background="{StaticResource UnownedEstateBrush}">
+        <StackPanel Spacing="16">
+          <TextBlock Text="{Binding Antique.Dice}" />
+          <Image HorizontalAlignment="Stretch"
+                 Source="{Binding Antique.Image}" />
+          <TextBlock Text="{Binding Antique.Value}" />
+        </StackPanel>
+      </Border>
       <c:McContentControl>
-        <ListBox ItemsSource="{Binding #Me.Messages}"/>
+        <ListBox ItemsSource="{Binding #Me.Messages}" />
       </c:McContentControl>
     </UniformGrid>
     <StackPanel Grid.Row="1" Background="#A3703A">
       <Rectangle Height="2" Fill="#694826"></Rectangle>
-      <Rectangle Height="5" Fill="#C58747"/>
+      <Rectangle Height="5" Fill="#C58747" />
       <Grid Margin="16"
             ColumnDefinitions="*,Auto,*">
         <c:PlayerCard Grid.Column="0"
                       Player="{Binding LocalPlayer}"
                       HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-        
+
         <StackPanel Grid.Column="1" HorizontalAlignment="Center"
                     Orientation="Horizontal" Spacing="16">
           <Border Background="#6D4B27" VerticalAlignment="Stretch"
                   BorderBrush="#C58747" BorderThickness="2"
                   Width="400">
           </Border>
-          
+
           <Border Background="#6D4B27" VerticalAlignment="Stretch"
                   BorderBrush="#C58747" BorderThickness="2"
                   Width="400">
           </Border>
-          
+
           <Border Background="#6D4B27" VerticalAlignment="Stretch"
                   BorderBrush="#C58747" BorderThickness="2"
                   Width="400">
           </Border>
-          
+
         </StackPanel>
-        
+
         <c:McButton Grid.Column="2"
                     Classes="ore"
                     Padding="0"
                     Command="{Binding RollDiceCommand}"
                     HorizontalAlignment="Right" VerticalAlignment="Bottom"
                     IsEnabled="{Binding RollButtonEnable}">
-          <Image Source="../../Assets/Image/GameUI/Dice.png" Width="128"/>
+          <Image Source="../../Assets/Image/GameUI/Dice.png" Width="128" />
         </c:McButton>
       </Grid>
     </StackPanel>

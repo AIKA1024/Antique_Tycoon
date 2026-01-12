@@ -14,6 +14,7 @@ namespace Antique_Tycoon.Models;
 public partial class Map : ObservableObject
 {
   [ObservableProperty] public partial string Name { get; set; } = string.Empty;
+  public int MaxPlayer { get; private set; } = 5;
 
   [ObservableProperty]
   [JsonConverter(typeof(PointJsonConverter))]
@@ -60,7 +61,9 @@ public partial class Map : ObservableObject
     }
   } = [];
 
-  [JsonIgnore] public Dictionary<string, CanvasItemModel> EntitiesDict = [];
+  [JsonIgnore] public Dictionary<string, CanvasItemModel> EntitiesDict { get; } = [];
+
+  public ObservableCollection<Antique> Antiques { get; set; } = [];
 
   public Map()
   {

@@ -37,6 +37,8 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(PlayerMoveResponse))]
 [JsonSerializable(typeof(SelectDestinationAction))]
 [JsonSerializable(typeof(SelectDestinationRequest))]
+[JsonSerializable(typeof(AntiqueChanceResponse))]
+[JsonSerializable(typeof(GetAntiqueResultResponse))]
 
 [JsonSerializable(typeof(Map))]
 [JsonSerializable(typeof(SpawnPoint))]

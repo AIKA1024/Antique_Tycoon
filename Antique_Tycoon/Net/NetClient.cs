@@ -157,6 +157,18 @@ public class NetClient : NetBase
                 response = updatePlayerInfoResponse;
                 WeakReferenceMessenger.Default.Send(updatePlayerInfoResponse);
                 break;
+            case TcpMessageType.AntiqueChanceResponse:
+                var antiqueChanceResponse =
+                    JsonSerializer.Deserialize(json, AppJsonContext.Default.AntiqueChanceResponse);
+                response = antiqueChanceResponse;
+                WeakReferenceMessenger.Default.Send(antiqueChanceResponse);
+                break;
+            case TcpMessageType.GetAntiqueResultResponse:
+                var getAntiqueResultResponse =
+                    JsonSerializer.Deserialize(json, AppJsonContext.Default.GetAntiqueResultResponse);
+                response = getAntiqueResultResponse;
+                WeakReferenceMessenger.Default.Send(getAntiqueResultResponse);
+                break;
         }
 
         if (response == null)
