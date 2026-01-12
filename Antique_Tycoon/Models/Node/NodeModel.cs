@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
+using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models.Connections;
 using Avalonia;
 using Avalonia.Media;
@@ -59,7 +60,7 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
       {
         double.TryParse(WidthDisplayText, out var width);
         double.TryParse(HeightDisplayText, out var height);
-        if (width !=0 && height !=0)
+        if (width != 0 && height != 0)
         {
           Width = width;
           Height = height;
@@ -130,8 +131,10 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
     set => SetProperty(ref field, value);
   }
 
+  public string ImageHash { get; set; } = "";
+
   [JsonIgnore]
-  public Bitmap Cover
+  public Bitmap Image
   {
     get;
     set => SetProperty(ref field, value);
@@ -149,7 +152,7 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
   public void Dispose()
   {
     if (_disposed) return;
-    Cover.Dispose();
+    Image.Dispose();
     _disposed = true;
   }
 }

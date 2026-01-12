@@ -41,26 +41,34 @@ public class MapFileService
 
   public Map LoadMap(string folderPath)
   {
-    var imageDirectoryPath = Path.Join(folderPath, ImageFolderName);
-    var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Join(folderPath, JsonFileName)),
+    var imageDirectoryPath = Path.Combine(folderPath, ImageFolderName);
+    var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Combine(folderPath, JsonFileName)),
       AppJsonContext.Default.Map);
-    foreach (var entity in map.Entities) //手动加载Cover
+    foreach (var entity in map.Entities) //手动加载Image
     {
-      var imagePath = Path.Join(imageDirectoryPath, entity.Uuid);
       if (entity is NodeModel node)
-        node.Cover = new Bitmap(imagePath);
+      {
+        var imagePath = Path.Combine(imageDirectoryPath, node.ImageHash);
+        node.Image = new Bitmap(imagePath);
+      }
+    }
+    
+    foreach (var antique in map.Antiques) 
+    {
+        var imagePath = Path.Combine(imageDirectoryPath, antique.ImageHash);
+        antique.Image = new Bitmap(imagePath);
     }
 
     ConnectLine(map.Entities);
-    map.Cover = new Bitmap(Path.Join(folderPath, "Cover.png"));
-    map.Hash = File.ReadAllText(Path.Join(folderPath, HashFileName));
+    map.Cover = new Bitmap(Path.Combine(folderPath, "Cover.png"));
+    map.Hash = File.ReadAllText(Path.Combine(folderPath, HashFileName));
     return map;
   }
 
   //计算哈希是费时的操作，所以只在创建房间时计算对应地图文件的哈希值，json中图片使用了uuid命名，因此json的哈希值也有唯一性
   public string GetMapFileHash(Map map)
   {
-    var jsonPath = Path.Join(App.Current.MapPath, map.Name, JsonFileName);
+    var jsonPath = Path.Combine(App.Current.MapPath, map.Name, JsonFileName);
     return jsonPath.ComputeFileHash();
   }
 
@@ -91,7 +99,7 @@ public class MapFileService
     // 这也会确保 MemoryStream 的内容被完全写入
     using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
     {
-      var folderPath = Path.Join(App.Current.MapPath, map.Name);
+      var folderPath = Path.Combine(App.Current.MapPath, map.Name);
       foreach (var filePath in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories))
       {
         string entryName = Path.GetRelativePath(folderPath, filePath);
@@ -121,19 +129,32 @@ public class MapFileService
 
   public async Task SaveMapAsync(Map map)
   {
-    var jsonStr = JsonSerializer.Serialize(map, AppJsonContext.Default.Map);
-    var rootDirectoryPath = Path.Join(App.Current.MapPath, map.Name);
-    var imageDirectoryPath = Path.Join(rootDirectoryPath, ImageFolderName);
+    var rootDirectoryPath = Path.Combine(App.Current.MapPath, map.Name);
+    var imageDirectoryPath = Path.Combine(rootDirectoryPath, ImageFolderName);
     if (!Directory.Exists(imageDirectoryPath))
       Directory.CreateDirectory(imageDirectoryPath);
-    map.Cover.Save(Path.Join(rootDirectoryPath, "Cover.png"));
     foreach (var entity in map.Entities)
       if (entity is NodeModel node)
-        node.Cover.Save(Path.Join(imageDirectoryPath, entity.Uuid));
-    var jsonPath = Path.Join(Path.Join(rootDirectoryPath, JsonFileName));
-
+      {
+        node.ImageHash = node.Image.GetGuid();
+        var imageFullPath = Path.Combine(imageDirectoryPath, node.ImageHash);
+        if (File.Exists(imageFullPath))
+          continue;
+        node.Image.Save(imageFullPath);
+      }
+    foreach (var antique in map.Antiques)
+    {
+      antique.ImageHash = antique.Image.GetGuid();
+      if (File.Exists(Path.Combine(imageDirectoryPath, antique.ImageHash)))
+        continue;
+      antique.Image.Save(Path.Combine(imageDirectoryPath, antique.ImageHash));
+    }
+    map.Cover.Save(Path.Combine(rootDirectoryPath, "Cover.png"));
+    
+    var jsonStr = JsonSerializer.Serialize(map, AppJsonContext.Default.Map);
+    var jsonPath = Path.Combine(Path.Combine(rootDirectoryPath, JsonFileName));
     await File.WriteAllTextAsync(jsonPath, jsonStr);
-    await File.WriteAllTextAsync(Path.Join(rootDirectoryPath, HashFileName), jsonPath.ComputeFileHash());
+    await File.WriteAllTextAsync(Path.Combine(rootDirectoryPath, HashFileName), jsonPath.ComputeFileHash());
   }
 
   private void ConnectLine(IList<CanvasItemModel> entities)

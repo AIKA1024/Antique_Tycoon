@@ -10,7 +10,7 @@ namespace Antique_Tycoon.Models.Node;
 [JsonDerivedType(typeof(Connection), "Connection")]
 [JsonDerivedType(typeof(SpawnPoint), "SpawnPoint")]
 [JsonDerivedType(typeof(Estate), "Estate")]
-//[JsonDerivedType(typeof(Antique), "Antique")]
+[JsonDerivedType(typeof(Mine), "Mine")]
 public partial class CanvasItemModel:ObservableObject
 {
   [ObservableProperty] public partial string Uuid { get; set; } = Guid.NewGuid().ToString();
