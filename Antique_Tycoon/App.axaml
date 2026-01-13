@@ -15,14 +15,13 @@
   
   <Application.Styles>
     <FluentTheme />
-  </Application.Styles>
-  <Application.Styles>
     <StyleInclude Source="Views/Controls/MCButton.axaml" />
     <StyleInclude Source="Views/Controls/MCTitleBar.axaml" />
     <StyleInclude Source="Views/Controls/MCContentControl.axaml" />
     <StyleInclude Source="Views/Controls/Connector.axaml" />
     <StyleInclude Source="Views/Controls/NodeLinkControl.axaml" />
     <StyleInclude Source="Views/Styles/TextBox.axaml" />
+    <StyleInclude Source="Views/Styles/Animation.axaml" />
     <!-- <StyleInclude Source="Views/Styles/MenuFlyoutPresenter.axaml" /> -->
     <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
   </Application.Styles>
@@ -42,6 +41,8 @@
     <StaticResource ResourceKey="SpawnPointDataTemplate"/>
     <StaticResource ResourceKey="EstateDataTemplate"/>
     <StaticResource ResourceKey="MineDataTemplate"/>
+    
+    <!-- Entity -->
     <StaticResource ResourceKey="AntiqueDataTemplate"/>
     
     <!-- Dialog -->

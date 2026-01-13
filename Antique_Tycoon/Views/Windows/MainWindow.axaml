@@ -17,8 +17,11 @@
   <Window.KeyBindings>
     <KeyBinding Gesture="Tab" Command="{Binding KeyPressedCommand}" CommandParameter="{Binding $self.Gesture}" />
   </Window.KeyBindings>
+
   <Panel>
     <TransitioningContentControl
+      HorizontalAlignment="Stretch"
+      VerticalAlignment="Stretch"
       Content="{Binding CurrentPageViewModel}">
       <TransitioningContentControl.PageTransition>
         <CompositePageTransition>
@@ -27,7 +30,6 @@
         </CompositePageTransition>
       </TransitioningContentControl.PageTransition>
     </TransitioningContentControl>
-
     <Border x:Name="Mask" Background="#80000000"
             IsVisible="{Binding DialogService.CurrentDialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}"
             i:Tap.Command="{Binding CloseMaskByMeshTapCommand}"
@@ -52,14 +54,14 @@
         BoxShadow="0 0 50 10 black">
         <Border.MaxWidth>
           <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-            <Binding Path="DialogService.CurrentDialogViewModel.MaxWidthPercent"/>
-            <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}"/>
+            <Binding Path="DialogService.CurrentDialogViewModel.MaxWidthPercent" />
+            <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
           </MultiBinding>
         </Border.MaxWidth>
         <Border.MaxHeight>
           <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-            <Binding Path="DialogService.CurrentDialogViewModel.MaxHeightPercent"/>
-            <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}"/>
+            <Binding Path="DialogService.CurrentDialogViewModel.MaxHeightPercent" />
+            <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
           </MultiBinding>
         </Border.MaxHeight>
         <ContentControl Content="{Binding DialogService.CurrentDialogViewModel}"
@@ -69,5 +71,7 @@
       </Border>
 
     </Border>
+
+
   </Panel>
 </Window>

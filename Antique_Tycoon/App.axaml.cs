@@ -16,6 +16,7 @@ using Antique_Tycoon.ViewModels.DialogViewModels;
 using Antique_Tycoon.Views;
 using Antique_Tycoon.Views.Windows;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;

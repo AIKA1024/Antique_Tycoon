@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Response;
-using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.Services;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;

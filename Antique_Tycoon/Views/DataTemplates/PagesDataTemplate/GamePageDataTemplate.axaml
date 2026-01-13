@@ -18,10 +18,11 @@
       </Interaction.Behaviors>
       <w:GameCanvas CurrentMap="{Binding Map}">
         <Interaction.Behaviors>
-          <i:ListenSelectNodeBehavior/>
+          <i:ListenSelectNodeBehavior />
         </Interaction.Behaviors>
       </w:GameCanvas>
-      <w:PlayerUI x:Name="PlayerUI" Focusable="False"/>
+      <AdornerLayer x:Name="AdornerLayer"/>
+      <w:PlayerUI x:Name="PlayerUI" Focusable="False" />
       <TextBlock HorizontalAlignment="Center" IsHitTestVisible="False"
                  FontSize="32" FontWeight="Black"
                  Text="{Binding ReminderText}"
@@ -29,24 +30,24 @@
         <TextBlock.Transitions>
           <Transitions>
             <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
-            <TransformOperationsTransition  Property="RenderTransform" Duration="0:0:0.2" />
+            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
           </Transitions>
         </TextBlock.Transitions>
         <TextBlock.Styles>
           <Style Selector="TextBlock[Tag=True]">
             <Setter Property="Opacity" Value="1" />
-            <Setter Property="RenderTransform" Value="translateY(100px)"/>
+            <Setter Property="RenderTransform" Value="translateY(100px)" />
           </Style>
           <Style Selector="TextBlock[Tag=False]">
             <Setter Property="Opacity" Value="0" />
-            <Setter Property="RenderTransform" Value="translateY(-20px)"/>
+            <Setter Property="RenderTransform" Value="translateY(-20px)" />
           </Style>
         </TextBlock.Styles>
       </TextBlock>
       <TextBlock Text="{Binding RollDiceValue}" FontSize="36" IsHitTestVisible="False"
-        HorizontalAlignment="Center" VerticalAlignment="Center">
+                 HorizontalAlignment="Center" VerticalAlignment="Center">
         <TextBlock.Effect>
-         <DropShadowDirectionEffect Direction="0" BlurRadius="5" ShadowDepth="20" Color="Black"/>
+          <DropShadowDirectionEffect Direction="0" BlurRadius="5" ShadowDepth="20" Color="Black" />
         </TextBlock.Effect>
       </TextBlock>
     </Grid>

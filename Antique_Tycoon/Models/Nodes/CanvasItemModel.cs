@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Connections;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Antique_Tycoon.Models.Node;
+namespace Antique_Tycoon.Models.Nodes;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 

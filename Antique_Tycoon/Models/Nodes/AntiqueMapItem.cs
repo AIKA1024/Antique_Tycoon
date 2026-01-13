@@ -1,4 +1,6 @@
-namespace Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Models.Entities;
+
+namespace Antique_Tycoon.Models.Nodes;
 
 public class AntiqueMapItem//仅用于地图编辑时绑定使用
 {

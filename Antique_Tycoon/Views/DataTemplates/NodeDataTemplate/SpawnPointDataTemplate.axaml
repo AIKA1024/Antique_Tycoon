@@ -1,16 +1,16 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
-                    xmlns:i="clr-namespace:Antique_Tycoon.Behaviors">
+                    xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
+                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
   <Design.PreviewWith>
     <ContentControl>
-      <node:SpawnPoint />
+      <nodes:SpawnPoint />
     </ContentControl>
   </Design.PreviewWith>
 
-  <DataTemplate x:Key="SpawnPointDataTemplate" x:DataType="node:SpawnPoint">
+  <DataTemplate x:Key="SpawnPointDataTemplate" x:DataType="nodes:SpawnPoint">
       <StackPanel>
         <TextBlock Text="{Binding Title}"
                    FontSize="16"

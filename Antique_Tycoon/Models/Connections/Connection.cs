@@ -1,9 +1,9 @@
-using Antique_Tycoon.Models.Node;
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Text.Json.Serialization;
+using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
 
 namespace Antique_Tycoon.Models.Connections;
 

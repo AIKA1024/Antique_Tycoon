@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Antique_Tycoon.Models;
-using Antique_Tycoon.Models.Node;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 
 namespace Antique_Tycoon.Messages;
 

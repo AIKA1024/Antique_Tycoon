@@ -1,15 +1,13 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models.Connections;
-using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Antique_Tycoon.Models.Node;
+namespace Antique_Tycoon.Models.Nodes;
 
 public abstract partial class NodeModel : CanvasItemModel, IDisposable
 {

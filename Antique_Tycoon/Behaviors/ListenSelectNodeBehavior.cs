@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
-using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Views.Controls;
 using Antique_Tycoon.Views.Widgets;
 using Avalonia;

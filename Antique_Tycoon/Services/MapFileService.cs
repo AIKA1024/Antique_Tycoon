@@ -1,6 +1,5 @@
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
-using Antique_Tycoon.Models.Node;
 using Avalonia.Media.Imaging;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +10,8 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 
 namespace Antique_Tycoon.Services;
 

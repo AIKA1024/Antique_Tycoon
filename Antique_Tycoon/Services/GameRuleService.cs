@@ -10,11 +10,13 @@ using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
-using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
+using Mine = Antique_Tycoon.Models.Nodes.Mine;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.Services;
@@ -141,7 +143,7 @@ public class GameRuleService : ObservableObject
         return true;
 
       case Mine:
-        await HandleMineAsync(player);
+        await HandleMineAsync(player,node,animationToken);
         return true;
 
       // 扩展：可添加其他格子类型（比如抽奖/双倍骰子格子），返回 false 表示回合不结束
@@ -198,14 +200,14 @@ public class GameRuleService : ObservableObject
     WeakReferenceMessenger.Default.Send(message);
   }
 
-  private async Task HandleMineAsync(Player player)
+  private async Task HandleMineAsync(Player player,NodeModel node, string animationToken)
   {
     if (_gameManager.SelectedMap.Antiques.Count == 0)
       return;
     var antique = _gameManager.SelectedMap.Antiques[Random.Shared.Next(0, _gameManager.SelectedMap.Antiques.Count)];
-    var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid);
+    var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid,node.Uuid,animationToken);
     var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-    WeakReferenceMessenger.Default.Send(antique);
+    WeakReferenceMessenger.Default.Send(antiqueChangeResponse,antiqueChangeResponse.MineUuid);
     await _gameManager.NetServerInstance.Broadcast(antiqueChangeResponse);
     var rollDiceResponse = await GetRollDiceAsync(client);
     var getAntiqueResultResponse = new GetAntiqueResultResponse(antique.Uuid, player.Uuid,rollDiceResponse.DiceValue >= antique.Dice);

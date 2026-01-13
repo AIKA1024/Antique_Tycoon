@@ -1,0 +1,47 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities">
+  <Design.PreviewWith>
+    <ContentControl>
+      <ContentControl.DataTemplates>
+        <StaticResource ResourceKey="CreateNewMapDialogDataTemplate" />
+      </ContentControl.DataTemplates>
+      <entities:Antique />
+    </ContentControl>
+  </Design.PreviewWith>
+  
+  <DataTemplate x:Key="AntiqueDataTemplate" DataType="entities:Antique">
+    <Border Grid.Column="1" CornerRadius="8"
+            Padding="16"
+            Width="128"
+            IsHitTestVisible="False"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Background="{StaticResource UnownedEstateBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness=".5"
+            BoxShadow="0 0 50 0 black">
+      <StackPanel Spacing="8">
+        <StackPanel.Styles>
+          <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#191A1C"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Black"/>
+          </Style>
+        </StackPanel.Styles>
+        <TextBlock Text="{Binding Dice}" FontSize="24" />
+        <TextBlock Text="{Binding Name}" FontSize="16"/>
+        <Border Background="#A3703A" CornerRadius="8"
+                BorderBrush="#C58747" BorderThickness="1"
+                BoxShadow="inset 0 0 12 2 #40000000">
+          <Image Width="64"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Source="{Binding Image}" />
+        </Border>
+        <TextBlock Text="{Binding Value,StringFormat=价值：{0}}"
+                   FontSize="16"/>
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+</ResourceDictionary>

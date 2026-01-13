@@ -6,8 +6,8 @@
   xmlns:cv="using:Antique_Tycoon.Converters"
   xmlns:i="using:Antique_Tycoon.Behaviors"
   xmlns:cm="using:Antique_Tycoon.Models.Connections"
-  xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
+  xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes"
   ClipToBounds="False"
   x:Name="Me"
   Focusable="True">
@@ -16,9 +16,9 @@
   </Design.PreviewWith>
   <UserControl.Styles>
     <Style Selector="c|NodeLinkControl c|Connector">
-      <Setter Property="Opacity" Value="{Binding #Me.IsEditing}"/>
-      <Setter Property="IsHitTestVisible" Value="{Binding #Me.IsEditing}"/>
-      <Setter Property="IsEnabled" Value="{Binding #Me.IsEditing}"/>
+      <Setter Property="Opacity" Value="{Binding #Me.IsEditing}" />
+      <Setter Property="IsHitTestVisible" Value="{Binding #Me.IsEditing}" />
+      <Setter Property="IsEnabled" Value="{Binding #Me.IsEditing}" />
     </Style>
   </UserControl.Styles>
   <Panel Background="{DynamicResource BorderBackgroundColor}">
@@ -38,7 +38,7 @@
         </TransformGroup>
       </c:XListBox.RenderTransform>
       <c:XListBox.DataTemplates>
-        <DataTemplate DataType="node:NodeModel">
+        <DataTemplate DataType="nodes:NodeModel">
           <!-- 设置top和Left是为了触发CanvasItemDragBehavior的监听，因为和listboxItem的top和left绑定的是相同的对象，所以变相监听到了listboxItem的top和left -->
           <c:NodeLinkControl
             Canvas.Top="{Binding Top}"
@@ -60,21 +60,22 @@
             </c:NodeLinkControl.DataTemplates>
             <c:NodeLinkControl.KeyBindings>
               <KeyBinding Gesture="Delete" Command="{Binding #Me.RemoveEntityCommand}"
-                          CommandParameter="{Binding}"/>
+                          CommandParameter="{Binding}" />
             </c:NodeLinkControl.KeyBindings>
           </c:NodeLinkControl>
         </DataTemplate>
-        
+
         <DataTemplate DataType="cm:Connection">
           <c:ConnectionLine Data="{Binding Data}" Stroke="{Binding Stroke}"
                             StrokeThickness="{Binding StrokeThickness}"
                             StartPoint="{Binding StartConnectorAnchor}"
-                            EndPoint="{Binding EndConnectorAnchor}"/>
+                            EndPoint="{Binding EndConnectorAnchor}" />
         </DataTemplate>
       </c:XListBox.DataTemplates>
       <c:XListBox.ItemsPanel>
         <ItemsPanelTemplate>
           <Canvas
+            ClipToBounds="False"
             PointerReleased="InputElement_OnPointerReleased"
             Width="{Binding #Me.CurrentMap.CanvasWidth}"
             Height="{Binding #Me.CurrentMap.CanvasHeight}"
@@ -92,9 +93,9 @@
                       <Setter Property="CommandParameter" Value="{Binding $self.Header, Mode=OneTime}" />
                     </Style>
                   </StackPanel.Styles>
-                  <MenuItem Header="玩家出生点"/>
+                  <MenuItem Header="玩家出生点" />
                   <MenuItem Header="地产" />
-                  <MenuItem Header="矿洞"/>
+                  <MenuItem Header="矿洞" />
                   <MenuItem Header="传送点" />
                 </StackPanel>
               </Flyout>
@@ -123,10 +124,10 @@
             </ControlTemplate>
           </Setter>
         </Style>
-        
-        <Style Selector="c|XListBoxItem" x:DataType="node:CanvasItemModel">
-          <Setter Property="ZIndex" Value="{Binding ZIndex,Mode=TwoWay}"/>
-          <Setter Property="i:DataContextType.Type" Value="{Binding}"/>
+
+        <Style Selector="c|XListBoxItem" x:DataType="nodes:CanvasItemModel">
+          <Setter Property="ZIndex" Value="{Binding ZIndex,Mode=TwoWay}" />
+          <Setter Property="i:DataContextType.Type" Value="{Binding}" />
           <Setter Property="Template">
             <ControlTemplate>
               <ContentPresenter Content="{TemplateBinding Content}"
@@ -135,10 +136,10 @@
             </ControlTemplate>
           </Setter>
         </Style>
-        <Style x:DataType="node:NodeModel" Selector="c|XListBoxItem.NodeModel">
-          <Setter Property="i:Tap.Command" Value="{Binding #Me.NodeClickedCommand}"/>
-          <Setter Property="i:Tap.CommandParameter" Value="{Binding Uuid}"/>
-          <Setter Property="Background" Value="Transparent"/>
+        <Style x:DataType="nodes:NodeModel" Selector="c|XListBoxItem.NodeModel">
+          <Setter Property="i:Tap.Command" Value="{Binding #Me.NodeClickedCommand}" />
+          <Setter Property="i:Tap.CommandParameter" Value="{Binding Uuid}" />
+          <Setter Property="Background" Value="Transparent" />
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
           <Style Selector="^:selected">
@@ -154,7 +155,8 @@
       </c:XListBox.Styles>
     </c:XListBox>
     <Interaction.Behaviors>
-      <i:ZoomPanBehavior Scale="{Binding #Me.CurrentMap.Scale, Mode=TwoWay}" Offset="{Binding #Me.CurrentMap.Offset, Mode=TwoWay}" />
+      <i:ZoomPanBehavior Scale="{Binding #Me.CurrentMap.Scale, Mode=TwoWay}"
+                         Offset="{Binding #Me.CurrentMap.Offset, Mode=TwoWay}" />
     </Interaction.Behaviors>
   </Panel>
 

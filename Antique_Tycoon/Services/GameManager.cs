@@ -11,7 +11,6 @@ using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
-using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Net;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,6 +18,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using ObservableCollections;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 using Player = Antique_Tycoon.Models.Player;
 
 namespace Antique_Tycoon.Services;

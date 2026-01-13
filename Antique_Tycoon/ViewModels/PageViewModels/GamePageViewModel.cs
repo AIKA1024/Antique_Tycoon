@@ -5,7 +5,7 @@ using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
-using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;

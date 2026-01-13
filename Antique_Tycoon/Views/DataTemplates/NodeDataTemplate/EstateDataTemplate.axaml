@@ -1,15 +1,15 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node"
                     xmlns:c="using:Antique_Tycoon.Views.Controls"
-                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
+                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
   <Design.PreviewWith>
     <ContentControl>
-      <node:Estate Title="平原" />
+      <nodes:Estate Title="平原" />
     </ContentControl>
   </Design.PreviewWith>
 
-  <DataTemplate x:Key="EstateDataTemplate" x:DataType="node:Estate">
+  <DataTemplate x:Key="EstateDataTemplate" x:DataType="nodes:Estate">
       <StackPanel>
         <TextBlock Text="{Binding Level,StringFormat={}{0}级}"
                    HorizontalAlignment="Center"

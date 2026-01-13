@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Views.Windows;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,6 +7,8 @@ using Avalonia.Input;
 using Avalonia.Xaml.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
+using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 
 namespace Antique_Tycoon.Behaviors;
 

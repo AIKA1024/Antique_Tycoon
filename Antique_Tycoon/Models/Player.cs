@@ -1,7 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Nodes;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;

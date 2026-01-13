@@ -1,8 +1,8 @@
 using System.Linq;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
-using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Views.Controls;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 
 namespace Antique_Tycoon.Extensions;
 

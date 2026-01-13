@@ -1,6 +1,5 @@
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models;
-using Antique_Tycoon.Models.Node;
 using Antique_Tycoon.Services;
 using Avalonia;
 using Avalonia.Controls;
@@ -14,6 +13,10 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Nodes;
+using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 
 namespace Antique_Tycoon.ViewModels.PageViewModels;
 

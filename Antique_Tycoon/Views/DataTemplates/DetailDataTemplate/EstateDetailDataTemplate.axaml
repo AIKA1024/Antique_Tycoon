@@ -1,18 +1,18 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-                    xmlns:node="clr-namespace:Antique_Tycoon.Models.Node">
+                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
         <StaticResource ResourceKey="EstateDetailDataTemplate" />
       </ContentControl.DataTemplates>
-      <node:Estate />
+      <nodes:Estate />
     </ContentControl>
   </Design.PreviewWith>
   
-  <DataTemplate x:Key="EstateDetailDataTemplate" x:DataType="node:Estate">
+  <DataTemplate x:Key="EstateDetailDataTemplate" x:DataType="nodes:Estate">
     <StackPanel>
       <c:McContentControl Header="价格">
         <TextBox

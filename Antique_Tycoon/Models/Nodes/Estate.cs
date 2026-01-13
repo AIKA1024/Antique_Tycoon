@@ -1,4 +1,4 @@
-namespace Antique_Tycoon.Models.Node;
+namespace Antique_Tycoon.Models.Nodes;
 
 public partial class Estate:NodeModel
 {

@@ -1,5 +1,4 @@
 using Antique_Tycoon.Converters.JsonConverter;
-using Antique_Tycoon.Models.Node;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -7,7 +6,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text.Json.Serialization;
+using Antique_Tycoon.Models.Entities;
+using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
 using Color = Avalonia.Media.Color;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 
 namespace Antique_Tycoon.Models;
 

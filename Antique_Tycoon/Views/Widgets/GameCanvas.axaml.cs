@@ -8,7 +8,7 @@ using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Response;
-using Antique_Tycoon.Models.Node;
+using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Antique_Tycoon.ViewModels.PageViewModels;
@@ -28,6 +28,9 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
+using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
+using Mine = Antique_Tycoon.Models.Nodes.Mine;
+using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
 
 namespace Antique_Tycoon.Views.Widgets;
 
@@ -51,10 +54,6 @@ public partial class GameCanvas : UserControl
         AddHandler(Connector.ConnectedEvent, OnConnectorConnected, RoutingStrategies.Bubble);
         AddHandler(Connector.CancelConnectEvent, OnConnectorCancelConnect, RoutingStrategies.Bubble);
         WeakReferenceMessenger.Default.Register<StartPlayerMoveAnimation>(this, ReceivePlayerMoveAnimationMessage);
-    }
-    
-    ~GameCanvas(){
-        WeakReferenceMessenger.Default.Unregister<StartPlayerMoveAnimation>(this);
     }
 
     private async Task StartPlayerMoveAnimationAsync(StartPlayerMoveAnimation message)
@@ -139,7 +138,7 @@ public partial class GameCanvas : UserControl
 
     private void ReceivePlayerMoveAnimationMessage(object recipient, StartPlayerMoveAnimation message)
     {
-        message.Reply(StartPlayerMoveAnimationAsync(message));
+        message.Reply(StartPlayerMoveAnimationAsync(message));//todo 好像会重复回复（切换地图后开始游戏，或者进一次地图编辑器）
     }
 
     private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)

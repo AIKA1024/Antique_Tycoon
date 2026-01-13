@@ -3,10 +3,10 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:e="using:Antique_Tycoon.Extensions"
   xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-  xmlns:n="clr-namespace:Antique_Tycoon.Models.Node"
   xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
-  xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
+  xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+  xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="400">
       <pageViewModels:MapEditPageViewModel />
@@ -128,7 +128,7 @@
                           </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.DataTemplates>
-                          <DataTemplate DataType="n:AntiqueMapItem">
+                          <DataTemplate DataType="nodes:AntiqueMapItem">
                             <Panel>
                               <Border Padding="16" Background="#313233"
                                       BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
