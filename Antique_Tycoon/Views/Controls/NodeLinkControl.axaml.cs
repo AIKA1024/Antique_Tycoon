@@ -18,7 +18,7 @@ public partial class NodeLinkControl : ContentControl
 {
   private bool _isRegisted;
   private GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
-  private AnimationManager _animationManager = App.Current.Services.GetRequiredService<AnimationManager>();
+  private readonly ActionQueueService _actionQueueService = App.Current.Services.GetRequiredService<ActionQueueService>();
   
   [GeneratedDirectProperty] public partial NodeModel NodeModel { get; set; }
   [GeneratedDirectProperty] public partial Map Map { get; set; }
@@ -46,10 +46,12 @@ public partial class NodeLinkControl : ContentControl
     }
   }
 
-  private async void ReceiveAntiqueChanceResponse(object sender, AntiqueChanceResponse message)
+  private void ReceiveAntiqueChanceResponse(object sender, AntiqueChanceResponse message)
   {
-    var antique = _gameManager.SelectedMap.Antiques.FirstOrDefault(a => a.Uuid == message.AntiqueUuid);
-    await _animationManager.WaitAnimation(message.AnimationUuid);
-    AdornerHost.SetAdornerContent(this, antique);
+    _actionQueueService.Enqueue(async () =>
+    {
+      var antique = _gameManager.SelectedMap.Antiques.FirstOrDefault(a => a.Uuid == message.AntiqueUuid);
+      AdornerHost.SetAdornerContent(this, antique);
+    });
   }
 }

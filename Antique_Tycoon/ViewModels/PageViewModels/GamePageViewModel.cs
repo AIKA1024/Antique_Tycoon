@@ -19,10 +19,9 @@ public partial class GamePageViewModel : PageViewModelBase
   [ObservableProperty] private Map _map;
 
   private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
-
+  private readonly ActionQueueService _actionQueue = App.Current.Services.GetRequiredService<ActionQueueService>();
   // private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
   private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
-  private readonly AnimationManager _animationManager = App.Current.Services.GetRequiredService<AnimationManager>();
 
   [ObservableProperty] private string _reminderText = "轮到你啦";
   [ObservableProperty] private int _rollDiceValue;
@@ -54,25 +53,46 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,Map));//转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
   }
 
-  private async void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
+  private void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
   {
-    await _animationManager.WaitAnimation(message.WaitAnimationToken);
-    var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
-    bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+    _actionQueue.Enqueue(async () =>
     {
-      Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
-      IsLightDismissEnabled = false
-    });
-    BuyEstateRequest buyEstateRequest;
-    if (isConfirm)
-      buyEstateRequest = new BuyEstateRequest(message.Id, _gameManager.LocalPlayer.Uuid, estate.Uuid);
-    else
-      buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
+      var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
+      bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+      {
+        Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
+        IsLightDismissEnabled = false
+      });
+      BuyEstateRequest buyEstateRequest;
+      if (isConfirm)
+        buyEstateRequest = new BuyEstateRequest(message.Id, _gameManager.LocalPlayer.Uuid, estate.Uuid);
+      else
+        buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
 
-    if (_gameManager.IsRoomOwner)
-      _gameManager.NetServerInstance.GetPendingRequestsTask(message.Id).SetResult(buyEstateRequest);
-    else
-      await _gameManager.NetClientInstance.SendRequestAsync(buyEstateRequest); // 和服务器表示不买
+      if (_gameManager.IsRoomOwner)
+        _gameManager.NetServerInstance.GetPendingRequestsTask(message.Id).SetResult(buyEstateRequest);
+      else
+        await _gameManager.NetClientInstance.SendRequestAsync(buyEstateRequest); // 和服务器表示不买
+    });
+
+
+    // await _animationManager.WaitAnimation(message.WaitAnimationToken);
+    // var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
+    // bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+    // {
+    //   Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
+    //   IsLightDismissEnabled = false
+    // });
+    // BuyEstateRequest buyEstateRequest;
+    // if (isConfirm)
+    //   buyEstateRequest = new BuyEstateRequest(message.Id, _gameManager.LocalPlayer.Uuid, estate.Uuid);
+    // else
+    //   buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
+    //
+    // if (_gameManager.IsRoomOwner)
+    //   _gameManager.NetServerInstance.GetPendingRequestsTask(message.Id).SetResult(buyEstateRequest);
+    // else
+    //   await _gameManager.NetClientInstance.SendRequestAsync(buyEstateRequest); // 和服务器表示不买
   }
 
 

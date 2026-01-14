@@ -35,7 +35,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   // private readonly GameRuleService _gameRuleService;
   private readonly LibVLC _libVlc;
   private readonly RoleStrategyFactory _strategyFactory;
-  private readonly AnimationManager _animationManager;
+  private readonly ActionQueueService _actionQueue;
 
   private readonly MapFileService _mapFileService;
 
@@ -61,14 +61,14 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家 
 
   public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
-    LibVLC libVlc, RoleStrategyFactory strategyFactory, AnimationManager animationManager)
+    LibVLC libVlc, RoleStrategyFactory strategyFactory,ActionQueueService actionQueue)
   {
     _netServerLazy = netServerLazy;
     _netClientLazy = netClientLazy;
     _mapFileService = mapFileService;
     _libVlc = libVlc;
     _strategyFactory = strategyFactory;
-    _animationManager = animationManager;
+    _actionQueue = actionQueue;
     var sfxPlayer = new MediaPlayer(libVlc);
     var turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
@@ -113,16 +113,33 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       _playersByUuid[player.Uuid] = player;
   }
 
-  private async void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
+  private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
   {
-    Player player = GetPlayerByUuid(message.PlayerUuid);
-    string playerCurrentNodeUuid = player.CurrentNodeUuId;
-    NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
-    NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
-    currentModelmodel.PlayersHere.Remove(player);
-    await _animationManager.StartPlayerMoveAnimation(player, message.Path, message.Id);
-    destinationModelmodel.PlayersHere.Add(player);
-    player.CurrentNodeUuId = destinationModelmodel.Uuid;
+    _actionQueue.Enqueue(async () => 
+    {
+      Player player = GetPlayerByUuid(message.PlayerUuid);
+      string playerCurrentNodeUuid = player.CurrentNodeUuId;
+      NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
+      NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
+      currentModelmodel.PlayersHere.Remove(player);
+      var animationTask = WeakReferenceMessenger.Default.Send(
+        new StartPlayerMoveAnimation(
+          player, 
+          message.Path
+        ));
+      player.CurrentNodeUuId = destinationModelmodel.Uuid;
+      await await animationTask.Response; // 等待动画播放完毕
+      destinationModelmodel.PlayersHere.Add(player);
+    });
+    
+    // Player player = GetPlayerByUuid(message.PlayerUuid);
+    // string playerCurrentNodeUuid = player.CurrentNodeUuId;
+    // NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
+    // NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
+    // currentModelmodel.PlayersHere.Remove(player);
+    // await _animationManager.StartPlayerMoveAnimation(player, message.Path, message.Id);
+    // destinationModelmodel.PlayersHere.Add(player);
+    // player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
 
   private void SetupLocalPlayer()
@@ -179,19 +196,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     WeakReferenceMessenger.Default.Send(turnStartResponse);
     // await Task.Yield(); // 等待各监听事件绑定完成
   }
-
-  private async Task PlayerMove(List<string> path)
-  {
-    if (IsRoomOwner)
-    {
-      var response = new PlayerMoveResponse(LocalPlayer.Uuid, path);
-      await NetServerInstance.Broadcast(response);
-      WeakReferenceMessenger.Default.Send(response);
-    }
-    else
-      await NetClientInstance.SendRequestAsync(new PlayerMoveRequest(LocalPlayer.Uuid, path));
-  }
-
 
   public void ExitRoom()
   {

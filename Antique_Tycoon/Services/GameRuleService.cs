@@ -28,17 +28,15 @@ public class GameRuleService : ObservableObject
 {
   private readonly GameManager _gameManager;
   private readonly DialogService _dialogService;
-  private readonly AnimationManager _animationManager;
 
   // 应该在回合结束时播放音效
 
 
   public GameRuleService(GameManager gameManager, DialogService dialogService, LibVLC libVlc,
-    RoleStrategyFactory strategyFactory, AnimationManager animationManager)
+    RoleStrategyFactory strategyFactory)
   {
     _gameManager = gameManager;
     _dialogService = dialogService;
-    _animationManager = animationManager;
     // WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMove); //不是viewmodel就别再用信使通信了
     WeakReferenceMessenger.Default.Register<StartGameResponse>(this, async (_, _) => await StartGameRule());
   }
@@ -112,28 +110,25 @@ public class GameRuleService : ObservableObject
 
       await HandleStepOnNodeAsync(
         _gameManager.GetPlayerByUuid(currentTurnPlayerUuid),
-        (NodeModel)_gameManager.SelectedMap.EntitiesDict[selectPath[^1]],
-        playerMoveResponse.Id);
+        (NodeModel)_gameManager.SelectedMap.EntitiesDict[selectPath[^1]]);
 
       await AdvanceToNextPlayerTurnAsync();
     }
   }
 
-  
 
   /// <summary>
   /// 处理踩到格子的逻辑（修改返回值：是否结束当前玩家回合）
   /// </summary>
   /// <param name="player">玩家</param>
   /// <param name="node">踩到的格子</param>
-  /// <param name="animationToken">动画标识</param>
   /// <returns>是否结束当前回合</returns>
-  private async Task<bool> HandleStepOnNodeAsync(Player player, NodeModel node, string animationToken)
+  private async Task<bool> HandleStepOnNodeAsync(Player player, NodeModel node)
   {
     switch (node)
     {
       case Estate estate:
-        await HandleEstateAsync(player, estate, animationToken);
+        await HandleEstateAsync(player, estate);
         // 普通地产格子：处理完后回合结束
         return true;
 
@@ -143,7 +138,7 @@ public class GameRuleService : ObservableObject
         return true;
 
       case Mine:
-        await HandleMineAsync(player,node,animationToken);
+        await HandleMineAsync(player, node);
         return true;
 
       // 扩展：可添加其他格子类型（比如抽奖/双倍骰子格子），返回 false 表示回合不结束
@@ -163,11 +158,11 @@ public class GameRuleService : ObservableObject
   /// <param name="player">玩家</param>
   /// <param name="estate">地产</param>
   /// <param name="animationToken">要等待的动画token</param>
-  private async Task HandleEstateAsync(Player player, Estate estate, string animationToken)
+  private async Task HandleEstateAsync(Player player, Estate estate)
   {
     if (estate.Owner == null && player.Money >= estate.Value)
     {
-      var buyEstateActionMessage = new BuyEstateAction(animationToken, estate.Uuid);
+      var buyEstateActionMessage = new BuyEstateAction(estate.Uuid);
       var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
       try
       {
@@ -200,21 +195,22 @@ public class GameRuleService : ObservableObject
     WeakReferenceMessenger.Default.Send(message);
   }
 
-  private async Task HandleMineAsync(Player player,NodeModel node, string animationToken)
+  private async Task HandleMineAsync(Player player, NodeModel node)
   {
     if (_gameManager.SelectedMap.Antiques.Count == 0)
       return;
     var antique = _gameManager.SelectedMap.Antiques[Random.Shared.Next(0, _gameManager.SelectedMap.Antiques.Count)];
-    var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid,node.Uuid,animationToken);
+    var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid, node.Uuid);
     var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-    WeakReferenceMessenger.Default.Send(antiqueChangeResponse,antiqueChangeResponse.MineUuid);
+    WeakReferenceMessenger.Default.Send(antiqueChangeResponse, antiqueChangeResponse.MineUuid);
     await _gameManager.NetServerInstance.Broadcast(antiqueChangeResponse);
     var rollDiceResponse = await GetRollDiceAsync(client);
-    var getAntiqueResultResponse = new GetAntiqueResultResponse(antique.Uuid, player.Uuid,rollDiceResponse.DiceValue >= antique.Dice);
+    var getAntiqueResultResponse =
+      new GetAntiqueResultResponse(antique.Uuid, player.Uuid, rollDiceResponse.DiceValue >= antique.Dice);
     WeakReferenceMessenger.Default.Send(getAntiqueResultResponse);
-    await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse);//todo 还没做收到消息的逻辑
+    await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse); //todo 还没做收到消息的逻辑
   }
-  
+
   /// <summary>
   /// 玩家请求投骰子
   /// </summary>

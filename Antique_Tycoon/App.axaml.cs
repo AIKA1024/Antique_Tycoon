@@ -74,11 +74,9 @@ public partial class App : Application
     services.AddSingleton<GameManager>();
     services.AddSingleton<GameRuleService>();
     services.AddSingleton<RoleStrategyFactory>();
-    services.AddSingleton<AnimationManager>();
     services.AddTransient<ITcpMessageHandler, JoinRoomHandler>();
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
     services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();
-    // services.AddTransient<ITcpMessageHandler, RollDiceHandler>();
     services.AddTransient<ITcpMessageHandler, PlayerMoveHandler>();
     services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<GameManager>(), DownloadMapPath));
     services.AddSingleton(sp => new Lazy<NetClient>(sp.GetRequiredService<NetClient>));
@@ -86,6 +84,7 @@ public partial class App : Application
       new NetServer(sp.GetServices<ITcpMessageHandler>(), DownloadMapPath)); // 这样注册才合理，NetClient不规范
     services.AddSingleton(sp => new Lazy<NetServer>(sp.GetRequiredService<NetServer>));
     services.AddSingleton(sp => TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
+    services.AddSingleton<ActionQueueService>();
     return services.BuildServiceProvider();
   }
 

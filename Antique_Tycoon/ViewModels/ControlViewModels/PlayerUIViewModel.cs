@@ -18,7 +18,6 @@ namespace Antique_Tycoon.ViewModels.ControlViewModels;
 
 public partial class PlayerUiViewModel : PageViewModelBase
 {
-  private readonly AnimationManager _animationManager = App.Current.Services.GetRequiredService<AnimationManager>();
   private readonly GameManager _gameManger = App.Current.Services.GetRequiredService<GameManager>();
 
   [ObservableProperty] private bool _isVisible;
@@ -57,8 +56,6 @@ public partial class PlayerUiViewModel : PageViewModelBase
   [RelayCommand]
   private async Task RollDiceAsync()
   {
-    if (_animationManager.HasAnimationRunning)
-      return;
     RollButtonEnable = false;
     await App.Current.Services.GetRequiredService<GameRuleService>().RollDiceAsync(_rollDiceActionId);
   }
