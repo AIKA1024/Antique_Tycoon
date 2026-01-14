@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Controls.Shapes;
 using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -44,22 +45,38 @@ public static class AdornerHost
     if (e.NewValue is not object content)
       return;
 
-    var wrapper = new Panel();//防止SetAdornedElement导致动画失效，多一层包装
+    var wrapper = new Panel(); //防止SetAdornedElement导致动画失效，多一层包装
     AdornerLayer.SetAdornedElement(wrapper, target);
-    
+
     var adorner = new ContentControl
     {
       Content = content,
       IsHitTestVisible = false,
       ClipToBounds = false,
-      Margin = new Thickness(0, -target.Bounds.Height * 2 - 100, 0, 0),
     };
-    wrapper.Children.Add(adorner);
+
+    var trianglePath = new Path
+    {
+      Fill = new SolidColorBrush(Color.Parse("#ECCC68")), // 三角颜色和气泡一致，无缝衔接无割裂感
+      Stretch = Stretch.Fill,
+      Width = 16, // 三角宽度，按需调整
+      Height = 8, // 三角高度，按需调整
+      Margin = new Thickness(0, -1, 0, 0),
+      HorizontalAlignment = HorizontalAlignment.Center, // 水平居中
+      VerticalAlignment = VerticalAlignment.Center,
+      Data = Geometry.Parse("M0,0 L8,8 L16,0 Z")
+    };
+
+    var stackPanel = new StackPanel();
+    stackPanel.Children.Add(adorner);
+    stackPanel.Children.Add(trianglePath);
+    stackPanel.Margin = new Thickness(0, -target.Bounds.Height * 1.5, 0, 0);
+
+    wrapper.Children.Add(stackPanel);
     AdornerLayer.SetIsClipEnabled(wrapper, false);
 
     layer.Children.Add(wrapper);
     Adorners[target] = wrapper;
-    adorner.Classes.Add("CardAppear");
-    Debug.WriteLine("success");
+    stackPanel.Classes.Add("CardAppear");
   }
 }
