@@ -46,7 +46,18 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
     WeakReferenceMessenger.Default.Register<BuyEstateAction>(this, ReceiveBuyEstateAction);
     WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
+    // WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse); //由于token的问题，这里收不到
   }
+
+  // private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
+  // {
+  //   IsShowReminderText = false;
+  //   if (message.PlayerUuid == _gameManager.LocalPlayer.Uuid)
+  //   {
+  //     ReminderText = "投骰子以获得古玩";
+  //     IsShowReminderText = true;
+  //   }
+  // }
 
   private void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
   {
@@ -69,30 +80,8 @@ public partial class GamePageViewModel : PageViewModelBase
       else
         buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
 
-      if (_gameManager.IsRoomOwner)
-        _gameManager.NetServerInstance.GetPendingRequestsTask(message.Id).SetResult(buyEstateRequest);
-      else
-        await _gameManager.NetClientInstance.SendRequestAsync(buyEstateRequest); // 和服务器表示不买
+      await _gameManager.SendToGameServerAsync(buyEstateRequest);
     });
-
-
-    // await _animationManager.WaitAnimation(message.WaitAnimationToken);
-    // var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
-    // bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-    // {
-    //   Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
-    //   IsLightDismissEnabled = false
-    // });
-    // BuyEstateRequest buyEstateRequest;
-    // if (isConfirm)
-    //   buyEstateRequest = new BuyEstateRequest(message.Id, _gameManager.LocalPlayer.Uuid, estate.Uuid);
-    // else
-    //   buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
-    //
-    // if (_gameManager.IsRoomOwner)
-    //   _gameManager.NetServerInstance.GetPendingRequestsTask(message.Id).SetResult(buyEstateRequest);
-    // else
-    //   await _gameManager.NetClientInstance.SendRequestAsync(buyEstateRequest); // 和服务器表示不买
   }
 
 
@@ -100,7 +89,10 @@ public partial class GamePageViewModel : PageViewModelBase
   {
     IsShowReminderText = false;
     if (message.PlayerUuid == _gameManager.LocalPlayer.Uuid)
+    {
+      ReminderText = "轮到你啦";
       IsShowReminderText = true;
+    }
   }
 
   private void ReceiveInitGameMessage(object sender, InitGameResponse message)

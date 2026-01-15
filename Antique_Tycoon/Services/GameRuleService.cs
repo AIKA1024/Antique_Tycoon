@@ -28,7 +28,6 @@ public class GameRuleService : ObservableObject
 {
   private readonly GameManager _gameManager;
   private readonly DialogService _dialogService;
-
   // 应该在回合结束时播放音效
 
 
@@ -60,6 +59,7 @@ public class GameRuleService : ObservableObject
           .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
       rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
       rollDiceResponse = new RollDiceResponse(rollDiceRequest.Id, _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
+      await _gameManager.NetServerInstance.Broadcast(rollDiceResponse);
     }
     catch (TimeoutException e)
     {
@@ -81,8 +81,6 @@ public class GameRuleService : ObservableObject
       string currentTurnPlayerUuid = _gameManager.CurrentTurnPlayer.Uuid;
       var client = _gameManager.GetClientByPlayerUuid(_gameManager.CurrentTurnPlayer.Uuid);
       var rollDiceResponse = await GetRollDiceAsync(client);
-
-      await _gameManager.NetServerInstance.Broadcast(rollDiceResponse);
       WeakReferenceMessenger.Default.Send(rollDiceResponse);
       var nodeDic = _gameManager.SelectedMap.GetPathsAtExactStep(_gameManager.CurrentTurnPlayer.CurrentNodeUuId,
         rollDiceResponse.DiceValue);
@@ -217,14 +215,6 @@ public class GameRuleService : ObservableObject
   /// <param name="actionMessageId">服务器的行动id</param>
   public async Task RollDiceAsync(string actionMessageId)
   {
-    if (_gameManager.IsRoomOwner)
-    {
-      TaskCompletionSource<ITcpMessage> tsc = _gameManager.NetServerInstance.GetPendingRequestsTask(actionMessageId);
-      tsc.SetResult(new RollDiceRequest(actionMessageId));
-    }
-    else
-    {
-      await _gameManager.NetClientInstance.SendRequestAsync(new RollDiceRequest(actionMessageId));
-    }
+    await _gameManager.SendToGameServerAsync(new RollDiceRequest(actionMessageId));
   }
 }

@@ -184,15 +184,6 @@ public class NetServer : NetBase
     }
   }
 
-  /// <summary>
-  /// 处理Tcp消息
-  /// </summary>
-  // private async Task HandleTcpClientAsync(TcpClient client)
-  // {
-  //   // await using var stream = client.GetStream();
-  //   await ReceiveLoopAsync(client);
-  // }
-
   public async Task SendResponseAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
     where T : ITcpMessage
   {
@@ -200,7 +191,19 @@ public class NetServer : NetBase
     await client.GetStream().WriteAsync(data, cancellationToken);
   }
   
-  public TaskCompletionSource<ITcpMessage> GetPendingRequestsTask(string id) => _pendingRequests[id];
+  // public TaskCompletionSource<ITcpMessage> GetPendingRequestsTask(string id) => _pendingRequests[id];
+  
+  /// <summary>
+  /// 接收来自本地玩家的消息（模拟网络接收）
+  /// 用于解开 SendRequestAsync 对本地请求的阻塞等待
+  /// </summary>
+  /// <param name="message">本地产生的响应消息</param>
+  public void ReceiveLocalMessage(ITcpMessage message)
+  {
+    // 1. 检查这个消息是否是对某个挂起请求的响应
+    if (!string.IsNullOrEmpty(message.Id) && _pendingRequests.TryRemove(message.Id, out var tcs))
+      tcs.TrySetResult(message);
+  }
   
   public async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
     TRequest message, 
@@ -290,7 +293,8 @@ public class NetServer : NetBase
   {
     try
     {
-      var baseMsg = (ITcpMessage)JsonSerializer.Deserialize(json, GetJsonTypeInfo(tcpMessageType)); // 服务器发送询问客户端要不要后，客户端还是返回的请求
+      var jsonType = TcpMessageRegistry.ByMessageType(tcpMessageType);
+      var baseMsg = (ITcpMessage)JsonSerializer.Deserialize(json, jsonType.JsonTypeInfo); // 服务器发送询问客户端要不要后，客户端还是返回的请求
 
       if (baseMsg != null && !string.IsNullOrEmpty(baseMsg.Id))
       {

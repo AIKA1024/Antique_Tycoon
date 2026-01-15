@@ -164,7 +164,23 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
   
-
+  public async Task SendToGameServerAsync(ITcpMessage message)
+  {
+    if (IsRoomOwner)
+    {
+      // 如果我是房主，直接通过回环接口把消息“塞”给服务器
+      NetServerInstance.ReceiveLocalMessage(message);
+      await Task.CompletedTask;
+    }
+    else
+    {
+      // 如果我是客户端，走网络发送
+      await NetClientInstance.SendRequestAsync(message); 
+      // 注意：这里可能需要根据 message 类型调整调用，或者让 NetClient 支持通用 Send
+    }
+  }
+  
+  
   public async Task StartGameAsync()
   {
     var startMessage = new StartGameResponse();

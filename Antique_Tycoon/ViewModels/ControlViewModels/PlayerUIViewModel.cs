@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
@@ -33,13 +34,13 @@ public partial class PlayerUiViewModel : PageViewModelBase
   {
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
     WeakReferenceMessenger.Default.Register<RollDiceAction>(this,ReceiveRollDiceAction);
-    WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this,ReceiveAntiqueChanceResponse);
+    // WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this,ReceiveAntiqueChanceResponse);
   }
 
-  private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
-  {
-    Antique = _gameManger.SelectedMap.Antiques.First(a => a.Uuid == message.AntiqueUuid);
-  }
+  // private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
+  // {
+  //   Antique = _gameManger.SelectedMap.Antiques.First(a => a.Uuid == message.AntiqueUuid);
+  // }
 
   private void ReceiveRollDiceAction(object recipient, RollDiceAction message)
   {
@@ -56,7 +57,9 @@ public partial class PlayerUiViewModel : PageViewModelBase
   [RelayCommand]
   private async Task RollDiceAsync()
   {
+    Debug.WriteLine("发起投骰子请求");
     RollButtonEnable = false;
     await App.Current.Services.GetRequiredService<GameRuleService>().RollDiceAsync(_rollDiceActionId);
+    Debug.WriteLine("请求结束");
   }
 }
