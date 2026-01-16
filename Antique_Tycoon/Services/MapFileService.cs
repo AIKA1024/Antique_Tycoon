@@ -44,7 +44,7 @@ public class MapFileService
   {
     var imageDirectoryPath = Path.Combine(folderPath, ImageFolderName);
     var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Combine(folderPath, JsonFileName)),
-      AppJsonContext.Default.Map);
+      Models.Json.AppJsonContext.Default.Map);
     foreach (var entity in map.Entities) //手动加载Image
     {
       if (entity is NodeModel node)
@@ -162,7 +162,7 @@ public class MapFileService
         File.Delete(filePath);
     }
     
-    var jsonStr = JsonSerializer.Serialize(map, AppJsonContext.Default.Map);
+    var jsonStr = JsonSerializer.Serialize(map, Models.Json.AppJsonContext.Default.Map);
     var jsonPath = Path.Combine(Path.Combine(rootDirectoryPath, JsonFileName));
     await File.WriteAllTextAsync(jsonPath, jsonStr);
     await File.WriteAllTextAsync(Path.Combine(rootDirectoryPath, HashFileName), jsonPath.ComputeFileHash());

@@ -1,5 +1,6 @@
 namespace Antique_Tycoon.Models.Net.Tcp.Response;
 
+[TcpMessage]
 public class UpdateEstateInfoResponse(string ownerUuid,string estateUuid,int level = 1):ResponseBase
 {
   public string OwnerUuid { get; set; } = ownerUuid;

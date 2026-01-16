@@ -15,7 +15,7 @@ public class DownloadMapHandler(GameManager gameManager):ITcpMessageHandler
 
   public async Task HandleAsync(string json, TcpClient client)
   {
-    if (JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapRequest) is { } downloadMapRequest)
+    if (JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.DownloadMapRequest) is { } downloadMapRequest)
       await gameManager.DownloadMap(downloadMapRequest, client);
   }
 }

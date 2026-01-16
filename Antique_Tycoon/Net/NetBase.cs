@@ -125,16 +125,16 @@ public abstract class NetBase
     public byte[] PackMessage<T>(T message) where T : ITcpMessage
     {
       // var typeInfo =  GetTypeInfo(message);
-        var typeInfo =  TcpMessageRegistry.ByClrType(message.GetType());
+        var typeInfo =  TcpMessageRegistry.Get(message.GetType());
         var payload =
           JsonSerializer
             .SerializeToUtf8Bytes(message,
-              typeInfo.JsonTypeInfo);
+              typeInfo.jsonTypeInfo);
         var bodyLength = 2 + payload.Length;
         var buffer = new byte[4 + bodyLength];
 
         BitConverter.GetBytes(bodyLength).CopyTo(buffer, 0);
-        BitConverter.GetBytes((ushort)typeInfo.MessageType).CopyTo(buffer, 4);
+        BitConverter.GetBytes((ushort)typeInfo.tcpMessageType).CopyTo(buffer, 4);
         payload.CopyTo(buffer, 6);
 
         return buffer;

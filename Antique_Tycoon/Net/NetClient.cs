@@ -39,7 +39,7 @@ public class NetClient : NetBase
         await _udpClient.SendAsync(bytes, bytes.Length, "255.255.255.255", App.DefaultPort);
         var result = await _udpClient.ReceiveAsync();
         var json = Encoding.UTF8.GetString(result.Buffer);
-        var roomInfo = JsonSerializer.Deserialize(json, AppJsonContext.Default.RoomBaseInfo);
+        var roomInfo = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.RoomBaseInfo);
         return roomInfo ?? throw new Exception("Could not deserialize room info");
     }
 
@@ -92,80 +92,80 @@ public class NetClient : NetBase
         switch (tcpMessageType)
         {
             case TcpMessageType.JoinRoomResponse:
-                var joinRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomResponse);
+                var joinRoomResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.JoinRoomResponse);
                 response = joinRoomResponse;
                 break;
             case TcpMessageType.UpdateRoomResponse:
-                var updateRoomResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateRoomResponse);
+                var updateRoomResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.UpdateRoomResponse);
                 response = updateRoomResponse;
                 WeakReferenceMessenger.Default.Send(updateRoomResponse);
                 break;
             case TcpMessageType.DownloadMapResponse:
-                var downloadMapResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.DownloadMapResponse);
+                var downloadMapResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.DownloadMapResponse);
                 response = downloadMapResponse;
                 break;
             case TcpMessageType.StartGameResponse:
-                var startGameResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.StartGameResponse);
+                var startGameResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.StartGameResponse);
                 response = startGameResponse;
                 WeakReferenceMessenger.Default.Send(startGameResponse);
                 break;
             case TcpMessageType.TurnStartResponse:
-                var turnStartResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.TurnStartResponse);
+                var turnStartResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.TurnStartResponse);
                 response = turnStartResponse;
                 WeakReferenceMessenger.Default.Send(turnStartResponse);
                 break;
             case TcpMessageType.RollDiceAction:
-                var rollDiceAction = JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceAction);
+                var rollDiceAction = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.RollDiceAction);
                 response = rollDiceAction;
                 WeakReferenceMessenger.Default.Send(rollDiceAction);
                 break;
             case TcpMessageType.RollDiceResponse:
-                var rollDiceResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.RollDiceResponse);
+                var rollDiceResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.RollDiceResponse);
                 response = rollDiceResponse;
                 WeakReferenceMessenger.Default.Send(rollDiceResponse);
                 break;
-            case TcpMessageType.InitGameMessageResponse:
+            case TcpMessageType.InitGameResponse:
                 var initGameMessageResponse =
-                    JsonSerializer.Deserialize(json, AppJsonContext.Default.InitGameResponse);
+                    JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.InitGameResponse);
                 response = initGameMessageResponse;
                 WeakReferenceMessenger.Default.Send(initGameMessageResponse);
                 break;
             case TcpMessageType.SelectDestinationAction:
-                var selectDestinationAction = JsonSerializer.Deserialize(json, AppJsonContext.Default.SelectDestinationAction);
+                var selectDestinationAction = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.SelectDestinationAction);
                 response = selectDestinationAction;
                 WeakReferenceMessenger.Default.Send(selectDestinationAction);
                 break;
             case TcpMessageType.PlayerMoveResponse:
-                var playerMoveResponse = JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveResponse);
+                var playerMoveResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.PlayerMoveResponse);
                 response = playerMoveResponse;
                 WeakReferenceMessenger.Default.Send(playerMoveResponse);
                 break;
             case TcpMessageType.BuyEstateAction:
-                var buyEstateAction = JsonSerializer.Deserialize(json, AppJsonContext.Default.BuyEstateAction);
+                var buyEstateAction = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.BuyEstateAction);
                 response = buyEstateAction;
                 WeakReferenceMessenger.Default.Send(buyEstateAction);
                 break;
             case TcpMessageType.UpdateEstateInfoResponse:
                 var updateEstateOwnerResponse =
-                    JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdateEstateInfoResponse);
+                    JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.UpdateEstateInfoResponse);
                 response = updateEstateOwnerResponse;
                 WeakReferenceMessenger.Default.Send(updateEstateOwnerResponse);
                 break;
             case TcpMessageType.UpdatePlayerInfoResponse:
                 var updatePlayerInfoResponse =
-                    JsonSerializer.Deserialize(json, AppJsonContext.Default.UpdatePlayerInfoResponse);
+                    JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.UpdatePlayerInfoResponse);
                 response = updatePlayerInfoResponse;
                 WeakReferenceMessenger.Default.Send(updatePlayerInfoResponse);
                 break;
             case TcpMessageType.AntiqueChanceResponse:
                 var antiqueChanceResponse =
-                    JsonSerializer.Deserialize(json, AppJsonContext.Default.AntiqueChanceResponse);
+                    JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.AntiqueChanceResponse);
                 response = antiqueChanceResponse;
                 WeakReferenceMessenger.Default.Send(antiqueChanceResponse,antiqueChanceResponse.MineUuid);
                 break;
             case TcpMessageType.GetAntiqueResultResponse:
                 var getAntiqueResultResponse =
-                    JsonSerializer.Deserialize(json, AppJsonContext.Default.GetAntiqueResultResponse);
+                    JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.GetAntiqueResultResponse);
                 response = getAntiqueResultResponse;
                 WeakReferenceMessenger.Default.Send(getAntiqueResultResponse);
                 break;

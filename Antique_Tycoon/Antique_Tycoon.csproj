@@ -22,37 +22,37 @@
         <UseNativeAot>true</UseNativeAot>
     </PropertyGroup>
     <PropertyGroup Label="Avalonia">
-      <AvaloniaXamlVerboseExceptions>False</AvaloniaXamlVerboseExceptions>
+        <AvaloniaXamlVerboseExceptions>False</AvaloniaXamlVerboseExceptions>
     </PropertyGroup>
     <ItemGroup>
-        <AvaloniaResource Include="Assets\**" />
+        <AvaloniaResource Include="Assets\**"/>
     </ItemGroup>
     <ItemGroup>
-        <AvaloniaResource Remove="Assets\BGM\Below and Above.mp3" />
-        <AvaloniaResource Remove="Assets\BGM\Comforting Memories.mp3" />
-        <AvaloniaResource Remove="Assets\BGM\Fireflies.mp3" />
-        <AvaloniaResource Remove="Assets\BGM\Lilypad.mp3" />
-        <AvaloniaResource Remove="Assets\BGM\O%27s Piano.mp3" />
-        <AvaloniaResource Remove="Assets\SFX\MCButtonPressed.mp3" />
-        <AvaloniaResource Remove="Assets\SFX\Sheep\Sheep_Bleating" />
+        <AvaloniaResource Remove="Assets\BGM\Below and Above.mp3"/>
+        <AvaloniaResource Remove="Assets\BGM\Comforting Memories.mp3"/>
+        <AvaloniaResource Remove="Assets\BGM\Fireflies.mp3"/>
+        <AvaloniaResource Remove="Assets\BGM\Lilypad.mp3"/>
+        <AvaloniaResource Remove="Assets\BGM\O%27s Piano.mp3"/>
+        <AvaloniaResource Remove="Assets\SFX\MCButtonPressed.mp3"/>
+        <AvaloniaResource Remove="Assets\SFX\Sheep\Sheep_Bleating"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.11" />
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.11" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.11" />
-        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.11" />
-        <PackageReference Include="Avalonia.ReactiveUI.Events" Version="0.10.22" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.11" />
+        <PackageReference Include="Avalonia" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.ReactiveUI.Events" Version="0.10.22"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.11"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-        <PackageReference Include="HotAvalonia" Version="3.0.2" PrivateAssets="All" Publish="True" />
-        <PackageReference Include="LibVLCSharp" Version="3.9.5" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
-        <PackageReference Include="ObservableCollections" Version="3.3.4" />
-        <PackageReference Include="PropertyGenerator.Avalonia" Version="1.2.6" />
-        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.3" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+        <PackageReference Include="HotAvalonia" Version="3.0.2" PrivateAssets="All" Publish="True"/>
+        <PackageReference Include="LibVLCSharp" Version="3.9.5"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2"/>
+        <PackageReference Include="ObservableCollections" Version="3.3.4"/>
+        <PackageReference Include="PropertyGenerator.Avalonia" Version="1.2.6"/>
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.3"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -65,8 +65,8 @@
             <SubType>Code</SubType>
         </Compile>
         <Compile Update="Views\Widgets\GameCanvas.axaml.cs">
-          <DependentUpon>GameCanvas.axaml</DependentUpon>
-          <SubType>Code</SubType>
+            <DependentUpon>GameCanvas.axaml</DependentUpon>
+            <SubType>Code</SubType>
         </Compile>
     </ItemGroup>
 
@@ -83,28 +83,34 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AvaloniaXaml Remove="Publish\**" />
-      <Compile Remove="Publish\**" />
-      <EmbeddedResource Remove="Publish\**" />
-      <None Remove="Publish\**" />
+        <AvaloniaXaml Remove="Publish\**"/>
+        <Compile Remove="Publish\**"/>
+        <EmbeddedResource Remove="Publish\**"/>
+        <None Remove="Publish\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Views\DataTemplates\DetailDataTemplate\EstateDetailDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\DetailDataTemplate\SpawnPointDetailDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\NodeDataTemplate\EstateDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\NodeDataTemplate\SpawnPointDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\CreateRoomPageDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\GamePageDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\HallPageDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\MapEditPageDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\MapListPageDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\RoomPageDataTemplate.axaml" />
-      <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\StartPageDataTemplate.axaml" />
+        <AdditionalFiles Include="Views\DataTemplates\DetailDataTemplate\EstateDetailDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\DetailDataTemplate\SpawnPointDetailDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\NodeDataTemplate\EstateDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\NodeDataTemplate\SpawnPointDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\CreateRoomPageDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\GamePageDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\HallPageDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\MapEditPageDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\MapListPageDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\RoomPageDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\StartPageDataTemplate.axaml"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Assets\SFX\Player\Cow\" />
-      <Folder Include="Assets\SFX\Player\Zombie\" />
+        <Folder Include="Assets\SFX\Player\Cow\"/>
+        <Folder Include="Assets\SFX\Player\Zombie\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Antique_Tycoon.ProtocolGen\Antique_Tycoon.ProtocolGen.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
     </ItemGroup>
 </Project>

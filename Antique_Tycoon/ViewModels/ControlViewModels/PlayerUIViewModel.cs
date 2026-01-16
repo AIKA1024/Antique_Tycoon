@@ -23,7 +23,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
 
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
-  [ObservableProperty] private Antique _antique;//todo 这个要搞一个父类，表示要展示的卡片的基本信息
+  [ObservableProperty] private Antique _antique; //todo 这个要搞一个父类，表示要展示的卡片的基本信息
   private string _rollDiceActionId = "";
 
   [ObservableProperty] public partial bool RollButtonEnable { get; set; } = false;
@@ -32,8 +32,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
 
   public PlayerUiViewModel()
   {
-    WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
-    WeakReferenceMessenger.Default.Register<RollDiceAction>(this,ReceiveRollDiceAction);
+    WeakReferenceMessenger.Default.Register<RollDiceAction>(this, ReceiveRollDiceAction);
     // WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this,ReceiveAntiqueChanceResponse);
   }
 
@@ -46,12 +45,6 @@ public partial class PlayerUiViewModel : PageViewModelBase
   {
     RollButtonEnable = true;
     _rollDiceActionId = message.Id;
-  }
-
-  private void ReceiveTurnStartMessage(object recipient, TurnStartResponse message)
-  {
-    // if (message.PlayerUuid == LocalPlayer.Uuid)
-      // RollButtonEnable = true;
   }
 
   [RelayCommand]

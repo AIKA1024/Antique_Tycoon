@@ -15,7 +15,7 @@ public class JoinRoomHandler(GameManager gameManager) : ITcpMessageHandler
 
   public async Task HandleAsync(string json, TcpClient client)
   {
-    if (JsonSerializer.Deserialize(json, AppJsonContext.Default.JoinRoomRequest) is { } joinRoomRequest)
+    if (JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.JoinRoomRequest) is { } joinRoomRequest)
     {
       await gameManager.ReceiveJoinRoomRequest(joinRoomRequest, client);
     }

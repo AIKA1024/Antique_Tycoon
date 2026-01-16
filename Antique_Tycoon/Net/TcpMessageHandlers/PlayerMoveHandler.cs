@@ -15,7 +15,7 @@ public class PlayerMoveHandler(GameManager gameManager):ITcpMessageHandler
 
     public async Task HandleAsync(string json, TcpClient client)
     {
-        if (JsonSerializer.Deserialize(json, AppJsonContext.Default.PlayerMoveRequest) is { } playerMoveRequest)
+        if (JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.PlayerMoveRequest) is { } playerMoveRequest)
         {
             if (playerMoveRequest.PlayerUuid != gameManager.CurrentTurnPlayer.Uuid)
                 return;

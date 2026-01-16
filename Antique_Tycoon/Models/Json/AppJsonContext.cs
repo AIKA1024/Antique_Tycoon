@@ -1,17 +1,13 @@
 using System.Text.Json.Serialization;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Connections;
 using Antique_Tycoon.Models.Net;
-using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Nodes;
-using Antique_Tycoon.Models.RoleBehaviors;
-using Avalonia.Media;
-using Player = Antique_Tycoon.Models.Player;
 
-namespace Antique_Tycoon;
+namespace Antique_Tycoon.Models.Json;
+
 [JsonSerializable(typeof(Player))]
 [JsonSerializable(typeof(RequestBase))]
 [JsonSerializable(typeof(RoomBaseInfo))]
@@ -19,6 +15,7 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(JoinRoomResponse))]
 [JsonSerializable(typeof(JoinRoomRequest))]
 [JsonSerializable(typeof(UpdateRoomResponse))]
+[JsonSerializable(typeof(InitGameResponse))]
 [JsonSerializable(typeof(BuyEstateRequest))]
 [JsonSerializable(typeof(BuyEstateAction))]
 [JsonSerializable(typeof(UpdateEstateInfoResponse))]
@@ -32,11 +29,11 @@ namespace Antique_Tycoon;
 [JsonSerializable(typeof(RollDiceAction))]
 [JsonSerializable(typeof(RollDiceRequest))]
 [JsonSerializable(typeof(RollDiceResponse))]
-[JsonSerializable(typeof(InitGameResponse))]
 [JsonSerializable(typeof(PlayerMoveRequest))]
 [JsonSerializable(typeof(PlayerMoveResponse))]
 [JsonSerializable(typeof(SelectDestinationAction))]
 [JsonSerializable(typeof(SelectDestinationRequest))]
+[JsonSerializable(typeof(BuyEstateResponse))]
 [JsonSerializable(typeof(AntiqueChanceResponse))]
 [JsonSerializable(typeof(GetAntiqueResultResponse))]
 

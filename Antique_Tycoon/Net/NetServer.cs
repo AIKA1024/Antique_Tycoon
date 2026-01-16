@@ -164,7 +164,7 @@ public class NetServer : NetBase
     {
       var result = await udpServer.ReceiveAsync(cancellationToken);
 
-      var json = JsonSerializer.Serialize(roomInfo, AppJsonContext.Default.RoomBaseInfo);
+      var json = JsonSerializer.Serialize(roomInfo, Models.Json.AppJsonContext.Default.RoomBaseInfo);
       var bytes = Encoding.UTF8.GetBytes(json);
 
       await udpServer.SendAsync(bytes, bytes.Length, result.RemoteEndPoint);
@@ -293,8 +293,8 @@ public class NetServer : NetBase
   {
     try
     {
-      var jsonType = TcpMessageRegistry.ByMessageType(tcpMessageType);
-      var baseMsg = (ITcpMessage)JsonSerializer.Deserialize(json, jsonType.JsonTypeInfo); // 服务器发送询问客户端要不要后，客户端还是返回的请求
+      var jsonType = TcpMessageRegistry.Get(tcpMessageType);
+      var baseMsg = (ITcpMessage)JsonSerializer.Deserialize(json, jsonType.jsonTypeInfo); // 服务器发送询问客户端要不要后，客户端还是返回的请求
 
       if (baseMsg != null && !string.IsNullOrEmpty(baseMsg.Id))
       {

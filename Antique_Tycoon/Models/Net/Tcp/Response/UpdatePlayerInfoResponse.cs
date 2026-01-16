@@ -1,5 +1,6 @@
 namespace Antique_Tycoon.Models.Net.Tcp.Response;
 
+[TcpMessage]
 public class UpdatePlayerInfoResponse(Player player,string updateMessage):ResponseBase
 {
   public Player Player { get; set; } = player;

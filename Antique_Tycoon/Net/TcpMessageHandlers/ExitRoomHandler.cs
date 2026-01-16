@@ -15,7 +15,7 @@ public class ExitRoomHandler(GameManager gameManager):ITcpMessageHandler
 
   public async Task HandleAsync(string json, TcpClient client)
   {
-    if (JsonSerializer.Deserialize(json, AppJsonContext.Default.ExitRoomRequest) is { } exitRoomRequest)
+    if (JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.ExitRoomRequest) is { } exitRoomRequest)
     {
       var exitRoomResponse = new ExitRoomResponse(exitRoomRequest.PlayerUuid);
       await gameManager.NetServerInstance.BroadcastExcept(exitRoomResponse,client);

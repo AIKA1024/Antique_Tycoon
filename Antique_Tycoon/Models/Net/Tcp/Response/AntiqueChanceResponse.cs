@@ -1,5 +1,6 @@
 namespace Antique_Tycoon.Models.Net.Tcp.Response;
 
+[TcpMessage]
 public class AntiqueChanceResponse:ResponseBase
 {
   public string AntiqueUuid { get; set; }

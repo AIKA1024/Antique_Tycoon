@@ -1,5 +1,6 @@
 namespace Antique_Tycoon.Models.Net.Tcp.Request;
 
+[TcpMessage]
 public class BuyEstateRequest : RequestBase
 {
     public string EstateUuid { get; set; }

@@ -2,6 +2,7 @@ using System;
 
 namespace Antique_Tycoon.Models.Net.Tcp.Request;
 
+[TcpMessage]
 public class RollDiceRequest:RequestBase
 {
   public RollDiceRequest(string id)

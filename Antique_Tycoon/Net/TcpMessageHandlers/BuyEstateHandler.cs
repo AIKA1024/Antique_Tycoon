@@ -14,7 +14,7 @@ public class BuyEstateHandler(GameManager gameManager) : ITcpMessageHandler
 
   public async Task HandleAsync(string json, TcpClient client)
   {
-    if (JsonSerializer.Deserialize(json, AppJsonContext.Default.BuyEstateRequest) is { } buyEstateRequest)//是否可以购买的逻辑已经在gamerule判断了
+    if (JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.BuyEstateRequest) is { } buyEstateRequest)//是否可以购买的逻辑已经在gamerule判断了
     {
       var estate = (Estate)gameManager.SelectedMap.EntitiesDict[buyEstateRequest.EstateUuid];
       var playerUuid = gameManager.GetPlayerUuidByTcpClient(client);
