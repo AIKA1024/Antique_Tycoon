@@ -53,6 +53,11 @@
         <PackageReference Include="ObservableCollections" Version="3.3.4"/>
         <PackageReference Include="PropertyGenerator.Avalonia" Version="1.2.6"/>
         <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.3"/>
+        <ProjectReference Include="..\Antique_Tycoon.ProtocolGen\Antique_Tycoon.ProtocolGen.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"
+                          GlobalPropertiesToRemove="PublishAot;TrimMode;PublishTrimmed"
+                          UndefineProperties="PublishAot;TrimMode;PublishTrimmed" />
     </ItemGroup>
 
     <ItemGroup>
@@ -106,11 +111,5 @@
     <ItemGroup>
         <Folder Include="Assets\SFX\Player\Cow\"/>
         <Folder Include="Assets\SFX\Player\Zombie\"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Antique_Tycoon.ProtocolGen\Antique_Tycoon.ProtocolGen.csproj"
-                          OutputItemType="Analyzer"
-                          ReferenceOutputAssembly="false"/>
     </ItemGroup>
 </Project>

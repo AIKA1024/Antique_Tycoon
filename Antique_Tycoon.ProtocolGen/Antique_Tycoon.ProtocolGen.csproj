@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk" TreatAsLocalProperty="PublishAot;PublishTrimmed;TrimMode;IsAotCompatible">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,14 +6,19 @@
         <Nullable>enable</Nullable>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <LangVersion>14</LangVersion>
+
+        <PublishTrimmed>false</PublishTrimmed>
+        <PublishAot>false</PublishAot>
+        <IsAotCompatible>false</IsAotCompatible>
+        <TrimMode></TrimMode>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     </ItemGroup>
 
 </Project>
