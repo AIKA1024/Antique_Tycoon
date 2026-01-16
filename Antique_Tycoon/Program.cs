@@ -22,6 +22,9 @@ sealed class Program
       var ex = (Exception)e.ExceptionObject;
       await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new MessageDialogViewModel
         { Title = "严重错误，程序即将关闭", Message = $"{ex.Message}",IsLightDismissEnabled = false});
+#if DEBUG
+      throw ex;
+#endif
       ExitApplication();
       // 此时应用通常即将崩溃，这里适合做最后的日志记录
     };
@@ -31,6 +34,9 @@ sealed class Program
       e.SetObserved(); // 标记为已观察，防止进程崩溃
       await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new MessageDialogViewModel
         { Title = "严重错误，程序即将关闭", Message = $"{e.Exception.Message}",IsLightDismissEnabled = false });
+#if DEBUG
+      throw e.Exception;
+#endif
       ExitApplication();
     };
     BuildAvaloniaApp()

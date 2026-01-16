@@ -42,6 +42,7 @@ public partial class NodeLinkControl : ContentControl
     if (DataContext is NodeModel nodeModel && !_isRegisted)
     {
       WeakReferenceMessenger.Default.Register<AntiqueChanceResponse,string>(this,nodeModel.Uuid,ReceiveAntiqueChanceResponse);
+      WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse,string>(this,nodeModel.Uuid,ReceiveGetAntiqueResultResponse);
       _isRegisted = true;
     }
   }
@@ -52,6 +53,14 @@ public partial class NodeLinkControl : ContentControl
     {
       var antique = _gameManager.SelectedMap.Antiques.FirstOrDefault(a => a.Uuid == message.AntiqueUuid);
       AdornerHost.SetAdornerContent(this, antique);
+    });
+  }
+  
+  private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
+  {
+    _actionQueueService.Enqueue(async () =>
+    {
+      AdornerHost.SetAdornerContent(this, null);//收起装饰器
     });
   }
 }

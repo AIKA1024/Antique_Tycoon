@@ -60,6 +60,7 @@ public class GameRuleService : ObservableObject
       rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
       rollDiceResponse = new RollDiceResponse(rollDiceRequest.Id, _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
       await _gameManager.NetServerInstance.Broadcast(rollDiceResponse);
+      WeakReferenceMessenger.Default.Send(rollDiceResponse);
     }
     catch (TimeoutException e)
     {
@@ -81,7 +82,6 @@ public class GameRuleService : ObservableObject
       string currentTurnPlayerUuid = _gameManager.CurrentTurnPlayer.Uuid;
       var client = _gameManager.GetClientByPlayerUuid(_gameManager.CurrentTurnPlayer.Uuid);
       var rollDiceResponse = await GetRollDiceAsync(client);
-      WeakReferenceMessenger.Default.Send(rollDiceResponse);
       var nodeDic = _gameManager.SelectedMap.GetPathsAtExactStep(_gameManager.CurrentTurnPlayer.CurrentNodeUuId,
         rollDiceResponse.DiceValue);
       var selectPath = nodeDic.First().Value;
@@ -186,27 +186,36 @@ public class GameRuleService : ObservableObject
   private async Task HandleSpawnPointAsync(Player player)
   {
     var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
-    player.Money += bonus;
     var message =
-      new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money - bonus}->{player.Money}");
+      new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money}->{player.Money += bonus}");
     await _gameManager.NetServerInstance.Broadcast(message);
     WeakReferenceMessenger.Default.Send(message);
   }
 
   private async Task HandleMineAsync(Player player, NodeModel node)
   {
-    if (_gameManager.SelectedMap.Antiques.Count == 0)
-      return;
-    var antique = _gameManager.SelectedMap.Antiques[Random.Shared.Next(0, _gameManager.SelectedMap.Antiques.Count)];
-    var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid, node.Uuid);
-    var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-    WeakReferenceMessenger.Default.Send(antiqueChangeResponse, antiqueChangeResponse.MineUuid);
-    await _gameManager.NetServerInstance.Broadcast(antiqueChangeResponse);
-    var rollDiceResponse = await GetRollDiceAsync(client);
-    var getAntiqueResultResponse =
-      new GetAntiqueResultResponse(antique.Uuid, player.Uuid, rollDiceResponse.DiceValue >= antique.Dice);
-    WeakReferenceMessenger.Default.Send(getAntiqueResultResponse);
-    await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse); //todo 还没做收到消息的逻辑
+    if (_gameManager.SelectedMap.Antiques.Count > 0)
+    {
+      var randomIndex = Random.Shared.Next(0, _gameManager.SelectedMap.Antiques.Count);
+      var antique = _gameManager.SelectedMap.Antiques[randomIndex];
+      var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid, node.Uuid);
+      var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+      WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
+      await _gameManager.NetServerInstance.Broadcast(antiqueChangeResponse);
+      var rollDiceResponse = await GetRollDiceAsync(client);
+      var getAntiqueResultResponse =
+        new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, rollDiceResponse.DiceValue >= antique.Dice);
+      WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
+      await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse); //todo 还没做收到消息的逻辑
+      _gameManager.SelectedMap.Antiques.RemoveAt(randomIndex); //todo 直接修改地图的古玩数组可能不太好
+    }
+    else
+    {
+      var message =
+        new UpdatePlayerInfoResponse(player, $"已经没有古玩流通，因此{player.Name}获得200 {player.Money}->{player.Money += 200}");
+      await _gameManager.NetServerInstance.Broadcast(message);
+      WeakReferenceMessenger.Default.Send(message);
+    }
   }
 
   /// <summary>

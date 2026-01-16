@@ -167,7 +167,7 @@ public class NetClient : NetBase
                 var getAntiqueResultResponse =
                     JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.GetAntiqueResultResponse);
                 response = getAntiqueResultResponse;
-                WeakReferenceMessenger.Default.Send(getAntiqueResultResponse);
+                WeakReferenceMessenger.Default.Send(getAntiqueResultResponse,getAntiqueResultResponse.MineUuid);
                 break;
         }
 
