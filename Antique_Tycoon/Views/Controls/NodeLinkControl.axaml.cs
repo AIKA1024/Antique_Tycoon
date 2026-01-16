@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Response;
@@ -49,18 +50,20 @@ public partial class NodeLinkControl : ContentControl
 
   private void ReceiveAntiqueChanceResponse(object sender, AntiqueChanceResponse message)
   {
-    _actionQueueService.Enqueue(async () =>
+    _actionQueueService.Enqueue(() =>
     {
       var antique = _gameManager.SelectedMap.Antiques.FirstOrDefault(a => a.Uuid == message.AntiqueUuid);
-      AdornerHost.SetAdornerContent(this, antique);
+      NodeAdornerHost.SetContent(this, antique);
+      return Task.CompletedTask;
     });
   }
   
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
   {
-    _actionQueueService.Enqueue(async () =>
+    _actionQueueService.Enqueue(() =>
     {
-      AdornerHost.SetAdornerContent(this, null);//收起装饰器
+      NodeAdornerHost.SetContent(this, null);//收起装饰器
+      return Task.CompletedTask;
     });
   }
 }

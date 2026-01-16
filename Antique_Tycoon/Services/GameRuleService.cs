@@ -206,7 +206,7 @@ public class GameRuleService : ObservableObject
       var getAntiqueResultResponse =
         new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, rollDiceResponse.DiceValue >= antique.Dice);
       WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
-      await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse); //todo 还没做收到消息的逻辑
+      await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse);
       _gameManager.SelectedMap.Antiques.RemoveAt(randomIndex); //todo 直接修改地图的古玩数组可能不太好
     }
     else

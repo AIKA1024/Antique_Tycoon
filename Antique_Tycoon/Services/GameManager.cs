@@ -131,15 +131,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       await await animationTask.Response; // 等待动画播放完毕
       destinationModelmodel.PlayersHere.Add(player);
     });
-    
-    // Player player = GetPlayerByUuid(message.PlayerUuid);
-    // string playerCurrentNodeUuid = player.CurrentNodeUuId;
-    // NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
-    // NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
-    // currentModelmodel.PlayersHere.Remove(player);
-    // await _animationManager.StartPlayerMoveAnimation(player, message.Path, message.Id);
-    // destinationModelmodel.PlayersHere.Add(player);
-    // player.CurrentNodeUuId = destinationModelmodel.Uuid;
   }
 
   private void SetupLocalPlayer()
