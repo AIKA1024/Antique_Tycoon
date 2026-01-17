@@ -36,6 +36,8 @@ namespace Antique_Tycoon.Models.Json;
 [JsonSerializable(typeof(BuyEstateResponse))]
 [JsonSerializable(typeof(AntiqueChanceResponse))]
 [JsonSerializable(typeof(GetAntiqueResultResponse))]
+[JsonSerializable(typeof(SaleAntiqueAction))]
+[JsonSerializable(typeof(SaleAntiqueRequest))]
 
 [JsonSerializable(typeof(Map))]
 [JsonSerializable(typeof(SpawnPoint))]

@@ -82,7 +82,7 @@
                         <c:McButton Content="选择图片" Classes="ore" Padding="12 8"
                                     Command="{Binding ChangeNodeImageCommand}"
                                     CommandParameter="{Binding SelectedMapEntity}" />
-                        <ComboBox ItemsSource="{x:Static e:StretchEnumValuesExtension.Values}"
+                        <ComboBox ItemsSource="{e:EnumItems {x:Type Stretch}}"
                                   SelectedItem="{Binding SelectedMapEntity.CoverStretch}"
                                   VerticalAlignment="Center">
                         </ComboBox>

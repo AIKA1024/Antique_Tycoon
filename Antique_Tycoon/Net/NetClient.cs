@@ -162,6 +162,7 @@ public class NetClient : NetBase
                     JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.AntiqueChanceResponse);
                 response = antiqueChanceResponse;
                 WeakReferenceMessenger.Default.Send(antiqueChanceResponse,antiqueChanceResponse.MineUuid);
+                WeakReferenceMessenger.Default.Send(antiqueChanceResponse);
                 break;
             case TcpMessageType.GetAntiqueResultResponse:
                 var getAntiqueResultResponse =

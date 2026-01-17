@@ -19,8 +19,30 @@
   </Design.DataContext>
   <Grid RowDefinitions="*,Auto"
         Classes.Invisible="{Binding IsVisible}">
-    <Grid Grid.Row="0" Grid.ColumnDefinitions="*,*,*">
+    <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
       <StackPanel Grid.Column="0" />
+      <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
+                 FontSize="32" FontWeight="Black"
+                 Margin="0 32 0 0"
+                 Text="{Binding ReminderText}"
+                 Tag="{Binding IsShowReminderText,Mode=OneWay}">
+        <TextBlock.Transitions>
+          <Transitions>
+            <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
+          </Transitions>
+        </TextBlock.Transitions>
+        <TextBlock.Styles>
+          <Style Selector="TextBlock[Tag=True]">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="RenderTransform" Value="translateY(100px)" />
+          </Style>
+          <Style Selector="TextBlock[Tag=False]">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="RenderTransform" Value="translateY(-20px)" />
+          </Style>
+        </TextBlock.Styles>
+      </TextBlock>
       <Border Grid.Column="1" CornerRadius="8"
               Padding="16"
               Width="200"

@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
+                    xmlns:e="clr-namespace:Antique_Tycoon.Extensions"
                     xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
@@ -18,6 +19,22 @@
         <TextBox
           Classes="MCTextbox"
           Text="{Binding Value}" />
+      </c:McContentControl>
+      <c:McContentControl Header="收益">
+        <StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="16">
+            <TextBlock Text="收益类型" VerticalAlignment="Center"/>
+            <ComboBox ItemsSource="{e:EnumItems {x:Type nodes:BonusType}}"
+                      SelectedItem="{Binding BonusType}"/>
+          </StackPanel>
+          
+          <ItemsControl ItemsSource="{Binding RevenueModifiers}">
+            
+          </ItemsControl>
+          <c:McButton Content="添加等级" Margin="16" Padding="12 8" />
+          <!-- todo 这里没有vm，导致添加逻辑困难-->
+        </StackPanel>
+       
       </c:McContentControl>
     </StackPanel>
   </DataTemplate>

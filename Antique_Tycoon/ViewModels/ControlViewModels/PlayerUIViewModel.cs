@@ -19,11 +19,16 @@ namespace Antique_Tycoon.ViewModels.ControlViewModels;
 
 public partial class PlayerUiViewModel : PageViewModelBase
 {
-  private readonly GameManager _gameManger = App.Current.Services.GetRequiredService<GameManager>();
+  private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+
+  private readonly ActionQueueService _actionQueueService =
+    App.Current.Services.GetRequiredService<ActionQueueService>();
 
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
   [ObservableProperty] private Antique _antique; //todo 这个要搞一个父类，表示要展示的卡片的基本信息
+  [ObservableProperty] private string _reminderText = "轮到你啦";
+  [ObservableProperty] private bool _isShowReminderText;
   private string _rollDiceActionId = "";
 
   [ObservableProperty] public partial bool RollButtonEnable { get; set; } = false;
@@ -33,18 +38,54 @@ public partial class PlayerUiViewModel : PageViewModelBase
   public PlayerUiViewModel()
   {
     WeakReferenceMessenger.Default.Register<RollDiceAction>(this, ReceiveRollDiceAction);
-    // WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this,ReceiveAntiqueChanceResponse);
+    WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
+    WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse);
+    WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this,ReceiveGetAntiqueResultResponse);
   }
 
-  // private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
-  // {
-  //   Antique = _gameManger.SelectedMap.Antiques.First(a => a.Uuid == message.AntiqueUuid);
-  // }
+  private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
+  {
+    if (message.IsSuccess)
+    {
+      _actionQueueService.Enqueue(() =>
+      {
+        ReminderText = $"{_gameManager.GetPlayerByUuid(message.PlayerUuid).Name}成功获得该古玩";
+        return Task.Delay(1000);
+      });
+    }
+    else
+    {
+      _actionQueueService.Enqueue(() =>
+      {
+        ReminderText = $"{_gameManager.GetPlayerByUuid(message.PlayerUuid).Name}未能获得古玩，流入市场";
+        return Task.Delay(1000);
+      });
+    }
+  }
+
+  private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
+  {
+    _actionQueueService.Enqueue(() =>
+    {
+      ReminderText = "再次投骰子以获取古玩";
+      return Task.CompletedTask;
+    });
+  }
 
   private void ReceiveRollDiceAction(object recipient, RollDiceAction message)
   {
     RollButtonEnable = true;
     _rollDiceActionId = message.Id;
+  }
+
+  private void ReceiveTurnStartMessage(object sender, TurnStartResponse message)
+  {
+    IsShowReminderText = false;
+    if (message.PlayerUuid == _gameManager.LocalPlayer.Uuid)
+    {
+      ReminderText = "轮到你啦";
+      IsShowReminderText = true;
+    }
   }
 
   [RelayCommand]

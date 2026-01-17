@@ -8,6 +8,7 @@ namespace Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 [JsonDerivedType(typeof(DrawCardAction), "DrawCardAction")]
 [JsonDerivedType(typeof(RollDiceAction), "RollDiceAction")]
 [JsonDerivedType(typeof(TransportAction), "TransportAction")]
+[JsonDerivedType(typeof(SaleAntiqueAction), "SaleAntiqueAction")]
 
 public abstract class ActionBase : ServiceRequest
 {

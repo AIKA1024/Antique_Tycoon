@@ -22,16 +22,7 @@ public partial class GamePageViewModel : PageViewModelBase
   private readonly ActionQueueService _actionQueue = App.Current.Services.GetRequiredService<ActionQueueService>();
   // private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
   private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
-
-  [ObservableProperty] private string _reminderText = "轮到你啦";
   [ObservableProperty] private int _rollDiceValue;
-  [ObservableProperty] private bool _isShowReminderText;
-
-
-  /// <summary>
-  /// 是否在高亮给玩家选择卡片阶段
-  /// </summary>
-  private bool _isHighlightMode;
 
   public GamePageViewModel(Map map)
   {
@@ -40,7 +31,6 @@ public partial class GamePageViewModel : PageViewModelBase
       Map.SpawnNode.PlayersHere.Add(player);
 
     // WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
-    WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
     WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameMessage);
     WeakReferenceMessenger.Default.Register<RollDiceResponse>(this, ReceiveRollDiceMessage);
     WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
@@ -85,15 +75,7 @@ public partial class GamePageViewModel : PageViewModelBase
   }
 
 
-  private void ReceiveTurnStartMessage(object sender, TurnStartResponse message)
-  {
-    IsShowReminderText = false;
-    if (message.PlayerUuid == _gameManager.LocalPlayer.Uuid)
-    {
-      ReminderText = "轮到你啦";
-      IsShowReminderText = true;
-    }
-  }
+
 
   private void ReceiveInitGameMessage(object sender, InitGameResponse message)
   {
@@ -106,10 +88,6 @@ public partial class GamePageViewModel : PageViewModelBase
         localPlayerData.Money = remotePlayerData.Money;
       }
     }
-
-    if (message.Players.ToArray()[message.CurrentTurnPlayerIndex] != _gameManager.LocalPlayer) return;
-    IsShowReminderText = false;
-    IsShowReminderText = true;
   }
 
   private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)

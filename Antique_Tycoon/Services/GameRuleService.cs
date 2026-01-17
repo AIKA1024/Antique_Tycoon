@@ -155,30 +155,70 @@ public class GameRuleService : ObservableObject
   /// </summary>
   /// <param name="player">玩家</param>
   /// <param name="estate">地产</param>
-  /// <param name="animationToken">要等待的动画token</param>
   private async Task HandleEstateAsync(Player player, Estate estate)
   {
-    if (estate.Owner == null && player.Money >= estate.Value)
+    var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+    if (estate.Owner == null) //踩到还没人买的地
     {
-      var buyEstateActionMessage = new BuyEstateAction(estate.Uuid);
-      var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-      try
+      if (player.Money >= estate.Value)
       {
-        var buyEstateRequest =
-          await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
-            buyEstateActionMessage, client, TimeSpan.FromSeconds(30));
-        if (buyEstateRequest.IsConfirm)
+        var buyEstateActionMessage = new BuyEstateAction(estate.Uuid);
+        try
         {
-          player.Money -= estate.Value;
-          estate.Owner = player;
-          var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
-          await _gameManager.NetServerInstance.Broadcast(message);
-          WeakReferenceMessenger.Default.Send(message);
+          var buyEstateRequest =
+            await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
+              buyEstateActionMessage, client);
+          if (buyEstateRequest.IsConfirm)
+          {
+            player.Money -= estate.Value;
+            estate.Owner = player;
+            var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
+            await _gameManager.NetServerInstance.Broadcast(message);
+            WeakReferenceMessenger.Default.Send(message);
+          }
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine(e.Message);
         }
       }
-      catch (Exception e)
+    }
+    else if (estate.Owner == player) //踩到自己的地
+      await SaleAntique(player,"");
+    else //踩到别人的地
+      await SaleAntique(estate.Owner,player.Uuid);
+    return;
+
+    async Task SaleAntique(Player seller,string buyerUuid)
+    {
+      if (seller.Antiques.Count > 0)
       {
-        Console.WriteLine(e.Message);
+        var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyerUuid, estate.Uuid); //购买者空字符串代表银行
+        var saleAntiqueRequest =
+          await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
+            saleAntiqueAction, client);
+
+        if (string.IsNullOrEmpty(saleAntiqueRequest.AntiqueUuid))
+          return;
+
+        var antique = seller.Antiques.First(a => a.Uuid == saleAntiqueRequest.AntiqueUuid);
+        if (saleAntiqueRequest.IsUpgradeEstate)
+        {
+          estate.Level += 1;
+          var updateEstateInfoResponse = new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level);
+          await Broadcast(updateEstateInfoResponse);
+          var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
+            $"{seller.Name}原价出售古董，获得${seller.Money += antique.Value},{estate.Title}等级提升为{estate.Level}");
+          await Broadcast(updatePlayerInfoResponse);
+        }
+        else
+        {
+          seller.Money += estate.CalculateCurrentRevenue(antique.Value);
+          var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
+            $"{seller.Name}加价出售古董，获得${seller.Money += antique.Value}");
+          await Broadcast(updatePlayerInfoResponse);
+        }
+        seller.Antiques.Remove(antique);
       }
     }
   }
@@ -188,8 +228,7 @@ public class GameRuleService : ObservableObject
     var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
     var message =
       new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money}->{player.Money += bonus}");
-    await _gameManager.NetServerInstance.Broadcast(message);
-    WeakReferenceMessenger.Default.Send(message);
+    await Broadcast(message);
   }
 
   private async Task HandleMineAsync(Player player, NodeModel node)
@@ -201,21 +240,26 @@ public class GameRuleService : ObservableObject
       var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid, node.Uuid);
       var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
       WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
-      await _gameManager.NetServerInstance.Broadcast(antiqueChangeResponse);
+      await Broadcast(antiqueChangeResponse);
       var rollDiceResponse = await GetRollDiceAsync(client);
       var getAntiqueResultResponse =
         new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, rollDiceResponse.DiceValue >= antique.Dice);
       WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
-      await _gameManager.NetServerInstance.Broadcast(getAntiqueResultResponse);
+      await Broadcast(getAntiqueResultResponse);
       _gameManager.SelectedMap.Antiques.RemoveAt(randomIndex); //todo 直接修改地图的古玩数组可能不太好
     }
     else
     {
       var message =
         new UpdatePlayerInfoResponse(player, $"已经没有古玩流通，因此{player.Name}获得200 {player.Money}->{player.Money += 200}");
-      await _gameManager.NetServerInstance.Broadcast(message);
-      WeakReferenceMessenger.Default.Send(message);
+      await Broadcast(message);
     }
+  }
+
+  private async Task Broadcast(ResponseBase response)
+  {
+    await _gameManager.NetServerInstance.Broadcast(response);
+    WeakReferenceMessenger.Default.Send(response);
   }
 
   /// <summary>
