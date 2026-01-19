@@ -74,8 +74,12 @@ public partial class PlayerUiViewModel : PageViewModelBase
 
   private void ReceiveRollDiceAction(object recipient, RollDiceAction message)
   {
-    RollButtonEnable = true;
-    _rollDiceActionId = message.Id;
+    _actionQueueService.Enqueue(() =>
+    {
+      RollButtonEnable = true;
+      _rollDiceActionId = message.Id;
+      return Task.CompletedTask;
+    });
   }
 
   private void ReceiveTurnStartMessage(object sender, TurnStartResponse message)

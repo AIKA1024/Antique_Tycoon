@@ -10,7 +10,7 @@
     <Setter Property="FontFamily" Value="微软雅黑" />
     <Setter Property="Cursor" Value="Ibeam" />
     <Setter Property="Background" Value="#313233" />
-    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
     <Setter Property="BorderThickness" Value="2" />
     <Setter Property="CaretBrush" Value="#3C8527" />
     <Setter Property="Foreground" Value="#FFFFFF" />

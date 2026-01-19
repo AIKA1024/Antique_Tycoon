@@ -42,6 +42,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private readonly ObservableDictionary<string, Player> _playersByUuid = [];
 
   private string _localPlayerUuid;
+  private MediaPlayer sfxPlayer;
+  private Media _turnStartSfx;
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
   public readonly SemaphoreSlim GameActionLock = new SemaphoreSlim(1, 1);
@@ -61,7 +63,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家 
 
   public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
-    LibVLC libVlc, RoleStrategyFactory strategyFactory,ActionQueueService actionQueue)
+    LibVLC libVlc, RoleStrategyFactory strategyFactory, ActionQueueService actionQueue)
   {
     _netServerLazy = netServerLazy;
     _netClientLazy = netClientLazy;
@@ -69,12 +71,16 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _libVlc = libVlc;
     _strategyFactory = strategyFactory;
     _actionQueue = actionQueue;
-    var sfxPlayer = new MediaPlayer(libVlc);
-    var turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
+    sfxPlayer = new MediaPlayer(libVlc);
+    _turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
     {
       if (message.PlayerUuid == LocalPlayer.Uuid)
-        sfxPlayer.Play(turnStartSfx);
+        _actionQueue.Enqueue(() =>
+        {
+          sfxPlayer.Play(_turnStartSfx);
+          return Task.CompletedTask;
+        });
     });
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
 
@@ -115,7 +121,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
   {
-    _actionQueue.Enqueue(async () => 
+    _actionQueue.Enqueue(async () =>
     {
       Player player = GetPlayerByUuid(message.PlayerUuid);
       string playerCurrentNodeUuid = player.CurrentNodeUuId;
@@ -124,7 +130,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       currentModelmodel.PlayersHere.Remove(player);
       var animationTask = WeakReferenceMessenger.Default.Send(
         new StartPlayerMoveAnimation(
-          player, 
+          player,
           message.Path
         ));
       player.CurrentNodeUuId = destinationModelmodel.Uuid;
@@ -154,7 +160,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   }
 
   public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
-  
+
   public async Task SendToGameServerAsync(ITcpMessage message)
   {
     if (IsRoomOwner)
@@ -166,12 +172,12 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     else
     {
       // 如果我是客户端，走网络发送
-      await NetClientInstance.SendRequestAsync(message); 
+      await NetClientInstance.SendRequestAsync(message);
       // 注意：这里可能需要根据 message 类型调整调用，或者让 NetClient 支持通用 Send
     }
   }
-  
-  
+
+
   public async Task StartGameAsync()
   {
     var startMessage = new StartGameResponse();
@@ -195,7 +201,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       Players,
       CurrentTurnPlayerIndex
     ));
-    
+
     //通知游戏开始
     CurrentTurnPlayerIndex = (CurrentTurnPlayerIndex + 1) % Players.Count;
     var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
@@ -210,7 +216,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _ = NetClientInstance.SendRequestAsync(exitRoomRequest);
   }
 
-  public async Task ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client) //todo 不知道要不要把逻辑移动到JoinRoomHandler里
+  public async Task
+    ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client) //todo 不知道要不要把逻辑移动到JoinRoomHandler里
   {
     if (_playersByUuid.Count >= SelectedMap.MaxPlayer)
     {

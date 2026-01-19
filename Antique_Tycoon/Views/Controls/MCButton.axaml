@@ -62,7 +62,7 @@
   <Style Selector="c|McButton.ore">
     <Setter Property="Foreground" Value="White" />
     <Setter Property="Background" Value="#3C8527" />
-    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
     <Style Selector="^:pointerover">
       <Setter Property="Background" Value="#2A641C" />
       <Style Selector="^>StackPanel>Border>DockPanel>Border">
