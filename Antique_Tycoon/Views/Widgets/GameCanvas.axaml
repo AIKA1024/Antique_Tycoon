@@ -14,13 +14,6 @@
   <Design.PreviewWith>
     <widgets:GameCanvas />
   </Design.PreviewWith>
-  <UserControl.Styles>
-    <Style Selector="c|NodeLinkControl c|Connector">
-      <Setter Property="Opacity" Value="{Binding #Me.IsEditing}" />
-      <Setter Property="IsHitTestVisible" Value="{Binding #Me.IsEditing}" />
-      <Setter Property="IsEnabled" Value="{Binding #Me.IsEditing}" />
-    </Style>
-  </UserControl.Styles>
   <Panel Background="{DynamicResource BorderBackgroundColor}">
     <c:XListBox
       x:Name="EntityListBox"
@@ -46,22 +39,11 @@
             Focusable="True"
             Content="{Binding $self.DataContext}"
             Map="{Binding #Me.CurrentMap, RelativeSource={RelativeSource AncestorType=c:XListBox}}">
-            <Interaction.Behaviors>
-              <i:CanvasItemDragBehavior
-                IsEnabled="{Binding #Me.IsEditing}"
-                SelectedItems="{Binding #Me.SelectedMapEntities}"
-                Scale="{Binding #Me.CurrentMap.Scale, RelativeSource={RelativeSource AncestorType=c:XListBox}}"
-                Offset="{Binding #Me.CurrentMap.Offset, RelativeSource={RelativeSource AncestorType=c:XListBox}}" />
-            </Interaction.Behaviors>
             <c:NodeLinkControl.DataTemplates>
               <StaticResource ResourceKey="SpawnPointDataTemplate" />
               <StaticResource ResourceKey="EstateDataTemplate" />
               <StaticResource ResourceKey="MineDataTemplate" />
             </c:NodeLinkControl.DataTemplates>
-            <c:NodeLinkControl.KeyBindings>
-              <KeyBinding Gesture="Delete" Command="{Binding #Me.RemoveEntityCommand}"
-                          CommandParameter="{Binding}" />
-            </c:NodeLinkControl.KeyBindings>
           </c:NodeLinkControl>
         </DataTemplate>
 
@@ -79,30 +61,9 @@
             PointerReleased="InputElement_OnPointerReleased"
             Width="{Binding #Me.CurrentMap.CanvasWidth}"
             Height="{Binding #Me.CurrentMap.CanvasHeight}"
-            i:ShowFlyoutBehavior.PointerPosition="{Binding #Me.PointerPosition, Mode=OneWayToSource}"
             Background="{Binding #Me.CurrentMap.CanvasBackground, Converter={x:Static cv:SolidBrushAndColorConverter.ToSolidBrush}}">
             <!-- 这个也可以放给行为来添加 -->
-            <FlyoutBase.AttachedFlyout>
-              <Flyout>
-                <StackPanel>
-                  <StackPanel.Styles>
-                    <Style Selector="StackPanel MenuItem">
-                      <Setter Property="Foreground" Value="White" />
-                      <Setter Property="CornerRadius" Value="4" />
-                      <Setter Property="Command" Value="{Binding #Me.CreateEntityCommand}" />
-                      <Setter Property="CommandParameter" Value="{Binding $self.Header, Mode=OneTime}" />
-                    </Style>
-                  </StackPanel.Styles>
-                  <MenuItem Header="玩家出生点" />
-                  <MenuItem Header="地产" />
-                  <MenuItem Header="矿洞" />
-                  <MenuItem Header="传送点" />
-                </StackPanel>
-              </Flyout>
-            </FlyoutBase.AttachedFlyout>
-            <Interaction.Behaviors>
-              <i:ShowFlyoutBehavior IsEnabled="{Binding #Me.IsEditing}" />
-            </Interaction.Behaviors>
+            
           </Canvas>
         </ItemsPanelTemplate>
       </c:XListBox.ItemsPanel>

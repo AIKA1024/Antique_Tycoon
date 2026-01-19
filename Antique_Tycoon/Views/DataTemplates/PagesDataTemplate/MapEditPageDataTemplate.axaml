@@ -30,9 +30,49 @@
       </c:MCTitleBar>
       <Panel Grid.Row="1"
              Background="Transparent">
-        <widgets:GameCanvas IsEditing="True" CurrentMap="{Binding CurrentMap}"
+        <widgets:GameCanvas CurrentMap="{Binding CurrentMap}"
+                            i:ShowFlyoutBehavior.PointerPosition="{Binding PointerPosition, Mode=OneWayToSource}"
                             SelectedMapEntities="{Binding SelectedMapEntities,Mode=OneWayToSource}"
-                            SelectedMapEntity="{Binding TempSelectedMapEntity,Mode=OneWayToSource}" />
+                            SelectedMapEntity="{Binding TempSelectedMapEntity,Mode=OneWayToSource}">
+          <FlyoutBase.AttachedFlyout>
+            <Flyout>
+              <StackPanel>
+                <StackPanel.Styles>
+                  <Style Selector="StackPanel MenuItem">
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="CornerRadius" Value="4" />
+                    <Setter Property="Command" Value="{Binding CreateEntityCommand}" />
+                    <Setter Property="CommandParameter" Value="{Binding $self.Header, Mode=OneTime}" />
+                  </Style>
+                </StackPanel.Styles>
+                <MenuItem Header="玩家出生点" />
+                <MenuItem Header="地产" />
+                <MenuItem Header="矿洞" />
+                <MenuItem Header="传送点" />
+              </StackPanel>
+            </Flyout>
+          </FlyoutBase.AttachedFlyout>
+          <Interaction.Behaviors>
+            <i:ShowFlyoutBehavior IsEnabled="{x:True}"/>
+          </Interaction.Behaviors>
+          <widgets:GameCanvas.KeyBindings>
+            <KeyBinding Gesture="Delete" Command="{Binding RemoveEntityCommand}" />
+          </widgets:GameCanvas.KeyBindings>
+          <widgets:GameCanvas.Styles>
+            <Style Selector="c|NodeLinkControl">
+              <Setter Property="Interaction.Behaviors">
+                <BehaviorCollectionTemplate>
+                  <BehaviorCollection>
+                    <i:CanvasItemDragBehavior
+                      SelectedItems="{Binding SelectedMapEntities}"
+                      Scale="{Binding CurrentMap.Scale}"
+                      Offset="{Binding CurrentMap.Offset}" />
+                  </BehaviorCollection>
+                </BehaviorCollectionTemplate>
+              </Setter>
+            </Style>
+          </widgets:GameCanvas.Styles>
+        </widgets:GameCanvas>
 
         <!-- DetailPanel -->
         <Border
@@ -148,13 +188,13 @@
                                                Margin="12 0 0 0"
                                                Columns="2" RowSpacing="4">
                                     <TextBlock Text="名字" VerticalAlignment="Center" />
-                                    <TextBox Text="{Binding AntiqueItem.Name}" Watermark="名字"/>
-                                    <TextBlock Text="价格" VerticalAlignment="Center"/>
+                                    <TextBox Text="{Binding AntiqueItem.Name}" Watermark="名字" />
+                                    <TextBlock Text="价格" VerticalAlignment="Center" />
                                     <TextBox Text="{Binding AntiqueItem.Value}" Watermark="价格" />
                                     <TextBlock Text="骰子点数" VerticalAlignment="Center" />
-                                    <TextBox Text="{Binding AntiqueItem.Dice}" Watermark="骰子点数"/>
+                                    <TextBox Text="{Binding AntiqueItem.Dice}" Watermark="骰子点数" />
                                     <TextBlock Text="留存数量" VerticalAlignment="Center" />
-                                    <TextBox Text="{Binding Amount}" Watermark="留存数量"/>
+                                    <TextBox Text="{Binding Amount}" Watermark="留存数量" />
                                   </UniformGrid>
                                 </DockPanel>
                               </Border>
@@ -164,7 +204,7 @@
                                       VerticalContentAlignment="Center"
                                       HorizontalAlignment="Right" VerticalAlignment="Stretch"
                                       Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).RemoveAntiqueCommand}"
-                                      CommandParameter="{Binding}"/>
+                                      CommandParameter="{Binding}" />
                             </Panel>
                           </DataTemplate>
                         </ItemsControl.DataTemplates>

@@ -62,18 +62,18 @@ public class ShowFlyoutBehavior : Behavior<Control>
 
   private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
   {
-    if (sender != e.Source) return;
-    var pointer = e.GetCurrentPoint(sender as Visual);
+    if (e.Source is not Canvas canvas) return;
+    var pointer = e.GetCurrentPoint(canvas);
     if (pointer.Properties.IsRightButtonPressed)
     {
       _oldPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
-      _lastPointerPosition = AssociatedObject.GetPointerPosition(e).SnapToGrid(10);
+      _lastPointerPosition = AssociatedObject.FindVisualChild<Canvas>().GetPointerPosition(e).SnapToGrid(10);//这里应该是AssociatedObject直接获取鼠标坐标，但为了方便，傻B一点吧
     }
   }
 
   private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
   {
-    if (sender != e.Source) return;
+    if (e.Source is not Canvas) return;
     if (e.InitialPressMouseButton != MouseButton.Right) return;
     var newPoint = e.GetPosition(App.Current.Services.GetRequiredService<MainWindow>());
     var dx = newPoint.X - _oldPoint.X;

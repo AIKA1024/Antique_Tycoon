@@ -3,7 +3,8 @@
                     xmlns:i="using:Antique_Tycoon.Behaviors"
                     xmlns:w="using:Antique_Tycoon.Views.Widgets"
                     xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels"
-                    xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels">
+                    xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+                    xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="600">
       <pageViewModels:GamePageViewModel />
@@ -20,6 +21,13 @@
         <Interaction.Behaviors>
           <i:ListenSelectNodeBehavior />
         </Interaction.Behaviors>
+        <w:GameCanvas.Styles>
+          <Style Selector="c|NodeLinkControl c|Connector">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="{x:False}" />
+            <Setter Property="IsEnabled" Value="{x:False}" />
+          </Style>
+        </w:GameCanvas.Styles>
       </w:GameCanvas>
       <AdornerLayer x:Name="AdornerLayer"/>
       <w:PlayerUI x:Name="PlayerUI" Focusable="False" />
