@@ -10,12 +10,12 @@ public partial class EstateDetailViewModel(Estate model) : NodeDetailViewModel(m
   [RelayCommand]
   private void AddLevel()
   {
-    Estate.RevenueModifiers.Add(100);
+    Estate.RevenueModifiers.Add(new BonusEffect(BonusType.FlatAdd, 100));
   }
 
   [RelayCommand]
-  private void RemoveLevel(int level)
+  private void RemoveLevel(BonusEffect bonusEffect)
   {
-    
+    Estate.RevenueModifiers.Remove(bonusEffect);
   }
 }

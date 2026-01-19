@@ -3,7 +3,8 @@
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:e="clr-namespace:Antique_Tycoon.Extensions"
                     xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.DetailViewModels"
-                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
+                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes"
+                    xmlns:cv="clr-namespace:Antique_Tycoon.Converters">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
     <ContentControl>
@@ -21,18 +22,12 @@
           Classes="MCTextbox"
           Text="{Binding Estate.Value}" />
       </c:McContentControl>
-      <c:McContentControl Header="收益">
+      <c:McContentControl Header="每级额外收益">
         <StackPanel Spacing="8">
-          <StackPanel Orientation="Horizontal" Spacing="16">
-            <TextBlock Text="收益类型" VerticalAlignment="Center" />
-            <ComboBox ItemsSource="{e:EnumItems {x:Type nodes:BonusType}}"
-                      SelectedItem="{Binding Estate.BonusType}" />
-          </StackPanel>
 
           <ItemsControl ItemsSource="{Binding Estate.RevenueModifiers}"
-                        Background="#313233"
-                        BorderThickness="2"
                         BorderBrush="{StaticResource BorderBrush}"
+                        IsVisible="{Binding Estate.RevenueModifiers.Count}"
                         Padding="16">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
@@ -40,18 +35,36 @@
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.DataTemplates>
-              <DataTemplate x:DataType="x:Int32">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="2">
-                  <TextBox
-                    Text="{Binding}" />
-                  <Button Grid.Column="1" Content="×"
+              <DataTemplate x:DataType="nodes:BonusEffect">
+                <Panel>
+                  <Border Background="#313233"
+                          BorderThickness="2"
+                          Padding="8"
+                          BorderBrush="{StaticResource BorderBrush}">
+                      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <ComboBox Grid.Column="0" ItemsSource="{e:EnumItems {x:Type nodes:BonusType}}"
+                                  SelectedItem="{Binding BonusType}" >
+                          <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding Converter={x:Static cv:EnumConverter.BonusTypeToString}}" />
+                            </DataTemplate>
+                          </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBox Grid.Column="1"
+                                 Margin="0 0 8 0"
+                                 Text="{Binding EffectNum}" />
+                      </Grid>
+
+                  </Border>
+                  <Button Content="×"
                           CornerRadius="0"
                           Margin="1" Padding="2 0 2 2"
                           VerticalContentAlignment="Center"
                           HorizontalAlignment="Right" VerticalAlignment="Stretch"
                           Command="{Binding $parent[ItemsControl].((vm:EstateDetailViewModel)DataContext).RemoveLevelCommand}"
                           CommandParameter="{Binding}" />
-                </Grid>
+                </Panel>
+
               </DataTemplate>
             </ItemsControl.DataTemplates>
           </ItemsControl>
