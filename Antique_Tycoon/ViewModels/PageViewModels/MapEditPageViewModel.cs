@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,10 +29,12 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
   public partial ObservableCollection<CanvasItemModel> SelectedMapEntities { get; set; } = [];
 
+  public Dictionary<NodeModel, NodeDetailViewModel> NodeDetailViewModels { get; } = [];
   [ObservableProperty] public partial Map CurrentMap { get; set; }
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(SelectedMapEntity))]
+  [NotifyPropertyChangedFor(nameof(SelectedMapEntityViewModel))]
   public partial CanvasItemModel TempSelectedMapEntity { get; set; } //用于筛选是不是线条
 
   public ObservableCollection<AntiqueMapItem> AntiqueMapItems { get; } = [];
@@ -47,11 +50,25 @@ public partial class MapEditPageViewModel : PageViewModelBase
     }
   }
 
+  public NodeDetailViewModel? SelectedMapEntityViewModel
+  {
+    get
+    {
+      if (SelectedMapEntity != null &&
+          NodeDetailViewModels.TryGetValue(SelectedMapEntity, out var viewModel))
+        return viewModel;
+      return null;
+    }
+  }
+
   public Func<Bitmap>? RequestRenderControl { get; set; }
 
   public MapEditPageViewModel(Map currentMap)
   {
     CurrentMap = currentMap;
+    foreach (var canvasItemModel in CurrentMap.Entities)
+      if (canvasItemModel is NodeModel nodeModel)
+        NodeDetailViewModels.Add(nodeModel, CreateViewModelForEntity(nodeModel));
     foreach (var antique in CurrentMap.Antiques)
     {
       if (antique.Index >= AntiqueMapItems.Count || AntiqueMapItems[antique.Index] == null) //由于下面使用的Insert，所以有可能是null
@@ -67,6 +84,8 @@ public partial class MapEditPageViewModel : PageViewModelBase
     {
       // 如果是地产，创建功能强大的 EstateDetailViewModel
       Estate estate => new EstateDetailViewModel(estate),
+      SpawnPoint spawnPoint => new SpawnPointDetailViewModel(spawnPoint),
+      Mine mine => new MineDetailViewModel(mine),
 
       // 如果是其他节点，创建普通的 VM
       _ => new NodeDetailViewModel(entity)
@@ -75,13 +94,16 @@ public partial class MapEditPageViewModel : PageViewModelBase
 
   partial void OnSelectedMapEntitiesChanged(ObservableCollection<CanvasItemModel> oldValue,
     ObservableCollection<CanvasItemModel> newValue) =>
-    newValue.CollectionChanged += (_, __) => OnPropertyChanged(nameof(SelectedMapEntity));
+    newValue.CollectionChanged += (_, _) => OnPropertyChanged(nameof(SelectedMapEntity));
+
+  #region 添加、删除元素
 
   [RelayCommand]
   private void CreateEntity(string type)
   {
     Dispatcher.UIThread.Post(async void () =>
     {
+      NodeModel? model = null;
       switch (type)
       {
         case "玩家出生点":
@@ -94,6 +116,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
               Title = "玩家出生点",
             };
             CurrentMap.Entities.Add(spawnPoint);
+            model = spawnPoint;
             CurrentMap.SpawnNodeUuid = spawnPoint.Uuid;
           }
           else
@@ -106,24 +129,31 @@ public partial class MapEditPageViewModel : PageViewModelBase
 
           break;
         case "地产":
-          CurrentMap.Entities.Add(new Estate
+          var estate = new Estate
           {
             Left = PointerPosition.X,
             Top = PointerPosition.Y,
             Title = "某生态群系",
-          });
+          };
+          CurrentMap.Entities.Add(estate);
+          model = estate;
           break;
         case "矿洞":
-          CurrentMap.Entities.Add(new Mine
+          var mine = new Mine
           {
             Left = PointerPosition.X,
             Top = PointerPosition.Y,
             Title = "矿洞"
-          });
+          };
+          CurrentMap.Entities.Add(mine);
+          model = mine;
           break;
-        case "自定义事件":
+        case "传送点":
           break;
       }
+
+      if (model != null)
+        NodeDetailViewModels.Add(model, CreateViewModelForEntity(model));
     }, DispatcherPriority.Render);
   }
 
@@ -138,8 +168,13 @@ public partial class MapEditPageViewModel : PageViewModelBase
       if (target.Uuid == CurrentMap.SpawnNodeUuid)
         CurrentMap.SpawnNodeUuid = "";
       CurrentMap.Entities.Remove(target);
+      NodeDetailViewModels.Remove(target);
     }
   }
+
+  #endregion
+
+  #region 切换图片
 
   [RelayCommand]
   private async Task ChangeNodeImage(NodeModel target)
@@ -196,6 +231,8 @@ public partial class MapEditPageViewModel : PageViewModelBase
       target.AntiqueItem.Image = new Bitmap(stream);
     }
   }
+
+  #endregion
 
   [RelayCommand]
   private void AddNewAntique()

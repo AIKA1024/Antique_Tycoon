@@ -128,13 +128,7 @@
                         </ComboBox>
                       </StackPanel>
                     </c:McContentControl>
-                    <ContentControl Content="{Binding SelectedMapEntity}">
-                      <ContentControl.DataTemplates>
-                        <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
-                        <StaticResource ResourceKey="EstateDetailDataTemplate" />
-                        <StaticResource ResourceKey="MineDetailDataTemplate" />
-                      </ContentControl.DataTemplates>
-                    </ContentControl>
+                    <ContentControl Content="{Binding SelectedMapEntityViewModel}"/>
                   </StackPanel>
                 </ScrollViewer>
               </Panel>
@@ -200,7 +194,7 @@
                               </Border>
                               <Button DockPanel.Dock="Right" Content="×"
                                       CornerRadius="0"
-                                      Margin="1" Padding="2"
+                                      Margin="1" Padding="2 0 2 2"
                                       VerticalContentAlignment="Center"
                                       HorizontalAlignment="Right" VerticalAlignment="Stretch"
                                       Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).RemoveAntiqueCommand}"

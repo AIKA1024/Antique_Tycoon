@@ -42,6 +42,11 @@
     <StaticResource ResourceKey="EstateDataTemplate"/>
     <StaticResource ResourceKey="MineDataTemplate"/>
     
+    <!-- DetailView -->
+    <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
+    <StaticResource ResourceKey="EstateDetailDataTemplate" />
+    <StaticResource ResourceKey="MineDetailDataTemplate" />
+    
     <!-- Entity -->
     <StaticResource ResourceKey="AntiqueDataTemplate"/>
     

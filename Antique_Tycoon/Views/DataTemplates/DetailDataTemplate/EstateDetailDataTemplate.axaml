@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:e="clr-namespace:Antique_Tycoon.Extensions"
+                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.DetailViewModels"
                     xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
@@ -9,34 +10,57 @@
       <ContentControl.DataTemplates>
         <StaticResource ResourceKey="EstateDetailDataTemplate" />
       </ContentControl.DataTemplates>
-      <nodes:Estate />
+      <vm:EstateDetailViewModel />
     </ContentControl>
   </Design.PreviewWith>
-  
-  <DataTemplate x:Key="EstateDetailDataTemplate" x:DataType="nodes:Estate">
+
+  <DataTemplate x:Key="EstateDetailDataTemplate" x:DataType="vm:EstateDetailViewModel">
     <StackPanel>
       <c:McContentControl Header="价格">
         <TextBox
           Classes="MCTextbox"
-          Text="{Binding Value}" />
+          Text="{Binding Estate.Value}" />
       </c:McContentControl>
       <c:McContentControl Header="收益">
-        <StackPanel>
+        <StackPanel Spacing="8">
           <StackPanel Orientation="Horizontal" Spacing="16">
-            <TextBlock Text="收益类型" VerticalAlignment="Center"/>
+            <TextBlock Text="收益类型" VerticalAlignment="Center" />
             <ComboBox ItemsSource="{e:EnumItems {x:Type nodes:BonusType}}"
-                      SelectedItem="{Binding BonusType}"/>
+                      SelectedItem="{Binding Estate.BonusType}" />
           </StackPanel>
-          
-          <ItemsControl ItemsSource="{Binding RevenueModifiers}">
-            
+
+          <ItemsControl ItemsSource="{Binding Estate.RevenueModifiers}"
+                        Background="#313233"
+                        BorderThickness="2"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        Padding="16">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="2" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.DataTemplates>
+              <DataTemplate x:DataType="x:Int32">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="2">
+                  <TextBox
+                    Text="{Binding}" />
+                  <Button Grid.Column="1" Content="×"
+                          CornerRadius="0"
+                          Margin="1" Padding="2 0 2 2"
+                          VerticalContentAlignment="Center"
+                          HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                          Command="{Binding $parent[ItemsControl].((vm:EstateDetailViewModel)DataContext).RemoveLevelCommand}"
+                          CommandParameter="{Binding}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.DataTemplates>
           </ItemsControl>
-          <c:McButton Content="添加等级" Margin="16" Padding="12 8" />
-          <!-- todo 这里没有vm，导致添加逻辑困难-->
+          <c:McButton Content="添加等级" Margin="16" Padding="12 8"
+                      Command="{Binding AddLevelCommand}" />
         </StackPanel>
-       
+
       </c:McContentControl>
     </StackPanel>
   </DataTemplate>
-  
+
 </ResourceDictionary>

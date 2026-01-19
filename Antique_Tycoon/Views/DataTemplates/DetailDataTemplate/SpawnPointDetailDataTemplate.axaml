@@ -1,22 +1,22 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
-                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
+                    xmlns:m="clr-namespace:Antique_Tycoon.ViewModels.DetailViewModels">
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
         <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
       </ContentControl.DataTemplates>
-      <nodes:SpawnPoint />
+      <m:SpawnPointDetailViewModel />
     </ContentControl>
   </Design.PreviewWith>
 
-  <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="nodes:SpawnPoint">
+  <DataTemplate x:Key="SpawnPointDetailDataTemplate" x:DataType="m:SpawnPointDetailViewModel">
     <StackPanel>
       <c:McContentControl Header="路过出生点时获得金额">
         <TextBox
           Classes="MCTextbox"
-          Text="{Binding Bonus}" />
+          Text="{Binding SpawnPoint.Bonus}" />
       </c:McContentControl>
     </StackPanel>
 
