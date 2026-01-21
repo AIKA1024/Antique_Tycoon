@@ -48,30 +48,29 @@
         </Style>
       </Border.Styles>
 
-      <Border
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        BoxShadow="0 0 50 10 black">
-        <Border.MaxWidth>
-          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-            <Binding Path="DialogService.CurrentDialogViewModel.MaxWidthPercent" />
-            <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
-          </MultiBinding>
-        </Border.MaxWidth>
-        <Border.MaxHeight>
-          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-            <Binding Path="DialogService.CurrentDialogViewModel.MaxHeightPercent" />
-            <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
-          </MultiBinding>
-        </Border.MaxHeight>
-        <ContentControl Content="{Binding DialogService.CurrentDialogViewModel}"
-                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                        Background="Transparent">
-        </ContentControl>
-      </Border>
-
+      <Panel>
+        <Border
+          HorizontalAlignment="{Binding DialogService.CurrentDialogViewModel.HorizontalAlignment}"
+          VerticalAlignment="{Binding DialogService.CurrentDialogViewModel.VerticalAlignment}"
+          BoxShadow="0 0 50 10 black">
+          <Border.MaxWidth>
+            <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+              <Binding Path="DialogService.CurrentDialogViewModel.MaxWidthPercent" />
+              <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
+            </MultiBinding>
+          </Border.MaxWidth>
+          <Border.MaxHeight>
+            <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+              <Binding Path="DialogService.CurrentDialogViewModel.MaxHeightPercent" />
+              <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
+            </MultiBinding>
+          </Border.MaxHeight>
+          <ContentControl Content="{Binding DialogService.CurrentDialogViewModel}"
+                          Background="Transparent">
+          </ContentControl>
+        </Border>
+      </Panel>
+      
     </Border>
-
-
   </Panel>
 </Window>

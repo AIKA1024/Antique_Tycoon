@@ -19,7 +19,9 @@ public partial class GamePageViewModel : PageViewModelBase
   [ObservableProperty] private Map _map;
 
   private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+
   private readonly ActionQueueService _actionQueue = App.Current.Services.GetRequiredService<ActionQueueService>();
+
   // private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
   private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
   [ObservableProperty] private int _rollDiceValue;
@@ -36,22 +38,22 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
     WeakReferenceMessenger.Default.Register<BuyEstateAction>(this, ReceiveBuyEstateAction);
     WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
-    // WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse); //由于token的问题，这里收不到
+    WeakReferenceMessenger.Default.Register<SaleAntiqueAction>(this, ReceiveSaleAntiqueAction);
   }
 
-  // private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
-  // {
-  //   IsShowReminderText = false;
-  //   if (message.PlayerUuid == _gameManager.LocalPlayer.Uuid)
-  //   {
-  //     ReminderText = "投骰子以获得古玩";
-  //     IsShowReminderText = true;
-  //   }
-  // }
+  private async void ReceiveSaleAntiqueAction(object recipient, SaleAntiqueAction message)
+  {
+    //todo 不应该使用主窗口dialog，导致玩家无法查看地图做决定
+    var antique = await _dialogService.ShowDialogAsync(new SaleAntiqueDialogViewModel(_gameManager.LocalPlayer.Antiques)
+    {
+      IsLightDismissEnabled = false
+    });
+  }
 
   private void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
   {
-    WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,Map));//转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
+    WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,
+      Map)); //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
   }
 
   private void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
@@ -59,6 +61,7 @@ public partial class GamePageViewModel : PageViewModelBase
     _actionQueue.Enqueue(async () =>
     {
       var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
+      //todo 不应该使用主窗口dialog，导致玩家无法查看地图做决定
       bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
       {
         Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
@@ -73,8 +76,6 @@ public partial class GamePageViewModel : PageViewModelBase
       await _gameManager.SendToGameServerAsync(buyEstateRequest);
     });
   }
-
-
 
 
   private void ReceiveInitGameMessage(object sender, InitGameResponse message)

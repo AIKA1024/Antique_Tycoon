@@ -55,5 +55,6 @@
     <StaticResource ResourceKey="SelectMapDialogDataTemplate"/>
     <StaticResource ResourceKey="MessageDialogDataTemplate"/>
     <StaticResource ResourceKey="LockerRoomDialogDataTemplate"/>
+    <StaticResource ResourceKey="SaleAntiqueDialogDataTemplate"/>
   </Application.DataTemplates>
 </Application>

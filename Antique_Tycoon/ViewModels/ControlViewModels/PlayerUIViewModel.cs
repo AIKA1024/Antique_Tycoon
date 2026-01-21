@@ -26,7 +26,6 @@ public partial class PlayerUiViewModel : PageViewModelBase
 
   [ObservableProperty] private bool _isVisible;
   [ObservableProperty] private Player _localPlayer;
-  [ObservableProperty] private Antique _antique; //todo 这个要搞一个父类，表示要展示的卡片的基本信息
   [ObservableProperty] private string _reminderText = "轮到你啦";
   [ObservableProperty] private bool _isShowReminderText;
   private string _rollDiceActionId = "";
@@ -42,7 +41,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse);
     WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this,ReceiveGetAntiqueResultResponse);
   }
-
+  
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
   {
     if (message.IsSuccess)

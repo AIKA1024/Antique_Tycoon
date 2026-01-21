@@ -1,4 +1,5 @@
 using Antique_Tycoon.Services;
+using Avalonia.Layout;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,11 @@ public abstract partial class DialogViewModelBase : ObservableValidator
 {
   [ObservableProperty] public partial double MaxWidthPercent { get; set; } = .8f;  // 0~1
   [ObservableProperty] public partial double MaxHeightPercent { get; set; } = .8f; // 0~1
+
+  [ObservableProperty]
+  public partial HorizontalAlignment HorizontalAlignment { get; set; } = HorizontalAlignment.Center;
+  [ObservableProperty]
+  public partial VerticalAlignment VerticalAlignment { get; set; } = VerticalAlignment.Center;
   public bool IsLightDismissEnabled { get; set; } = true;
   public void CloseDialog()
   {

@@ -37,9 +37,9 @@ public class NetServer : NetBase
 #else
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(15);
 #endif
-  
+
   public event Action<TcpClient> ClientDisConnected;
-  
+
   /// <summary>
   /// 心跳包间隔
   /// </summary>
@@ -74,7 +74,7 @@ public class NetServer : NetBase
 
     return "127.0.0.1"; // 回退
   }
-  
+
   public TcpListener StartTcpListenerWithAutoRetry(int startPort)
   {
     int currentPort = startPort;
@@ -180,7 +180,7 @@ public class NetServer : NetBase
     {
       var client = await _listener.AcceptTcpClientAsync(cancellation);
       _clientLastActiveTimes.TryAdd(client, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-      _ = ReceiveLoopAsync(client,cancellation); // 处理连接（不要阻塞主循环）
+      _ = ReceiveLoopAsync(client, cancellation); // 处理连接（不要阻塞主循环）
     }
   }
 
@@ -190,9 +190,9 @@ public class NetServer : NetBase
     var data = PackMessage(message);
     await client.GetStream().WriteAsync(data, cancellationToken);
   }
-  
+
   // public TaskCompletionSource<ITcpMessage> GetPendingRequestsTask(string id) => _pendingRequests[id];
-  
+
   /// <summary>
   /// 接收来自本地玩家的消息（模拟网络接收）
   /// 用于解开 SendRequestAsync 对本地请求的阻塞等待
@@ -204,12 +204,12 @@ public class NetServer : NetBase
     if (!string.IsNullOrEmpty(message.Id) && _pendingRequests.TryRemove(message.Id, out var tcs))
       tcs.TrySetResult(message);
   }
-  
+
   public async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
-    TRequest message, 
-    TcpClient? client, 
-    TimeSpan? timeout = null) 
-    where TRequest : ActionBase 
+    TRequest message,
+    TcpClient? client,
+    TimeSpan? timeout = null)
+    where TRequest : ActionBase
     where TResponse : ITcpMessage
   {
     // 确保消息有 ID (通常在构造函数或发送前生成 GUID)
@@ -220,8 +220,12 @@ public class NetServer : NetBase
 
     var tcs = new TaskCompletionSource<ITcpMessage>();
     _pendingRequests[message.Id] = tcs;
-    
+#if DEBUG
+    var effectiveTimeout = timeout ?? Timeout.InfiniteTimeSpan;
+#else
     var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(30);
+#endif
+
     try
     {
       // 发送消息
@@ -229,10 +233,10 @@ public class NetServer : NetBase
         WeakReferenceMessenger.Default.Send(message);
       else
         await SendResponseAsync(message, client);
-      
+
       // 设置超时处理（可选，防止客户端掉线导致服务器逻辑永久卡死）
       using var cts = new CancellationTokenSource(effectiveTimeout);
-      
+
       // 等待结果或超时
       await using (cts.Token.Register(() => tcs.TrySetCanceled()))
       {
@@ -251,7 +255,7 @@ public class NetServer : NetBase
     }
   }
 
-  public async Task Broadcast<T>(T message, CancellationToken cancellationToken = default)where T : ResponseBase
+  public async Task Broadcast<T>(T message, CancellationToken cancellationToken = default) where T : ResponseBase
   {
     var data = PackMessage(message);
     foreach (var client in _clientLastActiveTimes.Keys)
@@ -265,19 +269,20 @@ public class NetServer : NetBase
         {
           case SocketException s:
           case InvalidOperationException i:
-              Console.WriteLine(e);
-              Console.WriteLine("连接已断开");
-              _clientLastActiveTimes.Remove(client);
-              client.Close();
-              ClientDisConnected?.Invoke(client);
+            Console.WriteLine(e);
+            Console.WriteLine("连接已断开");
+            _clientLastActiveTimes.Remove(client);
+            client.Close();
+            ClientDisConnected?.Invoke(client);
             break;
           default:
             throw;
         }
       }
   }
-  
-  public async Task BroadcastExcept<T>(T message,TcpClient excluded, CancellationToken cancellationToken = default)where T : ResponseBase
+
+  public async Task BroadcastExcept<T>(T message, TcpClient excluded, CancellationToken cancellationToken = default)
+    where T : ResponseBase
   {
     var data = PackMessage(message);
     foreach (var client in _clientLastActiveTimes.Keys)
@@ -312,7 +317,7 @@ public class NetServer : NetBase
       Console.WriteLine(e);
       throw;
     }
-    
+
     var handlers = _messageHandlers.Where(h => h.CanHandle(tcpMessageType)).ToArray();
 
     if (handlers.Length != 0)

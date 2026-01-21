@@ -38,7 +38,14 @@ public static class NodeAdornerHost
   {
     // var layer = AdornerLayer.GetAdornerLayer(target);
     //使用自己放的AdornerLayer，可以让游戏ui在这些装饰器上面
-    var layer = target.GetParentOfType<Grid>("MainGrid").GetChildOfType<AdornerLayer>("AdornerLayer");
+    var mainGrid = target.GetParentOfType<Grid>("MainGrid");
+    if (mainGrid is null)
+    {
+      Debug.WriteLine("MainGrid为null，可能是之前地图编辑器还没被gc回收");
+      return;
+    }
+    
+    var layer = mainGrid.GetChildOfType<AdornerLayer>("AdornerLayer");
 
     // 1️⃣ 如果已经有旧的 Adorner，先移除
     if (Adorners.TryGetValue(target, out var oldAdorner))

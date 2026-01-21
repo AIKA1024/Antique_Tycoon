@@ -184,12 +184,13 @@ public class GameRuleService : ObservableObject
       }
     }
     else if (estate.Owner == player) //踩到自己的地
-      await SaleAntique(player,"");
+      await SaleAntique(player, "");
     else //踩到别人的地
-      await SaleAntique(estate.Owner,player.Uuid);
+      await SaleAntique(estate.Owner, player.Uuid);
+
     return;
 
-    async Task SaleAntique(Player seller,string buyerUuid)
+    async Task SaleAntique(Player seller, string buyerUuid)
     {
       if (seller.Antiques.Count > 0)
       {
@@ -218,6 +219,7 @@ public class GameRuleService : ObservableObject
             $"{seller.Name}加价出售古董，获得${seller.Money += antique.Value}");
           await Broadcast(updatePlayerInfoResponse);
         }
+
         seller.Antiques.Remove(antique);
       }
     }
@@ -242,10 +244,17 @@ public class GameRuleService : ObservableObject
       WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
       await Broadcast(antiqueChangeResponse);
       var rollDiceResponse = await GetRollDiceAsync(client);
+      var isSucceed = rollDiceResponse.DiceValue >= antique.Dice;
       var getAntiqueResultResponse =
-        new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, rollDiceResponse.DiceValue >= antique.Dice);
+        new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, isSucceed);
       WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
-      await Broadcast(getAntiqueResultResponse);
+      await Broadcast(getAntiqueResultResponse); //todo 客户端好像还在等待
+      if (isSucceed)
+      {
+        player.Antiques.Add(antique);
+        await Broadcast(new UpdatePlayerInfoResponse(player, $"{player.Name}成功获得{antique.Name}"));
+      }
+
       _gameManager.SelectedMap.Antiques.RemoveAt(randomIndex); //todo 直接修改地图的古玩数组可能不太好
     }
     else
