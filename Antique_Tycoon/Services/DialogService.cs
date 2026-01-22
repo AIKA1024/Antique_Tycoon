@@ -1,3 +1,4 @@
+using System;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
@@ -35,14 +36,16 @@ public partial class DialogService : ObservableObject
   {
     _dialogs.Add(dialogViewModel);
     _dialogTasks.Add(dialogViewModel, task);
+    dialogViewModel.RequestClose += () => CloseDialog(dialogViewModel);
     return task;
   }
 
-  public Task<T?> ShowDialogAsync<T>(DialogViewModelBase<T?> dialogViewModel)
+  public Task<T?> ShowDialogAsync<T>(DialogViewModelBase<T> dialogViewModel)
   {
     _dialogs.Add(dialogViewModel);
     var tcs = new XTaskCompletionSource<T>();
     _dialogTasks.Add(dialogViewModel, tcs);
+    dialogViewModel.RequestCloseWithResult += result => CloseDialog<T>(dialogViewModel, result);
     return tcs.Task;
   }
 
@@ -54,11 +57,13 @@ public partial class DialogService : ObservableObject
   /// <typeparam name="T">任务返回值</typeparam>
   /// <typeparam name="T1">视图模型返回值（已丢弃）</typeparam>
   /// <returns>任务</returns>
-  public Task<T> ShowDialogAsync<T, T1>(DialogViewModelBase<T1> dialogViewModel, Task<T> task)
+  public async Task<T> ShowDialogAsync<T>(DialogViewModelBase dialogViewModel, Task<T> task)
   {
     _dialogs.Add(dialogViewModel);
     _dialogTasks.Add(dialogViewModel, task);
-    return task;
+    dialogViewModel.RequestClose += () => throw new Exception("该视图使用了自己提供的Task等待窗口,不能主动调用关闭窗口");
+    CloseDialog(dialogViewModel);
+    return await task;
   }
 
   public void CloseDialogsAndClearResults(DialogViewModelBase dialogViewModel)

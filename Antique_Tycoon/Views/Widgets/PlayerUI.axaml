@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:c="using:Antique_Tycoon.Views.Controls"
              xmlns:controlViewModels="clr-namespace:Antique_Tycoon.ViewModels.ControlViewModels"
+             xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+             xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="650"
              x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
              x:DataType="controlViewModels:PlayerUiViewModel"
@@ -19,6 +21,11 @@
   </Design.DataContext>
   <Grid RowDefinitions="*,Auto"
         Classes.Invisible="{Binding IsVisible}">
+    <Grid.Transitions>
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+      </Transitions>
+    </Grid.Transitions>
     <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
       <StackPanel Grid.Column="0" />
       <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
@@ -43,39 +50,7 @@
           </Style>
         </TextBlock.Styles>
       </TextBlock>
-      <!-- <Border Grid.Column="1" CornerRadius="8" -->
-      <!--         Padding="16" -->
-      <!--         Width="200" -->
-      <!--         IsHitTestVisible="False" -->
-      <!--         IsVisible="{Binding  Antique,Converter={x:Static ObjectConverters.IsNotNull}}" -->
-      <!--         HorizontalAlignment="Center" -->
-      <!--         VerticalAlignment="Center" -->
-      <!--         Background="{StaticResource UnownedEstateBrush}" -->
-      <!--         BorderBrush="{StaticResource BorderBrush}" -->
-      <!--         BorderThickness=".5" -->
-      <!--         BoxShadow="0 0 50 5 black"> -->
-      <!--   <StackPanel Spacing="8"> -->
-      <!--     <StackPanel.Styles> -->
-      <!--       <Style Selector="TextBlock"> -->
-      <!--         <Setter Property="Foreground" Value="#191A1C"/> -->
-      <!--         <Setter Property="HorizontalAlignment" Value="Center"/> -->
-      <!--         <Setter Property="FontWeight" Value="Black"/> -->
-      <!--       </Style> -->
-      <!--     </StackPanel.Styles> -->
-      <!--     <TextBlock Text="{Binding Antique.Dice}" FontSize="32" /> -->
-      <!--     <TextBlock Text="{Binding Antique.Name}" FontSize="16"/> -->
-      <!--     <Border Background="#A3703A" CornerRadius="8" -->
-      <!--             BorderBrush="#C58747" BorderThickness="1" -->
-      <!--             BoxShadow="inset 2 2 10 0 #40000000"> -->
-      <!--       <Image Width="128" -->
-      <!--              HorizontalAlignment="Center" -->
-      <!--              VerticalAlignment="Center" -->
-      <!--              Source="{Binding Antique.Image}" /> -->
-      <!--     </Border> -->
-      <!--     <TextBlock Text="{Binding Antique.Value,StringFormat=价值：{0}}" -->
-      <!--                FontSize="16"/> -->
-      <!--   </StackPanel> -->
-      <!-- </Border> -->
+
       <c:McContentControl Grid.Column="2">
         <ListBox ItemsSource="{Binding #Me.Messages}" />
       </c:McContentControl>
@@ -118,10 +93,33 @@
         </c:McButton>
       </Grid>
     </StackPanel>
-    <Grid.Transitions>
-      <Transitions>
-        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
-      </Transitions>
-    </Grid.Transitions>
+
+    <Border x:Name="Mask"
+            Grid.Row="0" Grid.RowSpan="2"
+            Background="#80000000"
+            IsVisible="{Binding DialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}">
+      <Border
+        HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
+        VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}"
+        BoxShadow="0 0 50 10 black">
+        <Border.MaxWidth>
+          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+            <Binding Path="DialogViewModel.MaxWidthPercent" />
+            <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
+          </MultiBinding>
+        </Border.MaxWidth>
+        <Border.MaxHeight>
+          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+            <Binding Path="DialogViewModel.MaxHeightPercent" />
+            <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
+          </MultiBinding>
+        </Border.MaxHeight>
+        <ContentControl Content="{Binding DialogViewModel}"
+                        Background="Transparent">
+        </ContentControl>
+      </Border>
+    </Border>
+
+
   </Grid>
 </UserControl>

@@ -93,9 +93,8 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
         messageVm.IsLightDismissEnabled = true;
         return;
       }
-
-      messageVm.CloseDialog();
-      ZipFile.ExtractToDirectory(mapZipPath, mapDirPath);
+      
+      await ZipFile.ExtractToDirectoryAsync(mapZipPath, mapDirPath);
       File.Delete(mapZipPath);
     }
 

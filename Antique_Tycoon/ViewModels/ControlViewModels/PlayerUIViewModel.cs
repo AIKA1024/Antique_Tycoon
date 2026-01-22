@@ -9,6 +9,7 @@ using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Services;
+using Antique_Tycoon.ViewModels.DialogViewModels;
 using Antique_Tycoon.ViewModels.PageViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,6 +31,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
   [ObservableProperty] private bool _isShowReminderText;
   private string _rollDiceActionId = "";
 
+  [ObservableProperty] public partial DialogViewModelBase? DialogViewModel { get; set; }
   [ObservableProperty] public partial bool RollButtonEnable { get; set; } = false;
 
   public ObservableCollection<Player> OtherPlayers { get; } = [];
@@ -39,8 +41,9 @@ public partial class PlayerUiViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<RollDiceAction>(this, ReceiveRollDiceAction);
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
     WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse);
-    WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this,ReceiveGetAntiqueResultResponse);
+    WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
   }
+  
   
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
   {
