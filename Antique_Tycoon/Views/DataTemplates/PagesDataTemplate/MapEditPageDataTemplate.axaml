@@ -168,7 +168,7 @@
                           </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.DataTemplates>
-                          <DataTemplate DataType="nodes:AntiqueMapItem">
+                          <DataTemplate DataType="nodes:AntiqueStack">
                             <Panel>
                               <Border Padding="16" Background="#313233"
                                       BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
@@ -182,17 +182,17 @@
                                           i:Tap.Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).ChangeAntiqueImageCommand}"
                                           i:Tap.CommandParameter="{Binding}">
                                     <Image Width="36" IsHitTestVisible="False"
-                                           Source="{Binding AntiqueItem.Image}" />
+                                           Source="{Binding Item.Image}" />
                                   </Border>
                                   <UniformGrid DockPanel.Dock="Right"
                                                Margin="12 0 0 0"
                                                Columns="2" RowSpacing="4">
                                     <TextBlock Text="名字" VerticalAlignment="Center" />
-                                    <TextBox Text="{Binding AntiqueItem.Name}" Watermark="名字" />
+                                    <TextBox Text="{Binding Item.Name}" Watermark="名字" />
                                     <TextBlock Text="价格" VerticalAlignment="Center" />
-                                    <TextBox Text="{Binding AntiqueItem.Value}" Watermark="价格" />
+                                    <TextBox Text="{Binding Item.Value}" Watermark="价格" />
                                     <TextBlock Text="骰子点数" VerticalAlignment="Center" />
-                                    <TextBox Text="{Binding AntiqueItem.Dice}" Watermark="骰子点数" />
+                                    <TextBox Text="{Binding Item.Dice}" Watermark="骰子点数" />
                                     <TextBlock Text="留存数量" VerticalAlignment="Center" />
                                     <TextBox Text="{Binding Amount}" Watermark="留存数量" />
                                   </UniformGrid>

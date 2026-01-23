@@ -192,36 +192,35 @@ public class GameRuleService : ObservableObject
 
     async Task SaleAntique(Player seller, string buyerUuid)
     {
-      if (seller.Antiques.Count > 0)
+      if (seller.Antiques.Count <= 0) return;
+      
+      var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyerUuid, estate.Uuid); //购买者空字符串代表银行
+      var saleAntiqueRequest =
+        await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
+          saleAntiqueAction, client);
+
+      if (string.IsNullOrEmpty(saleAntiqueRequest.AntiqueUuid))
+        return;
+
+      var antique = seller.Antiques.First(a => a.Uuid == saleAntiqueRequest.AntiqueUuid);
+      if (saleAntiqueRequest.IsUpgradeEstate)
       {
-        var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyerUuid, estate.Uuid); //购买者空字符串代表银行
-        var saleAntiqueRequest =
-          await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
-            saleAntiqueAction, client);
-
-        if (string.IsNullOrEmpty(saleAntiqueRequest.AntiqueUuid))
-          return;
-
-        var antique = seller.Antiques.First(a => a.Uuid == saleAntiqueRequest.AntiqueUuid);
-        if (saleAntiqueRequest.IsUpgradeEstate)
-        {
-          estate.Level += 1;
-          var updateEstateInfoResponse = new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level);
-          await Broadcast(updateEstateInfoResponse);
-          var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
-            $"{seller.Name}原价出售古董，获得${seller.Money += antique.Value},{estate.Title}等级提升为{estate.Level}");
-          await Broadcast(updatePlayerInfoResponse);
-        }
-        else
-        {
-          seller.Money += estate.CalculateCurrentRevenue(antique.Value);
-          var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
-            $"{seller.Name}加价出售古董，获得${seller.Money += antique.Value}");
-          await Broadcast(updatePlayerInfoResponse);
-        }
-
-        seller.Antiques.Remove(antique);
+        estate.Level += 1;
+        var updateEstateInfoResponse = new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level);
+        await Broadcast(updateEstateInfoResponse);
+        var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
+          $"{seller.Name}原价出售古董，获得${seller.Money += antique.Value},{estate.Title}等级提升为{estate.Level}");
+        await Broadcast(updatePlayerInfoResponse);
       }
+      else
+      {
+        seller.Money += estate.CalculateCurrentRevenue(antique.Value);
+        var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
+          $"{seller.Name}加价出售古董，获得${seller.Money += antique.Value}");
+        await Broadcast(updatePlayerInfoResponse);
+      }
+
+      seller.Antiques.Remove(antique);
     }
   }
 
@@ -248,7 +247,7 @@ public class GameRuleService : ObservableObject
       var getAntiqueResultResponse =
         new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, isSucceed);
       WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
-      await Broadcast(getAntiqueResultResponse); //todo 客户端好像还在等待
+      await Broadcast(getAntiqueResultResponse); //todo 如果之前打开的地图编辑器，会导致卡死
       if (isSucceed)
       {
         player.Antiques.Add(antique);

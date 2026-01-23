@@ -8,6 +8,7 @@ using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
+using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Antique_Tycoon.ViewModels.PageViewModels;
@@ -32,7 +33,11 @@ public partial class PlayerUiViewModel : PageViewModelBase
   private string _rollDiceActionId = "";
 
   [ObservableProperty] public partial DialogViewModelBase? DialogViewModel { get; set; }
+
   [ObservableProperty] public partial bool RollButtonEnable { get; set; } = false;
+
+  //PlayerUI自己的dialog服务，以实现按tab透明功能
+  private readonly DialogService _dialogService = new();
 
   public ObservableCollection<Player> OtherPlayers { get; } = [];
 
@@ -42,9 +47,22 @@ public partial class PlayerUiViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
     WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse);
     WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
+    WeakReferenceMessenger.Default.Register<SaleAntiqueAction>(this, ReceiveSaleAntiqueAction);
   }
-  
-  
+
+  private async void ReceiveSaleAntiqueAction(object recipient, SaleAntiqueAction message)
+  {
+    _actionQueueService.Enqueue(async () =>
+    {
+      var antiqueMapItems = _gameManager.LocalPlayer.Antiques.GroupBy(a => a.Index)
+        .Select(group => new AntiqueStack(group.First(), group.Count())).ToArray();
+      var saleAntiqueDialogViewModel = new SaleAntiqueDialogViewModel(antiqueMapItems)
+        { IsLightDismissEnabled = false };
+      DialogViewModel = saleAntiqueDialogViewModel;
+      var antique = await _dialogService.ShowDialogAsync(saleAntiqueDialogViewModel);
+    });
+  }
+
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
   {
     if (message.IsSuccess)

@@ -100,8 +100,7 @@
             IsVisible="{Binding DialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}">
       <Border
         HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
-        VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}"
-        BoxShadow="0 0 50 10 black">
+        VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
         <Border.MaxWidth>
           <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
             <Binding Path="DialogViewModel.MaxWidthPercent" />

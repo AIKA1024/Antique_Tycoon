@@ -38,17 +38,9 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
     WeakReferenceMessenger.Default.Register<BuyEstateAction>(this, ReceiveBuyEstateAction);
     WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
-    WeakReferenceMessenger.Default.Register<SaleAntiqueAction>(this, ReceiveSaleAntiqueAction);
   }
 
-  private async void ReceiveSaleAntiqueAction(object recipient, SaleAntiqueAction message)
-  {
-    //todo 不应该使用主窗口dialog，导致玩家无法查看地图做决定
-    var antique = await _dialogService.ShowDialogAsync(new SaleAntiqueDialogViewModel(_gameManager.LocalPlayer.Antiques)
-    {
-      IsLightDismissEnabled = false
-    });
-  }
+
 
   private void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
   {

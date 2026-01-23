@@ -93,18 +93,23 @@ public class NetServer : NetBase
       catch (SocketException ex)
       {
         // 仅处理“端口已占用”的错误（错误码 10048）
-        if (ex.ErrorCode == 10048)
+        switch (ex.ErrorCode)
         {
-          Console.WriteLine($"端口 {currentPort} 已被占用，尝试端口 {currentPort + 1}...");
-          currentPort++; // 端口+1重试
-          listener?.Stop();
-          listener = null; // 释放失败的实例
-        }
-        else
-        {
-          // 其他网络错误（如权限不足、端口超出范围等），终止重试
-          Console.WriteLine($"非端口占用错误：{ex.Message}，停止重试。");
-          throw; // 抛出异常让上层处理
+          case 10048:
+            Console.WriteLine($"端口 {currentPort} 已被占用，尝试端口 {currentPort + 1}...");
+            currentPort++; // 端口+1重试
+            listener?.Stop();
+            listener = null; // 释放失败的实例
+            break;
+          case 10013:
+            Console.WriteLine($"端口 {currentPort} 可能被系统进程占用，尝试端口 {currentPort + 1}...");
+            currentPort++; // 端口+1重试
+            listener?.Stop();
+            listener = null; // 释放失败的实例
+            break;
+          default:
+            Console.WriteLine($"非端口占用错误：{ex.Message} 停止重试。");
+            throw; // 抛出异常让上层处理
         }
       }
       catch (Exception ex)

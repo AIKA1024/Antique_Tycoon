@@ -37,7 +37,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [NotifyPropertyChangedFor(nameof(SelectedMapEntityViewModel))]
   public partial CanvasItemModel TempSelectedMapEntity { get; set; } //用于筛选是不是线条
 
-  public ObservableCollection<AntiqueMapItem> AntiqueMapItems { get; } = [];
+  public ObservableCollection<AntiqueStack> AntiqueMapItems { get; } = [];
   public Point PointerPosition { get; set; }
 
 
@@ -72,7 +72,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
     foreach (var antique in CurrentMap.Antiques)
     {
       if (antique.Index >= AntiqueMapItems.Count || AntiqueMapItems[antique.Index] == null) //由于下面使用的Insert，所以有可能是null
-        AntiqueMapItems.Insert(antique.Index, new AntiqueMapItem(antique, 1));
+        AntiqueMapItems.Insert(antique.Index, new AntiqueStack(antique, 1));
       else
         AntiqueMapItems[antique.Index].Amount += 1;
     }
@@ -205,7 +205,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
   }
 
   [RelayCommand]
-  private async Task ChangeAntiqueImage(AntiqueMapItem target)
+  private async Task ChangeAntiqueImage(AntiqueStack target)
   {
     var files = await App.Current.Services.GetRequiredService<TopLevel>().StorageProvider.OpenFilePickerAsync(
       new FilePickerOpenOptions
@@ -227,8 +227,8 @@ public partial class MapEditPageViewModel : PageViewModelBase
     if (files.Count >= 1)
     {
       await using var stream = await files[0].OpenReadAsync();
-      target.AntiqueItem.Image.Dispose();
-      target.AntiqueItem.Image = new Bitmap(stream);
+      target.Item.Image.Dispose();
+      target.Item.Image = new Bitmap(stream);
     }
   }
 
@@ -237,13 +237,13 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [RelayCommand]
   private void AddNewAntique()
   {
-    AntiqueMapItems.Add(new AntiqueMapItem(new Antique(), 1));
+    AntiqueMapItems.Add(new AntiqueStack(new Antique(), 1));
   }
 
   [RelayCommand]
-  private void RemoveAntique(AntiqueMapItem antiqueMapItem)
+  private void RemoveAntique(AntiqueStack antiqueStack)
   {
-    AntiqueMapItems.Remove(antiqueMapItem);
+    AntiqueMapItems.Remove(antiqueStack);
   }
 
   [RelayCommand]
@@ -260,10 +260,10 @@ public partial class MapEditPageViewModel : PageViewModelBase
         CurrentMap.Antiques.Add(new Antique
         {
           Index = i,
-          Dice = item.AntiqueItem.Dice,
-          Name = item.AntiqueItem.Name,
-          Image = item.AntiqueItem.Image,
-          Value = item.AntiqueItem.Value
+          Dice = item.Item.Dice,
+          Name = item.Item.Name,
+          Image = item.Item.Image,
+          Value = item.Item.Value
         });
       }
     }
