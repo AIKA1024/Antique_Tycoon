@@ -22,7 +22,7 @@
         Spacing="8">
         <c:McButton
           HorizontalAlignment="Right"
-          Classes="ore"
+          Classes="Confirm"
           Command="{Binding NavigateToCreateRoomPageCommand}"
           Content="创建新房间" />
         <Border

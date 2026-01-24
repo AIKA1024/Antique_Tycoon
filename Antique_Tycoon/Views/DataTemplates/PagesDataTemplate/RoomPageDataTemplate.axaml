@@ -15,7 +15,7 @@
       <StackPanel Grid.Row="1" Spacing="16"
                   Margin="16"
                   VerticalAlignment="Stretch">
-        <c:McButton Classes="ore"
+        <c:McButton Classes="Confirm"
                     Content="开始游戏"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top" 

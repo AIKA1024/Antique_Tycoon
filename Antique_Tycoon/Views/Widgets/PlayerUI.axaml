@@ -84,7 +84,7 @@
         </StackPanel>
 
         <c:McButton Grid.Column="2"
-                    Classes="ore"
+                    Classes="Confirm"
                     Padding="0"
                     Command="{Binding RollDiceCommand}"
                     HorizontalAlignment="Right" VerticalAlignment="Bottom"

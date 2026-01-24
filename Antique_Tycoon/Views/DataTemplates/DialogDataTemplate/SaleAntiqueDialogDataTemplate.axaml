@@ -4,7 +4,8 @@
                     xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:models="clr-namespace:Antique_Tycoon.Models.Nodes"
                     xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
-                    xmlns:i="clr-namespace:Antique_Tycoon.Behaviors">
+                    xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
+                    xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
     <ContentControl>
@@ -27,7 +28,7 @@
           <Border Grid.Row="0" BorderBrush="#DFDFE1" BorderThickness="4"
                   Background="#CACBCE"
                   Padding="16">
-            <Border BorderBrush="Black" BorderThickness="4 4 4 2"
+            <Border BorderBrush="Black" BorderThickness="4"
                     Background="#434343">
               <ListBox VerticalAlignment="Stretch"
                        HorizontalAlignment="Stretch"
@@ -47,6 +48,8 @@
                 <ListBox.Styles>
                   <Style Selector="ListBoxItem">
                     <Setter Property="Padding" Value="0" />
+                  </Style>
+                  <Style Selector="ListBoxItem:nth-child(n+2)">
                     <Setter Property="Margin" Value="0 -4 0 0" />
                   </Style>
                   <Style Selector="ListBoxItem Border.ItemBorder">
@@ -110,7 +113,7 @@
                   </Style>
                 </ListBox.Styles>
                 <ListBox.DataTemplates>
-                  <DataTemplate x:DataType="models:AntiqueStack">
+                  <DataTemplate x:DataType="entities:AntiqueStack">
                     <Border Classes="ItemBorder" BorderThickness="4">
                       <StackPanel>
                         <Panel>
@@ -201,11 +204,15 @@
 
               <Grid Grid.Row="1" ColumnDefinitions="*,Auto"
                     ColumnSpacing="16">
-                <c:McButton Grid.Column="0" Content="不出售" HorizontalAlignment="Left" />
+                <c:McButton Grid.Column="0"
+                            Classes="Danger"
+                            Content="不出售"
+                            HorizontalAlignment="Left"
+                            Command="{Binding CancelCommand}"/>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
                   <c:McButton Content="以原价出售，升级地产" Command="{Binding SellAndUpgradeCommand}" />
-                  <c:McButton Classes="ore" Content="收取额外收益出售" Command="{Binding SellAndHarvestCommand}" />
+                  <c:McButton Classes="Confirm" Content="收取额外收益出售" Command="{Binding SellAndHarvestCommand}" />
                 </StackPanel>
               </Grid>
             </Grid>

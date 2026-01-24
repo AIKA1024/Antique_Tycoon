@@ -11,12 +11,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class MainWindowViewModel : PageViewModelBase
+public partial class MainWindowViewModel : PageViewModelBase,IDisposable
 {
   [ObservableProperty] private PageViewModelBase _currentPageViewModel = new StartPageViewModel();
+  public DialogViewModelBase? DialogViewModel => DialogService.CurrentDialogViewModel;
 
   public DialogService DialogService { get; } =
     App.Current.Services.GetRequiredService<DialogService>();
+
+  public MainWindowViewModel()
+  {
+    DialogService.DialogCollectionChanged += NotifyDialogViewModelChanged;
+  }
+  
+  public void Dispose()
+  {
+    DialogService.DialogCollectionChanged -= NotifyDialogViewModelChanged;
+  }
+
+  private void NotifyDialogViewModelChanged()
+  {
+    OnPropertyChanged(nameof(DialogViewModel));
+  }
 
   [RelayCommand]
   private void KeyPressed(Avalonia.Input.KeyGesture key)
@@ -24,15 +40,8 @@ public partial class MainWindowViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Send(new KeyPressedMessage(key));
   }
 
-  // [RelayCommand]
-  // private void CloseMask()
-  // {
-  //   var currentDialogViewModel = App.Current.Services.GetRequiredService<DialogService>().CurrentDialogViewModel;
-  //   WeakReferenceMessenger.Default.Send(new DialogCompletedMessage(currentDialogViewModel));
-  // }
-
   [RelayCommand]
-  private void CloseMaskByMeshTap(DialogViewModelBase dialogViewModel)
+  private void CloseDialogByMaskTap(DialogViewModelBase dialogViewModel)
   {
     if (dialogViewModel is { IsLightDismissEnabled : false })
       return;
@@ -62,4 +71,6 @@ public partial class MainWindowViewModel : PageViewModelBase
 
     return false;
   }
+
+
 }

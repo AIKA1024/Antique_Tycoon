@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
-public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<Antique?>//todo 返回值应该是一个新类型，还要表示是否收额外收益
+public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<SaleAntiqueDetermination?>
 {
   private readonly SoundService _soundService = App.Current.Services.GetRequiredService<SoundService>();
   public IList<AntiqueStack> AntiqueStacks { get; }
@@ -31,16 +31,22 @@ public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<Antique?>/
       _soundService.PlaySoundEffect("Assets/SFX/MCButtonPressed.mp3");
     }
   }
+
+  [RelayCommand]
+  private void Cancel()
+  {
+    CloseDialog(null);
+  }
   
   [RelayCommand(CanExecute = nameof(CanSell))]
   private void SellAndUpgrade()
   {
-    CloseDialog(SelectedStack!.Item);
+    CloseDialog(new SaleAntiqueDetermination(SelectedStack!.Item,true));
   }
 
   [RelayCommand(CanExecute = nameof(CanSell))]
   private void SellAndHarvest()
   {
-    CloseDialog(SelectedStack!.Item);
+    CloseDialog(new SaleAntiqueDetermination(SelectedStack!.Item,false));
   }
 }

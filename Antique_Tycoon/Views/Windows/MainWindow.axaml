@@ -31,9 +31,9 @@
       </TransitioningContentControl.PageTransition>
     </TransitioningContentControl>
     <Border x:Name="Mask" Background="#80000000"
-            IsVisible="{Binding DialogService.CurrentDialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}"
-            i:Tap.Command="{Binding CloseMaskByMeshTapCommand}"
-            i:Tap.CommandParameter="{Binding DialogService.CurrentDialogViewModel}">
+            IsVisible="{Binding DialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}"
+            i:Tap.Command="{Binding CloseDialogByMaskTapCommand}"
+            i:Tap.CommandParameter="{Binding DialogViewModel}">
       <Border.Transitions>
         <Transitions>
           <DoubleTransition Property="Opacity" Duration="0:0:0.1" />
@@ -50,22 +50,22 @@
 
       <Panel>
         <Border
-          HorizontalAlignment="{Binding DialogService.CurrentDialogViewModel.HorizontalAlignment}"
-          VerticalAlignment="{Binding DialogService.CurrentDialogViewModel.VerticalAlignment}"
+          HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
+          VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}"
           BoxShadow="0 0 50 10 black">
           <Border.MaxWidth>
             <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-              <Binding Path="DialogService.CurrentDialogViewModel.MaxWidthPercent" />
+              <Binding Path="DialogViewModel.MaxWidthPercent" />
               <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
             </MultiBinding>
           </Border.MaxWidth>
           <Border.MaxHeight>
             <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-              <Binding Path="DialogService.CurrentDialogViewModel.MaxHeightPercent" />
+              <Binding Path="DialogViewModel.MaxHeightPercent" />
               <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
             </MultiBinding>
           </Border.MaxHeight>
-          <ContentControl Content="{Binding DialogService.CurrentDialogViewModel}"
+          <ContentControl Content="{Binding DialogViewModel}"
                           Background="Transparent">
           </ContentControl>
         </Border>

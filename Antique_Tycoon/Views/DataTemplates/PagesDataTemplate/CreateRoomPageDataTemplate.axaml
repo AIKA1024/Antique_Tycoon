@@ -31,7 +31,7 @@
                   Grid.Row="1"
                   FontSize="26"
                   Content="创建"
-                  Classes="ore"
+                  Classes="Confirm"
                   Padding="0"
                   VerticalAlignment="Stretch"
                   Command="{Binding CreateRoomAndNavigateToRoomPageCommand}" />
@@ -69,7 +69,7 @@
           <Border Classes="Item">
             <StackPanel Spacing="8">
               <TextBlock Text="地图" FontWeight="Black" />
-              <c:McButton Content="选择地图" Classes="ore" Command="{Binding ShowSelectMapDialogCommand}"/>
+              <c:McButton Content="选择地图" Classes="Confirm" Command="{Binding ShowSelectMapDialogCommand}"/>
             </StackPanel>
           </Border>
         </StackPanel>

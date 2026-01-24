@@ -1,6 +1,4 @@
-using Antique_Tycoon.Models.Entities;
-
-namespace Antique_Tycoon.Models.Nodes;
+namespace Antique_Tycoon.Models.Entities;
 
 public class AntiqueStack
 {

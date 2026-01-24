@@ -7,7 +7,8 @@
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
   xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
   xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes"
-  xmlns:cv="clr-namespace:Antique_Tycoon.Converters">
+  xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+  xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="400">
       <pageViewModels:MapEditPageViewModel />
@@ -24,7 +25,7 @@
           Margin="0,0,8,0"
           Padding="8,4"
           VerticalAlignment="Center"
-          Classes="ore"
+          Classes="Confirm"
           Content="保存"
           Command="{Binding SaveMapCommand}"
           FontSize="12" />
@@ -120,7 +121,7 @@
                     </c:McContentControl>
                     <c:McContentControl Header="图片">
                       <StackPanel Orientation="Horizontal" Spacing="16">
-                        <c:McButton Content="选择图片" Classes="ore" Padding="12 8"
+                        <c:McButton Content="选择图片" Classes="Confirm" Padding="12 8"
                                     Command="{Binding ChangeNodeImageCommand}"
                                     CommandParameter="{Binding SelectedMapEntity}" />
                         <ComboBox ItemsSource="{e:EnumItems {x:Type Stretch}}"
@@ -168,7 +169,7 @@
                           </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.DataTemplates>
-                          <DataTemplate DataType="nodes:AntiqueStack">
+                          <DataTemplate DataType="entities:AntiqueStack">
                             <Panel>
                               <Border Padding="16" Background="#313233"
                                       BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">

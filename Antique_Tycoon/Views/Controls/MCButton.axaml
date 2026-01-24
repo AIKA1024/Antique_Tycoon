@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="using:Antique_Tycoon.Views.Controls">
   <Design.PreviewWith>
-    <c:McButton Classes="ore" Content="Button" />
+    <c:McButton Classes="Confirm" Content="Button" />
   </Design.PreviewWith>
 
   <Style Selector="c|McButton">
@@ -13,6 +13,7 @@
     <Setter Property="Foreground" Value="#4C4C4C" />
     <Setter Property="BorderThickness" Value="3" />
     <Setter Property="BorderBrush" Value="#131313" />
+
     <Setter Property="Template">
       <ControlTemplate>
         <Grid RowDefinitions="Auto,*"
@@ -51,24 +52,7 @@
         </Grid>
       </ControlTemplate>
     </Setter>
-
-    <Style Selector="^:pointerover">
-      <Setter Property="BorderBrush" Value="#FFFFFF" />
-      <Setter Property="Background" Value="#E6218306" />
-      <Setter Property="Foreground" Value="#FFFFFF" />
-    </Style>
-  </Style>
-
-  <Style Selector="c|McButton.ore">
-    <Setter Property="Foreground" Value="White" />
-    <Setter Property="Background" Value="#3C8527" />
-    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-    <Style Selector="^:pointerover">
-      <Setter Property="Background" Value="#2A641C" />
-      <Style Selector="^>StackPanel>Border>DockPanel>Border">
-        <Setter Property="BorderBrush" Value="#7FA277" />
-      </Style>
-    </Style>
+    
     <Style Selector="^>Grid>Border>DockPanel>Rectangle">
       <Setter Property="Fill" Value="#1D4D13" />
     </Style>
@@ -77,6 +61,71 @@
     </Style>
     <Style Selector="^:pressed>Grid>Border>DockPanel>Rectangle">
       <Setter Property="Height" Value="0" />
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="BorderBrush" Value="#FFFFFF" />
+      <Setter Property="Background" Value="#E6218306" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+  </Style>
+
+  <Style Selector="c|McButton.Confirm">
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Background" Value="#3C8527" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+    <Style Selector="^>Grid>Border>DockPanel>Rectangle">
+      <Setter Property="Fill" Value="#1D4D13"/>
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="#2A641C" />
+      <Style Selector="^>StackPanel>Border>DockPanel>Border">
+        <Setter Property="BorderBrush" Value="#7FA277" />
+      </Style>
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="Background" Value="#1D4D13"/>
+      <Style Selector="^>StackPanel>Border>DockPanel>Border">
+        <Setter Property="BorderBrush" Value="#779471" />
+      </Style>
+    </Style>
+  </Style>
+  
+  <Style Selector="c|McButton.Danger">
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Background" Value="#CA3636" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+    <Style Selector="^>Grid>Border>DockPanel>Rectangle">
+      <Setter Property="Fill" Value="#AD1D1D"/>
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="#C02D2D" />
+      <Style Selector="^>StackPanel>Border>DockPanel>Border">
+        <Setter Property="BorderBrush" Value="#DF9696" />
+      </Style>
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="Background" Value="#AD1D1D"/>
+      <Style Selector="^>StackPanel>Border>DockPanel>Border">
+        <Setter Property="BorderBrush" Value="#D68E8E" />
+      </Style>
+    </Style>
+  </Style>
+  
+  <Style Selector="c|McButton.Accent">
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Background" Value="#7345E5" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+    <Style Selector="^>Grid>Border>DockPanel>Rectangle">
+      <Setter Property="Fill" Value="#4A1CAC"/>
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="#5D2CC6" />
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="Background" Value="#4A1CAC"/>
+      <Style Selector="^>StackPanel>Border>DockPanel>Border">
+        <Setter Property="BorderBrush" Value="#8B3CD8" />
+      </Style>
     </Style>
   </Style>
 

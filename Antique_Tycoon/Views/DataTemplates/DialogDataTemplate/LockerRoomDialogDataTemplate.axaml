@@ -54,15 +54,6 @@
             <Image Source="../../Assets/Image/Avatar/Villager.png" Tag="{x:Static m:PlayerRole.Villager}" />
             <Image Source="../../Assets/Image/Avatar/Zombie.png" Tag="{x:Static m:PlayerRole.Zombie}" />
           </WrapPanel>
-          <!-- <StackPanel Spacing="8"> -->
-          <!--   <Rectangle Height="3" Fill="{StaticResource LightedBorderBrush}" /> -->
-          <!--   <controls:McButton Margin="16 0" -->
-          <!--                      Content="取消" -->
-          <!--                      Command="{Binding CancelCommand}" /> -->
-          <!--   <controls:McButton Margin="16 0" Classes="ore" Content="确定" -->
-          <!--                      Command="{Binding SubmitCommand}" /> -->
-          <!--   <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" /> -->
-          <!-- </StackPanel> -->
         </StackPanel>
       </StackPanel>
     </Border>

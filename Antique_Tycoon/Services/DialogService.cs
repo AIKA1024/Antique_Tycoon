@@ -12,7 +12,8 @@ public partial class DialogService : ObservableObject
 {
   private readonly ObservableCollection<DialogViewModelBase> _dialogs = [];
   private readonly Dictionary<DialogViewModelBase, object> _dialogTasks = [];
-  [ObservableProperty] public partial DialogViewModelBase? CurrentDialogViewModel { get; private set; }
+  public event Action? DialogCollectionChanged;
+  public DialogViewModelBase? CurrentDialogViewModel { get; private set; }
 
   public DialogService()
   {
@@ -22,6 +23,7 @@ public partial class DialogService : ObservableObject
   private void DialogsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
   {
     CurrentDialogViewModel = _dialogs.Count != 0 ? _dialogs[^1] : null;
+    DialogCollectionChanged?.Invoke();
   }
 
   public Task ShowDialogAsync(DialogViewModelBase dialogViewModel)

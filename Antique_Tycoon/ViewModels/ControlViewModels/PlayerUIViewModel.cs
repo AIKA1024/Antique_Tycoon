@@ -19,7 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels.ControlViewModels;
 
-public partial class PlayerUiViewModel : PageViewModelBase
+public partial class PlayerUiViewModel : PageViewModelBase,IDisposable
 {
   private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
 
@@ -32,7 +32,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
   [ObservableProperty] private bool _isShowReminderText;
   private string _rollDiceActionId = "";
 
-  [ObservableProperty] public partial DialogViewModelBase? DialogViewModel { get; set; }
+  public DialogViewModelBase? DialogViewModel => _dialogService.CurrentDialogViewModel;
 
   [ObservableProperty] public partial bool RollButtonEnable { get; set; } = false;
 
@@ -48,8 +48,19 @@ public partial class PlayerUiViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse);
     WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
     WeakReferenceMessenger.Default.Register<SaleAntiqueAction>(this, ReceiveSaleAntiqueAction);
+    _dialogService.DialogCollectionChanged += NotifyDialogViewModelChanged;
   }
 
+  private void NotifyDialogViewModelChanged()
+  {
+    OnPropertyChanged(nameof(DialogViewModel));
+  }
+
+  public void Dispose()
+  {
+    _dialogService.DialogCollectionChanged -= NotifyDialogViewModelChanged;
+  }
+  
   private async void ReceiveSaleAntiqueAction(object recipient, SaleAntiqueAction message)
   {
     _actionQueueService.Enqueue(async () =>
@@ -58,8 +69,7 @@ public partial class PlayerUiViewModel : PageViewModelBase
         .Select(group => new AntiqueStack(group.First(), group.Count())).ToArray();
       var saleAntiqueDialogViewModel = new SaleAntiqueDialogViewModel(antiqueMapItems)
         { IsLightDismissEnabled = false };
-      DialogViewModel = saleAntiqueDialogViewModel;
-      var antique = await _dialogService.ShowDialogAsync(saleAntiqueDialogViewModel);
+      var saleAntiqueDetermination = await _dialogService.ShowDialogAsync(saleAntiqueDialogViewModel);
     });
   }
 
@@ -120,4 +130,6 @@ public partial class PlayerUiViewModel : PageViewModelBase
     await App.Current.Services.GetRequiredService<GameRuleService>().RollDiceAsync(_rollDiceActionId);
     Debug.WriteLine("请求结束");
   }
+
+
 }

@@ -37,7 +37,7 @@
             <c:McButton Margin="16 0"
                         Content="取消" 
                         Command="{Binding CancelCommand}"/>
-            <c:McButton Margin="16 0" Classes="ore" Content="创建" 
+            <c:McButton Margin="16 0" Classes="Confirm" Content="创建" 
                         Command="{Binding SubmitCommand}"/>
             <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" />
           </StackPanel>
