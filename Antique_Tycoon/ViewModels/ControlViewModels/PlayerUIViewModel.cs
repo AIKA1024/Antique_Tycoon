@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Nodes;
@@ -70,6 +71,10 @@ public partial class PlayerUiViewModel : PageViewModelBase,IDisposable
       var saleAntiqueDialogViewModel = new SaleAntiqueDialogViewModel(antiqueMapItems)
         { IsLightDismissEnabled = false };
       var saleAntiqueDetermination = await _dialogService.ShowDialogAsync(saleAntiqueDialogViewModel);
+      if (saleAntiqueDetermination is null)
+        await _gameManager.SendToGameServerAsync(new SaleAntiqueRequest(message.Id,"", false));//空字符串代表不卖
+      else
+        await _gameManager.SendToGameServerAsync(new SaleAntiqueRequest(message.Id,saleAntiqueDetermination.Antique.Uuid, saleAntiqueDetermination.NeedUpgrade));
     });
   }
 

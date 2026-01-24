@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class MainWindowViewModel : PageViewModelBase,IDisposable
+public partial class MainWindowViewModel : PageViewModelBase
 {
   [ObservableProperty] private PageViewModelBase _currentPageViewModel = new StartPageViewModel();
   public DialogViewModelBase? DialogViewModel => DialogService.CurrentDialogViewModel;
@@ -22,11 +22,6 @@ public partial class MainWindowViewModel : PageViewModelBase,IDisposable
   public MainWindowViewModel()
   {
     DialogService.DialogCollectionChanged += NotifyDialogViewModelChanged;
-  }
-  
-  public void Dispose()
-  {
-    DialogService.DialogCollectionChanged -= NotifyDialogViewModelChanged;
   }
 
   private void NotifyDialogViewModelChanged()

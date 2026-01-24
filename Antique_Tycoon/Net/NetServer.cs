@@ -208,6 +208,8 @@ public class NetServer : NetBase
     // 1. 检查这个消息是否是对某个挂起请求的响应
     if (!string.IsNullOrEmpty(message.Id) && _pendingRequests.TryRemove(message.Id, out var tcs))
       tcs.TrySetResult(message);
+    else
+      throw new KeyNotFoundException($"字典中没有消息{message.Id}");
   }
 
   public async Task<TResponse> SendRequestAsync<TRequest, TResponse>(

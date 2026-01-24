@@ -5,10 +5,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Models.Nodes;
 
-public class Estate : NodeModel
+public partial class Estate : NodeModel
 {
   public int Value { get; set; }
-  public int Level { get; set; } = 1;
+  [ObservableProperty]
+  public partial int Level { get; set; } = 1;
   public ObservableCollection<BonusEffect> RevenueModifiers { get; set; } = [];
 
   public int CalculateCurrentRevenue(int baseValue)
