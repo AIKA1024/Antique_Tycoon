@@ -1,4 +1,6 @@
-namespace Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Entities;
+
+namespace Antique_Tycoon.Models;
 
 public class SaleAntiqueDetermination(Antique antique, bool needUpgrade)
 {

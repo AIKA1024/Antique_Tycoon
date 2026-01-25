@@ -1,5 +1,6 @@
 using System;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Services;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;

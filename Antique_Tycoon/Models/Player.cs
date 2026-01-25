@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.Json.Serialization;
+using Antique_Tycoon.Models.Effects;
 using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Models.Nodes;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -15,7 +19,7 @@ public partial class Player : ObservableObject, IDisposable
 
   [ObservableProperty] public partial string Name { get; set; } = "史蒂夫";
 
-  [ObservableProperty] public partial int Money { get; set; }
+  [ObservableProperty] public partial decimal Money { get; set; }
 
   public string CurrentNodeUuId { get; set; } = "";
 
@@ -27,6 +31,8 @@ public partial class Player : ObservableObject, IDisposable
   public ObservableCollection<Antique> Antiques { get; set; } = [];
   
   public ObservableCollection<Estate>  Estates { get; set; } = [];
+  
+  public ObservableCollection<IStaff> StaffList { get; set; } = [];
   
 
   public PlayerRole Role // todo 违反了开闭原则，但小项目不管了
@@ -57,6 +63,13 @@ public partial class Player : ObservableObject, IDisposable
       field = value;
     }
   } = PlayerRole.Steve;
+  
+  public IEnumerable<IStaffEffect> GetActiveEffects(GameTriggerPoint point)
+  {
+    return StaffList
+      .SelectMany(s => s.Effects)
+      .Where(e => e.TriggerPoint == point);
+  }
 
   public void Dispose()
   {
@@ -65,13 +78,3 @@ public partial class Player : ObservableObject, IDisposable
   }
 }
 
-public enum PlayerRole
-{
-  Steve,
-  Pig,
-  Cow,
-  Creeper,
-  Sheep,
-  Villager,
-  Zombie
-}

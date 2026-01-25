@@ -15,7 +15,7 @@ public class Antique : EntityBase, IDisposable
 
   public string FlavorText { get; set; } = "这是古玩描述文本";
   
-  public int Value { get; set; }
+  public decimal Value { get; set; }
   public string ImageHash { get; set; } = "";
 
   [JsonIgnore]

@@ -1,7 +1,7 @@
 namespace Antique_Tycoon.Models.Net.Tcp.Response;
 
 [TcpMessage]
-public class BuyEstateResponse(int deductAmount) : ResponseBase
+public class BuyEstateResponse(decimal deductAmount) : ResponseBase
 {
-  public int DeductAmount { get; set; } = deductAmount;
+  public decimal DeductAmount { get; set; } = deductAmount;
 }

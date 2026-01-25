@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Effects;
+using Antique_Tycoon.Models.Effects.Contexts;
+using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
@@ -261,6 +264,25 @@ public class GameRuleService : ObservableObject
       var message =
         new UpdatePlayerInfoResponse(player, $"已经没有古玩流通，因此{player.Name}获得200 {player.Money}->{player.Money += 200}");
       await Broadcast(message);
+    }
+  }
+  
+  // GameRulerService.cs 内部
+
+  /// <summary>
+  /// 核心辅助方法：触发所有符合当前时机的 IStaff 效果
+  /// </summary>
+  /// <param name="point">当前的时间点（如：路过矿洞、鉴宝时）</param>
+  /// <param name="context">上下文数据（包含玩家、骰子点数、古玩信息等）</param>
+  private void TriggerGlobalStaffEffects(GameTriggerPoint point, GameContext context)
+  {
+    foreach (var player in _gameManager.Players)
+    {
+      var effects = player.GetActiveEffects(point);
+      foreach (var effect in effects)
+      {
+        effect.Execute(context);
+      }
     }
   }
 

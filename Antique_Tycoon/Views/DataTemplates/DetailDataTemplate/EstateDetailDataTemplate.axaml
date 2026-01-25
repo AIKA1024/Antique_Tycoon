@@ -4,7 +4,8 @@
                     xmlns:e="clr-namespace:Antique_Tycoon.Extensions"
                     xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.DetailViewModels"
                     xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes"
-                    xmlns:cv="clr-namespace:Antique_Tycoon.Converters">
+                    xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+                    xmlns:enums="clr-namespace:Antique_Tycoon.Models.Enums">
   <!-- Add Resources Here -->
   <Design.PreviewWith>
     <ContentControl>
@@ -42,7 +43,7 @@
                           Padding="8"
                           BorderBrush="{StaticResource BorderBrush}">
                       <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                        <ComboBox Grid.Column="0" ItemsSource="{e:EnumItems {x:Type nodes:BonusType}}"
+                        <ComboBox Grid.Column="0" ItemsSource="{e:EnumItems {x:Type enums:BonusType}}"
                                   SelectedItem="{Binding BonusType}" >
                           <ComboBox.ItemTemplate>
                             <DataTemplate>

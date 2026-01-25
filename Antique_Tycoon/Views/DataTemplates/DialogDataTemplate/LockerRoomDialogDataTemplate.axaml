@@ -4,7 +4,7 @@
                     xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:cv="using:Antique_Tycoon.Converters"
                     xmlns:i="using:Antique_Tycoon.Behaviors"
-                    xmlns:m="using:Antique_Tycoon.Models">
+                    xmlns:enums="clr-namespace:Antique_Tycoon.Models.Enums">
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
@@ -47,12 +47,12 @@
                 <Setter Property="i:Tap.CommandParameter" Value="{Binding $self.Tag}"/>
               </Style>
             </WrapPanel.Styles>
-            <Image Source="../../Assets/Image/Avatar/Steve.png" Tag="{x:Static m:PlayerRole.Steve}" />
-            <Image Source="../../Assets/Image/Avatar/Pig.png" Tag="{x:Static m:PlayerRole.Pig}" />
-            <Image Source="../../Assets/Image/Avatar/Sheep.png" Tag="{x:Static m:PlayerRole.Sheep}" />
-            <Image Source="../../Assets/Image/Avatar/Creeper.png" Tag="{x:Static m:PlayerRole.Creeper}" />
-            <Image Source="../../Assets/Image/Avatar/Villager.png" Tag="{x:Static m:PlayerRole.Villager}" />
-            <Image Source="../../Assets/Image/Avatar/Zombie.png" Tag="{x:Static m:PlayerRole.Zombie}" />
+            <Image Source="../../Assets/Image/Avatar/Steve.png" Tag="{x:Static enums:PlayerRole.Steve}" />
+            <Image Source="../../Assets/Image/Avatar/Pig.png" Tag="{x:Static enums:PlayerRole.Pig}" />
+            <Image Source="../../Assets/Image/Avatar/Sheep.png" Tag="{x:Static enums:PlayerRole.Sheep}" />
+            <Image Source="../../Assets/Image/Avatar/Creeper.png" Tag="{x:Static enums:PlayerRole.Creeper}" />
+            <Image Source="../../Assets/Image/Avatar/Villager.png" Tag="{x:Static enums:PlayerRole.Villager}" />
+            <Image Source="../../Assets/Image/Avatar/Zombie.png" Tag="{x:Static enums:PlayerRole.Zombie}" />
           </WrapPanel>
         </StackPanel>
       </StackPanel>

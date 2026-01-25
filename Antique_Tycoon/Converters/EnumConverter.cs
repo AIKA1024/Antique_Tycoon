@@ -1,3 +1,4 @@
+using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Models.Nodes;
 using Avalonia.Data.Converters;
 using Avalonia.Media;

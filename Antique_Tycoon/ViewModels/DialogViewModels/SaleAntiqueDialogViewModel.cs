@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.Services;

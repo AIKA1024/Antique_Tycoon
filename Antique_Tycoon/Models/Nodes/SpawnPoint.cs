@@ -2,7 +2,7 @@ namespace Antique_Tycoon.Models.Nodes;
 
 public partial class SpawnPoint : NodeModel
 {
-  public int Bonus
+  public decimal Bonus
   {
     get;
     set => SetProperty(ref field, value);
