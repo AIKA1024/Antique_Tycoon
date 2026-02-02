@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Entities.StaffImpls;
 using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.ViewModels.DetailViewModels;
 using Antique_Tycoon.ViewModels.DialogViewModels;
@@ -37,9 +38,15 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [NotifyPropertyChangedFor(nameof(SelectedMapEntityViewModel))]
   public partial CanvasItemModel TempSelectedMapEntity { get; set; } //用于筛选是不是线条
 
-  public ObservableCollection<AntiqueStack> AntiqueMapItems { get; } = [];
+  public ObservableCollection<ItemStack<Antique>> AntiqueStacks { get; } = [];
+  public ObservableCollection<ItemStack<IStaff>> StaffStacks { get; } = 
+  [
+    new (new CardSharp(),2),
+    new (new WelfareCheat(),2),
+    new (new MineOwner(),1),
+    new (new TaxLord(),1)
+  ];
   public Point PointerPosition { get; set; }
-
 
   public NodeModel? SelectedMapEntity
   {
@@ -71,10 +78,10 @@ public partial class MapEditPageViewModel : PageViewModelBase
         NodeDetailViewModels.Add(nodeModel, CreateViewModelForEntity(nodeModel));
     foreach (var antique in CurrentMap.Antiques)
     {
-      if (antique.Index >= AntiqueMapItems.Count || AntiqueMapItems[antique.Index] == null) //由于下面使用的Insert，所以有可能是null
-        AntiqueMapItems.Insert(antique.Index, new AntiqueStack(antique, 1));
+      if (antique.Index >= AntiqueStacks.Count || AntiqueStacks[antique.Index] == null) //由于下面使用的Insert，所以有可能是null
+        AntiqueStacks.Insert(antique.Index, new ItemStack<Antique>(antique, 1));
       else
-        AntiqueMapItems[antique.Index].Amount += 1;
+        AntiqueStacks[antique.Index].Amount += 1;
     }
   }
 
@@ -205,7 +212,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
   }
 
   [RelayCommand]
-  private async Task ChangeAntiqueImage(AntiqueStack target)
+  private async Task ChangeAntiqueImage(ItemStack<Antique> target)
   {
     var files = await App.Current.Services.GetRequiredService<TopLevel>().StorageProvider.OpenFilePickerAsync(
       new FilePickerOpenOptions
@@ -237,13 +244,13 @@ public partial class MapEditPageViewModel : PageViewModelBase
   [RelayCommand]
   private void AddNewAntique()
   {
-    AntiqueMapItems.Add(new AntiqueStack(new Antique(), 1));
+    AntiqueStacks.Add(new ItemStack<Antique>(new Antique(), 1));
   }
 
   [RelayCommand]
-  private void RemoveAntique(AntiqueStack antiqueStack)
+  private void RemoveAntique(ItemStack<Antique> antiqueStack)
   {
-    AntiqueMapItems.Remove(antiqueStack);
+    AntiqueStacks.Remove(antiqueStack);
   }
 
   [RelayCommand]
@@ -252,9 +259,9 @@ public partial class MapEditPageViewModel : PageViewModelBase
     CurrentMap.Cover = RequestRenderControl?.Invoke()!;
     CurrentMap.Antiques.Clear();
 
-    for (int i = 0; i < AntiqueMapItems.Count; i++)
+    for (int i = 0; i < AntiqueStacks.Count; i++)
     {
-      var item = AntiqueMapItems[i];
+      var item = AntiqueStacks[i];
       for (int j = 0; j < item.Amount; j++)
       {
         CurrentMap.Antiques.Add(new Antique

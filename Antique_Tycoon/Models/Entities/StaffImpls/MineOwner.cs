@@ -6,11 +6,11 @@ using Avalonia.Media.Imaging;
 
 namespace Antique_Tycoon.Models.Entities.StaffImpls;
 
-public class WelfareCheat : IStaff
+public class MineOwner:IStaff
 {
-  public string Name { get; set; } = "蜘蛛";
-  public List<IStaffEffect> Effects => [new PassStartBonusEffect(300)];
-  public Bitmap Image => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Staff/Spider.png");
+  public string Name => "村民";
+  public List<IStaffEffect> Effects => [new MineManagerEffect()];
+  public Bitmap Image => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Staff/Villager.png");
   public decimal HiringCost { get; set; } = 1000;
   public Dictionary<int, int> HiringAntiqueCost => [];
   public decimal Salary { get; set; }

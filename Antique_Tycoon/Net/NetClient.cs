@@ -66,7 +66,7 @@ public class NetClient : NetBase
 
     public async Task ConnectServer(IPEndPoint ipEndPoint, CancellationToken cancellation = default)
     {
-        _tcpClient?.Dispose();
+        _tcpClient?.Close();
         _tcpClient = new TcpClient();
         await _tcpClient.ConnectAsync(ipEndPoint, cancellation);
         _ = ReceiveLoopAsync(_tcpClient, cancellation);

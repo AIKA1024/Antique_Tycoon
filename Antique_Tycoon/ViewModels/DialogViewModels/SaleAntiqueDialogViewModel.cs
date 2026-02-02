@@ -13,19 +13,19 @@ namespace Antique_Tycoon.ViewModels.DialogViewModels;
 public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<SaleAntiqueDetermination?>
 {
   private readonly SoundService _soundService = App.Current.Services.GetRequiredService<SoundService>();
-  public IList<AntiqueStack> AntiqueStacks { get; }
-  [ObservableProperty] public partial AntiqueStack? SelectedStack { get; set; }
-  
-  private bool CanSell() => SelectedStack!= null;
+  public IList<ItemStack<Antique>> AntiqueStacks { get; }
+  [ObservableProperty] public partial ItemStack<Antique>? SelectedStack { get; set; }
 
-  public SaleAntiqueDialogViewModel(IList<AntiqueStack> antiqueStacks)
+  private bool CanSell() => SelectedStack != null;
+
+  public SaleAntiqueDialogViewModel(IList<ItemStack<Antique>> antiqueStacks)
   {
-    AntiqueStacks =  antiqueStacks;
+    AntiqueStacks = antiqueStacks;
     HorizontalAlignment = HorizontalAlignment.Stretch;
     VerticalAlignment = VerticalAlignment.Stretch;
   }
-  
-  partial void OnSelectedStackChanged(AntiqueStack? value)
+
+  partial void OnSelectedStackChanged(ItemStack<Antique>? value)
   {
     if (value != null)
     {
@@ -38,16 +38,16 @@ public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<SaleAntiqu
   {
     CloseDialog(null);
   }
-  
+
   [RelayCommand(CanExecute = nameof(CanSell))]
   private void SellAndUpgrade()
   {
-    CloseDialog(new SaleAntiqueDetermination(SelectedStack!.Item,true));
+    CloseDialog(new SaleAntiqueDetermination(SelectedStack!.Item, true));
   }
 
   [RelayCommand(CanExecute = nameof(CanSell))]
   private void SellAndHarvest()
   {
-    CloseDialog(new SaleAntiqueDetermination(SelectedStack!.Item,false));
+    CloseDialog(new SaleAntiqueDetermination(SelectedStack!.Item, false));
   }
 }

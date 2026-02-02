@@ -7,7 +7,7 @@ namespace Antique_Tycoon.Models.Effects.StaffEffectImpls;
 public class CheaterEffect : IStaffEffect
 {
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnAppraisalRoll;
-  public void Execute(GameContext context)
+  public void Execute(GameContext context,Player owner)
   {
     if (context is DiceContext diceCtx) 
     {

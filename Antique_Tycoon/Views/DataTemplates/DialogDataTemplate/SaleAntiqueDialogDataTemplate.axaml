@@ -113,7 +113,10 @@
                   </Style>
                 </ListBox.Styles>
                 <ListBox.DataTemplates>
-                  <DataTemplate x:DataType="entities:AntiqueStack">
+                  <DataTemplate>
+                    <DataTemplate.DataType>
+                      <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique"/>
+                    </DataTemplate.DataType>
                     <Border Classes="ItemBorder" BorderThickness="4">
                       <StackPanel>
                         <Panel>

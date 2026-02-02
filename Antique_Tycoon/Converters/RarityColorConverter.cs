@@ -15,11 +15,11 @@ public static class RarityColorConverter
   static RarityColorConverter()
   {
     AddColor(2, "#3DDD4D"); // 绿 (Green)
-    AddColor(3, "#608BC1"); // 蓝 (Blue)
-    AddColor(4, "#A66CC9"); // 紫 (Purple)
+    AddColor(3, "#23323D"); // 蓝 (Blue)
+    AddColor(4, "#262533"); // 紫 (Purple)
     AddColor(5, "#DDAC3D"); // 金 (Gold)
     AddColor(6, "#DD653D"); // 橙 (Orange)
-    AddColor(7, "#DD3D3D"); // 红 (Red)
+    AddColor(7, "#3F2629"); // 红 (Red)
 
     // 默认颜色 (普通/白)
     AddColor(0, "#DDDDDD");

@@ -1,20 +1,14 @@
 using System;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
-using Antique_Tycoon.Messages;
-using Antique_Tycoon.Models;
-using Antique_Tycoon.Models.Effects;
 using Antique_Tycoon.Models.Effects.Contexts;
 using Antique_Tycoon.Models.Enums;
-using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Nodes;
-using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
@@ -281,7 +275,7 @@ public class GameRuleService : ObservableObject
       var effects = player.GetActiveEffects(point);
       foreach (var effect in effects)
       {
-        effect.Execute(context);
+        effect.Execute(context,player);
       }
     }
   }

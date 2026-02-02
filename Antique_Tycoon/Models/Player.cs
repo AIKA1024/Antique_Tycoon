@@ -7,13 +7,15 @@ using Antique_Tycoon.Models.Effects;
 using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Models.Nodes;
+using Antique_Tycoon.Utilities;
+using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Models;
 
-public partial class Player : ObservableObject, IDisposable
+public partial class Player : ObservableObject
 {
   public string Uuid { get; set; } = Guid.NewGuid().ToString();
 
@@ -25,12 +27,11 @@ public partial class Player : ObservableObject, IDisposable
 
   [JsonIgnore] 
   [ObservableProperty]
-  public partial Bitmap Avatar { get; private set; } = Bitmap.DecodeToHeight(
-    AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png")), 64);
+  public partial Bitmap Avatar { get; private set; } = ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png");
 
   public ObservableCollection<Antique> Antiques { get; set; } = [];
   
-  public ObservableCollection<Estate>  Estates { get; set; } = [];
+  public ObservableCollection<Estate> Estates { get; set; } = [];
   
   public ObservableCollection<IStaff> StaffList { get; set; } = [];
   
@@ -41,23 +42,15 @@ public partial class Player : ObservableObject, IDisposable
     get;
     set
     {
-      Avatar.Dispose();
       Avatar = value switch
       {
-        PlayerRole.Steve => Bitmap.DecodeToHeight(
-          AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png")), 64),
-        PlayerRole.Pig => Bitmap.DecodeToHeight(
-          AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Pig.png")), 64),
-        PlayerRole.Cow => Bitmap.DecodeToHeight(
-          AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Cow.png")), 64),
-        PlayerRole.Creeper => Bitmap.DecodeToHeight(
-          AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Creeper.png")), 64),
-        PlayerRole.Sheep => Bitmap.DecodeToHeight(
-          AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Sheep.png")), 64),
-        PlayerRole.Villager => Bitmap.DecodeToHeight(
-          AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Villager.png")), 64),
-        PlayerRole.Zombie => Bitmap.DecodeToHeight(
-          AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Zombie.png")), 64),
+        PlayerRole.Steve => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png"),
+        PlayerRole.Pig => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Pig.png"),
+        PlayerRole.Cow => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Cow.png"),
+        PlayerRole.Creeper => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Creeper.png"),
+        PlayerRole.Sheep => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Sheep.png"),
+        PlayerRole.Villager => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Villager.png"),
+        PlayerRole.Zombie => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Zombie.png"),
         _ => Avatar
       };
       field = value;
@@ -69,12 +62,6 @@ public partial class Player : ObservableObject, IDisposable
     return StaffList
       .SelectMany(s => s.Effects)
       .Where(e => e.TriggerPoint == point);
-  }
-
-  public void Dispose()
-  {
-    Avatar.Dispose();
-    GC.SuppressFinalize(this);
   }
 }
 

@@ -53,7 +53,6 @@ public partial class GamePageViewModel : PageViewModelBase
     _actionQueue.Enqueue(async () =>
     {
       var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
-      //todo 不应该使用主窗口dialog，导致玩家无法查看地图做决定
       bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
       {
         Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,

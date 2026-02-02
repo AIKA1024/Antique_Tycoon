@@ -2,14 +2,17 @@ using System;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Connections;
+using Antique_Tycoon.Services;
+using Antique_Tycoon.Utilities;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Models.Nodes;
 
-public abstract partial class NodeModel : CanvasItemModel, IDisposable
+public abstract partial class NodeModel : CanvasItemModel
 {
   const double DefaultWidth = 120;
   const double DefaultHeight = 150;
@@ -136,7 +139,7 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
   {
     get;
     set => SetProperty(ref field, value);
-  } = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Minecraft.png")));
+  } = ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Minecraft.png");
 
   public ConnectorJsonModel[] ConnectorModels { get; set; } =
     [new(), new(), new(), new()];
@@ -144,13 +147,4 @@ public abstract partial class NodeModel : CanvasItemModel, IDisposable
   [JsonIgnore] [ObservableProperty] public partial Player? Owner { get; set; }
 
   [JsonIgnore] public ObservableCollection<Player> PlayersHere { get; set; } = [];
-
-  private bool _disposed;
-
-  public void Dispose()
-  {
-    if (_disposed) return;
-    Image.Dispose();
-    _disposed = true;
-  }
 }

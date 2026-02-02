@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Windows.Input;
 using Antique_Tycoon.Extensions;
+using Antique_Tycoon.Utilities;
 using Antique_Tycoon.ViewModels;
 using Antique_Tycoon.Views.Windows;
 using Avalonia;
@@ -23,8 +24,7 @@ public partial class ZoomPanBehavior : Behavior<Control>
   private Point? _lastPointer;
 
   private static readonly Cursor Hand =
-    new(new Bitmap(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/DragHand.png"))),
-      new PixelPoint(8, 8));
+    new(ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/DragHand.png"), new PixelPoint(8, 8));
 
   [GeneratedDirectProperty] public partial double Scale { get; set; }
 

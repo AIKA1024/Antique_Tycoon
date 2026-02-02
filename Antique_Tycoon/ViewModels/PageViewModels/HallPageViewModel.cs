@@ -12,7 +12,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
@@ -133,8 +132,8 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   public void Dispose()
   {
     if (_disposed) return;
-    NoMapImage.Dispose();
     _disposed = true;
+    NoMapImage.Dispose();
     _timer.Stop();
   }
 }

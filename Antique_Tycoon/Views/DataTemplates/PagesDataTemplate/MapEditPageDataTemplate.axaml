@@ -8,7 +8,8 @@
   xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
   xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes"
   xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
-  xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities">
+  xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities"
+  xmlns:effects="clr-namespace:Antique_Tycoon.Models.Effects">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="400">
       <pageViewModels:MapEditPageViewModel />
@@ -55,7 +56,7 @@
             </Flyout>
           </FlyoutBase.AttachedFlyout>
           <Interaction.Behaviors>
-            <i:ShowFlyoutBehavior IsEnabled="{x:True}"/>
+            <i:ShowFlyoutBehavior IsEnabled="{x:True}" />
           </Interaction.Behaviors>
           <widgets:GameCanvas.KeyBindings>
             <KeyBinding Gesture="Delete" Command="{Binding RemoveEntityCommand}" />
@@ -83,7 +84,7 @@
           HorizontalAlignment="Right"
           BorderThickness="2 0 0 0"
           BorderBrush="Black">
-          <TabControl Padding="0" Width="280">
+          <TabControl Padding="0" Width="360">
             <TabControl.Styles>
               <Style Selector="TabControl TabItem TextBox.MCTextbox">
                 <Setter Property="FontSize" Value="16" />
@@ -135,7 +136,7 @@
                         </ComboBox>
                       </StackPanel>
                     </c:McContentControl>
-                    <ContentControl Content="{Binding SelectedMapEntityViewModel}"/>
+                    <ContentControl Content="{Binding SelectedMapEntityViewModel}" />
                   </StackPanel>
                 </ScrollViewer>
               </Panel>
@@ -162,14 +163,17 @@
                   </c:McContentControl>
                   <c:McContentControl Header="古玩列表" HorizontalAlignment="Stretch">
                     <StackPanel>
-                      <ItemsControl ItemsSource="{Binding AntiqueMapItems}">
+                      <ItemsControl ItemsSource="{Binding AntiqueStacks}">
                         <ItemsControl.ItemsPanel>
                           <ItemsPanelTemplate>
                             <StackPanel Spacing="1" />
                           </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.DataTemplates>
-                          <DataTemplate DataType="entities:AntiqueStack">
+                          <DataTemplate>
+                            <DataTemplate.DataType>
+                              <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
+                            </DataTemplate.DataType>
                             <Panel>
                               <Border Padding="16" Background="#313233"
                                       BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
@@ -213,6 +217,64 @@
                       <c:McButton Content="添加新古玩" Margin="16" Padding="12 8"
                                   Command="{Binding AddNewAntiqueCommand}" />
                     </StackPanel>
+                  </c:McContentControl>
+                  <c:McContentControl Header="伙计列表" HorizontalAlignment="Stretch">
+                    <ItemsControl ItemsSource="{Binding StaffStacks}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Spacing="1" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+
+                      <ItemsControl.DataTemplates>
+                        <DataTemplate>
+                          <DataTemplate.DataType>
+                            <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:IStaff" />
+                          </DataTemplate.DataType>
+                          <Panel>
+                            <Border Padding="16" Background="#313233"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+                              <StackPanel Spacing="16">
+                                <Grid ColumnDefinitions="Auto,*">
+                                  <StackPanel VerticalAlignment="Center" Width="64">
+                                    <Image Width="48" IsHitTestVisible="False"
+                                           Source="{Binding Item.Image}" />
+                                    <TextBlock Text="{Binding Item.Name}" HorizontalAlignment="Center"
+                                               TextWrapping="Wrap" />
+                                  </StackPanel>
+                                  <UniformGrid Grid.Column="1"
+                                               Margin="12 0 0 0"
+                                               Columns="2" RowSpacing="4">
+                                    <TextBlock Text="雇佣价" VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding Item.HiringCost}" Watermark="雇佣价" />
+                                    <TextBlock Text="每回合薪水" VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding Item.Salary}" Watermark="每回合薪水" />
+                                    <TextBlock Text="雇佣所需古玩" VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding Item.HiringAntiqueCost}" Watermark="雇佣所需古玩" />
+                                    <TextBlock Text="数量" VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding Amount}" Watermark="数量" />
+                                  </UniformGrid>
+                                </Grid>
+                                
+                                <ItemsControl
+                                  ItemsSource="{Binding Item.Effects}">
+                                  <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                      <StackPanel Spacing="4"/>
+                                    </ItemsPanelTemplate>
+                                  </ItemsControl.ItemsPanel>
+                                  <ItemsControl.DataTemplates>
+                                    <DataTemplate x:DataType="effects:IStaffEffect">
+                                      <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                  </ItemsControl.DataTemplates>
+                                </ItemsControl>
+                              </StackPanel>
+                            </Border>
+                          </Panel>
+                        </DataTemplate>
+                      </ItemsControl.DataTemplates>
+                    </ItemsControl>
                   </c:McContentControl>
                 </StackPanel>
               </ScrollViewer>

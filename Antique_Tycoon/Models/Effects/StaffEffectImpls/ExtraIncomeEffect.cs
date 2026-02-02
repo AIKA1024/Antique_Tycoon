@@ -8,7 +8,7 @@ public class PassStartBonusEffect(decimal bonus):IStaffEffect
 {
   public decimal Bonus { get; set; } = bonus;
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnPassStartPoint;
-  public void Execute(GameContext context)
+  public void Execute(GameContext context,Player owner)
   {
     if (context is EconomyContext economyContext)
       economyContext.FlatBonus += Bonus;
