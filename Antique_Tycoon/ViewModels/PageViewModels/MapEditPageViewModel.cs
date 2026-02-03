@@ -39,13 +39,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
   public partial CanvasItemModel TempSelectedMapEntity { get; set; } //用于筛选是不是线条
 
   public ObservableCollection<ItemStack<Antique>> AntiqueStacks { get; } = [];
-  public ObservableCollection<ItemStack<IStaff>> StaffStacks { get; } = 
-  [
-    new (new CardSharp(),2),
-    new (new WelfareCheat(),2),
-    new (new MineOwner(),1),
-    new (new TaxLord(),1)
-  ];
+  public ObservableCollection<ItemStack<IStaff>> StaffStacks { get; } = [];
   public Point PointerPosition { get; set; }
 
   public NodeModel? SelectedMapEntity
@@ -82,6 +76,15 @@ public partial class MapEditPageViewModel : PageViewModelBase
         AntiqueStacks.Insert(antique.Index, new ItemStack<Antique>(antique, 1));
       else
         AntiqueStacks[antique.Index].Amount += 1;
+    }
+
+    foreach (var staff in CurrentMap.Staffs)
+    {
+      var staffStack = StaffStacks.FirstOrDefault(s => s.Item.GetType() == staff.GetType());
+      if (staffStack != null)
+        staffStack.Amount += 1;
+      else
+        StaffStacks.Add(new ItemStack<IStaff>(staff, 1));
     }
   }
 
@@ -275,6 +278,12 @@ public partial class MapEditPageViewModel : PageViewModelBase
       }
     }
 
+    CurrentMap.Staffs.Clear();
+    foreach (var staffStack in StaffStacks)
+    {
+      for (var j = 0; j < staffStack.Amount; j++)
+        CurrentMap.Staffs.Add(staffStack.Item);
+    }
 
     await App.Current.Services.GetRequiredService<MapFileService>().SaveMapAsync(CurrentMap);
   }

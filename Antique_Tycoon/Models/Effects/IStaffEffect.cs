@@ -1,7 +1,15 @@
+using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Effects.Contexts;
+using Antique_Tycoon.Models.Effects.StaffEffectImpls;
 using Antique_Tycoon.Models.Enums;
 
 namespace Antique_Tycoon.Models.Effects;
+
+[JsonDerivedType(typeof(CheaterEffect), "CheaterEffect")]
+[JsonDerivedType(typeof(PassStartBonusEffect), "PassStartBonusEffect")]
+[JsonDerivedType(typeof(MineManagerEffect), "MineManagerEffect")]
+[JsonDerivedType(typeof(TaxEvasionEffect), "TaxEvasionEffect")]
+[JsonDerivedType(typeof(TaxHikeEffect), "TaxHikeEffect")]
 
 public interface IStaffEffect
 {

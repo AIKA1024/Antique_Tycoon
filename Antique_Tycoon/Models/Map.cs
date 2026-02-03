@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Entities.StaffImpls;
 using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
 using Color = Avalonia.Media.Color;
 using NodeModel = Antique_Tycoon.Models.Nodes.NodeModel;
@@ -22,23 +23,20 @@ public partial class Map : ObservableObject
   [JsonConverter(typeof(PointJsonConverter))]
   public partial Point Offset { get; set; }
 
-  [ObservableProperty]
-  [JsonIgnore]
-  public partial Bitmap Cover { get; set; }
+  [ObservableProperty] [JsonIgnore] public partial Bitmap Cover { get; set; }
 
-  [ObservableProperty]
-  public partial double Scale { get; set; } = 1;
+  [ObservableProperty] public partial double Scale { get; set; } = 1;
 
   [ObservableProperty] public partial double CanvasHeight { get; set; } = 2000;
 
   [ObservableProperty] public partial double CanvasWidth { get; set; } = 3600;
-  
+
   [ObservableProperty] public partial int StartingCash { get; set; } = 10000;
-  
-  [ObservableProperty] public partial int SpawnPointCashReward  { get; set; } = 2000;
-  
+
+  [ObservableProperty] public partial int SpawnPointCashReward { get; set; } = 2000;
+
   [ObservableProperty]
-  [JsonIgnore]// 这个值通过另外的Hash文件读取
+  [JsonIgnore] // 这个值通过另外的Hash文件读取
   public partial string Hash { get; set; } = "";
 
   [ObservableProperty]
@@ -46,7 +44,7 @@ public partial class Map : ObservableObject
   public partial Color CanvasBackground { get; set; } = Color.Parse("#262626");
 
   [JsonIgnore] public NodeModel SpawnNode => (NodeModel)EntitiesDict[SpawnNodeUuid];
-  
+
   public string SpawnNodeUuid { get; set; } = "";
 
   public ObservableCollection<CanvasItemModel> Entities
@@ -66,6 +64,14 @@ public partial class Map : ObservableObject
   [JsonIgnore] public Dictionary<string, CanvasItemModel> EntitiesDict { get; } = [];
 
   public ObservableCollection<Antique> Antiques { get; set; } = [];
+
+  public ObservableCollection<IStaff> Staffs { get; set; } =
+  [
+    new CardSharp(),
+    new WelfareCheat(),
+    new MineOwner(),
+    new TaxLord()
+  ];
 
   public Map()
   {

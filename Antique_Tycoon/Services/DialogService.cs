@@ -31,6 +31,7 @@ public partial class DialogService : ObservableObject
     _dialogs.Add(dialogViewModel);
     var tcs = new XTaskCompletionSource();
     _dialogTasks.Add(dialogViewModel, tcs);
+    dialogViewModel.RequestClose += () => CloseDialog(dialogViewModel);
     return tcs.Task;
   }
 

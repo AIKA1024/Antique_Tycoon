@@ -1,9 +1,16 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Effects;
+using Antique_Tycoon.Models.Entities.StaffImpls;
 using Avalonia.Media.Imaging;
 
 namespace Antique_Tycoon.Models.Entities;
 
+[JsonDerivedType(typeof(CardSharp), "CardSharp")]
+[JsonDerivedType(typeof(MineOwner), "MineOwner")]
+[JsonDerivedType(typeof(TaxEvasionKing), "TaxEvasionKing")]
+[JsonDerivedType(typeof(TaxLord), "TaxLord")]
+[JsonDerivedType(typeof(WelfareCheat), "WelfareCheat")]
 public interface IStaff
 {
   public string Name { get; }
