@@ -134,12 +134,10 @@ public abstract partial class NodeModel : CanvasItemModel
 
   public string ImageHash { get; set; } = "";
 
+  [ObservableProperty]
   [JsonIgnore]
-  public Bitmap Image
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Minecraft.png");
+  public partial Bitmap Image { get; set; } =
+    new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Avatar/Minecraft.png")));
 
   public ConnectorJsonModel[] ConnectorModels { get; set; } =
     [new(), new(), new(), new()];

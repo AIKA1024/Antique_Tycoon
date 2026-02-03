@@ -209,13 +209,13 @@ public partial class MapEditPageViewModel : PageViewModelBase
     if (files.Count >= 1)
     {
       await using var stream = await files[0].OpenReadAsync();
-      target.Image.Dispose();
+      target.Image?.Dispose();
       target.Image = new Bitmap(stream);
     }
   }
 
   [RelayCommand]
-  private async Task ChangeAntiqueImage(ItemStack<Antique> target)
+  private async Task ChangeAntiqueImage(ItemStack<Antique> antiqueStack)
   {
     var files = await App.Current.Services.GetRequiredService<TopLevel>().StorageProvider.OpenFilePickerAsync(
       new FilePickerOpenOptions
@@ -237,8 +237,8 @@ public partial class MapEditPageViewModel : PageViewModelBase
     if (files.Count >= 1)
     {
       await using var stream = await files[0].OpenReadAsync();
-      target.Item.Image.Dispose();
-      target.Item.Image = new Bitmap(stream);
+      antiqueStack.Item.Image?.Dispose();
+      antiqueStack.Item.Image = new Bitmap(stream);
     }
   }
 

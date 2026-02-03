@@ -179,6 +179,7 @@
                                       BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
                                 <DockPanel>
                                   <Border DockPanel.Dock="Left" CornerRadius="4" Padding="4"
+                                          
                                           ClipToBounds="True"
                                           Cursor="Hand"
                                           VerticalAlignment="Center"
@@ -186,7 +187,7 @@
                                           BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                                           i:Tap.Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).ChangeAntiqueImageCommand}"
                                           i:Tap.CommandParameter="{Binding}">
-                                    <Image Width="36" IsHitTestVisible="False"
+                                    <Image Width="36" Height="36" IsHitTestVisible="False"
                                            Source="{Binding Item.Image}" />
                                   </Border>
                                   <UniformGrid DockPanel.Dock="Right"
