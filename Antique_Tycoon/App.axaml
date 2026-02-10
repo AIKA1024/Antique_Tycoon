@@ -7,6 +7,7 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
+        <MergeResourceInclude Source="Views/Controls/MasterDetailView.axaml"/>
         <MergeResourceInclude Source="/Views/DataTemplates/AllPageDataTemplate.axaml" />
         <MergeResourceInclude Source="Themes/Colors.axaml"/>
       </ResourceDictionary.MergedDictionaries>

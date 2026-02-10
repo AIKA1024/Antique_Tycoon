@@ -18,6 +18,11 @@ public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<SaleAntiqu
 
   private bool CanSell() => SelectedStack != null;
 
+  public SaleAntiqueDialogViewModel()
+  {
+    
+  }
+  
   public SaleAntiqueDialogViewModel(IList<ItemStack<Antique>> antiqueStacks)
   {
     AntiqueStacks = antiqueStacks;

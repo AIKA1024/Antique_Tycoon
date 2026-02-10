@@ -1,0 +1,178 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls">
+    <Design.PreviewWith>
+        <c:MasterDetailView />
+    </Design.PreviewWith>
+
+
+    <ControlTheme x:Key="{x:Type c:MasterDetailView}" TargetType="c:MasterDetailView">
+        <ControlTheme.Resources>
+            <ControlTheme x:Key="DefaultItemContainerTheme" TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+
+                <Setter Property="Template">
+                    <ControlTemplate>
+                        <Border Name="ItemBorder"
+                                Classes="ItemBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="4">
+                            <Panel>
+                                <Rectangle Classes="BottomRect"
+                                           VerticalAlignment="Bottom" />
+
+                                <Border Classes="ContentBorder">
+                                    <ContentPresenter Content="{TemplateBinding Content}"
+                                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                </Border>
+
+                                <Rectangle Classes="InnerLeft" HorizontalAlignment="Left" />
+                                <Rectangle Classes="InnerRight" HorizontalAlignment="Right" />
+                                <Rectangle Classes="InnerTop" VerticalAlignment="Top" />
+
+                                <Rectangle Classes="InnerBottom" VerticalAlignment="Bottom" />
+                            </Panel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter>
+
+                <Style Selector="^:nth-child(n+2)">
+                    <Setter Property="Margin" Value="0 -4 0 0" />
+                </Style>
+
+                <Style Selector="^ /template/ Border.ItemBorder">
+                    <Setter Property="BorderBrush" Value="Black" />
+                </Style>
+
+                <Style Selector="^ /template/ Rectangle.BottomRect">
+                    <Setter Property="Height" Value="4" />
+                </Style>
+
+                <Style Selector="^ /template/ Rectangle.InnerLeft, ^ /template/ Rectangle.InnerRight">
+                    <Setter Property="Width" Value="4" />
+                    <Setter Property="Fill" Value="#80FFFFFF" />
+                </Style>
+
+                <Style Selector="^ /template/ Rectangle.InnerTop, ^ /template/ Rectangle.InnerBottom">
+                    <Setter Property="Height" Value="4" />
+                    <Setter Property="Fill" Value="#80FFFFFF" />
+                </Style>
+
+                <Style Selector="^:pointerover">
+                    <Setter Property="ZIndex" Value="1" />
+                    <Style Selector="^ /template/ Border.ItemBorder">
+                        <Setter Property="BorderBrush" Value="White" />
+                    </Style>
+                </Style>
+
+                <Style Selector="^:selected">
+                    <Setter Property="ZIndex" Value="1" />
+
+                    <Style Selector="^ /template/ Border.ItemBorder">
+                        <Setter Property="BorderBrush" Value="White" />
+                    </Style>
+
+                    <Style Selector="^ /template/ Rectangle.BottomRect">
+                        <Setter Property="Height" Value="0" />
+                    </Style>
+
+                    <!-- <Style Selector="^ /template/ Border.ContentBorder"> -->
+                    <!--     <Setter Property="Padding" Value="32 16 32 20" /> -->
+                    <!-- </Style> -->
+
+                    <Style Selector="^ /template/ Rectangle.InnerLeft, ^ /template/ Rectangle.InnerTop">
+                        <Setter Property="Fill" Value="#80000000" />
+                    </Style>
+
+                    <Style Selector="^ /template/ Rectangle.InnerLeft, ^ /template/ Rectangle.InnerRight">
+                        <Setter Property="Width" Value="8" />
+                    </Style>
+
+                    <Style Selector="^ /template/ Rectangle.InnerTop, ^ /template/ Rectangle.InnerBottom">
+                        <Setter Property="Height" Value="8" />
+                    </Style>
+                </Style>
+
+            </ControlTheme>
+        </ControlTheme.Resources>
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid ColumnDefinitions="*,16,2*"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Border BorderBrush="#1C1C1D" BorderThickness="4">
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Grid.Row="0" BorderBrush="#DFDFE1" BorderThickness="4"
+                                    Background="#CACBCE"
+                                    Padding="16">
+                                <Border BorderBrush="Black" BorderThickness="4"
+                                        Background="#434343">
+                                    <ListBox VerticalAlignment="Stretch"
+                                             HorizontalAlignment="Stretch"
+                                             SelectedIndex="0"
+                                             SelectedItem="{Binding SelectedItem,RelativeSource={RelativeSource TemplatedParent},Mode=OneWayToSource}"
+                                             ItemsSource="{TemplateBinding ItemsSource}"
+                                             ItemTemplate="{TemplateBinding ListBoxItemTemplate}"
+                                             ItemContainerTheme="{Binding ItemContainerTheme,
+                                             RelativeSource={RelativeSource TemplatedParent},TargetNullValue={StaticResource DefaultItemContainerTheme} }">
+                                        <ListBox.Template>
+                                            <ControlTemplate>
+                                                <Border Margin="8 16"
+                                                        VerticalAlignment="Top">
+                                                    <ScrollViewer>
+                                                        <ItemsPresenter />
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ListBox.Template>
+                                    </ListBox>
+                                </Border>
+                            </Border>
+                            <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" Height="4" Fill="#4E4E50" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" BorderBrush="#1C1C1D" BorderThickness="0 4 0 4" Margin="0 10"
+                            VerticalAlignment="Stretch">
+                        <Border BorderBrush="#626263" BorderThickness="0 4 0 4" Background="#3F4041"
+                                VerticalAlignment="Stretch" />
+                    </Border>
+
+                    <Border Grid.Column="2" BorderBrush="#1C1C1D" BorderThickness="4">
+                        <Grid RowDefinitions="*,Auto">
+                            <Border Grid.Row="0" BorderBrush="#DFDFE1" Background="#CACBCE" BorderThickness="4"
+                                    Padding="16">
+                                <Grid RowDefinitions="*,Auto">
+                                    <Border Grid.Row="0" BorderBrush="Black" BorderThickness="4"
+                                            Background="#434343">
+                                        <ContentControl
+                                            Classes.IsEmpty="{TemplateBinding DetailContent,Converter={x:Static ObjectConverters.IsNull}}">
+                                            <ContentControl.Styles>
+                                                <Style Selector="ContentControl">
+                                                    <Setter Property="Content"
+                                                            Value="{Binding DetailContent,RelativeSource={RelativeSource TemplatedParent} }" />
+                                                </Style>
+                                                <Style Selector="ContentControl.IsEmpty">
+                                                    <Setter Property="Content"
+                                                            Value="{Binding SelectedItem,RelativeSource={RelativeSource TemplatedParent} }" />
+                                                </Style>
+                                            </ContentControl.Styles>
+                                        </ContentControl>
+                                    </Border>
+                                    <ContentControl Grid.Row="1" Content="{TemplateBinding DetailFoot}" />
+                                </Grid>
+
+                            </Border>
+                            <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" Height="4" Fill="#4E4E50" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

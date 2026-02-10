@@ -6,224 +6,96 @@
                     xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
                     xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
                     xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities">
-  <!-- Add Resources Here -->
-  <Design.PreviewWith>
-    <ContentControl>
-      <ContentControl.DataTemplates>
-        <StaticResource ResourceKey="SaleAntiqueDialogDataTemplate" />
-      </ContentControl.DataTemplates>
-      <dvm:SaleAntiqueDialogViewModel />
-    </ContentControl>
-  </Design.PreviewWith>
+    <!-- Add Resources Here -->
+    <Design.PreviewWith>
+        <ContentControl>
+            <ContentControl.DataTemplates>
+                <StaticResource ResourceKey="SaleAntiqueDialogDataTemplate" />
+            </ContentControl.DataTemplates>
+            <dvm:SaleAntiqueDialogViewModel />
+        </ContentControl>
+    </Design.PreviewWith>
 
-  <DataTemplate x:Key="SaleAntiqueDialogDataTemplate" x:DataType="dvm:SaleAntiqueDialogViewModel">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="16" />
-        <ColumnDefinition Width="2*" />
-      </Grid.ColumnDefinitions>
-      <Border BorderBrush="#1C1C1D" BorderThickness="4">
-        <Grid RowDefinitions="*,Auto">
-          <Border Grid.Row="0" BorderBrush="#DFDFE1" BorderThickness="4"
-                  Background="#CACBCE"
-                  Padding="16">
-            <Border BorderBrush="Black" BorderThickness="4"
-                    Background="#434343">
-              <ListBox VerticalAlignment="Stretch"
-                       HorizontalAlignment="Stretch"
-                       SelectedItem="{Binding SelectedStack,Mode=OneWayToSource}"
-                       ItemsSource="{Binding AntiqueStacks}"
-                       SelectedIndex="0">
-                <ListBox.Template>
-                  <ControlTemplate>
-                    <Border Margin="8 16"
-                            VerticalAlignment="Top">
-                      <ScrollViewer>
-                        <ItemsPresenter />
-                      </ScrollViewer>
-                    </Border>
-                  </ControlTemplate>
-                </ListBox.Template>
-                <ListBox.Styles>
-                  <Style Selector="ListBoxItem">
-                    <Setter Property="Padding" Value="0" />
-                  </Style>
-                  <Style Selector="ListBoxItem:nth-child(n+2)">
-                    <Setter Property="Margin" Value="0 -4 0 0" />
-                  </Style>
-                  <Style Selector="ListBoxItem Border.ItemBorder">
-                    <Setter Property="BorderBrush" Value="Black" />
-                  </Style>
+    <DataTemplate x:Key="SaleAntiqueDialogDataTemplate" x:DataType="dvm:SaleAntiqueDialogViewModel">
 
-                  <Style Selector="ListBoxItem:pointerover">
-                    <Setter Property="ZIndex" Value="1" />
-                  </Style>
-                  <Style Selector="ListBoxItem:pointerover Border.ItemBorder">
-                    <Setter Property="BorderBrush" Value="White" />
-                  </Style>
-
-                  <Style Selector="ListBoxItem:selected">
-                    <Setter Property="ZIndex" Value="1" />
-                  </Style>
-                  <Style Selector="ListBoxItem:selected Border.ItemBorder">
-                    <Setter Property="BorderBrush" Value="White" />
-                  </Style>
-
-                  <!-- 未选中的样式 -->
-                  <Style Selector="ListBoxItem">
-                    <Style Selector="^ Rectangle.BottomRect">
-                      <Setter Property="Height" Value="4" />
-                    </Style>
-                    <Style Selector="^ Border.ContentBorder">
-                      <Setter Property="Padding" Value="32 16" />
-                    </Style>
-
-                    <Style Selector="^ Rectangle.InnerLeft,^ Rectangle.InnerRight">
-                      <Setter Property="Width" Value="4" />
-                      <Setter Property="Fill" Value="#80FFFFFF" />
-                    </Style>
-
-                    <Style Selector="^ Rectangle.InnerTop,^ Rectangle.InnerBottom">
-                      <Setter Property="Height" Value="4" />
-                      <Setter Property="Fill" Value="#80FFFFFF" />
-                    </Style>
-                  </Style>
-
-                  <!-- 选中的样式 -->
-                  <Style Selector="ListBoxItem:selected">
-                    <Style Selector="^ Rectangle.BottomRect">
-                      <Setter Property="Height" Value="0" />
-                    </Style>
-                    <Style Selector="^ Border.ContentBorder">
-                      <Setter Property="Padding" Value="32 16 32 20" />
-                    </Style>
-
-                    <Style Selector="^ Rectangle.InnerLeft,^ Rectangle.InnerTop">
-                      <Setter Property="Fill" Value="#80000000" />
-                    </Style>
-
-                    <Style Selector="^ Rectangle.InnerLeft,^ Rectangle.InnerRight">
-                      <Setter Property="Width" Value="8" />
-                    </Style>
-
-                    <Style Selector="^ Rectangle.InnerTop,^ Rectangle.InnerBottom">
-                      <Setter Property="Height" Value="8" />
-                    </Style>
-                  </Style>
-                </ListBox.Styles>
-                <ListBox.DataTemplates>
-                  <DataTemplate>
+        <c:MasterDetailView ItemsSource="{Binding AntiqueStacks}"
+                            SelectedItem="{Binding SelectedStack,Mode=OneWayToSource}">
+            <c:MasterDetailView.ListBoxItemTemplate>
+                <DataTemplate>
                     <DataTemplate.DataType>
-                      <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique"/>
+                        <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
                     </DataTemplate.DataType>
-                    <Border Classes="ItemBorder" BorderThickness="4">
-                      <StackPanel>
+                    <StackPanel>
                         <Panel>
-                          <Border Classes="ContentBorder"
-                                  Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}">
-                            <StackPanel Orientation="Horizontal" Spacing="32" TextElement.Foreground="White">
-                              <Panel>
-                                <Image Source="{Binding Item.Image}" Width="48" />
-                                <TextBlock Text="{Binding Amount}"
-                                           FontSize="24"
-                                           HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                  <TextBlock.RenderTransform>
-                                    <TranslateTransform Y="4" />
-                                  </TextBlock.RenderTransform>
-                                  <TextBlock.Effect>
-                                    <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5" OffsetY="2" />
-                                  </TextBlock.Effect>
-                                </TextBlock>
-                              </Panel>
+                            <Border
+                                Padding="32 16"
+                                Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}">
+                                <StackPanel Orientation="Horizontal" Spacing="32" TextElement.Foreground="White">
+                                    <Panel>
+                                        <Image Source="{Binding Item.Image}" Width="48" />
+                                        <TextBlock Text="{Binding Amount}"
+                                                   FontSize="24"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                            <TextBlock.RenderTransform>
+                                                <TranslateTransform Y="4" />
+                                            </TextBlock.RenderTransform>
+                                            <TextBlock.Effect>
+                                                <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
+                                                                  OffsetY="2" />
+                                            </TextBlock.Effect>
+                                        </TextBlock>
+                                    </Panel>
 
-                              <StackPanel Spacing="8">
-                                <TextBlock Text="{Binding Item.Name}" FontWeight="Black" FontSize="16">
-                                  <TextBlock.Effect>
-                                    <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0" OffsetY="0" />
-                                  </TextBlock.Effect>
-                                </TextBlock>
-                                <TextBlock Text="{Binding Item.Value}" FontWeight="Black" FontSize="12">
-                                  <TextBlock.Effect>
-                                    <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0" OffsetY="0" />
-                                  </TextBlock.Effect>
-                                </TextBlock>
-                              </StackPanel>
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="{Binding Item.Name}" FontWeight="Black" FontSize="16">
+                                            <TextBlock.Effect>
+                                                <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0"
+                                                                  OffsetY="0" />
+                                            </TextBlock.Effect>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Item.Value}" FontWeight="Black" FontSize="12">
+                                            <TextBlock.Effect>
+                                                <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0"
+                                                                  OffsetY="0" />
+                                            </TextBlock.Effect>
+                                        </TextBlock>
+                                    </StackPanel>
 
-                              <TextBlock Text="{Binding Item.FlavorText}">
-                                <TextBlock.Effect>
-                                  <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0" OffsetY="0" />
-                                </TextBlock.Effect>
-                              </TextBlock>
-                            </StackPanel>
-                          </Border>
-
-                          <Rectangle Classes="InnerLeft" HorizontalAlignment="Left" VerticalAlignment="Stretch" />
-                          <Rectangle Classes="InnerRight" HorizontalAlignment="Right"
-                                     VerticalAlignment="Stretch" />
-                          <Rectangle Classes="InnerTop" HorizontalAlignment="Stretch" VerticalAlignment="Top" />
-                          <Rectangle Classes="InnerBottom" HorizontalAlignment="Stretch"
-                                     VerticalAlignment="Bottom" />
+                                    <TextBlock Text="{Binding Item.FlavorText}">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0"
+                                                              OffsetY="0" />
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
                         </Panel>
-
                         <Panel>
-                          <Rectangle Classes="BottomRect"
-                                     VerticalAlignment="Bottom"
-                                     Fill="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}" />
-                          <Border Background="#80000000" />
+                            <Rectangle Classes="BottomRect"
+                                       VerticalAlignment="Bottom"
+                                       Fill="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}" />
+                            <Border Background="#80000000" />
                         </Panel>
-                      </StackPanel>
+                    </StackPanel>
 
-                    </Border>
-                  </DataTemplate>
-                </ListBox.DataTemplates>
-              </ListBox>
-            </Border>
-          </Border>
-          <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" Height="4" Fill="#4E4E50" />
-        </Grid>
-      </Border>
+                </DataTemplate>
+            </c:MasterDetailView.ListBoxItemTemplate>
+            <c:MasterDetailView.DetailFoot>
+                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 16 0 0"
+                      ColumnSpacing="16">
+                    <c:McButton Grid.Column="0"
+                                Classes="Danger"
+                                Content="不出售"
+                                HorizontalAlignment="Left"
+                                Command="{Binding CancelCommand}"/>
 
-      <Border Grid.Column="1" BorderBrush="#1C1C1D" BorderThickness="0 4 0 4" Margin="0 10"
-              VerticalAlignment="Stretch">
-        <Border BorderBrush="#626263" BorderThickness="0 4 0 4" Background="#3F4041"
-                VerticalAlignment="Stretch" />
-      </Border>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                        <c:McButton Content="以原价出售，升级地产" Command="{Binding SellAndUpgradeCommand}" />
+                        <c:McButton Classes="Confirm" Content="收取额外收益出售" Command="{Binding SellAndHarvestCommand}" />
+                    </StackPanel>
+                </Grid>
+            </c:MasterDetailView.DetailFoot>
+        </c:MasterDetailView>
 
-      <Border Grid.Column="2" BorderBrush="#1C1C1D" BorderThickness="4">
-        <Grid RowDefinitions="*,Auto">
-          <Border Grid.Row="0" BorderBrush="#DFDFE1" BorderThickness="4"
-                  Background="#CACBCE"
-                  Padding="16">
-            <Grid RowDefinitions="*,Auto" RowSpacing="16"
-                  TextElement.Foreground="White"
-                  TextElement.FontSize="16">
-              <Border Grid.Row="0"
-                      Padding="32"
-                      BorderBrush="#030303" BorderThickness="4"
-                      Background="#313233">
-                <TextBlock Text="xxx路过了你的xxx,你可以选择一个古玩出售" />
-              </Border>
-
-              <Grid Grid.Row="1" ColumnDefinitions="*,Auto"
-                    ColumnSpacing="16">
-                <c:McButton Grid.Column="0"
-                            Classes="Danger"
-                            Content="不出售"
-                            HorizontalAlignment="Left"
-                            Command="{Binding CancelCommand}"/>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
-                  <c:McButton Content="以原价出售，升级地产" Command="{Binding SellAndUpgradeCommand}" />
-                  <c:McButton Classes="Confirm" Content="收取额外收益出售" Command="{Binding SellAndHarvestCommand}" />
-                </StackPanel>
-              </Grid>
-            </Grid>
-          </Border>
-          <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" Height="4" Fill="#4E4E50" />
-        </Grid>
-      </Border>
-    </Grid>
-
-  </DataTemplate>
+    </DataTemplate>
 </ResourceDictionary>

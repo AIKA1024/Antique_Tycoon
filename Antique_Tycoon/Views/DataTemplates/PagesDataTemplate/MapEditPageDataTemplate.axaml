@@ -52,6 +52,7 @@
                 <MenuItem Header="地产" />
                 <MenuItem Header="矿洞" />
                 <MenuItem Header="传送点" />
+                <MenuItem Header="人才市场" />
               </StackPanel>
             </Flyout>
           </FlyoutBase.AttachedFlyout>
