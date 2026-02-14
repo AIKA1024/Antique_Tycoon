@@ -12,6 +12,7 @@
     <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/SpawnPointDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/EstateDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/MineDataTemplate.axaml" />
+    <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/TalentMarketDataTemplate.axaml" />
     
     <MergeResourceInclude Source="/Views/DataTemplates/EntityDataTemplate/AntiqueDataTemplate.axaml" />
 
@@ -24,5 +25,6 @@
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/MessageDialogDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/LockerRoomDialogDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/SaleAntiqueDialogDataTemplate.axaml" />
+    <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/HireStaffDialogDataTemplate.axaml" />
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

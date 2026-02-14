@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +37,9 @@ public class ActionQueueService
         {
           // 核心：await action() 会等待动画/弹窗彻底结束（Task完成）
           // 才会进入下一次循环处理下一个消息
+          Debug.WriteLine("开始一个任务");
           await action();
+          Debug.WriteLine("处理了一个任务");
         }
         catch (Exception ex)
         {

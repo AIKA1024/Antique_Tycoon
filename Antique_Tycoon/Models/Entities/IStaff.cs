@@ -13,6 +13,7 @@ namespace Antique_Tycoon.Models.Entities;
 [JsonDerivedType(typeof(WelfareCheat), "WelfareCheat")]
 public interface IStaff
 {
+  public string Uuid { get; set; }
   public string Name { get; }
   public List<IStaffEffect> Effects { get; }
   
@@ -31,4 +32,6 @@ public interface IStaff
   /// 每回合要发放的薪水
   /// </summary>
   public decimal Salary { get; }
+  
+  public string Description { get; }
 }

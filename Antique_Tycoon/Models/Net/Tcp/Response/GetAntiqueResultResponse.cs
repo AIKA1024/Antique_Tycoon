@@ -6,13 +6,12 @@ public class GetAntiqueResultResponse:ResponseBase
   public string AntiqueUuid { get; set; }
   public string PlayerUuid { get; set; }
   public string MineUuid { get; set; }
-  public bool IsSuccess { get; set; }
 
   public GetAntiqueResultResponse(string antiqueUuid, string playerUuid,string mineUuid,bool isSuccess)
   {
     AntiqueUuid = antiqueUuid;
     PlayerUuid = playerUuid;
     MineUuid = mineUuid;
-    IsSuccess = isSuccess;
+    ResponseStatus = isSuccess?RequestResult.Success:RequestResult.Reject;
   }
 }

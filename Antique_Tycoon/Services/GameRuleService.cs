@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models.Effects.Contexts;
+using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
@@ -27,6 +29,9 @@ public class GameRuleService : ObservableObject
   private readonly DialogService _dialogService;
   // 应该在回合结束时播放音效
 
+  private List<Antique> _antiques = [];
+  private List<IStaff> _staffs = [];
+
 
   public GameRuleService(GameManager gameManager, DialogService dialogService, LibVLC libVlc,
     RoleStrategyFactory strategyFactory)
@@ -48,14 +53,16 @@ public class GameRuleService : ObservableObject
   private async Task<RollDiceResponse> GetRollDiceAsync(TcpClient? client)
   {
     int rollDiceValue = Random.Shared.Next(1, 7);
-    RollDiceResponse rollDiceResponse = new RollDiceResponse("", _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
+    RollDiceResponse rollDiceResponse =
+      new RollDiceResponse("", _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
     try
     {
       var rollDiceRequest =
         await _gameManager.NetServerInstance
           .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
       rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
-      rollDiceResponse = new RollDiceResponse(rollDiceRequest.Id, _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
+      rollDiceResponse =
+        new RollDiceResponse(rollDiceRequest.Id, _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
       await _gameManager.NetServerInstance.Broadcast(rollDiceResponse);
       WeakReferenceMessenger.Default.Send(rollDiceResponse);
     }
@@ -71,6 +78,9 @@ public class GameRuleService : ObservableObject
   {
     if (!_gameManager.IsRoomOwner)
       return;
+
+    _antiques = _gameManager.SelectedMap.Antiques.ToList();
+    _staffs = _gameManager.SelectedMap.Staffs.ToList();
 
     await Task.Yield(); //todo 先这样等待一下ui注册事件了先
 
@@ -89,8 +99,9 @@ public class GameRuleService : ObservableObject
         try
         {
           var selectDestinationRequest = await
-            _gameManager.NetServerInstance.SendRequestAsync<SelectDestinationAction, SelectDestinationRequest>(
-              selectDestinationAction, client);
+            _gameManager.NetServerInstance
+              .SendRequestAsync<SelectDestinationAction, SelectDestinationRequest>(
+                selectDestinationAction, client);
           selectPath = nodeDic[selectDestinationRequest.DestinationUuid];
         }
         catch (TimeoutException e)
@@ -137,13 +148,49 @@ public class GameRuleService : ObservableObject
         return true;
 
       // 扩展：可添加其他格子类型（比如抽奖/双倍骰子格子），返回 false 表示回合不结束
-      // case LotteryNode lotteryNode:
-      //     await HandleLotteryAsync(player, lotteryNode);
-      //     return false; // 抽奖后可继续投骰子
+      case TalentMarket:
+        await HandleTalentMarketAsync(player, node);
+        return false; // 抽奖后可继续投骰子
 
       default:
         // 未知格子：默认结束回合
         return true;
+    }
+  }
+
+  private async Task HandleTalentMarketAsync(Player player, NodeModel node)
+  {
+    var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+    if (_staffs.Count == 0 || player.Money < _staffs.Min(s => s.HiringCost)) //todo 要判断是否至少有一个员工可以被雇佣，而不是直接判断金钱
+      return;
+
+    var hireStaffActionMessage = new HireStaffAction(_staffs);
+    try
+    {
+      var hireStaffRequest =
+        await _gameManager.NetServerInstance.SendRequestAsync<HireStaffAction, HireStaffRequest>(
+          hireStaffActionMessage, client);
+      if (string.IsNullOrEmpty(hireStaffRequest.StaffUuid))
+        return;
+
+      var staff = _staffs.First(s => s.Uuid == hireStaffRequest.StaffUuid);
+      
+      var inventoryMap = player.Antiques.GroupBy(a => a.Index)
+        .ToDictionary(g => g.Key, g => g.Count());
+      bool canHire = player.Money >= staff.HiringCost && 
+                     staff.HiringAntiqueCost.All(cost => 
+                       inventoryMap.TryGetValue(cost.Key, out int count) && count >= cost.Value);
+
+      var hireStaffResponse = new HireStaffResponse(hireStaffRequest.Id, player.Uuid,staff.Uuid,canHire);
+      await Broadcast(hireStaffResponse);
+      player.StaffList.Add(staff);
+      _staffs.Remove(staff);
+      await Broadcast(new UpdatePlayerInfoResponse(player, $"{player.Name}成功雇佣{staff.Name}"));
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e);
+      throw;
     }
   }
 
@@ -169,14 +216,15 @@ public class GameRuleService : ObservableObject
           {
             player.Money -= estate.Value;
             estate.Owner = player;
-            var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid);
-            await _gameManager.NetServerInstance.Broadcast(message);
-            WeakReferenceMessenger.Default.Send(message);
+            var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid)
+              { Id = buyEstateRequest.Id };
+            await Broadcast(message);
           }
         }
         catch (Exception e)
         {
           Console.WriteLine(e.Message);
+          throw;
         }
       }
     }
@@ -189,8 +237,8 @@ public class GameRuleService : ObservableObject
 
     async Task SaleAntique(Player seller, string buyerUuid)
     {
-      if (seller.Antiques.Count <= 0) return;
-      
+      if (seller.Antiques.Count == 0) return;
+
       var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyerUuid, estate.Uuid); //购买者空字符串代表银行
       var saleAntiqueRequest =
         await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
@@ -203,7 +251,8 @@ public class GameRuleService : ObservableObject
       if (saleAntiqueRequest.IsUpgradeEstate)
       {
         estate.Level += 1;
-        var updateEstateInfoResponse = new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level);
+        var updateEstateInfoResponse = new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level)
+          { Id = saleAntiqueRequest.Id };
         await Broadcast(updateEstateInfoResponse);
         var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
           $"{seller.Name}原价出售古董，获得${seller.Money += antique.Value},{estate.Title}等级提升为{estate.Level}");
@@ -213,7 +262,7 @@ public class GameRuleService : ObservableObject
       {
         seller.Money += estate.CalculateCurrentRevenue(antique.Value);
         var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
-          $"{seller.Name}加价出售古董，获得${seller.Money += antique.Value}");
+          $"{seller.Name}加价出售古董，获得${seller.Money += antique.Value}") { Id = saleAntiqueRequest.Id };
         await Broadcast(updatePlayerInfoResponse);
       }
 
@@ -225,16 +274,17 @@ public class GameRuleService : ObservableObject
   {
     var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
     var message =
-      new UpdatePlayerInfoResponse(player, $"{player.Name}路过了出生点，获得{bonus} {player.Money}->{player.Money += bonus}");
+      new UpdatePlayerInfoResponse(player,
+        $"{player.Name}路过了出生点，获得{bonus} {player.Money}->{player.Money += bonus}");
     await Broadcast(message);
   }
 
   private async Task HandleMineAsync(Player player, NodeModel node)
   {
-    if (_gameManager.SelectedMap.Antiques.Count > 0)
+    if (_antiques.Count > 0)
     {
-      var randomIndex = Random.Shared.Next(0, _gameManager.SelectedMap.Antiques.Count);
-      var antique = _gameManager.SelectedMap.Antiques[randomIndex];
+      var randomIndex = Random.Shared.Next(0, _antiques.Count);
+      var antique = _antiques[randomIndex];
       var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid, node.Uuid);
       var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
       WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
@@ -251,17 +301,18 @@ public class GameRuleService : ObservableObject
         await Broadcast(new UpdatePlayerInfoResponse(player, $"{player.Name}成功获得{antique.Name}"));
       }
 
-      _gameManager.SelectedMap.Antiques.RemoveAt(randomIndex); //todo 直接修改地图的古玩数组可能不太好
+      _antiques.RemoveAt(randomIndex);
     }
     else
     {
       var message =
-        new UpdatePlayerInfoResponse(player, $"已经没有古玩流通，因此{player.Name}获得200 {player.Money}->{player.Money += 200}");
+        new UpdatePlayerInfoResponse(player,
+          $"已经没有古玩流通，因此{player.Name}获得200 {player.Money}->{player.Money += 200}");
       await Broadcast(message);
     }
   }
-  
-  // GameRulerService.cs 内部
+
+// GameRulerService.cs 内部
 
   /// <summary>
   /// 核心辅助方法：触发所有符合当前时机的 IStaff 效果
@@ -275,7 +326,7 @@ public class GameRuleService : ObservableObject
       var effects = player.GetActiveEffects(point);
       foreach (var effect in effects)
       {
-        effect.Execute(context,player);
+        effect.Execute(context, player);
       }
     }
   }

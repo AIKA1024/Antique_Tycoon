@@ -81,7 +81,7 @@
                 </DataTemplate>
             </c:MasterDetailView.ListBoxItemTemplate>
             <c:MasterDetailView.DetailFoot>
-                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0 16 0 0"
+                <Grid ColumnDefinitions="*,Auto" Margin="0 16 0 0"
                       ColumnSpacing="16">
                     <c:McButton Grid.Column="0"
                                 Classes="Danger"

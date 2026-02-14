@@ -36,36 +36,19 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameMessage);
     WeakReferenceMessenger.Default.Register<RollDiceResponse>(this, ReceiveRollDiceMessage);
     WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
-    WeakReferenceMessenger.Default.Register<BuyEstateAction>(this, ReceiveBuyEstateAction);
     WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
   }
 
+  private void ReceiveHireStaffResponse(object recipient, HireStaffResponse message)
+  {
+    
+  }
 
 
   private void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
   {
     WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,
       Map)); //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
-  }
-
-  private void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
-  {
-    _actionQueue.Enqueue(async () =>
-    {
-      var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
-      bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-      {
-        Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
-        IsLightDismissEnabled = false
-      });
-      BuyEstateRequest buyEstateRequest;
-      if (isConfirm)
-        buyEstateRequest = new BuyEstateRequest(message.Id, _gameManager.LocalPlayer.Uuid, estate.Uuid);
-      else
-        buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
-
-      await _gameManager.SendToGameServerAsync(buyEstateRequest);
-    });
   }
 
 

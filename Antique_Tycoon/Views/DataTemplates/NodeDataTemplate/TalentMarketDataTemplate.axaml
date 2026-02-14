@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Antique_Tycoon.Views.Controls"
+                    xmlns:vm="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
+                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
+    <Design.PreviewWith>
+        <ContentControl>
+            <nodes:Estate Title="人才市场" />
+        </ContentControl>
+    </Design.PreviewWith>
+
+    <DataTemplate x:Key="TalentMarketDataTemplate" x:DataType="nodes:TalentMarket">
+        <StackPanel>
+            <TextBlock Text="{Binding Title}"
+                       FontSize="16"
+                       FontWeight="Black"
+                       HorizontalAlignment="Center" />
+            <Image
+                Margin="0 16 0 0"
+                Source="{Binding Image}"
+                Stretch="{Binding CoverStretch}" />
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

@@ -1,0 +1,86 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dialogViewModels="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
+                    xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls"
+                    xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities"
+                    xmlns:effects="clr-namespace:Antique_Tycoon.Models.Effects">
+    <Design.PreviewWith>
+        <ContentControl>
+            <ContentControl.DataTemplates>
+                <StaticResource ResourceKey="HireStaffDialogDataTemplate" />
+            </ContentControl.DataTemplates>
+            <dialogViewModels:HireStaffDialogViewModel />
+        </ContentControl>
+    </Design.PreviewWith>
+
+    <DataTemplate x:Key="HireStaffDialogDataTemplate" x:DataType="dialogViewModels:HireStaffDialogViewModel">
+        <controls:MasterDetailView ItemsSource="{Binding Staffs}"
+                                   SelectedItem="{Binding SelectedStaff,Mode=OneWayToSource}">
+            <controls:MasterDetailView.ListBoxItemTemplate>
+                <DataTemplate>
+                    <DataTemplate.DataType>
+                        <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:IStaff" />
+                    </DataTemplate.DataType>
+                    <Border Padding="16">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="32">
+                            <Image Grid.Column="0" Source="{Binding Item.Image}" Width="64" Height="64" />
+                            <TextBlock Grid.Column="0" Text="{Binding Amount}"
+                                       FontSize="24"
+                                       HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                <TextBlock.RenderTransform>
+                                    <TranslateTransform Y="4" />
+                                </TextBlock.RenderTransform>
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
+                                                      OffsetY="2" />
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding Item.Name}" />
+                                <TextBlock Text="{Binding Item.Description}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </controls:MasterDetailView.ListBoxItemTemplate>
+            <controls:MasterDetailView.DataTemplates>
+                <DataTemplate >
+                    <DataTemplate.DataType>
+                        <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:IStaff" />
+                    </DataTemplate.DataType>
+                    <StackPanel MinWidth="600" Margin="32" Spacing="16">
+                        <Image Source="{Binding Item.Image}" Width="96" Height="96" />
+                        <ItemsControl
+                            ItemsSource="{Binding Item.Effects}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Spacing="4" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.DataTemplates>
+                                <DataTemplate x:DataType="effects:IStaffEffect">
+                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </ItemsControl.DataTemplates>
+                        </ItemsControl>
+                    </StackPanel>
+                </DataTemplate>
+            </controls:MasterDetailView.DataTemplates>
+            <controls:MasterDetailView.DetailFoot>
+                <Grid ColumnDefinitions="*,Auto" Margin="0 16 0 0"
+                      ColumnSpacing="16">
+                    <controls:McButton Grid.Column="0"
+                                       Classes="Danger"
+                                       Content="不雇佣"
+                                       HorizontalAlignment="Left"
+                                       Command="{Binding CancelCommand}" />
+
+
+                    <controls:McButton Grid.Column="1" Classes="Confirm" Content="雇佣"
+                                       Command="{Binding HireCommand}" />
+                </Grid>
+            </controls:MasterDetailView.DetailFoot>
+        </controls:MasterDetailView>
+    </DataTemplate>
+
+</ResourceDictionary>

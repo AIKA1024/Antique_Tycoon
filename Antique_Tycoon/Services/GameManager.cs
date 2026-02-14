@@ -89,6 +89,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       (_, request) => _playersByUuid.Remove(request.PlayerUuid));
     //因为要更新其他玩家的信息，所以也要监听这个消息
     WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
+    
   }
 
   public void Initialize()

@@ -170,6 +170,11 @@ public class NetClient : NetBase
                 response = getAntiqueResultResponse;
                 WeakReferenceMessenger.Default.Send(getAntiqueResultResponse,getAntiqueResultResponse.MineUuid);
                 break;
+            case TcpMessageType.HireStaffResponse:
+                var hireStaffResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.HireStaffResponse);
+                response = hireStaffResponse;
+                WeakReferenceMessenger.Default.Send(hireStaffResponse);
+                break;
         }
 
         if (response == null)

@@ -43,6 +43,7 @@
               <StaticResource ResourceKey="SpawnPointDataTemplate" />
               <StaticResource ResourceKey="EstateDataTemplate" />
               <StaticResource ResourceKey="MineDataTemplate" />
+              <StaticResource ResourceKey="TalentMarketDataTemplate" />
             </c:NodeLinkControl.DataTemplates>
           </c:NodeLinkControl>
         </DataTemplate>

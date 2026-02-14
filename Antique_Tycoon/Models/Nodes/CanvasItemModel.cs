@@ -11,6 +11,7 @@ namespace Antique_Tycoon.Models.Nodes;
 [JsonDerivedType(typeof(SpawnPoint), "SpawnPoint")]
 [JsonDerivedType(typeof(Estate), "Estate")]
 [JsonDerivedType(typeof(Mine), "Mine")]
+[JsonDerivedType(typeof(TalentMarket), "TalentMarket")]
 public partial class CanvasItemModel:ObservableObject
 {
   [ObservableProperty] public partial string Uuid { get; set; } = Guid.NewGuid().ToString();
