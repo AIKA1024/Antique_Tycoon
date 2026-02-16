@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="using:Antique_Tycoon.Behaviors"
         xmlns:cv="using:Antique_Tycoon.Converters"
+        xmlns:utilities="clr-namespace:Antique_Tycoon.Utilities"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Antique_Tycoon.Views.Windows.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -32,8 +33,8 @@
     </TransitioningContentControl>
     <Border x:Name="Mask" Background="#80000000"
             IsVisible="{Binding DialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}"
-            i:Tap.Command="{Binding CloseDialogByMaskTapCommand}"
-            i:Tap.CommandParameter="{Binding DialogViewModel}">
+            utilities:Tap.Command="{Binding CloseDialogByMaskTapCommand}"
+            utilities:Tap.CommandParameter="{Binding DialogViewModel}">
       <Border.Transitions>
         <Transitions>
           <DoubleTransition Property="Opacity" Duration="0:0:0.1" />

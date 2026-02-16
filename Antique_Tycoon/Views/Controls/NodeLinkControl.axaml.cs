@@ -5,6 +5,7 @@ using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Services;
+using Antique_Tycoon.Utilities;
 using Avalonia;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;

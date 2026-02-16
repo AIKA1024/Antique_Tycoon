@@ -4,7 +4,7 @@ using Antique_Tycoon.Models.Net.Tcp;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;
 
-public interface ITcpMessageHandler
+public interface ITcpMessageHandler//只处理非具体游戏逻辑
 {
   
   // 这个方法检查处理器是否能处理某种消息类型

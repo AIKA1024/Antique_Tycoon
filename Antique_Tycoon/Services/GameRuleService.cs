@@ -7,6 +7,7 @@ using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models.Effects.Contexts;
 using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Enums;
+using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
@@ -174,14 +175,14 @@ public class GameRuleService : ObservableObject
         return;
 
       var staff = _staffs.First(s => s.Uuid == hireStaffRequest.StaffUuid);
-      
+
       var inventoryMap = player.Antiques.GroupBy(a => a.Index)
         .ToDictionary(g => g.Key, g => g.Count());
-      bool canHire = player.Money >= staff.HiringCost && 
-                     staff.HiringAntiqueCost.All(cost => 
+      bool canHire = player.Money >= staff.HiringCost &&
+                     staff.HiringAntiqueCost.All(cost =>
                        inventoryMap.TryGetValue(cost.Key, out int count) && count >= cost.Value);
 
-      var hireStaffResponse = new HireStaffResponse(hireStaffRequest.Id, player.Uuid,staff.Uuid,canHire);
+      var hireStaffResponse = new HireStaffResponse(hireStaffRequest.Id, player.Uuid, staff.Uuid, canHire);
       await Broadcast(hireStaffResponse);
       player.Staffs.Add(staff);
       _staffs.Remove(staff);
@@ -216,7 +217,7 @@ public class GameRuleService : ObservableObject
           {
             player.Money -= estate.Value;
             estate.Owner = player;
-            var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid)
+            var message = new UpdateEstateInfoResponse(player.Uuid, player.Name, estate.Uuid, estate.Title)
               { Id = buyEstateRequest.Id };
             await Broadcast(message);
           }
@@ -251,8 +252,9 @@ public class GameRuleService : ObservableObject
       if (saleAntiqueRequest.IsUpgradeEstate)
       {
         estate.Level += 1;
-        var updateEstateInfoResponse = new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level)
-          { Id = saleAntiqueRequest.Id };
+        var updateEstateInfoResponse =
+          new UpdateEstateInfoResponse(seller.Uuid, seller.Name, estate.Uuid, estate.Title, estate.Level)
+            { Id = saleAntiqueRequest.Id };
         await Broadcast(updateEstateInfoResponse);
         var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(seller,
           $"{seller.Name}原价出售古董，获得${seller.Money += antique.Value},{estate.Title}等级提升为{estate.Level}");
@@ -292,7 +294,7 @@ public class GameRuleService : ObservableObject
       var rollDiceResponse = await GetRollDiceAsync(client);
       var isSucceed = rollDiceResponse.DiceValue >= antique.Dice;
       var getAntiqueResultResponse =
-        new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, isSucceed);
+        new GetAntiqueResultResponse(antique.Uuid, antique.Name, player.Uuid, player.Name, node.Uuid, isSucceed);
       WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
       await Broadcast(getAntiqueResultResponse); //todo 如果之前打开的地图编辑器，会导致卡死
       if (isSucceed)
@@ -336,6 +338,8 @@ public class GameRuleService : ObservableObject
     await _gameManager.NetServerInstance.Broadcast(response);
     // 此时 T 是具体类型（如 UpdateEstateInfoResponse），Messenger 能正确识别
     WeakReferenceMessenger.Default.Send(response);
+    if (response is IHistoryRecord historyRecord)
+      WeakReferenceMessenger.Default.Send(historyRecord);
   }
 
   /// <summary>

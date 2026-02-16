@@ -9,7 +9,8 @@
   xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes"
   xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
   xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities"
-  xmlns:effects="clr-namespace:Antique_Tycoon.Models.Effects">
+  xmlns:effects="clr-namespace:Antique_Tycoon.Models.Effects"
+  xmlns:utilities="clr-namespace:Antique_Tycoon.Utilities">
   <Design.PreviewWith>
     <ContentControl Width="600" Height="400">
       <pageViewModels:MapEditPageViewModel />
@@ -186,8 +187,8 @@
                                           VerticalAlignment="Center"
                                           Background="#191A1C"
                                           BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                                          i:Tap.Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).ChangeAntiqueImageCommand}"
-                                          i:Tap.CommandParameter="{Binding}">
+                                          utilities:Tap.Command="{Binding $parent[ItemsControl].((pageViewModels:MapEditPageViewModel)DataContext).ChangeAntiqueImageCommand}"
+                                          utilities:Tap.CommandParameter="{Binding}">
                                     <Image Width="36" Height="36" IsHitTestVisible="False"
                                            Source="{Binding Item.Image}" />
                                   </Border>

@@ -6,7 +6,8 @@
   xmlns:i="using:Antique_Tycoon.Behaviors"
   xmlns:vm="using:Antique_Tycoon.ViewModels"
   xmlns:pageViewModels="clr-namespace:Antique_Tycoon.ViewModels.PageViewModels"
-  xmlns:cv="clr-namespace:Antique_Tycoon.Converters">
+  xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+  xmlns:utilities="clr-namespace:Antique_Tycoon.Utilities">
   <Design.PreviewWith>
     <ContentControl>
       <pageViewModels:HallPageViewModel />
@@ -46,8 +47,8 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Border
-                i:Tap.Command="{Binding $parent.((pageViewModels:HallPageViewModel)DataContext).JoinRoomCommand}"
-                i:Tap.CommandParameter="{Binding}"
+                utilities:Tap.Command="{Binding $parent.((pageViewModels:HallPageViewModel)DataContext).JoinRoomCommand}"
+                utilities:Tap.CommandParameter="{Binding}"
                 Background="{StaticResource BorderBackgroundBrush}"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="2"

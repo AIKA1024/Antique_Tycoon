@@ -176,6 +176,8 @@ public class NetClient : NetBase
                 WeakReferenceMessenger.Default.Send(hireStaffResponse);
                 break;
         }
+        if (response is IHistoryRecord historyRecord)
+            WeakReferenceMessenger.Default.Send(historyRecord);
 
         if (response == null)
             return Task.CompletedTask;

@@ -1,22 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
-using Antique_Tycoon.Views.Windows;
 using Avalonia;
-using Avalonia.Animation;
-using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Controls.Shapes;
-using Avalonia.Styling;
-using Avalonia.VisualTree;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Antique_Tycoon.Behaviors;
+namespace Antique_Tycoon.Utilities;
 
 public static class NodeAdornerHost
 {

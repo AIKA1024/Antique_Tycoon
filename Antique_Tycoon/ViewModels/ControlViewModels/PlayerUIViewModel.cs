@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.Models.Enums;
+using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
@@ -14,10 +16,12 @@ using Antique_Tycoon.Models.Nodes;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Antique_Tycoon.ViewModels.PageViewModels;
+using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.ViewModels.ControlViewModels;
 
@@ -43,6 +47,9 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
 
   public ObservableCollection<Player> OtherPlayers { get; } = [];
 
+  [ObservableProperty] public partial ObservableCollection<IHistoryRecord> HistoryLogs { get; set; } = [];
+
+
   public PlayerUiViewModel()
   {
     WeakReferenceMessenger.Default.Register<RollDiceAction>(this, ReceiveRollDiceAction);
@@ -52,20 +59,62 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     WeakReferenceMessenger.Default.Register<SaleAntiqueAction>(this, ReceiveSaleAntiqueAction);
     WeakReferenceMessenger.Default.Register<BuyEstateAction>(this, ReceiveBuyEstateAction);
     WeakReferenceMessenger.Default.Register<HireStaffAction>(this, ReceiveHireStaffAction);
-
+    WeakReferenceMessenger.Default.Register<KeyPressedMessage>(this, ReceiveKeyPressedMessage);
+    WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
+    WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
+    WeakReferenceMessenger.Default.Register<IHistoryRecord>(this, ReceiveIHistoryRecord);
+    LocalPlayer = _gameManager.LocalPlayer;
     _dialogService.DialogCollectionChanged += NotifyDialogViewModelChanged;
   }
 
-  private async void ReceiveHireStaffAction(object recipient, HireStaffAction message)
+  private void ReceiveIHistoryRecord(object recipient, IHistoryRecord message)
+  {
+    HistoryLogs.Add(message);
+  }
+
+  private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
+  {
+    if (message.Player.Uuid == LocalPlayer.Uuid)
+    {
+      UpdatePlayerInfo(_gameManager.LocalPlayer, message.Player);
+      return;
+    }
+
+    var player = OtherPlayers.FirstOrDefault(p => p.Uuid == message.Player.Uuid);
+    if (player != null)
+      UpdatePlayerInfo(player, message.Player);
+  }
+
+  private void ReceiveKeyPressedMessage(object recipient, KeyPressedMessage message)
+  {
+    if (message.Value.Key == Key.Tab)
+      IsVisible = !IsVisible;
+  }
+
+  private void ReceiveUpdateRoomResponse(object recipient, UpdateRoomResponse message)
+  {
+    foreach (var data in message.Players)
+    {
+      if (LocalPlayer.Uuid == data.Uuid)
+      {
+        UpdatePlayerInfo(LocalPlayer, data);
+        continue;
+      }
+
+      var player = OtherPlayers.First(p => p.Uuid == data.Uuid);
+      UpdatePlayerInfo(player, data);
+    }
+  }
+
+  private void ReceiveHireStaffAction(object recipient, HireStaffAction message)
   {
     _actionQueueService.Enqueue(async () =>
     {
-      var itemStacks = message.Staffs.GroupBy(s=>s.GetType())
+      var itemStacks = message.Staffs.GroupBy(s => s.GetType())
         .Select(group => new ItemStack<IStaff>(group.First(), group.Count())).ToArray();
       var selectStaff = await _dialogService.ShowDialogAsync(new HireStaffDialogViewModel(itemStacks));
       await _gameManager.SendToGameServerAsync(new HireStaffRequest(message.Id, selectStaff?.Uuid ?? ""));
     });
-    
   }
 
   private void NotifyDialogViewModelChanged()
@@ -98,7 +147,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     });
   }
 
-  private async void ReceiveSaleAntiqueAction(object recipient, SaleAntiqueAction message)
+  private void ReceiveSaleAntiqueAction(object recipient, SaleAntiqueAction message)
   {
     _actionQueueService.Enqueue(async () =>
     {
@@ -171,5 +220,27 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     RollButtonEnable = false;
     await App.Current.Services.GetRequiredService<GameRuleService>().RollDiceAsync(_rollDiceActionId);
     Debug.WriteLine("请求结束");
+  }
+
+  [RelayCommand]
+  private void HandleSegmentClick(LogSegment segment)
+  {
+    switch (segment.Type)
+    {
+      case InteractionType.PlayerName:
+        Debug.WriteLine($"查看玩家: {segment.Data}");
+        break;
+      case InteractionType.Item:
+        Debug.WriteLine($"查看物品: {segment.Data}");
+        break;
+      // ... 其他逻辑
+    }
+  }
+
+  private void UpdatePlayerInfo(Player target, Player data)
+  {
+    target.Name = data.Name;
+    target.Money = data.Money;
+    target.Antiques = data.Antiques;
   }
 }

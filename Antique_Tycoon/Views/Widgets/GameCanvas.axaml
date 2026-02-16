@@ -8,6 +8,7 @@
   xmlns:cm="using:Antique_Tycoon.Models.Connections"
   xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
   xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes"
+  xmlns:utilities="clr-namespace:Antique_Tycoon.Utilities"
   ClipToBounds="False"
   x:Name="Me"
   Focusable="True">
@@ -99,8 +100,8 @@
           </Setter>
         </Style>
         <Style x:DataType="nodes:NodeModel" Selector="c|XListBoxItem.NodeModel">
-          <Setter Property="i:Tap.Command" Value="{Binding #Me.NodeClickedCommand}" />
-          <Setter Property="i:Tap.CommandParameter" Value="{Binding Uuid}" />
+          <Setter Property="utilities:Tap.Command" Value="{Binding #Me.NodeClickedCommand}" />
+          <Setter Property="utilities:Tap.CommandParameter" Value="{Binding Uuid}" />
           <Setter Property="Background" Value="Transparent" />
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />

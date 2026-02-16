@@ -1,11 +1,8 @@
 using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 
-namespace Antique_Tycoon.Behaviors;
+namespace Antique_Tycoon.Utilities;
 
 public class Tap : AvaloniaObject
 {

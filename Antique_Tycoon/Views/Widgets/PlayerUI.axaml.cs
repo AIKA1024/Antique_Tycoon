@@ -16,56 +16,14 @@ namespace Antique_Tycoon.Views.Widgets;
 
 public partial class PlayerUI : UserControl
 {
-  private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
-
-  [GeneratedDirectProperty] public partial ObservableCollection<String> Messages { get; set; } = [];
   
   public PlayerUI()
   {
     InitializeComponent();
-    var playerUiViewModel = new PlayerUiViewModel
-      { LocalPlayer = _gameManager.LocalPlayer };
+    var playerUiViewModel = new PlayerUiViewModel();
     DataContext = playerUiViewModel;
-    WeakReferenceMessenger.Default.Register<KeyPressedMessage>(this, (_, m) =>
-    {
-      if (m.Value.Key == Key.Tab)
-        playerUiViewModel.IsVisible = !playerUiViewModel.IsVisible;
-    });
-    WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, (_, m) =>
-    {
-      foreach (var data in m.Players)
-      {
-        if (playerUiViewModel.LocalPlayer.Uuid == data.Uuid)
-        {
-          UpdatePlayerInfo(playerUiViewModel.LocalPlayer, data);
-          continue;
-        }
-
-        var player = playerUiViewModel.OtherPlayers.First(p => p.Uuid == data.Uuid);
-        UpdatePlayerInfo(player, data);
-      }
-    });
-    WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, (_, m) =>
-    {
-      if (m.Player.Uuid == playerUiViewModel.LocalPlayer.Uuid)
-      {
-        UpdatePlayerInfo(_gameManager.LocalPlayer, m.Player);
-        Messages.Add(m.UpdateMessage);
-        return;
-      }
-      var player = playerUiViewModel.OtherPlayers.FirstOrDefault(p => p.Uuid == m.Player.Uuid);
-      if (player != null)
-      {
-        UpdatePlayerInfo(player, m.Player);
-        Messages.Add(m.UpdateMessage);
-      }
-    });
+    
   }
 
-  private void UpdatePlayerInfo(Player target, Player data)
-  {
-    target.Name = data.Name;
-    target.Money = data.Money;
-    target.Antiques = data.Antiques;
-  }
+
 }

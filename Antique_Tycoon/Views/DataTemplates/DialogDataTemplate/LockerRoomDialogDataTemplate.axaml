@@ -4,7 +4,8 @@
                     xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls"
                     xmlns:cv="using:Antique_Tycoon.Converters"
                     xmlns:i="using:Antique_Tycoon.Behaviors"
-                    xmlns:enums="clr-namespace:Antique_Tycoon.Models.Enums">
+                    xmlns:enums="clr-namespace:Antique_Tycoon.Models.Enums"
+                    xmlns:utilities="clr-namespace:Antique_Tycoon.Utilities">
   <Design.PreviewWith>
     <ContentControl>
       <ContentControl.DataTemplates>
@@ -43,8 +44,8 @@
               <Style Selector="Image">
                 <Setter Property="Height" Value="32" />
                 <Setter Property="Cursor" Value="Hand" />
-                <Setter Property="i:Tap.Command" Value="{Binding ChangeRoleCommand}" />
-                <Setter Property="i:Tap.CommandParameter" Value="{Binding $self.Tag}"/>
+                <Setter Property="utilities:Tap.Command" Value="{Binding ChangeRoleCommand}" />
+                <Setter Property="utilities:Tap.CommandParameter" Value="{Binding $self.Tag}"/>
               </Style>
             </WrapPanel.Styles>
             <Image Source="../../Assets/Image/Avatar/Steve.png" Tag="{x:Static enums:PlayerRole.Steve}" />
