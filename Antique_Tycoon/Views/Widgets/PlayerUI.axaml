@@ -10,115 +10,127 @@
              x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
              x:DataType="controlViewModels:PlayerUiViewModel"
              x:Name="Me">
-  <UserControl.Styles>
-    <Style Selector="Grid.Invisible">
-      <Setter Property="Opacity" Value="0" />
-      <Setter Property="IsHitTestVisible" Value="False" />
-    </Style>
-  </UserControl.Styles>
-  <Design.DataContext>
-    <controlViewModels:PlayerUiViewModel />
-  </Design.DataContext>
-  <Grid RowDefinitions="*,Auto"
-        Classes.Invisible="{Binding IsVisible}">
-    <Grid.Transitions>
-      <Transitions>
-        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
-      </Transitions>
-    </Grid.Transitions>
-    <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
-      <StackPanel Grid.Column="0" />
-      <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
-                 FontSize="32" FontWeight="Black"
-                 Margin="0 32 0 0"
-                 Text="{Binding ReminderText}"
-                 Tag="{Binding IsShowReminderText,Mode=OneWay}">
-        <TextBlock.Transitions>
-          <Transitions>
-            <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
-            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
-          </Transitions>
-        </TextBlock.Transitions>
-        <TextBlock.Styles>
-          <Style Selector="TextBlock[Tag=True]">
-            <Setter Property="Opacity" Value="1" />
-            <Setter Property="RenderTransform" Value="translateY(100px)" />
-          </Style>
-          <Style Selector="TextBlock[Tag=False]">
+    <UserControl.Styles>
+        <Style Selector="Grid.Invisible">
             <Setter Property="Opacity" Value="0" />
-            <Setter Property="RenderTransform" Value="translateY(-20px)" />
-          </Style>
-        </TextBlock.Styles>
-      </TextBlock>
+            <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
+    </UserControl.Styles>
+    <Design.DataContext>
+        <controlViewModels:PlayerUiViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="*,Auto"
+          Classes.Invisible="{Binding IsVisible}">
+        <Grid.Transitions>
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+            </Transitions>
+        </Grid.Transitions>
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+            <StackPanel Grid.Column="0" />
+            <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
+                       FontSize="32" FontWeight="Black"
+                       Margin="0 32 0 0"
+                       Text="{Binding ReminderText}"
+                       Tag="{Binding IsShowReminderText,Mode=OneWay}">
+                <TextBlock.Transitions>
+                    <Transitions>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
+                    </Transitions>
+                </TextBlock.Transitions>
+                <TextBlock.Styles>
+                    <Style Selector="TextBlock[Tag=True]">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="RenderTransform" Value="translateY(100px)" />
+                    </Style>
+                    <Style Selector="TextBlock[Tag=False]">
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="RenderTransform" Value="translateY(-20px)" />
+                    </Style>
+                </TextBlock.Styles>
+            </TextBlock>
 
-      <c:McContentControl Grid.Column="2">
-        <ListBox ItemsSource="{Binding #Me.Messages}" />
-      </c:McContentControl>
-    </Grid>
-    <StackPanel Grid.Row="1" Background="#A3703A">
-      <Rectangle Height="2" Fill="#694826"></Rectangle>
-      <Rectangle Height="5" Fill="#C58747" />
-      <Grid Margin="16"
-            ColumnDefinitions="*,Auto,*">
-        <c:PlayerCard Grid.Column="0"
-                      Player="{Binding LocalPlayer}"
-                      HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+            <c:McContentControl Grid.Column="2">
+                <ListBox ItemsSource="{Binding #Me.Messages}" />
+            </c:McContentControl>
+        </Grid>
+        <StackPanel Grid.Row="1" Background="#A3703A">
+            <Rectangle Height="2" Fill="#694826"></Rectangle>
+            <Rectangle Height="5" Fill="#C58747" />
+            <Grid Margin="16"
+                  ColumnDefinitions="*,Auto,*">
+                <Grid.Styles>
+                    <Style Selector="ItemsControl">
+                       <Setter Property="ItemsPanel">
+                           <ItemsPanelTemplate>
+                               <StackPanel Orientation="Horizontal" />
+                           </ItemsPanelTemplate>  
+                       </Setter> 
+                    </Style>
+                </Grid.Styles>
+                <c:PlayerCard Grid.Column="0"
+                              Player="{Binding LocalPlayer}"
+                              HorizontalAlignment="Left" VerticalAlignment="Bottom" />
 
-        <StackPanel Grid.Column="1" HorizontalAlignment="Center"
-                    Orientation="Horizontal" Spacing="16">
-          <Border Background="#6D4B27" VerticalAlignment="Stretch"
-                  BorderBrush="#C58747" BorderThickness="2"
-                  Width="400">
-          </Border>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center"
+                            Orientation="Horizontal" Spacing="16">
+                    <Border Background="#6D4B27" VerticalAlignment="Stretch"
+                            BorderBrush="#C58747" BorderThickness="2"
+                            Width="400">
+                        <ItemsControl ItemsSource="{Binding LocalPlayer.Estates}"/>
+                    </Border>
 
-          <Border Background="#6D4B27" VerticalAlignment="Stretch"
-                  BorderBrush="#C58747" BorderThickness="2"
-                  Width="400">
-          </Border>
+                    <Border Background="#6D4B27" VerticalAlignment="Stretch"
+                            BorderBrush="#C58747" BorderThickness="2"
+                            Width="400">
+                        <ItemsControl ItemsSource="{Binding LocalPlayer.Antiques}" />
+                    </Border>
 
-          <Border Background="#6D4B27" VerticalAlignment="Stretch"
-                  BorderBrush="#C58747" BorderThickness="2"
-                  Width="400">
-          </Border>
+                    <Border Background="#6D4B27" VerticalAlignment="Stretch"
+                            BorderBrush="#C58747" BorderThickness="2"
+                            Width="400">
+                        <ItemsControl ItemsSource="{Binding LocalPlayer.Staffs}" />
+                    </Border>
 
+                </StackPanel>
+
+                <c:McButton Grid.Column="2"
+                            Classes="Confirm"
+                            Padding="0"
+                            Command="{Binding RollDiceCommand}"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                            IsEnabled="{Binding RollButtonEnable}">
+                    <Image Source="../../Assets/Image/GameUI/Dice.png" Width="128" />
+                </c:McButton>
+            </Grid>
         </StackPanel>
 
-        <c:McButton Grid.Column="2"
-                    Classes="Confirm"
-                    Padding="0"
-                    Command="{Binding RollDiceCommand}"
-                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                    IsEnabled="{Binding RollButtonEnable}">
-          <Image Source="../../Assets/Image/GameUI/Dice.png" Width="128" />
-        </c:McButton>
-      </Grid>
-    </StackPanel>
-
-    <Border x:Name="Mask"
-            Grid.Row="0" Grid.RowSpan="2"
-            Background="#80000000"
-            IsVisible="{Binding DialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}">
-      <Border
-        HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
-        VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
-        <Border.MaxWidth>
-          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-            <Binding Path="DialogViewModel.MaxWidthPercent" />
-            <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
-          </MultiBinding>
-        </Border.MaxWidth>
-        <Border.MaxHeight>
-          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-            <Binding Path="DialogViewModel.MaxHeightPercent" />
-            <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
-          </MultiBinding>
-        </Border.MaxHeight>
-        <ContentControl Content="{Binding DialogViewModel}"
-                        Background="Transparent">
-        </ContentControl>
-      </Border>
-    </Border>
+        <Border x:Name="Mask"
+                Grid.Row="0" Grid.RowSpan="2"
+                Background="#80000000"
+                IsVisible="{Binding DialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Border
+                HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
+                VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
+                <Border.MaxWidth>
+                    <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+                        <Binding Path="DialogViewModel.MaxWidthPercent" />
+                        <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
+                    </MultiBinding>
+                </Border.MaxWidth>
+                <Border.MaxHeight>
+                    <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+                        <Binding Path="DialogViewModel.MaxHeightPercent" />
+                        <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
+                    </MultiBinding>
+                </Border.MaxHeight>
+                <ContentControl Content="{Binding DialogViewModel}"
+                                Background="Transparent">
+                </ContentControl>
+            </Border>
+        </Border>
 
 
-  </Grid>
+    </Grid>
 </UserControl>

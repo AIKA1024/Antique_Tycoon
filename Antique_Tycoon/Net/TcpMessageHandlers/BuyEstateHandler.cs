@@ -8,7 +8,7 @@ using Antique_Tycoon.Services;
 
 namespace Antique_Tycoon.Net.TcpMessageHandlers;
 
-public class BuyEstateHandler(GameManager gameManager) : ITcpMessageHandler
+public class BuyEstateHandler(GameManager gameManager) : ITcpMessageHandler//todo 游戏逻辑别写handle里
 {
   public bool CanHandle(TcpMessageType messageType) => messageType == TcpMessageType.BuyEstateRequest;
 

@@ -84,5 +84,6 @@ public partial class GamePageViewModel : PageViewModelBase
     var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
     estate.Owner = _gameManager.GetPlayerByUuid(message.OwnerUuid);
     estate.Level = message.Level;
+    _gameManager.GetPlayerByUuid(message.OwnerUuid).Estates.Add(estate);
   }
 }

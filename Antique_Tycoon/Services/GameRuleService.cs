@@ -183,7 +183,7 @@ public class GameRuleService : ObservableObject
 
       var hireStaffResponse = new HireStaffResponse(hireStaffRequest.Id, player.Uuid,staff.Uuid,canHire);
       await Broadcast(hireStaffResponse);
-      player.StaffList.Add(staff);
+      player.Staffs.Add(staff);
       _staffs.Remove(staff);
       await Broadcast(new UpdatePlayerInfoResponse(player, $"{player.Name}成功雇佣{staff.Name}"));
     }
@@ -331,9 +331,10 @@ public class GameRuleService : ObservableObject
     }
   }
 
-  private async Task Broadcast(ResponseBase response)
+  private async Task Broadcast<T>(T response) where T : ResponseBase
   {
     await _gameManager.NetServerInstance.Broadcast(response);
+    // 此时 T 是具体类型（如 UpdateEstateInfoResponse），Messenger 能正确识别
     WeakReferenceMessenger.Default.Send(response);
   }
 

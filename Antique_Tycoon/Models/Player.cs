@@ -33,7 +33,7 @@ public partial class Player : ObservableObject
   
   public ObservableCollection<Estate> Estates { get; set; } = [];
   
-  public ObservableCollection<IStaff> StaffList { get; set; } = [];
+  public ObservableCollection<IStaff> Staffs { get; set; } = [];
   
 
   public PlayerRole Role // todo 违反了开闭原则，但小项目不管了
@@ -59,7 +59,7 @@ public partial class Player : ObservableObject
   
   public IEnumerable<IStaffEffect> GetActiveEffects(GameTriggerPoint point)
   {
-    return StaffList
+    return Staffs
       .SelectMany(s => s.Effects)
       .Where(e => e.TriggerPoint == point);
   }
