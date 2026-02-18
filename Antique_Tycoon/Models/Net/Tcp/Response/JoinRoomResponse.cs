@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using Antique_Tycoon.ProtocolGen;
 
 namespace Antique_Tycoon.Models.Net.Tcp.Response;
 

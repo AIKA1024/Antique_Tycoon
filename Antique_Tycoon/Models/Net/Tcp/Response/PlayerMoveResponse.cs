@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Antique_Tycoon.ProtocolGen;
 
 namespace Antique_Tycoon.Models.Net.Tcp.Response;
 

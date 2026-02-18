@@ -11,6 +11,21 @@ public sealed class TcpMessageGenerator : IIncrementalGenerator
 {
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
+    const string attributeSource = @"
+using System;
+
+namespace Antique_Tycoon.ProtocolGen
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public sealed class TcpMessageAttribute : Attribute
+    {
+    }
+}";
+
+    // 2. 在初始化阶段直接输出这段代码
+    context.RegisterPostInitializationOutput(ctx =>
+      ctx.AddSource("TcpMessageAttribute.g.cs", attributeSource));
+
     var messages = context.SyntaxProvider
       .CreateSyntaxProvider(
         static (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Antique_Tycoon.Models.Entities;
+using Antique_Tycoon.ProtocolGen;
 
 namespace Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 
