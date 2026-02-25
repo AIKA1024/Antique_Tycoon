@@ -39,11 +39,6 @@ public partial class GamePageViewModel : PageViewModelBase
     WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
   }
 
-  private void ReceiveHireStaffResponse(object recipient, HireStaffResponse message)
-  {
-    
-  }
-
 
   private void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
   {
@@ -63,6 +58,10 @@ public partial class GamePageViewModel : PageViewModelBase
         localPlayerData.Money = remotePlayerData.Money;
       }
     }
+
+    //其实应该也通过服务器发送的，但现在也能用
+    _gameManager.Antiques = _gameManager.SelectedMap.Antiques.ToList();
+    _gameManager.Staffs = _gameManager.SelectedMap.Staffs.ToList();
   }
 
   private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)

@@ -19,7 +19,7 @@ namespace Antique_Tycoon.Models.Json;
 [JsonSerializable(typeof(BuyEstateRequest))]
 [JsonSerializable(typeof(BuyEstateAction))]
 [JsonSerializable(typeof(UpdateEstateInfoResponse))]
-[JsonSerializable(typeof(UpdatePlayerInfoResponse))]
+[JsonSerializable(typeof(UpdatePlayerMoneyResponse))]
 [JsonSerializable(typeof(ExitRoomRequest))]
 [JsonSerializable(typeof(ExitRoomResponse))]
 [JsonSerializable(typeof(StartGameResponse))]

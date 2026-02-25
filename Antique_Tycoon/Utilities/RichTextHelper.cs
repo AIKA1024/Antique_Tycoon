@@ -1,17 +1,24 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Models.Net;
+using Antique_Tycoon.Models.Nodes;
+using Antique_Tycoon.Services;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.Utilities;
 
 public class RichTextHelper
 {
+  private static readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+  
   // 1. 定义附加属性 "LogSegments"
   public static readonly AttachedProperty<IEnumerable<LogSegment>> LogSegmentsProperty =
     AvaloniaProperty.RegisterAttached<RichTextHelper, TextBlock, IEnumerable<LogSegment>>(
@@ -61,10 +68,32 @@ public class RichTextHelper
       else
       {
         // 交互文本 -> InlineUIContainer 包裹 HyperlinkButton
+        string displayText = segment.Text;
+        switch (segment.Type)
+        {
+          case InteractionType.PlayerName:
+            displayText = _gameManager.GetPlayerByUuid(segment.Data).Name;
+            break;
+          case InteractionType.Location:
+            break;
+          case InteractionType.Antique:
+            displayText = _gameManager.SelectedMap.Antiques.First(a=>a.Uuid == segment.Data).Name;
+            break;
+          case InteractionType.Estate:
+            displayText = ((Estate)_gameManager.SelectedMap.EntitiesDict[segment.Data]).Title;
+            break;
+          case InteractionType.Staff:
+            displayText = _gameManager.SelectedMap.Staffs.First(a => a.Uuid == segment.Data).Name;
+            break;
+          case InteractionType.Money:
+            break;
+          default:
+            break;
+        }
 
         var linkBtn = new HyperlinkButton
         {
-          Content = segment.Text,
+          Content = displayText,
           Command = command,
           CommandParameter = segment,
 

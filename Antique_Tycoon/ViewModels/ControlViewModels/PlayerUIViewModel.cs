@@ -61,7 +61,6 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     WeakReferenceMessenger.Default.Register<HireStaffAction>(this, ReceiveHireStaffAction);
     WeakReferenceMessenger.Default.Register<KeyPressedMessage>(this, ReceiveKeyPressedMessage);
     WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
-    WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
     WeakReferenceMessenger.Default.Register<IHistoryRecord>(this, ReceiveIHistoryRecord);
     LocalPlayer = _gameManager.LocalPlayer;
     _dialogService.DialogCollectionChanged += NotifyDialogViewModelChanged;
@@ -70,19 +69,6 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
   private void ReceiveIHistoryRecord(object recipient, IHistoryRecord message)
   {
     HistoryLogs.Add(message);
-  }
-
-  private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
-  {
-    if (message.Player.Uuid == LocalPlayer.Uuid)
-    {
-      UpdatePlayerInfo(_gameManager.LocalPlayer, message.Player);
-      return;
-    }
-
-    var player = OtherPlayers.FirstOrDefault(p => p.Uuid == message.Player.Uuid);
-    if (player != null)
-      UpdatePlayerInfo(player, message.Player);
   }
 
   private void ReceiveKeyPressedMessage(object recipient, KeyPressedMessage message)
@@ -166,7 +152,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
 
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
   {
-    if (message.ResponseStatus == RequestResult.Success)
+    if (message.IsSuccess)
     {
       _actionQueueService.Enqueue(() =>
       {
@@ -230,8 +216,8 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
       case InteractionType.PlayerName:
         Debug.WriteLine($"查看玩家: {segment.Data}");
         break;
-      case InteractionType.Item:
-        Debug.WriteLine($"查看物品: {segment.Data}");
+      case InteractionType.Antique:
+        Debug.WriteLine($"查看古玩: {segment.Data}");
         break;
       // ... 其他逻辑
     }

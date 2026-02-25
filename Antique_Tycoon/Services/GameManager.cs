@@ -8,6 +8,7 @@ using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
@@ -29,7 +30,6 @@ namespace Antique_Tycoon.Services;
 public partial class GameManager : ObservableObject //todo 心跳超时逻辑应该在这里
 {
   private readonly Lazy<NetServer> _netServerLazy; //如果依赖注入后，需要NetServer、NetClient的同时需要GameManager，只需要拿GameManager就行了
-
   private readonly Lazy<NetClient> _netClientLazy;
 
   // private readonly GameRuleService _gameRuleService;
@@ -46,6 +46,10 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private Media _turnStartSfx;
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
+  
+  public List<Antique> Antiques { get; set; } = [];
+  public List<IStaff> Staffs { get; set; }= [];
+  
   public readonly SemaphoreSlim GameActionLock = new SemaphoreSlim(1, 1);
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
@@ -89,7 +93,38 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
       (_, request) => _playersByUuid.Remove(request.PlayerUuid));
     //因为要更新其他玩家的信息，所以也要监听这个消息
     WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
+    WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
+    WeakReferenceMessenger.Default.Register<UpdatePlayerMoneyResponse>(this, ReceiveUpdatePlayerMoneyResponse);
+    WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
     
+    
+    
+  }
+
+  private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
+  {
+    if (!message.IsSuccess)
+      return;
+    var player = GetPlayerByUuid(message.PlayerUuid);
+    var antique = Antiques.First(a => a.Uuid == message.AntiqueUuid);
+    player.Antiques.Add(antique);
+    Antiques.Remove(antique);
+  }
+
+  private void ReceiveUpdatePlayerMoneyResponse(object recipient, UpdatePlayerMoneyResponse message)
+  {
+    var player = GetPlayerByUuid(message.PlayerUuid);
+    player.Money = message.Total;
+  }
+
+  private void ReceiveHireStaffResponse(object recipient, HireStaffResponse message)
+  {
+    if (!message.IsSuccess)
+      return;
+    var player = GetPlayerByUuid(message.PlayerUuid);
+    var staff = Staffs.First(s => s.Uuid == message.StaffUuid);
+    player.Staffs.Add(staff);
+    Staffs.Remove(staff);
   }
 
   public void Initialize()
@@ -198,16 +233,19 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
     CurrentTurnPlayerIndex = Random.Shared.Next(Players.Count);
     // CurrentTurnPlayerIndex = 1;
-    await NetServerInstance.Broadcast(new InitGameResponse(
+    var initGameResponse = new InitGameResponse(
       Players,
       CurrentTurnPlayerIndex
-    ));
+    );
+    await NetServerInstance.Broadcast(initGameResponse);
+    WeakReferenceMessenger.Default.Send(initGameResponse);
 
     //通知游戏开始
     CurrentTurnPlayerIndex = (CurrentTurnPlayerIndex + 1) % Players.Count;
     var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
     await NetServerInstance.Broadcast(turnStartResponse);
     WeakReferenceMessenger.Default.Send(turnStartResponse);
+    
     // await Task.Yield(); // 等待各监听事件绑定完成
   }
 

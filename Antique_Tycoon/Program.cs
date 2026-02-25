@@ -33,7 +33,7 @@ sealed class Program
     {
       e.SetObserved(); // 标记为已观察，防止进程崩溃
       await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new MessageDialogViewModel
-        { Title = "严重错误，程序即将关闭", Message = $"{e.Exception.Message}",IsLightDismissEnabled = false });
+        { Title = "严重错误，程序即将关闭", Message = $"{e.Exception.Message}\r\n{e.Exception.InnerException?.StackTrace}",IsLightDismissEnabled = false });
 #if DEBUG
       throw e.Exception;
 #endif
