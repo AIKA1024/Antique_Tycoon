@@ -95,7 +95,7 @@ namespace Antique_Tycoon.ProtocolGen
   }
 
   // ---------------- REGISTRY (确认这里的引用和逻辑) ----------------
-  private static void GenerateRegistry(SourceProductionContext context, IEnumerable<INamedTypeSymbol> messages)
+  private static void GenerateRegistry(SourceProductionContext context, List<INamedTypeSymbol> messages)
   {
     var sb = new StringBuilder();
 
@@ -165,10 +165,41 @@ namespace Antique_Tycoon.ProtocolGen
     sb.AppendLine("        /// <summary>通过枚举获取类型和Json信息</summary>");
     sb.AppendLine("        public static (Type type, JsonTypeInfo jsonTypeInfo) Get(TcpMessageType messageType)");
     sb.AppendLine("            => _enumMap[messageType];");
+    
+    GenerateDispatch(sb, messages);
 
     sb.AppendLine("    }"); // End class
     sb.AppendLine("}"); // End namespace
 
     context.AddSource("TcpMessageRegistry.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+  }
+  
+  private static void GenerateDispatch(StringBuilder sb, IEnumerable<INamedTypeSymbol> messages)
+  {
+    sb.AppendLine("        /// <summary>根据消息的实际类型，以强类型方式发送消息</summary>");
+    sb.AppendLine("        /// <remarks>此方法是 Native AOT 友好的，因为它不使用反射</remarks>");
+    sb.AppendLine("        public static void Dispatch(Antique_Tycoon.Models.Net.Tcp.ITcpMessage message)");
+    sb.AppendLine("        {");
+    sb.AppendLine("            if (message == null) return;");
+    sb.AppendLine();
+    sb.AppendLine("            switch (message)");
+    sb.AppendLine("            {");
+
+    foreach (var msg in messages)
+    {
+      string fullTypeName = msg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+      // 生成 switch 分支
+      sb.AppendLine($"                case {fullTypeName} m:");
+      // 关键：这里的 m 是强类型的，会触发 WeakReferenceMessenger.Default.Send<具体类>
+      sb.AppendLine($"                    CommunityToolkit.Mvvm.Messaging.IMessengerExtensions.Send<{fullTypeName}>(CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default, m);");
+      sb.AppendLine("                    break;");
+    }
+
+    sb.AppendLine("                default:");
+    sb.AppendLine("                    // 兜底逻辑：如果没匹配到，作为接口发送");
+    sb.AppendLine($"                    CommunityToolkit.Mvvm.Messaging.IMessengerExtensions.Send<Antique_Tycoon.Models.Net.Tcp.ITcpMessage>(CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default, message);");
+    sb.AppendLine("                    break;");
+    sb.AppendLine("            }");
+    sb.AppendLine("        }");
   }
 }

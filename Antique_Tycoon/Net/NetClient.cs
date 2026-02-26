@@ -89,111 +89,35 @@ public class NetClient : NetBase
 
   protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
   {
-    ITcpMessage? response = null;
-    switch (tcpMessageType)
+    var typeInfo = TcpMessageRegistry.Get(tcpMessageType);
+    var baseMsg = (ITcpMessage)JsonSerializer.Deserialize(json, typeInfo.jsonTypeInfo);
+    TcpMessageRegistry.Dispatch(baseMsg);
+
+    switch (tcpMessageType)//todo 这个感觉可以在注册者那边判断就行了
     {
-      case TcpMessageType.JoinRoomResponse:
-        var joinRoomResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.JoinRoomResponse);
-        response = joinRoomResponse;
-        break;
-      case TcpMessageType.UpdateRoomResponse:
-        var updateRoomResponse =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.UpdateRoomResponse);
-        response = updateRoomResponse;
-        WeakReferenceMessenger.Default.Send(updateRoomResponse);
-        break;
-      case TcpMessageType.DownloadMapResponse:
-        var downloadMapResponse =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.DownloadMapResponse);
-        response = downloadMapResponse;
-        break;
-      case TcpMessageType.StartGameResponse:
-        var startGameResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.StartGameResponse);
-        response = startGameResponse;
-        WeakReferenceMessenger.Default.Send(startGameResponse);
-        break;
-      case TcpMessageType.TurnStartResponse:
-        var turnStartResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.TurnStartResponse);
-        response = turnStartResponse;
-        WeakReferenceMessenger.Default.Send(turnStartResponse);
-        break;
-      case TcpMessageType.RollDiceAction:
-        var rollDiceAction = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.RollDiceAction);
-        response = rollDiceAction;
-        WeakReferenceMessenger.Default.Send(rollDiceAction);
-        break;
-      case TcpMessageType.HireStaffAction:
-        var hireStaffAction = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.HireStaffAction);
-        response = hireStaffAction;
-        WeakReferenceMessenger.Default.Send(hireStaffAction);
-        break;
-      case TcpMessageType.RollDiceResponse:
-        var rollDiceResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.RollDiceResponse);
-        response = rollDiceResponse;
-        WeakReferenceMessenger.Default.Send(rollDiceResponse);
-        break;
-      case TcpMessageType.InitGameResponse:
-        var initGameMessageResponse =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.InitGameResponse);
-        response = initGameMessageResponse;
-        WeakReferenceMessenger.Default.Send(initGameMessageResponse);
-        break;
-      case TcpMessageType.SelectDestinationAction:
-        var selectDestinationAction =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.SelectDestinationAction);
-        response = selectDestinationAction;
-        WeakReferenceMessenger.Default.Send(selectDestinationAction);
-        break;
-      case TcpMessageType.PlayerMoveResponse:
-        var playerMoveResponse =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.PlayerMoveResponse);
-        response = playerMoveResponse;
-        WeakReferenceMessenger.Default.Send(playerMoveResponse);
-        break;
-      case TcpMessageType.BuyEstateAction:
-        var buyEstateAction = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.BuyEstateAction);
-        response = buyEstateAction;
-        WeakReferenceMessenger.Default.Send(buyEstateAction);
-        break;
-      case TcpMessageType.UpdateEstateInfoResponse:
-        var updateEstateOwnerResponse =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.UpdateEstateInfoResponse);
-        response = updateEstateOwnerResponse;
-        WeakReferenceMessenger.Default.Send(updateEstateOwnerResponse);
-        break;
       case TcpMessageType.AntiqueChanceResponse:
-        var antiqueChanceResponse =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.AntiqueChanceResponse);
-        response = antiqueChanceResponse;
+        var antiqueChanceResponse =(AntiqueChanceResponse)baseMsg!;
         WeakReferenceMessenger.Default.Send(antiqueChanceResponse, antiqueChanceResponse.MineUuid);
-        WeakReferenceMessenger.Default.Send(antiqueChanceResponse);
         break;
       case TcpMessageType.GetAntiqueResultResponse:
-        var getAntiqueResultResponse =
-          JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.GetAntiqueResultResponse);
-        response = getAntiqueResultResponse;
+        var getAntiqueResultResponse = (GetAntiqueResultResponse)baseMsg!;
         WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, getAntiqueResultResponse.MineUuid);
-        break;
-      case TcpMessageType.HireStaffResponse:
-        var hireStaffResponse = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.HireStaffResponse);
-        response = hireStaffResponse;
-        WeakReferenceMessenger.Default.Send(hireStaffResponse);
         break;
     }
 
-    if (response is IHistoryRecord historyRecord)
+    if (baseMsg is IHistoryRecord historyRecord)
     {
       WeakReferenceMessenger.Default.Send(historyRecord);
       Debug.Print("收到IHistoryRecord");
     }
 
-    if (response == null)
+    if (baseMsg == null)
       return Task.CompletedTask;
-    if (!_pendingRequests.Remove(response.Id, out var tcs)) //证明不是客户端主动请求的，是服务器主动发送的
+    if (!_pendingRequests.Remove(baseMsg.Id, out var tcs)) //证明不是客户端主动请求的，是服务器主动发送的
       return Task.CompletedTask;
 
 
-    tcs.SetResult(response);
+    tcs.SetResult(baseMsg);
     return tcs.Task;
   }
 

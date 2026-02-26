@@ -190,7 +190,7 @@ public class GameRuleService : ObservableObject
   /// </summary>
   /// <param name="player">玩家</param>
   /// <param name="estate">地产</param>
-  private async Task HandleEstateAsync(Player player, Estate estate)
+  private async Task HandleEstateAsync(Player player, Estate estate)//todo 好像踩别人的地，系统误以为是踩地的人卖东西
   {
     var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
     if (estate.Owner == null) //踩到还没人买的地
