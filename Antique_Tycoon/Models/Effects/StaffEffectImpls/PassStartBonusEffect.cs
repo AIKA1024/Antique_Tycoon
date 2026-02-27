@@ -10,6 +10,9 @@ public class PassStartBonusEffect(decimal bonus):IStaffEffect
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnPassStartPoint;
   public void Execute(GameContext context,Player owner)
   {
+    if (owner != context.Player)//这个效果只能自己触发
+      return;
+    
     if (context is EconomyContext economyContext)
       economyContext.FlatBonus += Bonus;
   }

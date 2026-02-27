@@ -2,9 +2,9 @@ using Antique_Tycoon.Models.Entities;
 
 namespace Antique_Tycoon.Models.Effects.Contexts;
 
-public class EconomyContext(Player player, decimal baseValue) : GameContext(player)
+public class EconomyContext(Player player) : GameContext(player)
 {
-  public decimal BaseValue { get; set; } = baseValue;
+  public decimal BaseValue { get; set; }
   public decimal Multiplier { get; set; } = 1.0m;
   public decimal FlatBonus { get; set; } = 0m;
     

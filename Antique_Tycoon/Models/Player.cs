@@ -57,11 +57,11 @@ public partial class Player : ObservableObject
     }
   } = PlayerRole.Steve;
   
-  public IEnumerable<IStaffEffect> GetActiveEffects(GameTriggerPoint point)
+  public IEnumerable<(IStaff staff, IStaffEffect effect)> GetActiveEffects(GameTriggerPoint point)
   {
     return Staffs
-      .SelectMany(s => s.Effects)
-      .Where(e => e.TriggerPoint == point);
+      .SelectMany(s => s.Effects.Select(e => (staff: s, effect: e)))
+      .Where(t => t.effect.TriggerPoint == point);
   }
 }
 

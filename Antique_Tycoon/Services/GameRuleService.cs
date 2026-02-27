@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Models.Effects.Contexts;
+using Antique_Tycoon.Models.Effects.StaffEffectImpls;
 using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Models.Net;
@@ -190,7 +191,7 @@ public class GameRuleService : ObservableObject
   /// </summary>
   /// <param name="player">玩家</param>
   /// <param name="estate">地产</param>
-  private async Task HandleEstateAsync(Player player, Estate estate)//todo 好像踩别人的地，系统误以为是踩地的人卖东西
+  private async Task HandleEstateAsync(Player player, Estate estate) //todo 好像踩别人的地，系统误以为是踩地的人卖东西
   {
     var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
     if (estate.Owner == null) //踩到还没人买的地
@@ -330,6 +331,7 @@ public class GameRuleService : ObservableObject
         ]
       };
     await Broadcast(message);
+    await TriggerGlobalStaffEffects(GameTriggerPoint.OnPassStartPoint, new EconomyContext(player));
   }
 
   private async Task HandleMineAsync(Player player, NodeModel node)
@@ -431,14 +433,49 @@ public class GameRuleService : ObservableObject
   /// </summary>
   /// <param name="point">当前的时间点（如：路过矿洞、鉴宝时）</param>
   /// <param name="context">上下文数据（包含玩家、骰子点数、古玩信息等）</param>
-  private void TriggerGlobalStaffEffects(GameTriggerPoint point, GameContext context)
+  private async Task TriggerGlobalStaffEffects(GameTriggerPoint point, GameContext context)
   {
     foreach (var player in _gameManager.Players)
     {
-      var effects = player.GetActiveEffects(point);
-      foreach (var effect in effects)
+      var staffWithEffects  = player.GetActiveEffects(point);
+      foreach (var staffWithEffect in staffWithEffects )
       {
-        effect.Execute(context, player);
+        staffWithEffect.effect.Execute(context, player);
+        switch (context)
+        {
+          case EconomyContext economyContext:
+            var finalValue = economyContext.GetFinalValue();
+            await Broadcast(new UpdatePlayerMoneyResponse(player.Uuid, finalValue - economyContext.BaseValue,
+              finalValue + player.Money)
+            {
+              LogSegments =
+              [
+                new LogSegment
+                {
+                  Type =  InteractionType.PlayerName,
+                  Data = player.Uuid
+                },
+                new LogSegment
+                {
+                  Text = " 的 "
+                },
+                new LogSegment
+                {
+                  Type =  InteractionType.Staff,
+                  Data = staffWithEffect.staff.Uuid
+                },
+                new LogSegment
+                {
+                  Text = " 触发了效果 "
+                },
+                new LogSegment
+                {
+                  Text = $" {staffWithEffect.effect.Description}"
+                }
+              ]
+            });
+            break;
+        }
       }
     }
   }
