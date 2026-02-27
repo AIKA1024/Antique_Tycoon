@@ -8,10 +8,10 @@ public class MineManagerEffect: IStaffEffect
 {
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnPassMineCharge;
 
-  public void Execute(GameContext context,Player owner)
+  public bool Execute(GameContext context,Player owner)
   {
     if (context is not PaymentContext paymentContext)
-      return;
+      return false;
     
     if (paymentContext.Player == owner)
     {
@@ -28,6 +28,7 @@ public class MineManagerEffect: IStaffEffect
       paymentContext.Receiver = owner;
       Console.WriteLine($"外人进入：门票费 {paymentContext.Cost} 将支付给 {owner.Name}");
     }
+    return true;
   }
 
   public string Description => "其他玩家下矿时，必须给你下矿费，自己下矿则免费";

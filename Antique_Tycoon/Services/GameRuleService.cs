@@ -193,7 +193,7 @@ public class GameRuleService : ObservableObject
   /// <param name="estate">地产</param>
   private async Task HandleEstateAsync(Player player, Estate estate) //todo 好像踩别人的地，系统误以为是踩地的人卖东西
   {
-    var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+    var passEstateClient = _gameManager.GetClientByPlayerUuid(player.Uuid);
     if (estate.Owner == null) //踩到还没人买的地
     {
       if (player.Money >= estate.Value)
@@ -203,7 +203,7 @@ public class GameRuleService : ObservableObject
         {
           var buyEstateRequest =
             await _gameManager.NetServerInstance.SendRequestAsync<BuyEstateAction, BuyEstateRequest>(
-              buyEstateActionMessage, client);
+              buyEstateActionMessage, passEstateClient);
           if (buyEstateRequest.IsConfirm)
           {
             player.Money -= estate.Value;
@@ -230,11 +230,13 @@ public class GameRuleService : ObservableObject
     async Task SaleAntique(Player seller, string buyerUuid)
     {
       if (seller.Antiques.Count == 0) return;
+      var sellerClient = _gameManager.GetClientByPlayerUuid(seller.Uuid);
+
 
       var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyerUuid, estate.Uuid); //购买者空字符串代表银行
       var saleAntiqueRequest =
         await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
-          saleAntiqueAction, client);
+          saleAntiqueAction, sellerClient);
 
       if (string.IsNullOrEmpty(saleAntiqueRequest.AntiqueUuid))
         return;
@@ -437,10 +439,11 @@ public class GameRuleService : ObservableObject
   {
     foreach (var player in _gameManager.Players)
     {
-      var staffWithEffects  = player.GetActiveEffects(point);
-      foreach (var staffWithEffect in staffWithEffects )
+      var staffWithEffects = player.GetActiveEffects(point);
+      foreach (var staffWithEffect in staffWithEffects)
       {
-        staffWithEffect.effect.Execute(context, player);
+        if (!staffWithEffect.effect.Execute(context, player))
+          return;
         switch (context)
         {
           case EconomyContext economyContext:
@@ -452,7 +455,7 @@ public class GameRuleService : ObservableObject
               [
                 new LogSegment
                 {
-                  Type =  InteractionType.PlayerName,
+                  Type = InteractionType.PlayerName,
                   Data = player.Uuid
                 },
                 new LogSegment
@@ -461,7 +464,7 @@ public class GameRuleService : ObservableObject
                 },
                 new LogSegment
                 {
-                  Type =  InteractionType.Staff,
+                  Type = InteractionType.Staff,
                   Data = staffWithEffect.staff.Uuid
                 },
                 new LogSegment

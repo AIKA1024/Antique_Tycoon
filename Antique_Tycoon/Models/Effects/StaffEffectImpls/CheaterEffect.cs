@@ -7,13 +7,15 @@ namespace Antique_Tycoon.Models.Effects.StaffEffectImpls;
 public class CheaterEffect : IStaffEffect
 {
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnAppraisalRoll;
-  public void Execute(GameContext context,Player owner)
+  public bool Execute(GameContext context,Player owner)
   {
     if (context is DiceContext diceCtx) 
     {
       diceCtx.Result += 1;
       Console.WriteLine("老千发动：点数+1");
+      return true;
     }
+    return false;
   }
 
   public string Description => "在获得和掠夺古玩时，骰子点数+1";

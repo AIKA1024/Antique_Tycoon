@@ -8,10 +8,10 @@ public class TaxHikeEffect:IStaffEffect
 {
   public decimal Rate { get; set; } = 0.5m;
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnCalculateTax;
-  public void Execute(GameContext context,Player owner)
+  public bool Execute(GameContext context,Player owner)
   {
     if (context is not PaymentContext paymentContext)
-      return;
+      return false;
     
     if (paymentContext.Player == owner)
     {
@@ -27,6 +27,8 @@ public class TaxHikeEffect:IStaffEffect
       paymentContext.Receiver = owner;
       Console.WriteLine($"税： {paymentContext.Cost} 将支付给 {owner.Name}");
     }
+
+    return true;
   }
 
   public string Description => $"其他玩家税收加{Rate * 100}%并全部交给你，免除自己所有税收";

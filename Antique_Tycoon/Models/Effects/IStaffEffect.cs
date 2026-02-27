@@ -17,7 +17,7 @@ public interface IStaffEffect
   GameTriggerPoint TriggerPoint { get; }
 
   // 触发时执行的逻辑
-  void Execute(GameContext context,Player owner);
+  bool Execute(GameContext context,Player owner);
 
   string Description { get; }
 }
