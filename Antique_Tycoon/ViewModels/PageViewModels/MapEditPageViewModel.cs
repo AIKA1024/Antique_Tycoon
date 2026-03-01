@@ -198,7 +198,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
     [RelayCommand]
     private async Task ChangeNodeImage(NodeModel target)
     {
-        var files = await App.Current.Services.GetRequiredService<TopLevel>().StorageProvider.OpenFilePickerAsync(
+        var files = await App.Current.Services.GetRequiredService<FilePickerService>().OpenFilePickerAsync(
             new FilePickerOpenOptions
             {
                 Title = "选择一张图片",
@@ -226,7 +226,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
     [RelayCommand]
     private async Task ChangeAntiqueImage(ItemStack<Antique> antiqueStack)
     {
-        var files = await App.Current.Services.GetRequiredService<TopLevel>().StorageProvider.OpenFilePickerAsync(
+        var files = await App.Current.Services.GetRequiredService<FilePickerService>().OpenFilePickerAsync(
             new FilePickerOpenOptions
             {
                 Title = "选择一张图片",

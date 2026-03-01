@@ -14,7 +14,7 @@
   <Border CornerRadius="8" Background="#eccc68" Padding="32">
     <Grid ColumnDefinitions="Auto,*">
       <StackPanel>
-        <Image Width="64" Source="../../Assets/Image/Avatar/Steve.png" HorizontalAlignment="Left" />
+        <Image Width="64" Source="{Binding #Me.Player.Avatar}" HorizontalAlignment="Left" />
         <TextBlock Text="{Binding #Me.Player.Name}" HorizontalAlignment="Center"/>
       </StackPanel>
       <StackPanel Grid.Column="1" Margin="32 0 0 0">

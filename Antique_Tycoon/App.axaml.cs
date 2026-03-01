@@ -35,10 +35,6 @@ public partial class App : Application
   public override void Initialize()
   {
     AvaloniaXamlLoader.Load(this);
-    var gameManager = Services.GetRequiredService<GameManager>();
-    gameManager.Initialize();
-    Services.GetRequiredService<GameRuleService>();// 启动gameRule todo 后面有多种规则后，需要按需实例化
-    
   }
 
   public App()
@@ -50,6 +46,10 @@ public partial class App : Application
 
   public override void OnFrameworkInitializationCompleted()
   {
+    var gameManager = Services.GetRequiredService<GameManager>();
+    gameManager.Initialize();
+    Services.GetRequiredService<GameRuleService>();// 启动gameRule todo 后面有多种规则后，需要按需实例化
+    
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
     {
       // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -84,7 +84,7 @@ public partial class App : Application
     services.AddSingleton<NetServer>(sp =>
       new NetServer(sp.GetServices<ITcpMessageHandler>(), DownloadMapPath)); // 这样注册才合理，NetClient不规范
     services.AddSingleton(sp => new Lazy<NetServer>(sp.GetRequiredService<NetServer>));
-    services.AddSingleton(sp => TopLevel.GetTopLevel(sp.GetRequiredService<MainWindow>())!);
+    services.AddSingleton<FilePickerService>();
     services.AddSingleton<ActionQueueService>();
     return services.BuildServiceProvider();
   }
