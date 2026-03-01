@@ -20,11 +20,13 @@ public partial class NodeLinkControl : ContentControl
 {
   private bool _isRegisted;
   private GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
-  private readonly ActionQueueService _actionQueueService = App.Current.Services.GetRequiredService<ActionQueueService>();
-  
-  [GeneratedDirectProperty] public partial NodeModel NodeModel { get; set; }
-  [GeneratedDirectProperty] public partial Map Map { get; set; }
-  [GeneratedDirectProperty] public partial Panel LineCanvas { get; set; }
+
+  private readonly ActionQueueService _actionQueueService =
+    App.Current.Services.GetRequiredService<ActionQueueService>();
+
+  [GeneratedDirectProperty] public partial NodeModel? NodeModel { get; set; }
+  [GeneratedDirectProperty] public partial Map? Map { get; set; }
+  [GeneratedDirectProperty] public partial Panel? LineCanvas { get; set; }
 
   public NodeLinkControl()
   {
@@ -41,16 +43,19 @@ public partial class NodeLinkControl : ContentControl
   {
     base.OnDataContextChanged(e);
 
-    if (DataContext is NodeModel nodeModel && !_isRegisted)
+    if (DataContext is NodeModel && !_isRegisted)
     {
-      WeakReferenceMessenger.Default.Register<AntiqueChanceResponse,string>(this,nodeModel.Uuid,ReceiveAntiqueChanceResponse);
-      WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse,string>(this,nodeModel.Uuid,ReceiveGetAntiqueResultResponse);
+      WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse);
+      WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
       _isRegisted = true;
     }
   }
 
   private void ReceiveAntiqueChanceResponse(object sender, AntiqueChanceResponse message)
   {
+    if (DataContext is NodeModel nodeModel && message.MineUuid != nodeModel.Uuid)
+      return;
+
     _actionQueueService.Enqueue(() =>
     {
       var antique = _gameManager.SelectedMap.Antiques.FirstOrDefault(a => a.Uuid == message.AntiqueUuid);
@@ -58,13 +63,16 @@ public partial class NodeLinkControl : ContentControl
       return Task.CompletedTask;
     });
   }
-  
+
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
   {
-    _actionQueueService.Enqueue(() =>
-    {
-      NodeAdornerHost.SetContent(this, null);//收起装饰器
-      return Task.CompletedTask;
-    });
+    if (DataContext is NodeModel nodeModel && message.MineUuid != nodeModel.Uuid)
+      return;
+    
+    // _actionQueueService.Enqueue(() =>
+    // {
+      NodeAdornerHost.SetContent(this, null); //收起装饰器
+      // return Task.CompletedTask;
+    // });
   }
 }

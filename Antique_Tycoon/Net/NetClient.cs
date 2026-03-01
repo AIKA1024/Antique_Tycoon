@@ -93,18 +93,6 @@ public class NetClient : NetBase
     var baseMsg = (ITcpMessage)JsonSerializer.Deserialize(json, typeInfo.jsonTypeInfo);
     TcpMessageRegistry.Dispatch(baseMsg);
 
-    switch (tcpMessageType)//todo 这个感觉可以在注册者那边判断就行了
-    {
-      case TcpMessageType.AntiqueChanceResponse:
-        var antiqueChanceResponse =(AntiqueChanceResponse)baseMsg!;
-        WeakReferenceMessenger.Default.Send(antiqueChanceResponse, antiqueChanceResponse.MineUuid);
-        break;
-      case TcpMessageType.GetAntiqueResultResponse:
-        var getAntiqueResultResponse = (GetAntiqueResultResponse)baseMsg!;
-        WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, getAntiqueResultResponse.MineUuid);
-        break;
-    }
-
     if (baseMsg is IHistoryRecord historyRecord)
     {
       WeakReferenceMessenger.Default.Send(historyRecord);
