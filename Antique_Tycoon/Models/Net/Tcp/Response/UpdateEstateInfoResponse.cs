@@ -12,13 +12,13 @@ public class UpdateEstateInfoResponse(string ownerUuid,string estateUuid,int lev
   public int Level { get; set; } = level;
   public List<LogSegment> LogSegments =>
   [
-    new LogSegment
+    new()
     {
-      Data = ownerUuid,
+      Data = OwnerUuid,
       Type = InteractionType.PlayerName
     },
-    new LogSegment { Text = string.IsNullOrEmpty(OwnerUuid)?" 当掉了 ":" 获得了 " },
-    new LogSegment
+    new() { Text = string.IsNullOrEmpty(OwnerUuid)?" 当掉了 ":" 获得了 " },
+    new()
     {
       Type = InteractionType.Estate,
       Data = EstateUuid

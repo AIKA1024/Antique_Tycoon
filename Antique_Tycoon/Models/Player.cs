@@ -29,11 +29,12 @@ public partial class Player : ObservableObject
   [ObservableProperty]
   public partial Bitmap Avatar { get; private set; } = ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Steve.png");
 
-  public ObservableCollection<Antique> Antiques { get; set; } = [];
-  
-  public ObservableCollection<Estate> Estates { get; set; } = [];
-  
-  public ObservableCollection<IStaff> Staffs { get; set; } = [];
+  [ObservableProperty]
+  public partial ObservableCollection<Antique> Antiques { get; set; } = [];
+  [ObservableProperty]
+  public partial ObservableCollection<Estate> Estates { get; set; } = [];
+  [ObservableProperty]
+  public partial ObservableCollection<IStaff> Staffs { get; set; } = [];
   
 
   public PlayerRole Role // todo 违反了开闭原则，但小项目不管了

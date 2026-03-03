@@ -221,19 +221,19 @@ public class GameRuleService : ObservableObject
       }
     }
     else if (estate.Owner == player) //踩到自己的地
-      await SaleAntique(player, "");
+      await SaleAntique(player, null);
     else //踩到别人的地
-      await SaleAntique(estate.Owner, player.Uuid);
+      await SaleAntique(estate.Owner, player);
 
     return;
 
-    async Task SaleAntique(Player seller, string buyerUuid)
+    async Task SaleAntique(Player seller, Player? buyer)
     {
       if (seller.Antiques.Count == 0) return;
       var sellerClient = _gameManager.GetClientByPlayerUuid(seller.Uuid);
 
 
-      var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyerUuid, estate.Uuid); //购买者空字符串代表银行
+      var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyer?.Uuid ?? "", estate.Uuid); //购买者空字符串代表银行
       var saleAntiqueRequest =
         await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
           saleAntiqueAction, sellerClient);
@@ -242,7 +242,8 @@ public class GameRuleService : ObservableObject
         return;
 
       var antique = seller.Antiques.First(a => a.Uuid == saleAntiqueRequest.AntiqueUuid);
-      UpdatePlayerMoneyResponse? updatePlayerMoneyRequest = null;
+      UpdatePlayerInfoResponse? updateSellerInfoRequest;
+      decimal value;
       if (saleAntiqueRequest.IsUpgradeEstate)
       {
         estate.Level += 1;
@@ -250,8 +251,10 @@ public class GameRuleService : ObservableObject
           new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level)
             { Id = saleAntiqueRequest.Id };
         await Broadcast(updateEstateInfoResponse);
-        updatePlayerMoneyRequest =
-          new UpdatePlayerMoneyResponse(seller.Uuid, antique.Value, seller.Money + antique.Value)
+        value = estate.Value;
+        seller.Money += value;
+        updateSellerInfoRequest =
+          new UpdatePlayerInfoResponse(seller)
           {
             LogSegments =
             [
@@ -262,7 +265,21 @@ public class GameRuleService : ObservableObject
               },
               new LogSegment
               {
-                Text = " 原价出售古玩，获得了"
+                Text = " 原价出售古玩给 "
+              },
+              buyer == null
+                ? new LogSegment
+                {
+                  Text = "银行"
+                }
+                : new LogSegment
+                {
+                  Type = InteractionType.PlayerName,
+                  Data = buyer.Uuid
+                },
+              new LogSegment
+              {
+                Text = " ，获得了"
               },
               new LogSegment
               {
@@ -282,9 +299,10 @@ public class GameRuleService : ObservableObject
       }
       else
       {
-        var value = estate.CalculateCurrentRevenue(antique.Value);
-        updatePlayerMoneyRequest =
-          new UpdatePlayerMoneyResponse(seller.Uuid, value, seller.Money + value)
+        value = estate.CalculateCurrentRevenue(antique.Value);
+        seller.Money += value;
+        updateSellerInfoRequest =
+          new UpdatePlayerInfoResponse(seller)
           {
             Id = saleAntiqueRequest.Id,
             LogSegments =
@@ -296,7 +314,21 @@ public class GameRuleService : ObservableObject
               },
               new LogSegment
               {
-                Text = " 加价出售古玩，获得了"
+                Text = " 加价出售古玩给 "
+              },
+              buyer == null
+                ? new LogSegment
+                {
+                  Text = "银行"
+                }
+                : new LogSegment
+                {
+                  Type = InteractionType.PlayerName,
+                  Data = buyer.Uuid
+                },
+              new LogSegment
+              {
+                Text = " ，获得了"
               },
               new LogSegment
               {
@@ -307,9 +339,17 @@ public class GameRuleService : ObservableObject
       }
 
       seller.Antiques.Remove(antique);
-      if (string.IsNullOrEmpty(buyerUuid))
+      if (string.IsNullOrEmpty(buyer?.Uuid))
         _gameManager.Antiques.Add(antique); //todo 应该是流入市场，现在这样是流入矿洞
-      await Broadcast(updatePlayerMoneyRequest);
+      else
+      {
+        buyer.Antiques.Add(antique);
+        buyer.Money -= value;
+        var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(buyer);
+        await Broadcast(updatePlayerInfoResponse);
+      }
+
+      await Broadcast(updateSellerInfoRequest);
     }
   }
 

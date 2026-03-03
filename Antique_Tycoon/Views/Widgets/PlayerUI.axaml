@@ -53,10 +53,19 @@
             </TextBlock>
 
             <c:McContentControl Grid.Column="2">
-                <ItemsControl ItemsSource="{Binding HistoryLogs}">
+                <ItemsControl Height="200"
+                              ItemsSource="{Binding HistoryLogs}">
+                    <ItemsControl.Template>
+                        <ControlTemplate>
+                            <ScrollViewer>
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </ItemsControl.Template>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <TextBlock utilities:RichTextHelper.LogSegments="{Binding LogSegments}"
+                                       TextWrapping="Wrap"
                                        Margin="0,0,0,4" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

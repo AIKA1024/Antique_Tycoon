@@ -50,7 +50,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public List<Antique> Antiques { get; set; } = [];
   public List<IStaff> Staffs { get; set; }= [];
   
-  public readonly SemaphoreSlim GameActionLock = new SemaphoreSlim(1, 1);
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
   public Player LocalPlayer => _playersByUuid[_localPlayerUuid];
@@ -95,10 +94,19 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
     WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
     WeakReferenceMessenger.Default.Register<UpdatePlayerMoneyResponse>(this, ReceiveUpdatePlayerMoneyResponse);
+    WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
     WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
     
     
-    
+  }
+
+  private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
+  {
+    var player = GetPlayerByUuid(message.Player.Uuid);
+    player.Antiques = message.Player.Antiques;
+    player.Staffs = message.Player.Staffs;
+    player.Money = message.Player.Money;
+    player.Estates = message.Player.Estates;
   }
 
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
