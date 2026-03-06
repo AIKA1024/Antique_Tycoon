@@ -357,7 +357,7 @@ public class GameRuleService : ObservableObject
   {
     var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
     var message =
-      new UpdatePlayerMoneyResponse(player.Uuid, bonus, player.Money + bonus)
+      new UpdatePlayerInfoResponse(player)
       {
         LogSegments =
         [
@@ -449,7 +449,7 @@ public class GameRuleService : ObservableObject
     else
     {
       var message =
-        new UpdatePlayerMoneyResponse(player.Uuid, 200, player.Money + 200)
+        new UpdatePlayerInfoResponse(player)
         {
           LogSegments =
           [
@@ -487,9 +487,7 @@ public class GameRuleService : ObservableObject
         switch (context)
         {
           case EconomyContext economyContext:
-            var finalValue = economyContext.GetFinalValue();
-            await Broadcast(new UpdatePlayerMoneyResponse(player.Uuid, finalValue - economyContext.BaseValue,
-              finalValue + player.Money)
+            await Broadcast(new UpdatePlayerInfoResponse(player)
             {
               LogSegments =
               [

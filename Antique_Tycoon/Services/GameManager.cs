@@ -93,7 +93,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     //因为要更新其他玩家的信息，所以也要监听这个消息
     WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
     WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
-    WeakReferenceMessenger.Default.Register<UpdatePlayerMoneyResponse>(this, ReceiveUpdatePlayerMoneyResponse);
     WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
     WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
     
@@ -117,12 +116,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     var antique = Antiques.First(a => a.Uuid == message.AntiqueUuid);
     player.Antiques.Add(antique);
     Antiques.Remove(antique);
-  }
-
-  private void ReceiveUpdatePlayerMoneyResponse(object recipient, UpdatePlayerMoneyResponse message)
-  {
-    var player = GetPlayerByUuid(message.PlayerUuid);
-    player.Money = message.Total;
   }
 
   private void ReceiveHireStaffResponse(object recipient, HireStaffResponse message)
