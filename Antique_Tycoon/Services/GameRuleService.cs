@@ -14,6 +14,7 @@ using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Nodes;
+using Avalonia.Xaml.Interactions.Custom;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
@@ -251,7 +252,7 @@ public class GameRuleService : ObservableObject
           new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level)
             { Id = saleAntiqueRequest.Id };
         await Broadcast(updateEstateInfoResponse);
-        value = estate.Value;
+        value = antique.Value;
         seller.Money += value;
         updateSellerInfoRequest =
           new UpdatePlayerInfoResponse(seller)
@@ -356,6 +357,7 @@ public class GameRuleService : ObservableObject
   private async Task HandleSpawnPointAsync(Player player)
   {
     var bonus = _gameManager.SelectedMap.SpawnPointCashReward;
+    player.Money += bonus;
     var message =
       new UpdatePlayerInfoResponse(player)
       {
@@ -399,7 +401,9 @@ public class GameRuleService : ObservableObject
       WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
       await Broadcast(antiqueChangeResponse);
       var rollDiceResponse = await GetRollDiceAsync(client);
-      var isSucceed = rollDiceResponse.DiceValue >= antique.Dice;
+      var diceContext = new DiceContext(player, rollDiceResponse.DiceValue);
+      await TriggerGlobalStaffEffects(GameTriggerPoint.OnAppraisalRoll, diceContext);
+      var isSucceed = diceContext.Result >= antique.Dice;
       getAntiqueResultResponse =
         new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, isSucceed);
       if (isSucceed)
@@ -484,9 +488,11 @@ public class GameRuleService : ObservableObject
       {
         if (!staffWithEffect.effect.Execute(context, player))
           return;
+
         switch (context)
         {
           case EconomyContext economyContext:
+            player.Money += economyContext.GetFinalValue();
             await Broadcast(new UpdatePlayerInfoResponse(player)
             {
               LogSegments =
