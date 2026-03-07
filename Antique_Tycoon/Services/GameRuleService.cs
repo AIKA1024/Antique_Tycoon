@@ -49,7 +49,7 @@ public class GameRuleService : ObservableObject
     WeakReferenceMessenger.Default.Send(turnStartResponse);
   }
 
-  private async Task<RollDiceResponse> GetRollDiceAsync(TcpClient? client)
+  private async Task<RollDiceResponse> GetRollDiceAsync(TcpClient? client, bool useEffects = false)
   {
     int rollDiceValue = Random.Shared.Next(1, 7);
     RollDiceResponse rollDiceResponse =
@@ -60,6 +60,14 @@ public class GameRuleService : ObservableObject
         await _gameManager.NetServerInstance
           .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
       rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
+      if (useEffects)
+      {
+        var player = client == null ? _gameManager.LocalPlayer : _gameManager.GetPlayerByTcpClient(client);
+        var diceContext = new DiceContext(player, rollDiceValue);
+        await TriggerGlobalStaffEffects(GameTriggerPoint.OnAppraisalRoll, diceContext);
+        rollDiceValue = diceContext.Result;
+      }
+
       rollDiceResponse =
         new RollDiceResponse(rollDiceRequest.Id, _gameManager.CurrentTurnPlayer.Uuid, rollDiceValue);
       await Broadcast(rollDiceResponse);
@@ -224,7 +232,7 @@ public class GameRuleService : ObservableObject
     else if (estate.Owner == player) //踩到自己的地
       await SaleAntique(player, null);
     else //踩到别人的地
-      await SaleAntique(estate.Owner, player);
+      await SaleAntique(estate.Owner, player);//todo 客户端收到强卖的古玩会导致ui古玩列表的图片错乱
 
     return;
 
@@ -232,8 +240,7 @@ public class GameRuleService : ObservableObject
     {
       if (seller.Antiques.Count == 0) return;
       var sellerClient = _gameManager.GetClientByPlayerUuid(seller.Uuid);
-
-
+      
       var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyer?.Uuid ?? "", estate.Uuid); //购买者空字符串代表银行
       var saleAntiqueRequest =
         await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
@@ -341,7 +348,7 @@ public class GameRuleService : ObservableObject
 
       seller.Antiques.Remove(antique);
       if (string.IsNullOrEmpty(buyer?.Uuid))
-        _gameManager.Antiques.Add(antique); //todo 应该是流入市场，现在这样是流入矿洞
+        _gameManager.Antiques.Add(antique);
       else
       {
         buyer.Antiques.Add(antique);
@@ -400,9 +407,8 @@ public class GameRuleService : ObservableObject
       var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
       WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
       await Broadcast(antiqueChangeResponse);
-      var rollDiceResponse = await GetRollDiceAsync(client);
+      var rollDiceResponse = await GetRollDiceAsync(client, true);
       var diceContext = new DiceContext(player, rollDiceResponse.DiceValue);
-      await TriggerGlobalStaffEffects(GameTriggerPoint.OnAppraisalRoll, diceContext);
       var isSucceed = diceContext.Result >= antique.Dice;
       getAntiqueResultResponse =
         new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, isSucceed);
@@ -428,6 +434,7 @@ public class GameRuleService : ObservableObject
       }
       else
       {
+        _gameManager.UnsoldAntiques.Add(antique);
         getAntiqueResultResponse.LogSegments =
         [
           new LogSegment
@@ -493,36 +500,37 @@ public class GameRuleService : ObservableObject
         {
           case EconomyContext economyContext:
             player.Money += economyContext.GetFinalValue();
-            await Broadcast(new UpdatePlayerInfoResponse(player)
-            {
-              LogSegments =
-              [
-                new LogSegment
-                {
-                  Type = InteractionType.PlayerName,
-                  Data = player.Uuid
-                },
-                new LogSegment
-                {
-                  Text = " 的 "
-                },
-                new LogSegment
-                {
-                  Type = InteractionType.Staff,
-                  Data = staffWithEffect.staff.Uuid
-                },
-                new LogSegment
-                {
-                  Text = " 触发了效果 "
-                },
-                new LogSegment
-                {
-                  Text = $" {staffWithEffect.effect.Description}"
-                }
-              ]
-            });
             break;
         }
+
+        await Broadcast(new UpdatePlayerInfoResponse(player)
+        {
+          LogSegments =
+          [
+            new LogSegment
+            {
+              Type = InteractionType.PlayerName,
+              Data = player.Uuid
+            },
+            new LogSegment
+            {
+              Text = " 的 "
+            },
+            new LogSegment
+            {
+              Type = InteractionType.Staff,
+              Data = staffWithEffect.staff.Uuid
+            },
+            new LogSegment
+            {
+              Text = " 触发了效果 "
+            },
+            new LogSegment
+            {
+              Text = $" {staffWithEffect.effect.Description}"
+            }
+          ]
+        });
       }
     }
   }

@@ -48,7 +48,10 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
   
   public List<Antique> Antiques { get; set; } = [];
+  public List<Antique> UnsoldAntiques { get; set; } = [];
   public List<IStaff> Staffs { get; set; }= [];
+  
+  
   
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
@@ -106,6 +109,11 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     player.Staffs = message.Player.Staffs;
     player.Money = message.Player.Money;
     player.Estates = message.Player.Estates;
+
+    foreach (var antique in player.Antiques)
+    {
+      
+    }
   }
 
   private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
@@ -194,6 +202,11 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     if (!IsRoomOwner)
       throw new InvalidOperationException("客户端不能调用此方法");
     return _clientToPlayerId[client];
+  }
+
+  public Player GetPlayerByTcpClient(TcpClient client)
+  {
+    return GetPlayerByUuid(GetPlayerUuidByTcpClient(client));
   }
 
   public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];

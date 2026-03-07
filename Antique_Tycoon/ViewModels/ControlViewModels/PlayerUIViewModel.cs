@@ -111,6 +111,16 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
   public void Dispose()
   {
     _dialogService.DialogCollectionChanged -= NotifyDialogViewModelChanged;
+    WeakReferenceMessenger.Default.Unregister<RollDiceAction>(this);
+    WeakReferenceMessenger.Default.Unregister<TurnStartResponse>(this);
+    WeakReferenceMessenger.Default.Unregister<AntiqueChanceResponse>(this);
+    WeakReferenceMessenger.Default.Unregister<GetAntiqueResultResponse>(this);
+    WeakReferenceMessenger.Default.Unregister<SaleAntiqueAction>(this);
+    WeakReferenceMessenger.Default.Unregister<BuyEstateAction>(this);
+    WeakReferenceMessenger.Default.Unregister<HireStaffAction>(this);
+    WeakReferenceMessenger.Default.Unregister<KeyPressedMessage>(this);
+    WeakReferenceMessenger.Default.Unregister<UpdateRoomResponse>(this);
+    WeakReferenceMessenger.Default.Unregister<IHistoryRecord>(this);
   }
 
   private void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)

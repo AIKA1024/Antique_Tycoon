@@ -50,7 +50,6 @@ public partial class GameCanvas : UserControl
     InitializeComponent();
     AddHandler(Connector.ConnectedEvent, OnConnectorConnected, RoutingStrategies.Bubble);
     AddHandler(Connector.CancelConnectEvent, OnConnectorCancelConnect, RoutingStrategies.Bubble);
-    WeakReferenceMessenger.Default.Register<StartPlayerMoveAnimation>(this, ReceivePlayerMoveAnimationMessage);
   }
 
   private async Task StartPlayerMoveAnimationAsync(StartPlayerMoveAnimation message)
@@ -165,6 +164,13 @@ public partial class GameCanvas : UserControl
       _mapEditPageViewModel = mapEditPageViewModel;
       _mapEditPageViewModel.RequestRenderControl = RenderCanvasToBitmap;
     }
+    WeakReferenceMessenger.Default.Register<StartPlayerMoveAnimation>(this, ReceivePlayerMoveAnimationMessage);//todo 也加个datacontext吧，不然不好取消注册事件
+  }
+
+  protected override void OnUnloaded(RoutedEventArgs e)
+  {
+    base.OnUnloaded(e);
+    WeakReferenceMessenger.Default.Unregister<StartPlayerMoveAnimation>(this);
   }
 
   protected override void OnKeyDown(KeyEventArgs e)
