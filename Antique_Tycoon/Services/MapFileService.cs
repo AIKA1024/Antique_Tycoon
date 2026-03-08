@@ -45,6 +45,7 @@ public class MapFileService
     var imageDirectoryPath = Path.Combine(folderPath, ImageFolderName);
     var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Combine(folderPath, JsonFileName)),
       Models.Json.AppJsonContext.Default.Map);
+    map.FilePath = folderPath;
     foreach (var entity in map.Entities) //手动加载Image
     {
       if (entity is NodeModel node)

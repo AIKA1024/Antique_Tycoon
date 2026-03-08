@@ -23,6 +23,11 @@
           Classes="MCTextbox"
           Text="{Binding Estate.Value}" />
       </c:McContentControl>
+      <c:McContentControl Header="税收">
+        <TextBox
+          Classes="MCTextbox"
+          Text="{Binding Estate.PropertyTax}" />
+      </c:McContentControl>
       <c:McContentControl Header="每级额外收益">
         <StackPanel Spacing="8">
 

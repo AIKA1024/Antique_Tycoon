@@ -8,13 +8,14 @@ namespace Antique_Tycoon.Models.Nodes;
 
 public partial class Estate : NodeModel
 {
-  public decimal Value { get; set; }
+  [ObservableProperty] public partial decimal Value { get; set; }
   [ObservableProperty] public partial int Level { get; set; } = 1;
 
   /// <summary>
   /// 每回合要交的税
   /// </summary>
-  public decimal PropertyTax { get; set; } = 50;
+  [ObservableProperty]
+  public partial decimal PropertyTax { get; set; } = 50;
 
   public ObservableCollection<BonusEffect> RevenueModifiers { get; set; } = [];
 
@@ -34,8 +35,8 @@ public partial class Estate : NodeModel
   }
 }
 
-public partial class BonusEffect(BonusType bonusType, int effectNum) : ObservableObject
+public partial class BonusEffect(BonusType bonusType, decimal effectNum) : ObservableObject
 {
   [ObservableProperty] public partial BonusType BonusType { get; set; } = bonusType;
-  [ObservableProperty] public partial int EffectNum { get; set; } = effectNum;
+  [ObservableProperty] public partial decimal EffectNum { get; set; } = effectNum;
 }

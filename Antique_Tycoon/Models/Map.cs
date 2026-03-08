@@ -38,6 +38,9 @@ public partial class Map : ObservableObject
   [ObservableProperty]
   [JsonIgnore] // 这个值通过另外的Hash文件读取
   public partial string Hash { get; set; } = "";
+  
+  [JsonIgnore]
+  public string FilePath { get; set; } = "";
 
   [ObservableProperty]
   [JsonConverter(typeof(ColorJsonConverter))]

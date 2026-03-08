@@ -232,7 +232,7 @@ public class GameRuleService : ObservableObject
     else if (estate.Owner == player) //踩到自己的地
       await SaleAntique(player, null);
     else //踩到别人的地
-      await SaleAntique(estate.Owner, player);//todo 客户端收到强卖的古玩会导致ui古玩列表的图片错乱
+      await SaleAntique(estate.Owner, player); //todo 客户端收到强卖的古玩会导致ui古玩列表的图片错乱
 
     return;
 
@@ -240,7 +240,7 @@ public class GameRuleService : ObservableObject
     {
       if (seller.Antiques.Count == 0) return;
       var sellerClient = _gameManager.GetClientByPlayerUuid(seller.Uuid);
-      
+
       var saleAntiqueAction = new SaleAntiqueAction(seller.Uuid, buyer?.Uuid ?? "", estate.Uuid); //购买者空字符串代表银行
       var saleAntiqueRequest =
         await _gameManager.NetServerInstance.SendRequestAsync<SaleAntiqueAction, SaleAntiqueRequest>(
@@ -273,7 +273,16 @@ public class GameRuleService : ObservableObject
               },
               new LogSegment
               {
-                Text = " 原价出售古玩给 "
+                Text = " 原价出售 "
+              },
+              new LogSegment
+              {
+                Type = InteractionType.Antique,
+                Data = antique.Uuid
+              },
+              new LogSegment
+              {
+              Text = " 给 "
               },
               buyer == null
                 ? new LogSegment
@@ -322,12 +331,21 @@ public class GameRuleService : ObservableObject
               },
               new LogSegment
               {
-                Text = " 加价出售古玩给 "
+                Text = " 加价出售 "
+              },
+              new LogSegment
+              {
+                Type = InteractionType.Antique,
+                Data = antique.Uuid
+              },
+              new LogSegment
+              {
+                Text = " 给 "
               },
               buyer == null
                 ? new LogSegment
                 {
-                  Text = "银行"
+                  Text = " 银行 "
                 }
                 : new LogSegment
                 {
