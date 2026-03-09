@@ -5,14 +5,14 @@ using Avalonia.Platform;
 
 namespace Antique_Tycoon.Utilities;
 
-public static class ImageHelper
+public static class ImageHelper//只用于 avares://资源
 {
   private static readonly Dictionary<string, Bitmap> Dictionary = [];
 
   public static Bitmap GetBitmap(string assetPath)
   {
     Dictionary.TryGetValue(assetPath, out Bitmap? bitmap);
-    bitmap ??= new Bitmap(AssetLoader.Open(new Uri(assetPath)));
+    bitmap ??= new Bitmap(AssetLoader.Open(new Uri(assetPath,UriKind.RelativeOrAbsolute)));
     Dictionary[assetPath] = bitmap;
     return bitmap;
   }

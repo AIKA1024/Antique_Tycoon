@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
+using Antique_Tycoon.Utilities;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using CanvasItemModel = Antique_Tycoon.Models.Nodes.CanvasItemModel;
@@ -17,9 +18,9 @@ namespace Antique_Tycoon.Services;
 
 public class MapFileService
 {
-  private const string ImageFolderName = "Image"; //封面不在这个文件夹
-  private const string JsonFileName = "Map.json";
-  private const string HashFileName = "Hash.txt";
+  public const string ImageFolderName = "Image"; //封面不在这个文件夹
+  public const string JsonFileName = "Map.json";
+  public const string HashFileName = "Hash.txt";
   private Dictionary<string, Map>? _mapsDictionary;
   private (string Hash, MemoryStream? Stream) _mapStream;
 
@@ -65,6 +66,11 @@ public class MapFileService
     map.Cover = new Bitmap(Path.Combine(folderPath, "Cover.png"));
     map.Hash = File.ReadAllText(Path.Combine(folderPath, HashFileName));
     return map;
+  }
+
+  public void UnloadMap(Map map)
+  {
+    //todo 卸载资源
   }
 
   //计算哈希是费时的操作，所以只在创建房间时计算对应地图文件的哈希值，json中图片使用了uuid命名，因此json的哈希值也有唯一性

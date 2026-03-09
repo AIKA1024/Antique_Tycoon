@@ -23,7 +23,7 @@ public partial class Antique : EntityBase
   [JsonIgnore]
   [ObservableProperty]
   public partial Bitmap Image { get; set; } =
-    new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Antique/Iron.png")));//todo 感觉不应该有一个Image，而是使用ImageHash和值转换器，Image会在网络发送中丢失
+    new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/Antique/Iron.png")));
 
   public int Dice { get; set; } = 1;
 }

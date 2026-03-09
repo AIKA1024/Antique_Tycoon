@@ -30,6 +30,7 @@ public partial class App : Application
   public IServiceProvider Services { get; private set; }
   public new static App Current => (App)Application.Current!;
   public string MapPath { get; } = Path.Join("..", "Maps");
+
   public string DownloadMapPath { get; } = Path.Join("..", "TempDownloadPath");
 
   public override void Initialize()
@@ -48,8 +49,8 @@ public partial class App : Application
   {
     var gameManager = Services.GetRequiredService<GameManager>();
     gameManager.Initialize();
-    Services.GetRequiredService<GameRuleService>();// 启动gameRule todo 后面有多种规则后，需要按需实例化
-    
+    Services.GetRequiredService<GameRuleService>(); // 启动gameRule todo 后面有多种规则后，需要按需实例化
+
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
     {
       // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
