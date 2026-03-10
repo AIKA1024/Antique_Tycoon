@@ -39,14 +39,16 @@
     <StaticResource ResourceKey="MapEditPageDataTemplate"/>
     
     <!-- Node -->
-    <StaticResource ResourceKey="SpawnPointDataTemplate"/>
-    <StaticResource ResourceKey="EstateDataTemplate"/>
-    <StaticResource ResourceKey="MineDataTemplate"/>
+    <!-- <StaticResource ResourceKey="SpawnPointDataTemplate"/> -->
+    <!-- <StaticResource ResourceKey="EstateDataTemplate"/> -->
+    <!-- <StaticResource ResourceKey="MineDataTemplate"/> -->
     
     <!-- DetailView -->
     <StaticResource ResourceKey="SpawnPointDetailDataTemplate" />
     <StaticResource ResourceKey="EstateDetailDataTemplate" />
     <StaticResource ResourceKey="MineDetailDataTemplate" />
+    <StaticResource ResourceKey="teleportationPointDetailDataTemplate" />
+    
     
     <!-- Entity -->
     <StaticResource ResourceKey="AntiqueDataTemplate"/>

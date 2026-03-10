@@ -5,5 +5,5 @@ namespace Antique_Tycoon.Models.Nodes;
 public partial class Mine:NodeModel
 {
   [ObservableProperty]
-  public partial int Charge { get; set; } = 200;
+  public partial decimal Charge { get; set; } = 200;
 }

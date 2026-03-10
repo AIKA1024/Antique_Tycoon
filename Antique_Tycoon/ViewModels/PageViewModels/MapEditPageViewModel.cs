@@ -96,6 +96,7 @@ public partial class MapEditPageViewModel : PageViewModelBase
             Estate estate => new EstateDetailViewModel(estate),
             SpawnPoint spawnPoint => new SpawnPointDetailViewModel(spawnPoint),
             Mine mine => new MineDetailViewModel(mine),
+            TeleportationPoint teleportationPoint => new TeleportationPointDetailViewModel(teleportationPoint),
 
             // 如果是其他节点，创建普通的 VM
             _ => new NodeDetailViewModel(entity)
@@ -155,7 +156,14 @@ public partial class MapEditPageViewModel : PageViewModelBase
                     };
                     model = mine;
                     break;
-                case "传送点":
+                case "传送门":
+                    var teleportationPoint = new TeleportationPoint
+                    {
+                        Left = PointerPosition.X,
+                        Top = PointerPosition.Y,
+                        Title = "传送门"
+                    };
+                    model = teleportationPoint;
                     break;
                 case "人才市场":
                     var talentMark = new TalentMarket

@@ -1,0 +1,24 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:detailViewModels="clr-namespace:Antique_Tycoon.ViewModels.DetailViewModels"
+                    xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls">
+    <Design.PreviewWith>
+        <ContentControl>
+            <ContentControl.DataTemplates>
+                <StaticResource ResourceKey="TeleportationPointDataTemplate" />
+            </ContentControl.DataTemplates>
+            <detailViewModels:TeleportationPointDetailViewModel />
+        </ContentControl>
+    </Design.PreviewWith>
+    
+    <DataTemplate x:Key="teleportationPointDetailDataTemplate" x:DataType="detailViewModels:TeleportationPointDetailViewModel">
+        <StackPanel>
+            <controls:McContentControl Header="价格">
+                <TextBox
+                    Classes="MCTextbox"
+                    Text="{Binding TeleportationPoint.Value}" />
+            </controls:McContentControl>
+        </StackPanel>
+
+    </DataTemplate>
+</ResourceDictionary>
