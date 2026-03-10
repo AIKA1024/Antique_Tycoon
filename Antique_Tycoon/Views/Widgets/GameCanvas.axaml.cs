@@ -134,7 +134,7 @@ public partial class GameCanvas : UserControl
 
   private void ReceivePlayerMoveAnimationMessage(object recipient, StartPlayerMoveAnimation message)
   {
-    message.Reply(StartPlayerMoveAnimationAsync(message)); //todo 好像会重复回复（切换地图后开始游戏，或者进一次地图编辑器）
+    message.Reply(StartPlayerMoveAnimationAsync(message));
   }
 
   private void OnConnectorConnected(object? sender, Connector.ConnectedRoutedEventArgs e)
@@ -164,7 +164,7 @@ public partial class GameCanvas : UserControl
       _mapEditPageViewModel = mapEditPageViewModel;
       _mapEditPageViewModel.RequestRenderControl = RenderCanvasToBitmap;
     }
-    WeakReferenceMessenger.Default.Register<StartPlayerMoveAnimation>(this, ReceivePlayerMoveAnimationMessage);//todo 也加个datacontext吧，不然不好取消注册事件
+    WeakReferenceMessenger.Default.Register<StartPlayerMoveAnimation>(this, ReceivePlayerMoveAnimationMessage);
   }
 
   protected override void OnUnloaded(RoutedEventArgs e)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
@@ -13,7 +14,9 @@ using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Net;
+using Antique_Tycoon.Utilities;
 using Antique_Tycoon.ViewModels.DialogViewModels;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
@@ -46,13 +49,12 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private Media _turnStartSfx;
 
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
-  
+
   public List<Antique> Antiques { get; set; } = [];
   public List<Antique> UnsoldAntiques { get; set; } = [];
-  public List<IStaff> Staffs { get; set; }= [];
-  
-  
-  
+  public List<IStaff> Staffs { get; set; } = [];
+
+
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
   public Player LocalPlayer => _playersByUuid[_localPlayerUuid];
@@ -98,8 +100,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
     WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
     WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
-    
-    
   }
 
   private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
@@ -110,9 +110,14 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     player.Money = message.Player.Money;
     player.Estates = message.Player.Estates;
 
+    if (player.Antiques.Count == 0)
+      return;
+
+    var imagePath = Path.Combine(SelectedMap!.FilePath, MapFileService.ImageFolderName);
     foreach (var antique in player.Antiques)
     {
-      
+      antique.Image.Dispose();
+      antique.Image = new Bitmap(Path.Combine(imagePath, antique.ImageHash));
     }
   }
 
@@ -259,7 +264,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
     await NetServerInstance.Broadcast(turnStartResponse);
     WeakReferenceMessenger.Default.Send(turnStartResponse);
-    
+
     // await Task.Yield(); // 等待各监听事件绑定完成
   }
 

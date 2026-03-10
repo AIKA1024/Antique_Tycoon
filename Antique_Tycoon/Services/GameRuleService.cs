@@ -200,7 +200,7 @@ public class GameRuleService : ObservableObject
   /// </summary>
   /// <param name="player">玩家</param>
   /// <param name="estate">地产</param>
-  private async Task HandleEstateAsync(Player player, Estate estate) //todo 买家没付钱，也没得到古玩 踩到别人的地也没ui提醒
+  private async Task HandleEstateAsync(Player player, Estate estate) //todo 踩到别人的地也没ui提醒
   {
     var passEstateClient = _gameManager.GetClientByPlayerUuid(player.Uuid);
     if (estate.Owner == null) //踩到还没人买的地
@@ -232,7 +232,7 @@ public class GameRuleService : ObservableObject
     else if (estate.Owner == player) //踩到自己的地
       await SaleAntique(player, null);
     else //踩到别人的地
-      await SaleAntique(estate.Owner, player); //todo 客户端收到强卖的古玩会导致ui古玩列表的图片错乱
+      await SaleAntique(estate.Owner, player);
 
     return;
 
@@ -473,7 +473,7 @@ public class GameRuleService : ObservableObject
       }
 
       WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
-      await Broadcast(getAntiqueResultResponse); //todo 如果之前打开的地图编辑器，会导致卡死
+      await Broadcast(getAntiqueResultResponse);
     }
     else
     {
