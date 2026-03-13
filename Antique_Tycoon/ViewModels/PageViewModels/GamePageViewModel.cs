@@ -40,10 +40,12 @@ public partial class GamePageViewModel : PageViewModelBase
   }
 
 
-  private void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
+  private async void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
   {
-    WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,
-      Map)); //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
+    string selectedNodeUuid = await WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,
+      Map)).Response; //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
+
+    await _gameManager.SendToGameServerAsync(new SelectDestinationRequest(message.Id, selectedNodeUuid));
   }
 
 

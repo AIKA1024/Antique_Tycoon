@@ -46,6 +46,9 @@ public abstract partial class NodeModel : CanvasItemModel
     get;
     set => SetProperty(ref field, value);
   } = DefaultHeight;
+  
+  [ObservableProperty]
+  public partial int PathPriority { get; set; }
 
   public bool IsAutoSize
   {

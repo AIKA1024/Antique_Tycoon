@@ -9,7 +9,7 @@ namespace Antique_Tycoon.Extensions;
 public static class MapExtension
 {
   /// <summary>
-/// 获取从起点出发、恰好走targetStepCount步可达的所有路径（键：终点Uuid，值：路径Uuid列表）
+/// 获取从起点选择路径出发、恰好走targetStepCount步可达的所有路径（键：终点Uuid，值：路径Uuid列表）
 /// </summary>
 /// <param name="map">地图实例</param>
 /// <param name="startNodeUuid">起点节点Uuid</param>
@@ -20,63 +20,76 @@ public static Dictionary<string, List<string>> GetPathsAtExactStep(this Map map,
     if (map == null) throw new ArgumentNullException(nameof(map));
     if (string.IsNullOrWhiteSpace(startNodeUuid)) throw new ArgumentNullException(nameof(startNodeUuid));
     if (targetStepCount < 1) throw new ArgumentOutOfRangeException(nameof(targetStepCount), "步数必须 >= 1");
-    if (!map.EntitiesDict.TryGetValue(startNodeUuid, out var startNodeEntity)) return [];
+    if (!map.EntitiesDict.TryGetValue(startNodeUuid, out var startNodeEntity)) return new Dictionary<string, List<string>>();
 
     var startNode = (NodeModel)startNodeEntity;
-
-    // 核心修改1：字典值类型改为 List<string>（存储节点Uuid）
     var uniqueEndPaths = new Dictionary<string, List<string>>();
-
-    // 核心修改2：当前路径改为存储Uuid，而非NodeModel
     var currentPathUuids = new List<string> { startNode.Uuid };
 
-    // 调用修改后的递归方法
     FindPathsRecursive(map, startNode, targetStepCount, 0, currentPathUuids, uniqueEndPaths);
 
     return uniqueEndPaths;
 }
 
 /// <summary>
-/// 递归查找路径（修改为跟踪Uuid路径）
+/// 递归查找路径
 /// </summary>
 private static void FindPathsRecursive(
     Map map,
     NodeModel currentNode,
     int targetStep,
     int currentStep,
-    List<string> currentPathUuids, // 参数改为 List<string>（存储Uuid）
+    List<string> currentPathUuids,
     Dictionary<string, List<string>> uniqueEndPaths)
 {
     if (currentStep == targetStep)
     {
-        // 达到目标步数时，存储终点Uuid和对应的路径Uuid列表
         if (!uniqueEndPaths.ContainsKey(currentNode.Uuid))
         {
-            // 复制当前路径（避免后续递归修改影响已存储的路径）
             uniqueEndPaths[currentNode.Uuid] = new List<string>(currentPathUuids);
         }
         return;
     }
 
+    // 1. 收集当前节点所有有效的、可通行的目标节点
+    var validNextNodes = new List<NodeModel>();
     foreach (var connector in currentNode.ConnectorModels)
     {
         foreach (var activeConn in connector.ActiveConnections)
         {
-            if (string.IsNullOrWhiteSpace(activeConn.EndNodeId)) continue;
-            if (!map.EntitiesDict.TryGetValue(activeConn.EndNodeId, out var targetEntity)) continue;
-
-            var targetNode = (NodeModel)targetEntity;
-
-            // 防环检测：检查Uuid是否已在路径中（替代原NodeModel的Contains）
-            // if (currentPathUuids.Contains(targetNode.Uuid)) continue;
-
-            // 添加目标节点的Uuid到路径
-            currentPathUuids.Add(targetNode.Uuid);
-            // 递归调用（步数+1）
-            FindPathsRecursive(map, targetNode, targetStep, currentStep + 1, currentPathUuids, uniqueEndPaths);
-            // 回溯：移除最后添加的Uuid
-            currentPathUuids.RemoveAt(currentPathUuids.Count - 1);
+            if (!string.IsNullOrWhiteSpace(activeConn.EndNodeId) && 
+                map.EntitiesDict.TryGetValue(activeConn.EndNodeId, out var targetEntity))
+            {
+                validNextNodes.Add((NodeModel)targetEntity);
+            }
         }
+    }
+
+    if (validNextNodes.Count == 0) return; // 死胡同，直接返回
+
+    // 2. 核心修改：应用 PathPriority 筛选规则
+    IEnumerable<NodeModel> nodesToExplore;
+    if (currentStep == 0)
+    {
+        // 第 0 步：允许探索所有分支
+        nodesToExplore = validNextNodes;
+    }
+    else
+    {
+        // 第 >0 步：按优先级降序排列，只取优先级最高的 1 个节点
+        // （假设 PathPriority 是数值类型，值越大优先级越高）
+        nodesToExplore = validNextNodes.OrderByDescending(n => n.PathPriority).Take(1);
+    }
+
+    // 3. 递归探索
+    foreach (var targetNode in nodesToExplore)
+    {
+        // 防环检测（如果你的地图可能存在回路，强烈建议取消这行注释）
+        // if (currentPathUuids.Contains(targetNode.Uuid)) continue;
+
+        currentPathUuids.Add(targetNode.Uuid);
+        FindPathsRecursive(map, targetNode, targetStep, currentStep + 1, currentPathUuids, uniqueEndPaths);
+        currentPathUuids.RemoveAt(currentPathUuids.Count - 1); // 回溯
     }
 }
 }

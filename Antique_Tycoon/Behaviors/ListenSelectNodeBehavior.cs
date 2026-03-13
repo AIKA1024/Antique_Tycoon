@@ -18,7 +18,7 @@ using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Behaviors;
 
-public partial class ListenSelectNodeBehavior : Behavior<GameCanvas>
+public partial class ListenSelectNodeBehavior : Behavior<GameCanvas>//todo listbox选择item后，zindex被样式修改了，代码里改不过它导致可以走的节点没被高亮
 {
     private Canvas _targetCanvas;
     private Border _targetMaskBorder;

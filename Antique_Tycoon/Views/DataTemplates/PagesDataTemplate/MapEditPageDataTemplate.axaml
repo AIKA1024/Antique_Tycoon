@@ -107,6 +107,11 @@
                         Classes="MCTextbox"
                         Text="{Binding SelectedMapEntity.Title}" />
                     </c:McContentControl>
+                    <c:McContentControl Header="路线优先级">
+                      <TextBox
+                        Classes="MCTextbox"
+                        Text="{Binding SelectedMapEntity.PathPriority}" />
+                    </c:McContentControl>
                     <c:McContentControl Header="节点尺寸">
                       <StackPanel Spacing="8">
                         <TextBlock Text="宽度" />
