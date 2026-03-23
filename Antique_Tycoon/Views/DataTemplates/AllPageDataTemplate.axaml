@@ -14,6 +14,7 @@
     <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/MineDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/TalentMarketDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/TeleportationPointDataTemplate.axaml" />
+    <MergeResourceInclude Source="/Views/DataTemplates/NodeDataTemplate/EnderChestDataTemplate.axaml" />
     
     <MergeResourceInclude Source="/Views/DataTemplates/EntityDataTemplate/AntiqueDataTemplate.axaml" />
 

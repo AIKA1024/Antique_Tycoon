@@ -46,6 +46,7 @@
               <StaticResource ResourceKey="MineDataTemplate" />
               <StaticResource ResourceKey="TalentMarketDataTemplate" />
               <StaticResource ResourceKey="TeleportationPointDataTemplate" />
+              <StaticResource ResourceKey="EnderChestDataTemplate" />
             </c:NodeLinkControl.DataTemplates>
           </c:NodeLinkControl>
         </DataTemplate>
@@ -101,6 +102,7 @@
           </Setter>
         </Style>
         <Style x:DataType="nodes:NodeModel" Selector="c|XListBoxItem.NodeModel">
+          <Setter Property="ToolTip.Tip" Value="{Binding Tooltip}"/>
           <Setter Property="utilities:Tap.Command" Value="{Binding #Me.NodeClickedCommand}" />
           <Setter Property="utilities:Tap.CommandParameter" Value="{Binding Uuid}" />
           <Setter Property="Background" Value="Transparent" />

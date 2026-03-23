@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:Antique_Tycoon.Models.Nodes">
+    <Design.PreviewWith>
+        <ContentControl>
+            <nodes:EnderChest Title="末影箱" />
+        </ContentControl>
+    </Design.PreviewWith>
+
+    <DataTemplate x:Key="EnderChestDataTemplate" x:DataType="nodes:EnderChest">
+        <StackPanel>
+            <TextBlock Text="{Binding Title}"
+                       FontSize="16"
+                       FontWeight="Black"
+                       HorizontalAlignment="Center" />
+            <Image
+                Margin="0 16 0 0"
+                Source="{Binding Image}"
+                Stretch="{Binding CoverStretch}" />
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

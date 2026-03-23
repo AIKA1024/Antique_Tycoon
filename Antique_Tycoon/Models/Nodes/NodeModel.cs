@@ -18,41 +18,20 @@ public abstract partial class NodeModel : CanvasItemModel
   const double DefaultWidth = 120;
   const double DefaultHeight = 150;
 
-  public double Left
-  {
-    get;
-    set => SetProperty(ref field, value);
-  }
+  [ObservableProperty] public partial double Left { get; set; }
 
-  public double Top
-  {
-    get;
-    set => SetProperty(ref field, value);
-  }
+  [ObservableProperty] public partial double Top { get; set; }
 
-  public string Title
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = "";
+  [ObservableProperty] public partial string Title { get; set; } = "";
 
-  public double? Width
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = DefaultWidth;
+  [ObservableProperty] public partial string? Tooltip { get; set; }
+  [ObservableProperty] public partial double? Width { get; set; } = DefaultWidth;
 
-  public double? Height
-  {
-    get;
-    set => SetProperty(ref field, value);
-  } = DefaultHeight;
-  
-  [ObservableProperty]
-  public partial int PathPriority { get; set; }
-  
-  [ObservableProperty]
-  public partial bool IsHeightLight { get; set; }
+  [ObservableProperty] public partial double? Height { get; set; } = DefaultHeight;
+
+  [ObservableProperty] public partial int PathPriority { get; set; }
+
+  [ObservableProperty] public partial bool IsHeightLight { get; set; }
 
   public bool IsAutoSize
   {

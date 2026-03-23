@@ -54,6 +54,7 @@
                 <MenuItem Header="矿洞" />
                 <MenuItem Header="传送门" />
                 <MenuItem Header="人才市场" />
+                <MenuItem Header="末影箱" />
               </StackPanel>
             </Flyout>
           </FlyoutBase.AttachedFlyout>
@@ -102,15 +103,17 @@
                 <ScrollViewer>
                   <StackPanel
                     IsVisible="{Binding SelectedMapEntity,Converter={x:Static ObjectConverters.IsNotNull} }">
-                    <c:McContentControl Header="标题">
-                      <TextBox
-                        Classes="MCTextbox"
-                        Text="{Binding SelectedMapEntity.Title}" />
-                    </c:McContentControl>
-                    <c:McContentControl Header="路线优先级">
-                      <TextBox
-                        Classes="MCTextbox"
-                        Text="{Binding SelectedMapEntity.PathPriority}" />
+                    <c:McContentControl Header="界面">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="标题" />
+                        <TextBox
+                          Classes="MCTextbox"
+                          Text="{Binding SelectedMapEntity.Title}" />
+                        <TextBlock Text="悬浮提示" />
+                        <TextBox
+                          Classes="MCTextbox"
+                          Text="{Binding SelectedMapEntity.Tooltip}" />
+                      </StackPanel>
                     </c:McContentControl>
                     <c:McContentControl Header="节点尺寸">
                       <StackPanel Spacing="8">
@@ -126,6 +129,11 @@
                           Text="{Binding SelectedMapEntity.HeightDisplayText}" />
                         <ToggleSwitch Content="自适应大小" IsChecked="{Binding SelectedMapEntity.IsAutoSize}" />
                       </StackPanel>
+                    </c:McContentControl>
+                    <c:McContentControl Header="路线优先级">
+                      <TextBox
+                        Classes="MCTextbox"
+                        Text="{Binding SelectedMapEntity.PathPriority}" />
                     </c:McContentControl>
                     <c:McContentControl Header="图片">
                       <StackPanel Orientation="Horizontal" Spacing="16">

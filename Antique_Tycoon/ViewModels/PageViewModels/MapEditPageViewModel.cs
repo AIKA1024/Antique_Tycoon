@@ -174,6 +174,15 @@ public partial class MapEditPageViewModel : PageViewModelBase
                     };
                     model = talentMark;
                     break;
+                case "末影箱":
+                    var enderChest = new EnderChest
+                    {
+                        Left = PointerPosition.X,
+                        Top = PointerPosition.Y,
+                        Title = "末影箱"
+                    };
+                    model = enderChest;
+                    break;
             }
 
             if (model != null)
