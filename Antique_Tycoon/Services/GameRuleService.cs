@@ -59,8 +59,7 @@ public class GameRuleService : ObservableObject
       var rollDiceRequest =
         await _gameManager.NetServerInstance
           .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
-      // rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
-      rollDiceValue = 1;
+      rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
       if (useEffects)
       {
         var player = client == null ? _gameManager.LocalPlayer : _gameManager.GetPlayerByTcpClient(client);
@@ -156,10 +155,39 @@ public class GameRuleService : ObservableObject
         await HandleTalentMarketAsync(player, node);
         return true; // 抽奖后可继续投骰子
 
+      case TeleportationPoint:
+        await HandelTeleportationPointAsync(player, node);
+        return false;
+
       default:
         // 未知格子：默认结束回合
         return true;
     }
+  }
+
+  private async Task HandelTeleportationPointAsync(Player player, NodeModel node)
+  {
+    var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+    var selectDestinationAction = new SelectDestinationAction(_gameManager.SelectedMap.NodeModels
+      .Where(n => n.GetType() != typeof(TeleportationPoint)).Select(n => n.Uuid).ToList());
+    var destinationUuid = "";
+    try
+    {
+      var selectDestinationRequest = await
+        _gameManager.NetServerInstance
+          .SendRequestAsync<SelectDestinationAction, SelectDestinationRequest>(
+            selectDestinationAction, client);
+      destinationUuid = selectDestinationRequest.DestinationUuid;
+    }
+    catch (TimeoutException e)
+    {
+      Console.WriteLine("玩家选择目的地超时，默认第一个");
+    }
+
+    var playerMoveResponse = new PlayerMoveResponse(player.Uuid,destinationUuid);
+    WeakReferenceMessenger.Default.Send(playerMoveResponse);
+    await _gameManager.NetServerInstance.Broadcast(playerMoveResponse);
+    await HandleStepOnNodeAsync(player, (NodeModel)_gameManager.SelectedMap.EntitiesDict[destinationUuid]);
   }
 
   private async Task HandleTalentMarketAsync(Player player, NodeModel node)
@@ -283,7 +311,7 @@ public class GameRuleService : ObservableObject
               },
               new LogSegment
               {
-              Text = " 给 "
+                Text = " 给 "
               },
               buyer == null
                 ? new LogSegment

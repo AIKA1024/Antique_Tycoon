@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Entities.StaffImpls;
@@ -63,6 +64,8 @@ public partial class Map : ObservableObject
         EntitiesDict[entity.Uuid] = entity;
     }
   } = [];
+
+  public IEnumerable<NodeModel> NodeModels => Entities.OfType<NodeModel>();
 
   [JsonIgnore] public Dictionary<string, CanvasItemModel> EntitiesDict { get; } = [];
 

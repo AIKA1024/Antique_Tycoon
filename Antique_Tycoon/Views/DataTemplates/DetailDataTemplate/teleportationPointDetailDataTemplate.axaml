@@ -13,10 +13,10 @@
     
     <DataTemplate x:Key="teleportationPointDetailDataTemplate" x:DataType="detailViewModels:TeleportationPointDetailViewModel">
         <StackPanel>
-            <controls:McContentControl Header="价格">
+            <controls:McContentControl Header="收费">
                 <TextBox
                     Classes="MCTextbox"
-                    Text="{Binding TeleportationPoint.Value}" />
+                    Text="{Binding TeleportationPoint.Charge}" />
             </controls:McContentControl>
         </StackPanel>
 

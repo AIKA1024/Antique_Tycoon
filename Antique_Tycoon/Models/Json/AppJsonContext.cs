@@ -45,6 +45,7 @@ namespace Antique_Tycoon.Models.Json;
 [JsonSerializable(typeof(Map))]
 [JsonSerializable(typeof(SpawnPoint))]
 [JsonSerializable(typeof(Estate))]
+[JsonSerializable(typeof(TeleportationPoint))]
 [JsonSerializable(typeof(Connection))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
 public partial class AppJsonContext : JsonSerializerContext;
