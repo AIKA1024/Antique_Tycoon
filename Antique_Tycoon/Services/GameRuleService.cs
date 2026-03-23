@@ -59,7 +59,8 @@ public class GameRuleService : ObservableObject
       var rollDiceRequest =
         await _gameManager.NetServerInstance
           .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
-      rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
+      // rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
+      rollDiceValue = 1;
       if (useEffects)
       {
         var player = client == null ? _gameManager.LocalPlayer : _gameManager.GetPlayerByTcpClient(client);

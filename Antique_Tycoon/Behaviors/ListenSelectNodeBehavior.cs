@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
+using Antique_Tycoon.Utilities;
 using Antique_Tycoon.Views.Controls;
 using Antique_Tycoon.Views.Widgets;
 using Avalonia;
@@ -53,10 +54,10 @@ public partial class ListenSelectNodeBehavior : Behavior<GameCanvas>//todo listb
 
     private async void ReceiveGameMaskShowMessage(object recipient, GameMaskShowMessage message)
     {
-        int oldZIndex = message.SelectableNodes[0].ZIndex;
         _targetMaskBorder.IsVisible = true;
         foreach (var item in message.SelectableNodes)
-            item.ZIndex = 4;
+            // item.ZIndex = 4;
+            item.IsHeightLight = true;
         // 2. 【核心修改】直接把 Task 扔给 Reply，不要在这里 await
         var clickTask = AwaitNodeClickAsync();
         message.Reply(clickTask);
@@ -70,7 +71,7 @@ public partial class ListenSelectNodeBehavior : Behavior<GameCanvas>//todo listb
             Dispatcher.UIThread.Post(() =>
             {
                 foreach (var item in message.SelectableNodes)
-                    item.ZIndex = oldZIndex;
+                    item.IsHeightLight = false;
                 _targetMaskBorder.IsVisible = false;
             });
         }, TaskScheduler.Current);

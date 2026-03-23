@@ -106,11 +106,15 @@
           <Setter Property="Background" Value="Transparent" />
           <Setter Property="Canvas.Top" Value="{Binding Top}" />
           <Setter Property="Canvas.Left" Value="{Binding Left}" />
-          <Style Selector="^:selected">
+          <Setter Property="utilities:NodeProps.IsHeightLight" Value="{Binding IsHeightLight}"/>
+          <Style Selector="^:selected[(utilities|NodeProps.IsHeightLight)=False]">
             <Setter Property="ZIndex" Value="2" />
             <Style Selector="^ /template/ ContentPresenter>c|NodeLinkControl">
               <Setter Property="BorderBrush" Value="{StaticResource NodeSelectedBrush}" />
             </Style>
+          </Style>
+          <Style Selector="^[(utilities|NodeProps.IsHeightLight)=True]">
+            <Setter Property="ZIndex" Value="4"/>
           </Style>
         </Style>
         <!-- <Style x:DataType="cm:Connection" Selector="c|XListBoxItem.Connection"> -->

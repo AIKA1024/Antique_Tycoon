@@ -9,6 +9,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Models.Nodes;
 
@@ -49,6 +50,9 @@ public abstract partial class NodeModel : CanvasItemModel
   
   [ObservableProperty]
   public partial int PathPriority { get; set; }
+  
+  [ObservableProperty]
+  public partial bool IsHeightLight { get; set; }
 
   public bool IsAutoSize
   {
