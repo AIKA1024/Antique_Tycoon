@@ -62,8 +62,20 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     WeakReferenceMessenger.Default.Register<KeyPressedMessage>(this, ReceiveKeyPressedMessage);
     WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
     WeakReferenceMessenger.Default.Register<IHistoryRecord>(this, ReceiveIHistoryRecord);
+    WeakReferenceMessenger.Default.Register<PlunderAntiqueAction>(this, ReceivePlunderAntiqueAction);
     LocalPlayer = _gameManager.LocalPlayer;
     _dialogService.DialogCollectionChanged += NotifyDialogViewModelChanged;
+  }
+
+  private void ReceivePlunderAntiqueAction(object recipient, PlunderAntiqueAction message)
+  {
+    _actionQueueService.Enqueue(async () =>
+    {
+      var vm = new PlunderAntiqueDialogViewModel(_gameManager.Players
+        .Where(p => message.PlayerUuids.Any(s => p.Uuid == s)).ToList());
+      var antique = await _dialogService.ShowDialogAsync(vm);
+      await _gameManager.SendToGameServerAsync(new PlunderAntiqueRequest(message.Id, antique?.Uuid ?? ""));
+    });
   }
 
   private void ReceiveIHistoryRecord(object recipient, IHistoryRecord message)
@@ -148,7 +160,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     _actionQueueService.Enqueue(async () =>
     {
       var itemStacks = _gameManager.LocalPlayer.Antiques.GroupBy(a => a.Index)
-        .Select(group => new ItemStack<Antique>(group.First(), group.Count())).ToArray();
+        .Select(group => new ItemStack<Antique>(group.First(), group.Count())).ToList();
       var saleAntiqueDialogViewModel = new SaleAntiqueDialogViewModel(itemStacks)
         { IsLightDismissEnabled = false };
       var saleAntiqueDetermination = await _dialogService.ShowDialogAsync(saleAntiqueDialogViewModel);

@@ -41,6 +41,9 @@ namespace Antique_Tycoon.Models.Json;
 [JsonSerializable(typeof(HireStaffAction))]
 [JsonSerializable(typeof(HireStaffRequest))]
 [JsonSerializable(typeof(HireStaffResponse))]
+[JsonSerializable(typeof(PlunderAntiqueAction))]
+[JsonSerializable(typeof(PlunderAntiqueRequest))]
+[JsonSerializable(typeof(AcknowledgementResponse))]
 
 [JsonSerializable(typeof(Map))]
 [JsonSerializable(typeof(SpawnPoint))]

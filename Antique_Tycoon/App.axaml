@@ -60,5 +60,6 @@
     <StaticResource ResourceKey="LockerRoomDialogDataTemplate"/>
     <StaticResource ResourceKey="SaleAntiqueDialogDataTemplate"/>
     <StaticResource ResourceKey="HireStaffDialogDataTemplate"/>
+    <StaticResource ResourceKey="PlunderAntiqueDialogDataTemplate"/>
   </Application.DataTemplates>
 </Application>

@@ -13,9 +13,6 @@ public partial class MasterDetailView : TemplatedControl
     [GeneratedDirectProperty] public partial IList? ItemsSource { get; set; }
     [GeneratedDirectProperty] public partial IDataTemplate? ListBoxItemTemplate { get; set; }
     [GeneratedDirectProperty] public partial ControlTheme? ItemContainerTheme { get; set; }
-    
-    [GeneratedDirectProperty] public partial DataTemplates? DetailDataTemplates { get; set; }
-
     [GeneratedDirectProperty] public partial Control? DetailFoot { get; set; }
-    [GeneratedDirectProperty] public partial Control? DetailContent { get; set; }
+    [GeneratedDirectProperty] public partial object? DetailContent { get; set; }
 }

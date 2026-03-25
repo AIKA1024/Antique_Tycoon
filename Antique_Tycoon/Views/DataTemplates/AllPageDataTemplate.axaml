@@ -29,5 +29,6 @@
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/LockerRoomDialogDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/SaleAntiqueDialogDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/HireStaffDialogDataTemplate.axaml" />
+    <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/PlunderAntiqueDialogDataTemplate.axaml" />
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

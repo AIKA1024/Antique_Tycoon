@@ -59,7 +59,8 @@ public class GameRuleService : ObservableObject
       var rollDiceRequest =
         await _gameManager.NetServerInstance
           .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
-      rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
+      // rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
+      rollDiceValue = 1; //为了让点数真正是玩家请求后随机
       if (useEffects)
       {
         var player = client == null ? _gameManager.LocalPlayer : _gameManager.GetPlayerByTcpClient(client);
@@ -95,6 +96,7 @@ public class GameRuleService : ObservableObject
       var nodeDic = _gameManager.SelectedMap.GetPathsAtExactStep(_gameManager.CurrentTurnPlayer.CurrentNodeUuId,
         rollDiceResponse.DiceValue);
       var selectPath = nodeDic.First().Value;
+      var selectDestinationRequestId = "";
 
       if (nodeDic.Count > 1)
       {
@@ -106,6 +108,7 @@ public class GameRuleService : ObservableObject
               .SendRequestAsync<SelectDestinationAction, SelectDestinationRequest>(
                 selectDestinationAction, client);
           selectPath = nodeDic[selectDestinationRequest.DestinationUuid];
+          selectDestinationRequestId = selectDestinationRequest.Id;
         }
         catch (TimeoutException e)
         {
@@ -114,8 +117,9 @@ public class GameRuleService : ObservableObject
       }
 
       var playerMoveResponse = new PlayerMoveResponse(currentTurnPlayerUuid, selectPath);
-      WeakReferenceMessenger.Default.Send(playerMoveResponse);
-      await _gameManager.NetServerInstance.Broadcast(playerMoveResponse);
+      if (!string.IsNullOrEmpty(selectDestinationRequestId))
+        playerMoveResponse.Id = selectDestinationRequestId;
+      await Broadcast(playerMoveResponse);
 
       await HandleStepOnNodeAsync(
         _gameManager.GetPlayerByUuid(currentTurnPlayerUuid),
@@ -159,9 +163,82 @@ public class GameRuleService : ObservableObject
         await HandelTeleportationPointAsync(player, node);
         return false;
 
+      case EnderChest:
+        await HandelEnderChestAsync(player, node);
+        return false;
+
       default:
         // 未知格子：默认结束回合
         return true;
+    }
+  }
+
+  private async Task HandelEnderChestAsync(Player player, NodeModel node)
+  {
+    var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
+    var players = _gameManager.Players.Where(p => p != player).Select(p => p.Uuid).ToList();
+    if (players.Count == 0)
+      return;
+    
+    var plunderAntiqueAction = new PlunderAntiqueAction(players);
+    try
+    {
+      var plunderRequest = await
+        _gameManager.NetServerInstance
+          .SendRequestAsync<PlunderAntiqueAction, PlunderAntiqueRequest>(
+            plunderAntiqueAction, client);
+      
+      if (string.IsNullOrEmpty(plunderRequest.AntiqueUuid))
+      {
+        if (client != null)
+          await _gameManager.NetServerInstance.SendResponseAsync(new AcknowledgementResponse(plunderRequest.Id), client);
+      }
+      else
+      { //性能较差，但可以接受
+        Antique? antique = null;
+        var owner = _gameManager.Players.First(p => p.Antiques.Any(a =>
+        {
+          if (a.Uuid == plunderRequest.AntiqueUuid)
+          {
+            antique = a;
+            return true;
+          }
+          return false;
+        }));
+        owner.Antiques.Remove(antique);
+        player.Antiques.Add(antique);
+        await Broadcast(new UpdatePlayerInfoResponse(owner) { Id = plunderRequest.Id });
+        await Broadcast(new UpdatePlayerInfoResponse(player){LogSegments = [
+        new LogSegment
+        {
+          Type = InteractionType.PlayerName,
+          Data =  player.Uuid
+        },
+        new LogSegment
+        {
+          Text = " 顺走了 "
+        },
+        new LogSegment
+        {
+          Type = InteractionType.PlayerName,
+          Data =  owner.Uuid
+        },
+        new LogSegment
+        {
+          Text = " 的 "
+        },
+        new LogSegment
+        {
+          Type = InteractionType.Antique,
+          Data =  antique.Uuid
+        }
+        ]});
+      }
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e);
+      throw;
     }
   }
 
@@ -171,6 +248,7 @@ public class GameRuleService : ObservableObject
     var selectDestinationAction = new SelectDestinationAction(_gameManager.SelectedMap.NodeModels
       .Where(n => n.GetType() != typeof(TeleportationPoint)).Select(n => n.Uuid).ToList());
     var destinationUuid = "";
+    var selectDestinationRequestId = "";
     try
     {
       var selectDestinationRequest = await
@@ -178,15 +256,17 @@ public class GameRuleService : ObservableObject
           .SendRequestAsync<SelectDestinationAction, SelectDestinationRequest>(
             selectDestinationAction, client);
       destinationUuid = selectDestinationRequest.DestinationUuid;
+      selectDestinationRequestId =  selectDestinationRequest.Id;
     }
     catch (TimeoutException e)
     {
       Console.WriteLine("玩家选择目的地超时，默认第一个");
     }
 
-    var playerMoveResponse = new PlayerMoveResponse(player.Uuid,destinationUuid);
-    WeakReferenceMessenger.Default.Send(playerMoveResponse);
-    await _gameManager.NetServerInstance.Broadcast(playerMoveResponse);
+    var playerMoveResponse = new PlayerMoveResponse(player.Uuid, destinationUuid);
+    if (!string.IsNullOrEmpty(selectDestinationRequestId))
+      playerMoveResponse.Id = selectDestinationRequestId;
+    await Broadcast(playerMoveResponse);
     await HandleStepOnNodeAsync(player, (NodeModel)_gameManager.SelectedMap.EntitiesDict[destinationUuid]);
   }
 

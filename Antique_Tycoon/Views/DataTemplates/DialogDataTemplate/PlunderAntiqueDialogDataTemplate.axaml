@@ -1,0 +1,118 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dvm="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
+                    xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls"
+                    xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities"
+                    xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+                    xmlns:models="clr-namespace:Antique_Tycoon.Models">
+    <Design.PreviewWith>
+        <ContentControl>
+            <ContentControl.DataTemplates>
+                <StaticResource ResourceKey="PlunderAntiqueDialogDataTemplate" />
+            </ContentControl.DataTemplates>
+            <dvm:PlunderAntiqueDialogViewModel />
+        </ContentControl>
+    </Design.PreviewWith>
+
+    <DataTemplate x:Key="PlunderAntiqueDialogDataTemplate" x:DataType="dvm:PlunderAntiqueDialogViewModel">
+
+        <c:MasterDetailView ItemsSource="{Binding Players}"
+                            SelectedItem="{Binding SelectedPlayer,Mode=OneWayToSource}">
+            <c:MasterDetailView.ListBoxItemTemplate>
+                <DataTemplate x:DataType="models:Player">
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <Image Source="{Binding Avatar}" />
+                        <TextBlock Text="{Binding Name}" FontSize="24" />
+                    </StackPanel>
+                </DataTemplate>
+            </c:MasterDetailView.ListBoxItemTemplate>
+            <c:MasterDetailView.DataTemplates>
+                <DataTemplate x:DataType="models:Player">
+                    <ListBox ItemsSource="{Binding  $parent[c:MasterDetailView].((dvm:PlunderAntiqueDialogViewModel)DataContext).SelectedPlayerAntiqueStack}"
+                             SelectedItem="{Binding $parent[c:MasterDetailView].((dvm:PlunderAntiqueDialogViewModel)DataContext).SelectedStack}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DataTemplate.DataType>
+                                    <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
+                                </DataTemplate.DataType>
+                                <StackPanel>
+                                    <Panel>
+                                        <Border
+                                            Padding="32 16"
+                                            Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}">
+                                            <StackPanel Orientation="Horizontal" Spacing="32"
+                                                        TextElement.Foreground="White">
+                                                <Panel>
+                                                    <Image Source="{Binding Item.Image}" Width="48" />
+                                                    <TextBlock Text="{Binding Amount}"
+                                                               FontSize="24"
+                                                               HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                        <TextBlock.RenderTransform>
+                                                            <TranslateTransform Y="4" />
+                                                        </TextBlock.RenderTransform>
+                                                        <TextBlock.Effect>
+                                                            <DropShadowEffect Color="#404040" BlurRadius="0"
+                                                                              OffsetX="2.5"
+                                                                              OffsetY="2" />
+                                                        </TextBlock.Effect>
+                                                    </TextBlock>
+                                                </Panel>
+                        
+                                                <StackPanel Spacing="8">
+                                                    <TextBlock Text="{Binding Item.Name}" FontWeight="Black"
+                                                               FontSize="16">
+                                                        <TextBlock.Effect>
+                                                            <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
+                                                                              OffsetX="0"
+                                                                              OffsetY="0" />
+                                                        </TextBlock.Effect>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding Item.Value}" FontWeight="Black"
+                                                               FontSize="12">
+                                                        <TextBlock.Effect>
+                                                            <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
+                                                                              OffsetX="0"
+                                                                              OffsetY="0" />
+                                                        </TextBlock.Effect>
+                                                    </TextBlock>
+                                                </StackPanel>
+                        
+                                                <TextBlock Text="{Binding Item.FlavorText}">
+                                                    <TextBlock.Effect>
+                                                        <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
+                                                                          OffsetX="0"
+                                                                          OffsetY="0" />
+                                                    </TextBlock.Effect>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+                                    </Panel>
+                                    <Panel>
+                                        <Rectangle Classes="BottomRect"
+                                                   VerticalAlignment="Bottom"
+                                                   Fill="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}" />
+                                        <Border Background="#80000000" />
+                                    </Panel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DataTemplate>
+            </c:MasterDetailView.DataTemplates>
+            <c:MasterDetailView.DetailFoot>
+                <Grid ColumnDefinitions="*,Auto" Margin="0 16 0 0"
+                      ColumnSpacing="16">
+                    <c:McButton Grid.Column="0"
+                                Classes="Danger"
+                                Content="取消"
+                                HorizontalAlignment="Left"
+                                Command="{Binding CancelCommand}" />
+
+                    <c:McButton Grid.Column="1" Content="确定" Command="{Binding ConfirmCommand}"
+                                CommandParameter="{Binding SelectedStack}" />
+                </Grid>
+            </c:MasterDetailView.DetailFoot>
+        </c:MasterDetailView>
+
+    </DataTemplate>
+</ResourceDictionary>

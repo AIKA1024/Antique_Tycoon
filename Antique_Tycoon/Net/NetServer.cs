@@ -221,9 +221,7 @@ public class NetServer : NetBase
   {
     // 确保消息有 ID (通常在构造函数或发送前生成 GUID)
     if (string.IsNullOrEmpty(message.Id))
-    {
       message.Id = Guid.NewGuid().ToString();
-    }
 
     var tcs = new TaskCompletionSource<ITcpMessage>();
     _pendingRequests[message.Id] = tcs;

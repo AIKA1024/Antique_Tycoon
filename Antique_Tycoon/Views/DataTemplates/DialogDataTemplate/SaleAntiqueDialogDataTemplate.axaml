@@ -6,7 +6,6 @@
                     xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
                     xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
                     xmlns:entities="clr-namespace:Antique_Tycoon.Models.Entities">
-    <!-- Add Resources Here -->
     <Design.PreviewWith>
         <ContentControl>
             <ContentControl.DataTemplates>
