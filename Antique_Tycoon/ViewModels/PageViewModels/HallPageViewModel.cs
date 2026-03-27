@@ -112,6 +112,17 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     _gameManager.RoomOwnerUuid = response.RoomOwnerUuid;
     var mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
     var map = mapFileService.LoadMap(mapDirPath);
+    if (map is null)
+    {
+      await dialogService.ShowDialogAsync(
+        new MessageDialogViewModel
+        {
+          Title = "提示",
+          Message = "地图文件损坏"
+        });
+      return;
+    }
+    
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(
       new RoomPageViewModel(map, _gameManager));
     _gameManager.SelectedMap = map;

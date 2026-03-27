@@ -47,6 +47,7 @@
               <StaticResource ResourceKey="TalentMarketDataTemplate" />
               <StaticResource ResourceKey="TeleportationPointDataTemplate" />
               <StaticResource ResourceKey="EnderChestDataTemplate" />
+              <StaticResource ResourceKey="EnderDataTemplate" />
             </c:NodeLinkControl.DataTemplates>
           </c:NodeLinkControl>
         </DataTemplate>

@@ -30,7 +30,7 @@
           Classes="Confirm"
           Content="保存"
           Command="{Binding SaveMapCommand}"
-          FontSize="12" />
+          FontSize="12"/>
       </c:MCTitleBar>
       <Panel Grid.Row="1"
              Background="Transparent">
@@ -54,7 +54,8 @@
                 <MenuItem Header="矿洞" />
                 <MenuItem Header="传送门" />
                 <MenuItem Header="人才市场" />
-                <MenuItem Header="末影箱" />
+                <MenuItem Header="末影箱" ToolTip.Tip="顺走别人的古玩"/>
+                <MenuItem Header="末地" ToolTip.Tip="解雇伙计"/>
               </StackPanel>
             </Flyout>
           </FlyoutBase.AttachedFlyout>

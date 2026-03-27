@@ -183,6 +183,15 @@ public partial class MapEditPageViewModel : PageViewModelBase
                     };
                     model = enderChest;
                     break;
+                case "末地":
+                    var ender = new Ender
+                    {
+                        Left = PointerPosition.X,
+                        Top = PointerPosition.Y,
+                        Title = "末地"
+                    };
+                    model = ender;
+                    break;
             }
 
             if (model != null)

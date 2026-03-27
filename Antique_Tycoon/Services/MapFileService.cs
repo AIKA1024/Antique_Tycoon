@@ -41,11 +41,17 @@ public class MapFileService
     return map;
   }
 
-  public Map LoadMap(string folderPath)
+  public Map? LoadMap(string folderPath)
   {
     var imageDirectoryPath = Path.Combine(folderPath, ImageFolderName);
-    var map = JsonSerializer.Deserialize(File.ReadAllText(Path.Combine(folderPath, JsonFileName)),
+    var jsonFullPath = Path.Combine(folderPath, JsonFileName);
+    if (!File.Exists(jsonFullPath))
+      return null;
+    var map = JsonSerializer.Deserialize(File.ReadAllText(jsonFullPath),
       Models.Json.AppJsonContext.Default.Map);
+    if (map is null)
+      return null;
+    
     map.FilePath = folderPath;
     foreach (var entity in map.Entities) //手动加载Image
     {
@@ -131,6 +137,9 @@ public class MapFileService
     foreach (var path in Directory.GetDirectories(App.Current.MapPath))
     {
       var map = LoadMap(path);
+      if (map is null)
+        continue;
+      
       _mapsDictionary.Add(map.Hash, map);
     }
   }
