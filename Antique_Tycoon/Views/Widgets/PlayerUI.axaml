@@ -58,6 +58,9 @@
                     <ItemsControl.Template>
                         <ControlTemplate>
                             <ScrollViewer>
+                                <Interaction.Behaviors>
+                                    <i:ScrollViewerAutoScrollBehavior/>
+                                </Interaction.Behaviors>
                                 <ItemsPresenter />
                             </ScrollViewer>
                         </ControlTemplate>
