@@ -56,8 +56,8 @@ public class GameRuleService : ObservableObject
             var rollDiceRequest =
                 await _gameManager.NetServerInstance
                     .SendRequestAsync<RollDiceAction, RollDiceRequest>(new RollDiceAction(), client);
-            // rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
-            rollDiceValue = 1; //为了让点数真正是玩家请求后随机
+            rollDiceValue = Random.Shared.Next(1, 7); //为了让点数真正是玩家请求后随机
+            // rollDiceValue = 1; //为了让点数真正是玩家请求后随机
             if (useEffects)
             {
                 var player = client == null ? _gameManager.LocalPlayer : _gameManager.GetPlayerByTcpClient(client);
@@ -240,9 +240,41 @@ public class GameRuleService : ObservableObject
                         antique = a;
                         return true;
                     }
-
                     return false;
                 }));
+                
+                var diceContext = new DiceContext(player, Random.Shared.Next(1, 7));
+                await TriggerGlobalStaffEffects(GameTriggerPoint.OnAppraisalRoll, diceContext);
+                if (diceContext.Result <= antique.Dice)
+                {
+                    await Broadcast(new RollDiceResponse(plunderRequest.Id,player.Uuid,diceContext.Result){LogSegments = [
+                        new LogSegment
+                        {
+                            Type = InteractionType.PlayerName,
+                            Data = player.Uuid,
+                        },
+                        new LogSegment
+                        {
+                            Text = " 未能顺走 "
+                        },
+                        new LogSegment
+                        {
+                            Type = InteractionType.PlayerName,
+                            Data = owner.Uuid
+                        },
+                        new LogSegment
+                        {
+                            Text = " 的 "
+                        },
+                        new LogSegment
+                        {
+                            Type = InteractionType.Antique,
+                            Data = antique.Uuid
+                        }
+                    ]});//todo 客户端好像没看不见这个点数
+                    return;
+                }
+                
                 owner.Antiques.Remove(antique);
                 player.Antiques.Add(antique);
                 await Broadcast(new UpdatePlayerInfoResponse(owner) { Id = plunderRequest.Id });
@@ -729,14 +761,5 @@ public class GameRuleService : ObservableObject
         WeakReferenceMessenger.Default.Send(response);
         if (response is IHistoryRecord historyRecord)
             WeakReferenceMessenger.Default.Send(historyRecord);
-    }
-
-    /// <summary>
-    /// 玩家请求投骰子
-    /// </summary>
-    /// <param name="actionMessageId">服务器的行动id</param>
-    public async Task RollDiceAsync(string actionMessageId)
-    {
-        await _gameManager.SendToGameServerAsync(new RollDiceRequest(actionMessageId));
     }
 }

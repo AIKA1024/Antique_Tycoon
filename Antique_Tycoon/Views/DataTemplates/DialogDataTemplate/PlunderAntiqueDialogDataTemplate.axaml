@@ -22,7 +22,7 @@
                 <DataTemplate x:DataType="models:Player">
                     <StackPanel Orientation="Horizontal" Spacing="16">
                         <Image Source="{Binding Avatar}" />
-                        <TextBlock Text="{Binding Name}" FontSize="24" />
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="24" />
                     </StackPanel>
                 </DataTemplate>
             </c:MasterDetailView.ListBoxItemTemplate>

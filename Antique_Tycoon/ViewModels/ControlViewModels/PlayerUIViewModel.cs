@@ -72,6 +72,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     {
       var vm = new PlunderAntiqueDialogViewModel(_gameManager.Players
         .Where(p => message.PlayerUuids.Any(s => p.Uuid == s)).ToList());
+      
       var antique = await _dialogService.ShowDialogAsync(vm);
       await _gameManager.SendToGameServerAsync(new PlunderAntiqueRequest(message.Id, antique?.Uuid ?? ""));
     });
@@ -207,7 +208,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
   {
     Debug.WriteLine("发起投骰子请求");
     RollButtonEnable = false;
-    await App.Current.Services.GetRequiredService<GameRuleService>().RollDiceAsync(_rollDiceActionId);
+    await _gameManager.SendToGameServerAsync(new RollDiceRequest(_rollDiceActionId));
     Debug.WriteLine("请求结束");
   }
 

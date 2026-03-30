@@ -4,7 +4,7 @@ using Antique_Tycoon.ProtocolGen;
 namespace Antique_Tycoon.Models.Net.Tcp.Response;
 
 [TcpMessage]
-public class RollDiceResponse : ResponseBase
+public class RollDiceResponse : ResponseBase,IHistoryRecord
 {
   public int DiceValue { get; set; }
   public string PlayerUuid { get; set; }
@@ -15,4 +15,6 @@ public class RollDiceResponse : ResponseBase
     PlayerUuid = playerUuid;
     DiceValue =  diceValue;
   }
+
+  public List<LogSegment> LogSegments { get; set; } = [];
 }
