@@ -42,8 +42,12 @@
                                             Padding="32 16"
                                             Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}">
                                             <Grid ColumnDefinitions="*,*">
-                                                <StackPanel Orientation="Horizontal" Spacing="32"
+                                                <StackPanel Orientation="Horizontal" Spacing="48"
                                                             TextElement.Foreground="White">
+                                                    <TextBlock Text="{Binding Item.Dice}"
+                                                               FontWeight="Black"
+                                                               FontSize="36"
+                                                               VerticalAlignment="Center" />
                                                     <Panel>
                                                         <Image Source="{Binding Item.Image}" Width="48" />
                                                         <TextBlock Text="{Binding Amount}"
@@ -82,11 +86,6 @@
                                                             </TextBlock.Effect>
                                                         </TextBlock>
                                                     </StackPanel>
-
-                                                    <TextBlock Text="{Binding Item.Dice,StringFormat=点数：{0}}"
-                                                               FontWeight="Black"
-                                                               FontSize="24"
-                                                               VerticalAlignment="Center" />
                                                 </StackPanel>
                                                 
                                                 <TextBlock  Grid.Column="1"
