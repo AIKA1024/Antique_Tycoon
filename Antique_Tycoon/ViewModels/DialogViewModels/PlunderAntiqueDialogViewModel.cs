@@ -28,6 +28,8 @@ public partial class PlunderAntiqueDialogViewModel:DialogViewModelBase<Antique?>
       return;
     SelectedPlayerAntiqueStack = value.Antiques.GroupBy(a => a.Index)
       .Select(group => new ItemStack<Antique>(group.First(), group.Count())).ToList();
+    if (SelectedPlayerAntiqueStack.Count >0)
+      SelectedStack = SelectedPlayerAntiqueStack[0];
   }
   
   [RelayCommand]
@@ -35,8 +37,10 @@ public partial class PlunderAntiqueDialogViewModel:DialogViewModelBase<Antique?>
   {
     CloseDialog(null);
   }
+
+  bool CanConfirm() => SelectedStack != null;
   
-  [RelayCommand]
+  [RelayCommand(CanExecute = nameof(CanConfirm))]
   private void Confirm(ItemStack<Antique> antiqueStack)
   {
     CloseDialog(antiqueStack.Item);

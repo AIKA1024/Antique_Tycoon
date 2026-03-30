@@ -4,9 +4,10 @@ using Antique_Tycoon.Models.Enums;
 
 namespace Antique_Tycoon.Models.Effects.StaffEffectImpls;
 
-public class MineManagerEffect: IStaffEffect
+public class MineManagerEffect(decimal passCost): IStaffEffect
 {
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnPassMineCharge;
+  private decimal _passCost = passCost;
 
   public bool Execute(GameContext context,Player owner)
   {
@@ -19,12 +20,14 @@ public class MineManagerEffect: IStaffEffect
       paymentContext.Cost = 0;
       paymentContext.Receiver = null; // 也不用给谁钱
       Console.WriteLine("矿主视察：免门票！");
+      return false;
     }
     // 场景 B: 别人路过矿洞
     else
     {
       // 效果：钱给拥有者，而不是给银行
       // 只是把收款人改成了主人
+      paymentContext.Cost = _passCost;
       paymentContext.Receiver = owner;
       Console.WriteLine($"外人进入：门票费 {paymentContext.Cost} 将支付给 {owner.Name}");
     }

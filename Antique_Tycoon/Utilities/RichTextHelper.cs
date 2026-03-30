@@ -46,15 +46,15 @@ public class RichTextHelper
   {
     LogSegmentsProperty.Changed.AddClassHandler<TextBlock>((textBlock, args) =>
     {
-      RenderSegments(textBlock, args.NewValue as IEnumerable<LogSegment>);
+      RenderSegments(textBlock, args.NewValue as List<LogSegment>);
     });
   }
 
-  private static void RenderSegments(TextBlock textBlock, IEnumerable<LogSegment>? segments)
+  private static void RenderSegments(TextBlock textBlock, List<LogSegment>? segments)
   {
     textBlock.Inlines?.Clear();
 
-    if (segments == null) return;
+    if (segments == null || segments.Count == 0) return;
 
     var command = GetCommand(textBlock);
 

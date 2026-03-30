@@ -184,7 +184,8 @@ public class GameRuleService : ObservableObject
         _gameManager.Staffs.Add(staff);
         await Broadcast(new UpdatePlayerInfoResponse(player)
         {
-            LogSegments = [
+            LogSegments =
+            [
                 new LogSegment
                 {
                     Type = InteractionType.PlayerName,
@@ -207,7 +208,7 @@ public class GameRuleService : ObservableObject
         });
     }
 
-    private async Task HandelEnderChestAsync(Player player, NodeModel node)
+    private async Task HandelEnderChestAsync(Player player, NodeModel node)//todo 应该投骰子来决定是否成功
     {
         var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
         var players = _gameManager.Players.Where(p => p != player).Select(p => p.Uuid).ToList();
@@ -555,18 +556,6 @@ public class GameRuleService : ObservableObject
 
     private async Task HandleMineAsync(Player player, NodeModel node)
     {
-        var getAntiqueResultResponse =
-            new GetAntiqueResultResponse("", "", "", false)
-            {
-                LogSegments =
-                [
-                    new LogSegment
-                    {
-                        Text = "已经没有古玩流通"
-                    }
-                ]
-            };
-
         if (_gameManager.Antiques.Count > 0)
         {
             var randomIndex = Random.Shared.Next(0, _gameManager.Antiques.Count);
@@ -576,9 +565,12 @@ public class GameRuleService : ObservableObject
             WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
             await Broadcast(antiqueChangeResponse);
             var rollDiceResponse = await GetRollDiceAsync(client, true);
-            var diceContext = new DiceContext(player, rollDiceResponse.DiceValue);
-            var isSucceed = diceContext.Result >= antique.Dice;
-            getAntiqueResultResponse =
+
+            var paymentContext = new PaymentContext(player);
+            await TriggerGlobalStaffEffects(GameTriggerPoint.OnPassMineCharge, paymentContext);
+            
+            var isSucceed = rollDiceResponse.DiceValue >= antique.Dice;
+            var getAntiqueResultResponse =
                 new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, isSucceed);
             if (isSucceed)
             {
@@ -591,7 +583,7 @@ public class GameRuleService : ObservableObject
                     },
                     new LogSegment
                     {
-                        Text = " 获得了 "
+                        Text = " 下矿获得了 "
                     },
                     new LogSegment
                     {
@@ -656,29 +648,56 @@ public class GameRuleService : ObservableObject
     /// <param name="context">上下文数据（包含玩家、骰子点数、古玩信息等）</param>
     private async Task TriggerGlobalStaffEffects(GameTriggerPoint point, GameContext context)
     {
-        foreach (var player in _gameManager.Players)
+        foreach (var owner in _gameManager.Players)
         {
-            var staffWithEffects = player.GetActiveEffects(point);
+            var staffWithEffects = owner.GetActiveEffects(point);
             foreach (var staffWithEffect in staffWithEffects)
             {
-                if (!staffWithEffect.effect.Execute(context, player))
+                if (!staffWithEffect.effect.Execute(context, owner))
                     return;
 
                 switch (context)
                 {
                     case EconomyContext economyContext:
-                        player.Money += economyContext.GetFinalValue();
+                        owner.Money += economyContext.GetFinalValue();
+                        break;
+                    case PaymentContext paymentContext:
+                        context.Player.Money -= paymentContext.Cost;
+                        if (paymentContext.Receiver!= null)
+                        {
+                            paymentContext.Receiver.Money += paymentContext.Cost;
+                            await Broadcast(new UpdatePlayerInfoResponse(paymentContext.Player){LogSegments = [
+                            new LogSegment
+                            {
+                                Type = InteractionType.PlayerName,
+                                Data = owner.Uuid
+                            },
+                            new LogSegment
+                            {
+                                Text = " 向 "
+                            },
+                            new LogSegment
+                            {
+                                Type = InteractionType.PlayerName,
+                                Data = paymentContext.Receiver.Uuid
+                            },
+                            new LogSegment
+                            {
+                                Text = $" 支付{paymentContext.Cost}"
+                            }
+                            ]});
+                        }
                         break;
                 }
 
-                await Broadcast(new UpdatePlayerInfoResponse(player)
+                await Broadcast(new UpdatePlayerInfoResponse(owner)
                 {
                     LogSegments =
                     [
                         new LogSegment
                         {
                             Type = InteractionType.PlayerName,
-                            Data = player.Uuid
+                            Data = owner.Uuid
                         },
                         new LogSegment
                         {

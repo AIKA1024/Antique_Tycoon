@@ -55,7 +55,6 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     WeakReferenceMessenger.Default.Register<RollDiceAction>(this, ReceiveRollDiceAction);
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, ReceiveTurnStartMessage);
     WeakReferenceMessenger.Default.Register<AntiqueChanceResponse>(this, ReceiveAntiqueChanceResponse);
-    WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
     WeakReferenceMessenger.Default.Register<SaleAntiqueAction>(this, ReceiveSaleAntiqueAction);
     WeakReferenceMessenger.Default.Register<BuyEstateAction>(this, ReceiveBuyEstateAction);
     WeakReferenceMessenger.Default.Register<HireStaffAction>(this, ReceiveHireStaffAction);
@@ -80,6 +79,8 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
 
   private void ReceiveIHistoryRecord(object recipient, IHistoryRecord message)
   {
+    if (message.LogSegments.Count == 0)
+      return;
     HistoryLogs.Add(message);
   }
 
@@ -172,26 +173,6 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     });
   }
 
-  private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
-  {
-    if (message.IsSuccess)
-    {
-      _actionQueueService.Enqueue(() =>
-      {
-        ReminderText = $"{_gameManager.GetPlayerByUuid(message.PlayerUuid).Name}成功获得该古玩";
-        return Task.Delay(1000);
-      });
-    }
-    else
-    {
-      _actionQueueService.Enqueue(() =>
-      {
-        ReminderText = $"{_gameManager.GetPlayerByUuid(message.PlayerUuid).Name}未能获得古玩，流入市场";
-        return Task.Delay(1000);
-      });
-    }
-  }
-
   private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
   {
     _actionQueueService.Enqueue(() =>
@@ -250,5 +231,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     target.Name = data.Name;
     target.Money = data.Money;
     target.Antiques = data.Antiques;
+    target.Staffs = data.Staffs;
+    target.Estates = data.Estates;
   }
 }

@@ -108,7 +108,9 @@
                                 HorizontalAlignment="Left"
                                 Command="{Binding CancelCommand}" />
 
-                    <c:McButton Grid.Column="1" Content="确定" Command="{Binding ConfirmCommand}"
+                    <c:McButton Grid.Column="1"
+                                Classes="Confirm"
+                                Content="确定" Command="{Binding ConfirmCommand}"
                                 CommandParameter="{Binding SelectedStack}" />
                 </Grid>
             </c:MasterDetailView.DetailFoot>
