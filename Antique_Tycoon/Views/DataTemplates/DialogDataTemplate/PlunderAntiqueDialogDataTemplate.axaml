@@ -28,8 +28,9 @@
             </c:MasterDetailView.ListBoxItemTemplate>
             <c:MasterDetailView.DataTemplates>
                 <DataTemplate x:DataType="models:Player">
-                    <ListBox ItemsSource="{Binding  $parent[c:MasterDetailView].((dvm:PlunderAntiqueDialogViewModel)DataContext).SelectedPlayerAntiqueStack}"
-                             SelectedItem="{Binding $parent[c:MasterDetailView].((dvm:PlunderAntiqueDialogViewModel)DataContext).SelectedStack}">
+                    <ListBox
+                        ItemsSource="{Binding  $parent[c:MasterDetailView].((dvm:PlunderAntiqueDialogViewModel)DataContext).SelectedPlayerAntiqueStack}"
+                        SelectedItem="{Binding $parent[c:MasterDetailView].((dvm:PlunderAntiqueDialogViewModel)DataContext).SelectedStack}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <DataTemplate.DataType>
@@ -40,51 +41,67 @@
                                         <Border
                                             Padding="32 16"
                                             Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}">
-                                            <StackPanel Orientation="Horizontal" Spacing="32"
-                                                        TextElement.Foreground="White">
-                                                <Panel>
-                                                    <Image Source="{Binding Item.Image}" Width="48" />
-                                                    <TextBlock Text="{Binding Amount}"
+                                            <Grid ColumnDefinitions="*,*">
+                                                <StackPanel Orientation="Horizontal" Spacing="32"
+                                                            TextElement.Foreground="White">
+                                                    <Panel>
+                                                        <Image Source="{Binding Item.Image}" Width="48" />
+                                                        <TextBlock Text="{Binding Amount}"
+                                                                   FontSize="24"
+                                                                   HorizontalAlignment="Right"
+                                                                   VerticalAlignment="Bottom">
+                                                            <TextBlock.RenderTransform>
+                                                                <TranslateTransform Y="4" />
+                                                            </TextBlock.RenderTransform>
+                                                            <TextBlock.Effect>
+                                                                <DropShadowEffect Color="#404040" BlurRadius="0"
+                                                                        OffsetX="2.5"
+                                                                        OffsetY="2" />
+                                                            </TextBlock.Effect>
+                                                        </TextBlock>
+                                                    </Panel>
+
+                                                    <StackPanel Spacing="8">
+                                                        <TextBlock Text="{Binding Item.Name}" FontWeight="Black"
+                                                                   FontSize="16">
+                                                            <TextBlock.Effect>
+                                                                <DropShadowEffect Color="Black" BlurRadius="2"
+                                                                        Opacity="1"
+                                                                        OffsetX="0"
+                                                                        OffsetY="0" />
+                                                            </TextBlock.Effect>
+                                                        </TextBlock>
+                                                        <TextBlock Text="{Binding Item.Value,StringFormat=价值：{0}}"
+                                                                   FontWeight="Black"
+                                                                   FontSize="12">
+                                                            <TextBlock.Effect>
+                                                                <DropShadowEffect Color="Black" BlurRadius="2"
+                                                                        Opacity="1"
+                                                                        OffsetX="0"
+                                                                        OffsetY="0" />
+                                                            </TextBlock.Effect>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <TextBlock Text="{Binding Item.Dice,StringFormat=点数：{0}}"
+                                                               FontWeight="Black"
                                                                FontSize="24"
-                                                               HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                                        <TextBlock.RenderTransform>
-                                                            <TranslateTransform Y="4" />
-                                                        </TextBlock.RenderTransform>
-                                                        <TextBlock.Effect>
-                                                            <DropShadowEffect Color="#404040" BlurRadius="0"
-                                                                              OffsetX="2.5"
-                                                                              OffsetY="2" />
-                                                        </TextBlock.Effect>
-                                                    </TextBlock>
-                                                </Panel>
-                        
-                                                <StackPanel Spacing="8">
-                                                    <TextBlock Text="{Binding Item.Name}" FontWeight="Black"
-                                                               FontSize="16">
-                                                        <TextBlock.Effect>
-                                                            <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
-                                                                              OffsetX="0"
-                                                                              OffsetY="0" />
-                                                        </TextBlock.Effect>
-                                                    </TextBlock>
-                                                    <TextBlock Text="{Binding Item.Value}" FontWeight="Black"
-                                                               FontSize="12">
-                                                        <TextBlock.Effect>
-                                                            <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
-                                                                              OffsetX="0"
-                                                                              OffsetY="0" />
-                                                        </TextBlock.Effect>
-                                                    </TextBlock>
+                                                               VerticalAlignment="Center" />
                                                 </StackPanel>
-                        
-                                                <TextBlock Text="{Binding Item.FlavorText}">
+                                                
+                                                <TextBlock  Grid.Column="1"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Right"
+                                                            Text="{Binding Item.FlavorText}">
                                                     <TextBlock.Effect>
                                                         <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
                                                                           OffsetX="0"
                                                                           OffsetY="0" />
                                                     </TextBlock.Effect>
                                                 </TextBlock>
-                                            </StackPanel>
+                                                
+                                            </Grid>
+
                                         </Border>
                                     </Panel>
                                     <Panel>

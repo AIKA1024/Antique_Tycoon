@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
 using Antique_Tycoon.Models.Net.Tcp;
@@ -70,6 +71,7 @@ public partial class GamePageViewModel : PageViewModelBase
 
   private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)
   {
+    Debug.WriteLine("收到骰子消息");
     if (message.ResponseStatus != RequestResult.Success)
     {
       await _dialogService.ShowDialogAsync(new MessageDialogViewModel
