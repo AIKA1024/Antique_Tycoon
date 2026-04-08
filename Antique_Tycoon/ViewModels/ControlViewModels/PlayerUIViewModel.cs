@@ -162,7 +162,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     _actionQueueService.Enqueue(async () =>
     {
       var itemStacks = _gameManager.LocalPlayer.Antiques.GroupBy(a => a.Index)
-        .Select(group => new ItemStack<Antique>(group.First(), group.Count())).ToList();
+        .Select(group => new ItemStack<Antique>(group.First(), group.Count())).OrderBy(s=>s.Item.Value).ToList();
       var saleAntiqueDialogViewModel = new SaleAntiqueDialogViewModel(itemStacks)
         { IsLightDismissEnabled = false };
       var saleAntiqueDetermination = await _dialogService.ShowDialogAsync(saleAntiqueDialogViewModel);
