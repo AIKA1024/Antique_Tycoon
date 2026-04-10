@@ -38,7 +38,7 @@ public static class NodeAdornerHost
       return;
     }
     
-    var layer = mainGrid.GetChildOfType<AdornerLayer>("AdornerLayer");
+    var layer = AdornerLayer.GetAdornerLayer(target);
 
     // 1️⃣ 如果已经有旧的 Adorner，先移除
     if (Adorners.TryGetValue(target, out var oldAdorner))

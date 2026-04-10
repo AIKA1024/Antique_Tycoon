@@ -9,17 +9,14 @@ public static class VisualExtensions
 {
   public static Point GetPointerPosition(this Visual visual,PointerEventArgs e)
   {
-    var root = visual.GetVisualRoot() as Visual;
+    var presentationSource = visual.GetPresentationSource();
+    var root = presentationSource?.RootVisual;
     if (root != null)
     {
       var transform = visual.TransformToVisual(root);
-      if (transform != null)
-      {
-        var screenPoint = e.GetPosition(root);
-        return transform.Value.Invert().Transform(screenPoint);
-      }
-      else
-        throw new Exception("无法获取transform");
+      if (transform == null) throw new Exception("无法获取GetVisualRoot");
+      var screenPoint = e.GetPosition(root);
+      return transform.Value.Invert().Transform(screenPoint);
     }
     throw new Exception("无法获取GetVisualRoot");
   }

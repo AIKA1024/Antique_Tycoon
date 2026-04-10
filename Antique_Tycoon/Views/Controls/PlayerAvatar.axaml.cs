@@ -10,7 +10,7 @@ public partial class PlayerAvatar : TemplatedControl
   [GeneratedDirectProperty]
   public partial Player Player { get; set; }
   [GeneratedDirectProperty]
-  public Media BuyLowValueItemSound { get; }
+  public partial Media BuyLowValueItemSound { get; set; }
   [GeneratedDirectProperty]
-  public Media PlayerMoveSound { get; }
+  public partial Media PlayerMoveSound { get; set; }
 }

@@ -29,7 +29,7 @@
           </Style>
         </w:GameCanvas.Styles>
       </w:GameCanvas>
-      <AdornerLayer x:Name="AdornerLayer"/>
+      <!-- <AdornerLayer x:Name="AdornerLayer"/> -->
       <w:PlayerUI x:Name="PlayerUI" Focusable="False" />
       <TextBlock Text="{Binding RollDiceValue}" FontSize="36" IsHitTestVisible="False"
                  HorizontalAlignment="Center" VerticalAlignment="Center">
