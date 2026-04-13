@@ -6,7 +6,7 @@ namespace Antique_Tycoon.Models.Effects.StaffEffectImpls;
 
 public class TaxHikeEffect:IStaffEffect
 {
-  public decimal Rate { get; set; } = 0.5m;
+  public decimal Rate { get; set; } = 2m;
   public GameTriggerPoint TriggerPoint => GameTriggerPoint.OnCalculateTax;
   public bool Execute(GameContext context,Player owner)
   {
@@ -25,11 +25,12 @@ public class TaxHikeEffect:IStaffEffect
       // 效果：钱给拥有者，而不是给银行
       // 只是把收款人改成了主人
       paymentContext.Receiver = owner;
+      paymentContext.Cost *= Rate;
       Console.WriteLine($"税： {paymentContext.Cost} 将支付给 {owner.Name}");
     }
 
     return true;
   }
 
-  public string Description => $"其他玩家税收加{Rate * 100}%并全部交给你，免除自己所有税收";
+  public string Description => $"其他玩家税收提升为{Rate * 100}%并全部交给你，免除自己所有税收";
 }

@@ -62,7 +62,7 @@ public class GameRuleService : ObservableObject
       {
         var player = client == null ? _gameManager.LocalPlayer : _gameManager.GetPlayerByTcpClient(client);
         var diceContext = new DiceContext(player, rollDiceValue);
-        await TriggerGlobalStaffEffects(GameTriggerPoint.OnAppraisalRoll, diceContext);
+        await ProcessEventAsync(GameTriggerPoint.OnAppraisalRoll, diceContext);
         rollDiceValue = diceContext.Result;
       }
 
@@ -117,6 +117,14 @@ public class GameRuleService : ObservableObject
       if (!string.IsNullOrEmpty(selectDestinationRequestId))
         playerMoveResponse.Id = selectDestinationRequestId;
       await Broadcast(playerMoveResponse);
+
+      var spawnNodeUuid = _gameManager.SelectedMap.SpawnNode.Uuid;
+      if (selectPath[1..].Contains(spawnNodeUuid) && spawnNodeUuid!=selectPath[^1])//如果路过出生点，就踩一下先
+      {
+        await HandleStepOnNodeAsync(
+          _gameManager.GetPlayerByUuid(currentTurnPlayerUuid),
+          _gameManager.SelectedMap.SpawnNode);
+      }
 
       await HandleStepOnNodeAsync(
         _gameManager.GetPlayerByUuid(currentTurnPlayerUuid),
@@ -244,7 +252,7 @@ public class GameRuleService : ObservableObject
         }));
 
         var diceContext = new DiceContext(player, Random.Shared.Next(1, 7));
-        await TriggerGlobalStaffEffects(GameTriggerPoint.OnAppraisalRoll, diceContext);
+        await ProcessEventAsync(GameTriggerPoint.OnAppraisalRoll, diceContext);
         bool isSuccess = diceContext.Result >= antique.Dice;
         string actionText = isSuccess ? " 顺走了 " : " 未能顺走 ";
         var rollDiceResponse = new RollDiceResponse(plunderRequest.Id, player.Uuid, diceContext.Result)
@@ -543,7 +551,10 @@ public class GameRuleService : ObservableObject
         ]
       };
     await Broadcast(message);
-    await TriggerGlobalStaffEffects(GameTriggerPoint.OnPassStartPoint, new EconomyContext(player));
+    await ProcessEventAsync(GameTriggerPoint.OnPassStartPoint, new EconomyContext(player));
+
+    var totalTax = player.Estates.Sum(estate => estate.PropertyTax);
+    await ProcessEventAsync(GameTriggerPoint.OnCalculateTax, new PaymentContext(player){Cost = totalTax});
   }
 
   private async Task HandleMineAsync(Player player, NodeModel node)
@@ -559,7 +570,7 @@ public class GameRuleService : ObservableObject
       var rollDiceResponse = await GetRollDiceAsync(client, true);
 
       var paymentContext = new PaymentContext(player);
-      await TriggerGlobalStaffEffects(GameTriggerPoint.OnPassMineCharge, paymentContext);
+      await ProcessEventAsync(GameTriggerPoint.OnPassMineCharge, paymentContext);
 
       var isSucceed = rollDiceResponse.DiceValue >= antique.Dice;
       var getAntiqueResultResponse =
@@ -630,8 +641,58 @@ public class GameRuleService : ObservableObject
       await Broadcast(message);
     }
   }
+  
+  public async Task ProcessEventAsync(GameTriggerPoint triggerPoint, GameContext context)
+  {
+    await TriggerGlobalStaffEffects(triggerPoint, context);
+    await ResolveGameContext(context);
+  }
 
-// GameRulerService.cs 内部
+  private async Task ResolveGameContext(GameContext context)
+  {
+    switch (context)
+    {
+      case EconomyContext economyContext:
+        context.Player.Money += economyContext.GetFinalValue();
+        // TODO: 广播获得金钱的日志
+        break;
+
+      case PaymentContext paymentContext:
+        // 如果效果导致成本降为0，直接跳过后续扣款逻辑
+        if (paymentContext.Cost <= 0) break;
+
+        context.Player.Money -= paymentContext.Cost;
+            
+        if (paymentContext.Receiver != null)
+        {
+          // 钱付给玩家
+          paymentContext.Receiver.Money += paymentContext.Cost;
+          await Broadcast(new UpdatePlayerInfoResponse(paymentContext.Player)
+          {
+            LogSegments =
+            [
+              new LogSegment { Type = InteractionType.PlayerName, Data = context.Player.Uuid },
+              new LogSegment { Text = " 向 " },
+              new LogSegment { Type = InteractionType.PlayerName, Data = paymentContext.Receiver.Uuid },
+              new LogSegment { Text = $" 支付了 {paymentContext.Cost}" }
+            ]
+          });
+        }
+        else
+        {
+          // Receiver 为空，说明是交给系统（银行）
+          await Broadcast(new UpdatePlayerInfoResponse(paymentContext.Player)
+          {
+            LogSegments =
+            [
+              new LogSegment { Type = InteractionType.PlayerName, Data = context.Player.Uuid },
+              new LogSegment { Text = $" 向银行缴纳了 {paymentContext.Cost}" }
+            ]
+          });
+        }
+        break;
+    }
+  }
 
   /// <summary>
   /// 核心辅助方法：触发所有符合当前时机的 IStaff 效果
@@ -645,76 +706,25 @@ public class GameRuleService : ObservableObject
       var staffWithEffects = owner.GetActiveEffects(point);
       foreach (var staffWithEffect in staffWithEffects)
       {
-        if (!staffWithEffect.effect.Execute(context, owner))
-          return;
+        // 执行效果，修改 context 的数据
+        // 注意：这里不要轻易 return 中断整个流程，除非你设计了某种“绝对否决”机制
+        bool effectTriggered = staffWithEffect.effect.Execute(context, owner);
 
-        switch (context)
+        if (effectTriggered)
         {
-          case EconomyContext economyContext:
-            owner.Money += economyContext.GetFinalValue();
-            break;
-          case PaymentContext paymentContext:
-            context.Player.Money -= paymentContext.Cost;
-            if (paymentContext.Receiver != null)
-            {
-              paymentContext.Receiver.Money += paymentContext.Cost;
-              await Broadcast(new UpdatePlayerInfoResponse(paymentContext.Player)
-              {
-                LogSegments =
-                [
-                  new LogSegment
-                  {
-                    Type = InteractionType.PlayerName,
-                    Data = owner.Uuid
-                  },
-                  new LogSegment
-                  {
-                    Text = " 向 "
-                  },
-                  new LogSegment
-                  {
-                    Type = InteractionType.PlayerName,
-                    Data = paymentContext.Receiver.Uuid
-                  },
-                  new LogSegment
-                  {
-                    Text = $" 支付{paymentContext.Cost}"
-                  }
-                ]
-              });
-            }
-
-            break;
+          // 只要效果成功触发了，就广播一条效果触发的日志
+          await Broadcast(new UpdatePlayerInfoResponse(owner)
+          {
+            LogSegments =
+            [
+              new LogSegment { Type = InteractionType.PlayerName, Data = owner.Uuid },
+              new LogSegment { Text = " 的伙计 " },
+              new LogSegment { Type = InteractionType.Staff, Data = staffWithEffect.staff.Uuid },
+              new LogSegment { Text = " 触发了效果：" },
+              new LogSegment { Text = staffWithEffect.effect.Description }
+            ]
+          });
         }
-
-        await Broadcast(new UpdatePlayerInfoResponse(owner)
-        {
-          LogSegments =
-          [
-            new LogSegment
-            {
-              Type = InteractionType.PlayerName,
-              Data = owner.Uuid
-            },
-            new LogSegment
-            {
-              Text = " 的 "
-            },
-            new LogSegment
-            {
-              Type = InteractionType.Staff,
-              Data = staffWithEffect.staff.Uuid
-            },
-            new LogSegment
-            {
-              Text = " 触发了效果 "
-            },
-            new LogSegment
-            {
-              Text = $" {staffWithEffect.effect.Description}"
-            }
-          ]
-        });
       }
     }
   }

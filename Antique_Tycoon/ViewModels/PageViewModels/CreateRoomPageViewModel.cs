@@ -21,6 +21,7 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
   private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
   private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
   private readonly MapFileService _mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
+  private readonly NavigationService _navigationService = App.Current.Services.GetRequiredService<NavigationService>();
 
   [ObservableProperty] private string _roomName = "";
   [ObservableProperty]
@@ -54,7 +55,7 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
 
     _cts.TryReset();
     var netServer = App.Current.Services.GetRequiredService<NetServer>();
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new RoomPageViewModel(
+    _navigationService.Navigation(new RoomPageViewModel(
       _gameManager.SelectedMap,
       _gameManager,
       _cts));
@@ -66,6 +67,8 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
     catch (OperationCanceledException ex)
     {
       Debug.WriteLine($"监听房间任务被取消： {ex.Message}");
+      await _dialogService.ShowDialogAsync(new MessageDialogViewModel { Title = "错误", Message = ex.Message });
+      App.Current.Services.GetRequiredService<NavigationService>().Back();
     }
   }
 

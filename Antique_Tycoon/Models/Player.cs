@@ -37,13 +37,15 @@ public partial class Player : ObservableObject, IDisposable
     get;
     set
     {
+      field.CollectionChanged -= OnAntiquesChanged;
       SetProperty(ref field, value);
+      field.CollectionChanged += OnAntiquesChanged;
       OnPropertyChanged(nameof(AntiqueStacks));
     }
   } = [];
 
   public List<ItemStack<Antique>> AntiqueStacks => Antiques.GroupBy(a => a.Index)
-    .Select(g => new ItemStack<Antique>(g.First(), g.Count())).OrderBy(s=>s.Item.Value).ToList();
+    .Select(g => new ItemStack<Antique>(g.First(), g.Count())).OrderBy(s => s.Item.Value).ToList();
 
   [ObservableProperty] public partial ObservableCollection<Estate> Estates { get; set; } = [];
   [ObservableProperty] public partial ObservableCollection<IStaff> Staffs { get; set; } = [];
@@ -62,7 +64,8 @@ public partial class Player : ObservableObject, IDisposable
         PlayerRole.Cow => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Cow.png"),
         PlayerRole.Creeper => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Creeper.png"),
         PlayerRole.Sheep => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Sheep.png"),
-        PlayerRole.Villager => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Villager.png"),
+        PlayerRole.Villager =>
+          ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Villager.png"),
         PlayerRole.Zombie => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Avatar/Zombie.png"),
         _ => Avatar
       };
