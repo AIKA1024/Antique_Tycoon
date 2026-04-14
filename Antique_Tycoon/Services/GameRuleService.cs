@@ -405,9 +405,9 @@ public class GameRuleService : ObservableObject
       decimal value;
       if (saleAntiqueRequest.IsUpgradeEstate)
       {
-        estate.Level += 1;
+        estate.CurrentLevel += 1;
         var updateEstateInfoResponse =
-          new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.Level)
+          new UpdateEstateInfoResponse(seller.Uuid, estate.Uuid, estate.CurrentLevel)
             { Id = saleAntiqueRequest.Id };
         await Broadcast(updateEstateInfoResponse);
         value = antique.Value;
@@ -460,7 +460,7 @@ public class GameRuleService : ObservableObject
               },
               new LogSegment
               {
-                Text = $" 等级提升到{estate.Level}"
+                Text = $" 等级提升到{estate.CurrentLevel}"
               }
             ]
           };
@@ -622,6 +622,7 @@ public class GameRuleService : ObservableObject
     }
     else
     {
+      player.Money += 200;
       var message =
         new UpdatePlayerInfoResponse(player)
         {

@@ -9,7 +9,7 @@ namespace Antique_Tycoon.Models.Nodes;
 public partial class Estate : NodeModel
 {
   [ObservableProperty] public partial decimal Value { get; set; }
-  [ObservableProperty] public partial int Level { get; set; } = 1;
+  [ObservableProperty] public partial int CurrentLevel { get; set; } = 1;
 
   /// <summary>
   /// 每回合要交的税
@@ -22,9 +22,9 @@ public partial class Estate : NodeModel
   public decimal CalculateCurrentRevenue(decimal baseValue)
   {
     // 安全检查：防止 Level 超出数组范围
-    if (Level - 1 >= RevenueModifiers.Count) return baseValue;
+    if (CurrentLevel - 1 >= RevenueModifiers.Count) return baseValue;
 
-    var effect = RevenueModifiers[Level - 1];
+    var effect = RevenueModifiers[CurrentLevel - 1];
 
     return effect.BonusType switch
     {

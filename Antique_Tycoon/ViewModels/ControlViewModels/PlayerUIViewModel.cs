@@ -163,7 +163,8 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     {
       var itemStacks = _gameManager.LocalPlayer.Antiques.GroupBy(a => a.Index)
         .Select(group => new ItemStack<Antique>(group.First(), group.Count())).OrderBy(s=>s.Item.Value).ToList();
-      var saleAntiqueDialogViewModel = new SaleAntiqueDialogViewModel(itemStacks)
+      var estate = (Estate)_gameManager.SelectedMap.EntitiesDict[message.EstateUuid];
+      var saleAntiqueDialogViewModel = new SaleAntiqueDialogViewModel(itemStacks,estate.CurrentLevel < estate.RevenueModifiers.Count)
         { IsLightDismissEnabled = false };
       var saleAntiqueDetermination = await _dialogService.ShowDialogAsync(saleAntiqueDialogViewModel);
       if (saleAntiqueDetermination is null)

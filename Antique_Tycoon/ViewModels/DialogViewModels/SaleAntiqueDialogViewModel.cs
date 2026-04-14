@@ -16,13 +16,16 @@ public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<SaleAntiqu
   public List<ItemStack<Antique>> AntiqueStacks { get; }
   [ObservableProperty] public partial ItemStack<Antique>? SelectedStack { get; set; }
 
+  public bool CanUpUpgradeEstate { get; }
+
   private bool CanSell() => SelectedStack != null;
   
-  public SaleAntiqueDialogViewModel(List<ItemStack<Antique>> antiqueStacks)
+  public SaleAntiqueDialogViewModel(List<ItemStack<Antique>> antiqueStacks,bool canUpUpgradeEstate)
   {
     AntiqueStacks = antiqueStacks;
     HorizontalAlignment = HorizontalAlignment.Stretch;
     VerticalAlignment = VerticalAlignment.Stretch;
+    CanUpUpgradeEstate = canUpUpgradeEstate;
   }
 
   partial void OnSelectedStackChanged(ItemStack<Antique>? value)

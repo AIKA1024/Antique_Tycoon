@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -23,7 +24,7 @@ public class NetClient : NetBase
 {
   private readonly UdpClient _udpClient = new();
   private TcpClient? _tcpClient;
-  private readonly Dictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
+  private readonly ConcurrentDictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
   private readonly GameManager _gameManager;
   public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(3);
 
@@ -80,11 +81,33 @@ public class NetClient : NetBase
     where T : ITcpMessage
   {
     var data = PackMessage(message);
-    var tcs = new TaskCompletionSource<ITcpMessage>();
+    var tcs = new TaskCompletionSource<ITcpMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+
     _pendingRequests[message.Id] = tcs;
-    await _tcpClient.GetStream().WriteAsync(data, cancellationToken);
-    // 等待服务器响应（HandleReceive 中会完成 tcs）
-    return await tcs.Task.WaitAsync(cancellationToken);
+    try
+    {
+      // 2. 发送数据
+      await _tcpClient.GetStream().WriteAsync(data, cancellationToken);
+
+      // 3. 等待结果，显式处理超时或取消
+      return await tcs.Task.WaitAsync(cancellationToken);
+    }
+    catch (OperationCanceledException)
+    {
+      // 显式让 TCS 失效，防止 HandleReceive 还在尝试设置结果
+      tcs.TrySetCanceled(cancellationToken);
+      throw;
+    }
+    catch (Exception ex)
+    {
+      tcs.TrySetException(ex);
+      throw;
+    }
+    finally
+    {
+      // 4. 无论如何，必须清理字典，防止内存泄漏
+      _pendingRequests.TryRemove(message.Id, out _);
+    }
   }
 
   protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
@@ -116,7 +139,7 @@ public class NetClient : NetBase
     if (_pendingRequests.TryGetValue(uuid, out var tcs))
     {
       tcs.SetResult(new DownloadMapResponse { Id = uuid });
-      _pendingRequests.Remove(uuid);
+      _pendingRequests.Remove(uuid,out _);
     }
   }
 

@@ -89,7 +89,8 @@
                                 Command="{Binding CancelCommand}"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
-                        <c:McButton Content="以原价出售，升级地产" Command="{Binding SellAndUpgradeCommand}" />
+                        <c:McButton Content="以原价出售，升级地产" Command="{Binding SellAndUpgradeCommand}"
+                                    IsVisible="{Binding CanUpUpgradeEstate}"/>
                         <c:McButton Classes="Confirm" Content="收取额外收益出售" Command="{Binding SellAndHarvestCommand}" />
                     </StackPanel>
                 </Grid>
