@@ -38,12 +38,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="12.0.0" />
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.0.0" />
-        <PackageReference Include="Avalonia.Desktop" Version="12.0.0" />
+        <PackageReference Include="Avalonia" Version="12.0.1" />
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.0.1" />
+        <PackageReference Include="Avalonia.Desktop" Version="12.0.1" />
         <PackageReference Include="Avalonia.ReactiveUI.Events" Version="0.10.22"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.0" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.0" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.1" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.1" />
         <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.0" />
         <PackageReference Include="HotAvalonia" Version="3.1.0" PrivateAssets="All" Publish="True" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
