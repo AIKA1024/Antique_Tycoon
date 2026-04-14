@@ -15,8 +15,7 @@ public partial class StartPageViewModel : PageViewModelBase
   [RelayCommand]
   private void NavigateToHallPage()
   {
-    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new HallPageViewModel(
-      App.Current.Services.GetRequiredService<NetClient>(), App.Current.Services.GetRequiredService<GameManager>()));
+    App.Current.Services.GetRequiredService<NavigationService>().Navigation(new HallPageViewModel());
   }
 
   [RelayCommand]

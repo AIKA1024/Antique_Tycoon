@@ -27,16 +27,15 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 {
   private readonly Timer _timer = new(2000);
   private bool _disposed;
-  private readonly GameManager _gameManager;
+  private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
 
   [ObservableProperty]
   private Bitmap _noMapImage = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/No_Map.png")));
 
   public ObservableCollection<RoomBaseInfo> RoomList { get; } = [];
 
-  public HallPageViewModel(NetClient client, GameManager gameManager)
+  public HallPageViewModel()
   {
-    _gameManager = gameManager;
     _timer.Elapsed += async (s, e) => { await UpdateRoomList(s, e); };
   }
 
@@ -58,6 +57,12 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     if (RoomList.Any(r => Equals(r.Ip, roomNetInfo.Ip)))
       return;
     RoomList.Add(roomNetInfo);
+  }
+
+  [RelayCommand]
+  private void AddService()
+  {
+    
   }
 
   [RelayCommand]

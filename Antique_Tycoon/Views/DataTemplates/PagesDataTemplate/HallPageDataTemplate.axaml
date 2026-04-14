@@ -21,11 +21,18 @@
         Grid.Row="1"
         Margin="16,0"
         Spacing="8">
-        <c:McButton
-          HorizontalAlignment="Right"
-          Classes="Confirm"
-          Command="{Binding NavigateToCreateRoomPageCommand}"
-          Content="创建新房间" />
+        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal"
+                    Spacing="16">
+          <c:McButton
+            HorizontalAlignment="Right"
+            Command="{Binding AddServiceCommand}"
+            Content="添加服务器" />
+          <c:McButton
+            HorizontalAlignment="Right"
+            Classes="Confirm"
+            Command="{Binding NavigateToCreateRoomPageCommand}"
+            Content="创建新房间" />
+        </StackPanel>
         <Border
           Padding="0 32"
           BorderThickness="3"

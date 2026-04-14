@@ -12,22 +12,10 @@
              x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
              x:DataType="controlViewModels:PlayerUiViewModel"
              x:Name="Me">
-  <UserControl.Styles>
-    <Style Selector="Grid.Invisible">
-      <Setter Property="Opacity" Value="0" />
-      <Setter Property="IsHitTestVisible" Value="False" />
-    </Style>
-  </UserControl.Styles>
   <Design.DataContext>
     <controlViewModels:PlayerUiViewModel />
   </Design.DataContext>
-  <Grid RowDefinitions="4*,*"
-        Classes.Invisible="{Binding IsVisible}">
-    <Grid.Transitions>
-      <Transitions>
-        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
-      </Transitions>
-    </Grid.Transitions>
+  <Grid RowDefinitions="4*,*">
     <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
       <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
                  FontSize="32" FontWeight="Black"
@@ -182,7 +170,18 @@
     <Border x:Name="Mask"
             Grid.Row="0" Grid.RowSpan="2"
             Background="#80000000"
-            IsVisible="{Binding DialogViewModel,Converter={x:Static ObjectConverters.IsNotNull}}">
+            Classes.Invisible="{Binding MaskInvisible}">
+      <Border.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+        </Transitions>
+      </Border.Transitions>
+      <Border.Styles>
+        <Style Selector="Border#Mask.Invisible">
+          <Setter Property="Opacity" Value="0" />
+          <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
+      </Border.Styles>
       <Border
         HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
         VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
