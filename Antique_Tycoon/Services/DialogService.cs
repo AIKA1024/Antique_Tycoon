@@ -77,8 +77,16 @@ public partial class DialogService : ObservableObject
     _dialogs.Add(dialogViewModel);
     _dialogTasks.Add(dialogViewModel, task);
     dialogViewModel.RequestClose += () => throw new Exception("该视图使用了自己提供的Task等待窗口,不能主动调用关闭窗口");
-    CloseDialog(dialogViewModel);
-    return await task;
+    try
+    {
+      await task;
+    }
+    finally
+    {
+      CloseDialog(dialogViewModel);
+    }
+
+    return task.Result;
   }
 
   public void CloseDialogsAndClearResults(DialogViewModelBase dialogViewModel)

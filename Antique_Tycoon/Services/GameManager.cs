@@ -305,14 +305,18 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   public async Task DownloadMap(DownloadMapRequest request, TcpClient client)
   {
-    if (_mapFileService.GetMapByHash(request.Hash) is { } map)
+    if (SelectedMap == null)
+    {
+      await NetServerInstance.SendResponseAsync(
+        new DownloadMapResponse { Id = request.Id, ResponseStatus = RequestResult.Error }, client);
+      return;
+    }
+    
+    if (_mapFileService.GetMapByHash(SelectedMap.Hash) is { } map)
     {
       await NetServerInstance.SendFileAsync(_mapFileService.GetMapFileStream(map),
         request.Id, $"{_mapFileService.GetMapFileHash(map)}.zip", TcpMessageType.DownloadMapResponse,
         client);
     }
-    else
-      await NetServerInstance.SendResponseAsync(
-        new DownloadMapResponse { Id = request.Id, ResponseStatus = RequestResult.Error }, client);
   }
 }

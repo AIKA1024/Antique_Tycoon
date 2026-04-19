@@ -41,16 +41,14 @@ public class MapFileService
     return map;
   }
 
-  public Map? LoadMap(string folderPath)
+  public Map LoadMap(string folderPath)
   {
     var imageDirectoryPath = Path.Combine(folderPath, ImageFolderName);
     var jsonFullPath = Path.Combine(folderPath, JsonFileName);
     if (!File.Exists(jsonFullPath))
-      return null;
-    var map = JsonSerializer.Deserialize(File.ReadAllText(jsonFullPath),
-      Models.Json.AppJsonContext.Default.Map);
-    if (map is null)
-      return null;
+      throw new FileNotFoundException($"找不到{jsonFullPath}");
+    Map map = JsonSerializer.Deserialize(File.ReadAllText(jsonFullPath),
+      Models.Json.AppJsonContext.Default.Map)!;
     
     map.FilePath = folderPath;
     foreach (var entity in map.Entities) //手动加载Image

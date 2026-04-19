@@ -139,8 +139,8 @@ public class NetClient : NetBase
     await base.ReceiveFileChunkAsync(uuid, fileName, chunkIndex, totalChunks, data);
     if (_pendingRequests.TryGetValue(uuid, out var tcs))
     {
-      tcs.SetResult(new DownloadMapResponse { Id = uuid });
-      _pendingRequests.Remove(uuid,out _);
+      tcs.SetResult(new DownloadMapResponse { Id = uuid, FileName = fileName });
+      _pendingRequests.Remove(uuid, out _);
     }
   }
 

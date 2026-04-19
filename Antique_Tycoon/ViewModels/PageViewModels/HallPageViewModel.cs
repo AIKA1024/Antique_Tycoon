@@ -31,6 +31,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   private bool _disposed;
   private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
   private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
+  private readonly MapFileService _mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
 
 
   [ObservableProperty]
@@ -125,31 +126,29 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
       });
       return;
     }
+    
+    ClearFolder(App.Current.DownloadMapPath);
 
-    var mapZipPath = Path.Join(App.Current.DownloadMapPath, $"{serviceInfo.Hash}.zip");
-    var mapDirPath = Path.Join(App.Current.DownloadMapPath, serviceInfo.Hash);//todo 如果用添加服务器的信息，会导致hash为空,服务器应该只提供自己在玩的地图
-    if (!Directory.Exists(mapDirPath))
+    var messageVm = new MessageDialogViewModel
     {
-      var task = DownloadMapAsync(serviceInfo.Hash);
-      var messageVm = new MessageDialogViewModel
-      {
-        Title = "提示",
-        Message = "地图下载中",
-        IsLightDismissEnabled = false,
-        IsShowConfirmButton = false
-      };
-      var result = await _dialogService.ShowDialogAsync(messageVm, task);
-      if (result.ResponseStatus != RequestResult.Success)
-      {
-        messageVm.Title = "警告";
-        messageVm.Message = "地图下载失败";
-        messageVm.IsLightDismissEnabled = true;
-        return;
-      }
-
-      await ZipFile.ExtractToDirectoryAsync(mapZipPath, mapDirPath);
-      File.Delete(mapZipPath);
+      Title = "提示",
+      Message = "地图下载中",
+      IsLightDismissEnabled = false,
+      IsShowConfirmButton = false
+    };
+    var result = await _dialogService.ShowDialogAsync(messageVm, DownloadMapAsync());
+    if (result.ResponseStatus != RequestResult.Success)
+    {
+      messageVm.Title = "错误";
+      messageVm.Message = "地图下载失败";
+      messageVm.IsLightDismissEnabled = true;
+      return;
     }
+
+    var mapDirPath = Path.Combine(App.Current.DownloadMapPath, Path.GetFileNameWithoutExtension(result.FileName));
+    await ZipFile.ExtractToDirectoryAsync(Path.Combine(App.Current.DownloadMapPath, result.FileName), mapDirPath);
+    var map = _mapFileService.LoadMap(mapDirPath);
+    var mapHash = _mapFileService.GetMapFileHash(map);
 
     var response = await JoinRoomAsync();
     if (response.ResponseStatus != RequestResult.Success)
@@ -164,18 +163,16 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     }
 
     _gameManager.RoomOwnerUuid = response.RoomOwnerUuid;
-    var mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
-    var map = mapFileService.LoadMap(mapDirPath);
-    if (map is null)
-    {
-      await _dialogService.ShowDialogAsync(
-        new MessageDialogViewModel
-        {
-          Title = "提示",
-          Message = "地图文件损坏"
-        });
-      return;
-    }
+    // if (map is null)
+    // {
+    //   await _dialogService.ShowDialogAsync(
+    //     new MessageDialogViewModel
+    //     {
+    //       Title = "提示",
+    //       Message = "地图文件损坏"
+    //     });
+    //   return;
+    // }
 
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(
       new RoomPageViewModel(map, _gameManager));
@@ -188,9 +185,9 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     return (JoinRoomResponse)await _gameManager.NetClientInstance.SendRequestAsync(joinRoomRequest, cancellation);
   }
 
-  private async Task<DownloadMapResponse> DownloadMapAsync(string hash, CancellationToken cancellation = default)
+  private async Task<DownloadMapResponse> DownloadMapAsync(CancellationToken cancellation = default)
   {
-    var downloadMapRequest = new DownloadMapRequest(hash);
+    var downloadMapRequest = new DownloadMapRequest();
     return (DownloadMapResponse)await _gameManager.NetClientInstance.SendRequestAsync(downloadMapRequest, cancellation);
   }
 
@@ -200,5 +197,24 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     _disposed = true;
     NoMapImage.Dispose();
     _timer.Stop();
+  }
+
+  void ClearFolder(string folderPath)
+  {
+    // 如果文件夹不存在，直接跳过
+    if (!Directory.Exists(folderPath))
+      return;
+
+    // 删除所有文件
+    foreach (var file in Directory.GetFiles(folderPath))
+    {
+      File.Delete(file);
+    }
+
+    // 删除所有子文件夹
+    foreach (var dir in Directory.GetDirectories(folderPath))
+    {
+      Directory.Delete(dir, true);
+    }
   }
 }

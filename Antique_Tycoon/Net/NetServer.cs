@@ -147,7 +147,6 @@ public class NetServer : NetBase
       Port = App.DefaultPort,
       Address = _localIPv4,
       CoverData = ms.ToArray(),
-      Hash = App.Current.Services.GetRequiredService<MapFileService>().GetMapFileHash(map),//todo 应该由服务器自己决定，而不是让客户端问
       IsLanRoom = true
     };
 
