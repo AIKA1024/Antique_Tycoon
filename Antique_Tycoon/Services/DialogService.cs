@@ -35,12 +35,24 @@ public partial class DialogService : ObservableObject
     return tcs.Task;
   }
 
-  public Task ShowDialogAsync(DialogViewModelBase dialogViewModel, Task task)
+  public async Task ShowDialogAsync(DialogViewModelBase dialogViewModel, Task task)
   {
+    ArgumentNullException.ThrowIfNull(task);
+    ArgumentNullException.ThrowIfNull(dialogViewModel);
+
     _dialogs.Add(dialogViewModel);
     _dialogTasks.Add(dialogViewModel, task);
     dialogViewModel.RequestClose += () => CloseDialog(dialogViewModel);
-    return task;
+    try
+    {
+      // 3. 等待业务任务执行（真正等待业务逻辑）
+      await task;
+    }
+    finally
+    {
+      // 5. 无论成功失败，都自动关闭弹窗
+      CloseDialog(dialogViewModel);
+    }
   }
 
   public Task<T?> ShowDialogAsync<T>(DialogViewModelBase<T> dialogViewModel)

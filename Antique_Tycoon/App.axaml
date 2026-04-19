@@ -61,5 +61,6 @@
     <StaticResource ResourceKey="SaleAntiqueDialogDataTemplate"/>
     <StaticResource ResourceKey="HireStaffDialogDataTemplate"/>
     <StaticResource ResourceKey="PlunderAntiqueDialogDataTemplate"/>
+    <StaticResource ResourceKey="AddServiceDialogDataTemplate"/>
   </Application.DataTemplates>
 </Application>

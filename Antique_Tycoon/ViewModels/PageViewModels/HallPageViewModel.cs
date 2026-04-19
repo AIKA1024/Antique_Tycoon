@@ -9,12 +9,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Models.Net.Udp;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -28,11 +30,13 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   private readonly Timer _timer = new(2000);
   private bool _disposed;
   private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+  private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
+
 
   [ObservableProperty]
   private Bitmap _noMapImage = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/No_Map.png")));
 
-  public ObservableCollection<RoomBaseInfo> RoomList { get; } = [];
+  public ObservableCollection<ServiceInfo> RoomList { get; } = [];
 
   public HallPageViewModel()
   {
@@ -54,15 +58,18 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   private async Task UpdateRoomList(object? sender, ElapsedEventArgs e)
   {
     var roomNetInfo = await _gameManager.NetClientInstance.DiscoverRoomAsync();
-    if (RoomList.Any(r => Equals(r.Ip, roomNetInfo.Ip)))
+    if (RoomList.Any(r => Equals(r.Address, roomNetInfo.Address)))
       return;
     RoomList.Add(roomNetInfo);
   }
 
   [RelayCommand]
-  private void AddService()
+  private async Task AddService()
   {
-    
+    var serviceInfo = await _dialogService.ShowDialogAsync(new AddServiceDialogViewModel());
+    if (serviceInfo == null)
+      return;
+    RoomList.Add(serviceInfo);
   }
 
   [RelayCommand]
@@ -72,16 +79,58 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   }
 
   [RelayCommand]
-  private async Task JoinRoom(RoomBaseInfo roomInfo) //todo 职责过重
+  private async Task JoinRoom(ServiceInfo serviceInfo) //todo 职责过重
   {
-    var dialogService = App.Current.Services.GetRequiredService<DialogService>();
-    var iPEndPoint = new IPEndPoint(IPAddress.Parse(roomInfo.Ip), roomInfo.Port);
-    await _gameManager.NetClientInstance.ConnectServer(iPEndPoint);
-    var mapZipPath = Path.Join(App.Current.DownloadMapPath, $"{roomInfo.Hash}.zip");
-    var mapDirPath = Path.Join(App.Current.DownloadMapPath, roomInfo.Hash);
+    try
+    {
+      // 自动识别：IP 或 域名
+      if (!IPAddress.TryParse(serviceInfo.Address, out var ipAddress))
+      {
+        // 域名解析
+        var addresses = await Dns.GetHostAddressesAsync(serviceInfo.Address);
+        ipAddress = addresses.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+      }
+
+      if (ipAddress == null)
+      {
+        await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+        {
+          Title = "错误",
+          Message = "无法解析服务器地址"
+        });
+        return;
+      }
+
+      var ipEndPoint = new IPEndPoint(ipAddress, serviceInfo.Port);
+      var connectTask = _gameManager.NetClientInstance.ConnectServer(ipEndPoint);
+
+      // 弹窗等待连接
+      await _dialogService.ShowDialogAsync(
+        new MessageDialogViewModel
+        {
+          Title = "提示",
+          Message = "正在连接服务器...",
+          IsShowConfirmButton = false,
+          IsLightDismissEnabled = false
+        },
+        connectTask);
+    }
+    catch (Exception ex)
+    {
+      await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+      {
+        Title = "连接失败",
+        Message = ex.Message,
+        IsLightDismissEnabled = false
+      });
+      return;
+    }
+
+    var mapZipPath = Path.Join(App.Current.DownloadMapPath, $"{serviceInfo.Hash}.zip");
+    var mapDirPath = Path.Join(App.Current.DownloadMapPath, serviceInfo.Hash);//todo 如果用添加服务器的信息，会导致hash为空,服务器应该只提供自己在玩的地图
     if (!Directory.Exists(mapDirPath))
     {
-      var task = DownloadMapAsync(roomInfo.Hash);
+      var task = DownloadMapAsync(serviceInfo.Hash);
       var messageVm = new MessageDialogViewModel
       {
         Title = "提示",
@@ -89,7 +138,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
         IsLightDismissEnabled = false,
         IsShowConfirmButton = false
       };
-      var result = await dialogService.ShowDialogAsync(messageVm, task);
+      var result = await _dialogService.ShowDialogAsync(messageVm, task);
       if (result.ResponseStatus != RequestResult.Success)
       {
         messageVm.Title = "警告";
@@ -97,7 +146,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
         messageVm.IsLightDismissEnabled = true;
         return;
       }
-      
+
       await ZipFile.ExtractToDirectoryAsync(mapZipPath, mapDirPath);
       File.Delete(mapZipPath);
     }
@@ -105,7 +154,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     var response = await JoinRoomAsync();
     if (response.ResponseStatus != RequestResult.Success)
     {
-      await dialogService.ShowDialogAsync(
+      await _dialogService.ShowDialogAsync(
         new MessageDialogViewModel
         {
           Title = "提示",
@@ -119,7 +168,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     var map = mapFileService.LoadMap(mapDirPath);
     if (map is null)
     {
-      await dialogService.ShowDialogAsync(
+      await _dialogService.ShowDialogAsync(
         new MessageDialogViewModel
         {
           Title = "提示",
@@ -127,7 +176,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
         });
       return;
     }
-    
+
     App.Current.Services.GetRequiredService<NavigationService>().Navigation(
       new RoomPageViewModel(map, _gameManager));
     _gameManager.SelectedMap = map;

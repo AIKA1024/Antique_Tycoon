@@ -20,7 +20,7 @@ sealed class Program
     AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
     {
       var ex = (Exception)e.ExceptionObject;
-      if (App.Current?.Services?.GetService<DialogService>() is { } dialogService)//在应用启动前，Current是可能为null的
+      if (App.Current.Services.GetService<DialogService>() is { } dialogService)//在应用启动前，Current是可能为null的
       {
         await dialogService.ShowDialogAsync(new MessageDialogViewModel
           { Title = "严重错误", Message = ex.Message, IsLightDismissEnabled = false });

@@ -4,13 +4,14 @@ using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
+using Antique_Tycoon.Models.Net.Udp;
 using Antique_Tycoon.Models.Nodes;
 
 namespace Antique_Tycoon.Models.Json;
 
 [JsonSerializable(typeof(Player))]
 [JsonSerializable(typeof(RequestBase))]
-[JsonSerializable(typeof(RoomBaseInfo))]
+[JsonSerializable(typeof(ServiceInfo))]
 [JsonSerializable(typeof(HeartbeatMessage))]
 [JsonSerializable(typeof(JoinRoomResponse))]
 [JsonSerializable(typeof(JoinRoomRequest))]

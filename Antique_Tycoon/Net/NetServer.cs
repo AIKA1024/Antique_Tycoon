@@ -16,10 +16,12 @@ using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
+using Antique_Tycoon.Models.Net.Udp;
 using Antique_Tycoon.Net.TcpMessageHandlers;
 using Antique_Tycoon.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using ServiceInfo = Antique_Tycoon.Models.Net.Udp.ServiceInfo;
 using Timer = System.Timers.Timer;
 
 namespace Antique_Tycoon.Net;
@@ -139,13 +141,13 @@ public class NetServer : NetBase
     _clientLastActiveTimes.Clear();
     using var ms = new MemoryStream();
     map.Cover.Save(ms);
-    var roomInfo = new RoomBaseInfo
+    var roomInfo = new ServiceInfo
     {
       RoomName = roomName,
       Port = App.DefaultPort,
-      Ip = _localIPv4,
+      Address = _localIPv4,
       CoverData = ms.ToArray(),
-      Hash = App.Current.Services.GetRequiredService<MapFileService>().GetMapFileHash(map),
+      Hash = App.Current.Services.GetRequiredService<MapFileService>().GetMapFileHash(map),//todo 应该由服务器自己决定，而不是让客户端问
       IsLanRoom = true
     };
 
@@ -161,7 +163,7 @@ public class NetServer : NetBase
   /// <summary>
   /// 回应Udp询问房间请求
   /// </summary>
-  private async Task HandleUdpDiscoveryAsync(RoomBaseInfo roomInfo, CancellationToken cancellationToken)
+  private async Task HandleUdpDiscoveryAsync(ServiceInfo roomInfo, CancellationToken cancellationToken)
   {
     using var udpServer = new UdpClient(App.DefaultPort);
 
@@ -169,7 +171,7 @@ public class NetServer : NetBase
     {
       var result = await udpServer.ReceiveAsync(cancellationToken);
 
-      var json = JsonSerializer.Serialize(roomInfo, Models.Json.AppJsonContext.Default.RoomBaseInfo);
+      var json = JsonSerializer.Serialize(roomInfo, Models.Json.AppJsonContext.Default.ServiceInfo);
       var bytes = Encoding.UTF8.GetBytes(json);
 
       await udpServer.SendAsync(bytes, bytes.Length, result.RemoteEndPoint);

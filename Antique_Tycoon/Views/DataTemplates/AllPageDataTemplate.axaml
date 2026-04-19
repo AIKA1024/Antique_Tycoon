@@ -31,5 +31,6 @@
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/SaleAntiqueDialogDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/HireStaffDialogDataTemplate.axaml" />
     <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/PlunderAntiqueDialogDataTemplate.axaml" />
+    <MergeResourceInclude Source="/Views/DataTemplates/DialogDataTemplate/AddServiceDialogDataTemplate.axaml" />
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

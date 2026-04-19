@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dvm="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
+                    xmlns:widgets="clr-namespace:Antique_Tycoon.Views.Widgets"
+                    xmlns:c="clr-namespace:Antique_Tycoon.Views.Controls">
+  <Design.PreviewWith>
+    <ContentControl>
+      <ContentControl.DataTemplates>
+        <StaticResource ResourceKey="AddServiceDialogDataTemplate" />
+      </ContentControl.DataTemplates>
+      <dvm:AddServiceDialogViewModel />
+    </ContentControl>
+  </Design.PreviewWith>
+
+  <DataTemplate x:Key="AddServiceDialogDataTemplate" x:DataType="dvm:AddServiceDialogViewModel">
+    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="4">
+      <StackPanel>
+        <c:McContentControl Header="服务器名称">
+          <TextBox Classes="MCTextbox" PlaceholderText="示例服务器名称"
+                   Text="{Binding ServiceInfo.RoomName}"/>
+        </c:McContentControl>
+        <c:McContentControl Header="服务器地址">
+          <TextBox Classes="MCTextbox" PlaceholderText="IP (1.0.0.1)或 URL(wwu.example.com)"
+                   Text="{Binding ServiceInfo.Address}"/>
+        </c:McContentControl>
+        <c:McContentControl Header="端口">
+          <TextBox Classes="MCTextbox" PlaceholderText="示例服务器名称" 
+                   Text="{Binding ServiceInfo.Port}"/>
+        </c:McContentControl>
+        <c:McContentControl>
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+            <c:McButton Grid.Column="0" Content="取消"
+                        Command="{Binding CancelCommand}"/>
+            <c:McButton Grid.Column="1"
+                        Classes="Confirm"
+                        Content="添加服务器"
+                        Command="{Binding ConfirmCommand}"/>
+          </Grid>
+        </c:McContentControl>
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+</ResourceDictionary>

@@ -13,6 +13,7 @@ using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
+using Antique_Tycoon.Models.Net.Udp;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.ViewModels.DialogViewModels;
 using CommunityToolkit.Mvvm.Messaging;
@@ -34,14 +35,14 @@ public class NetClient : NetBase
     DownloadPath = downloadPath;
   }
 
-  public async Task<RoomBaseInfo> DiscoverRoomAsync()
+  public async Task<ServiceInfo> DiscoverRoomAsync()
   {
     _udpClient.EnableBroadcast = true;
     var bytes = "DiscoverRoom"u8.ToArray();
     await _udpClient.SendAsync(bytes, bytes.Length, "255.255.255.255", App.DefaultPort);
     var result = await _udpClient.ReceiveAsync();
     var json = Encoding.UTF8.GetString(result.Buffer);
-    var roomInfo = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.RoomBaseInfo);
+    var roomInfo = JsonSerializer.Deserialize(json, Models.Json.AppJsonContext.Default.ServiceInfo);
     return roomInfo ?? throw new Exception("Could not deserialize room info");
   }
 
