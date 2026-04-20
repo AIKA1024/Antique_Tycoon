@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ public static class NodeAdornerHost
     var mainGrid = target.GetParentOfType<Grid>("MainGrid");
     if (mainGrid is null)
     {
-      Debug.WriteLine("MainGrid为null，可能是之前地图编辑器还没被gc回收");
+      Console.WriteLine("MainGrid为null，可能是之前地图编辑器还没被gc回收");
       return;
     }
     

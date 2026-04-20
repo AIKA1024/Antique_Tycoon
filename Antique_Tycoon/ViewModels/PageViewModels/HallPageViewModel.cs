@@ -148,7 +148,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     var mapDirPath = Path.Combine(App.Current.DownloadMapPath, Path.GetFileNameWithoutExtension(result.FileName));
     await ZipFile.ExtractToDirectoryAsync(Path.Combine(App.Current.DownloadMapPath, result.FileName), mapDirPath);
     var map = _mapFileService.LoadMap(mapDirPath);
-    var mapHash = _mapFileService.GetMapFileHash(map);
+    // var mapHash = await File.ReadAllTextAsync(Path.Combine(mapDirPath,MapFileService.HashFileName));
 
     var response = await JoinRoomAsync();
     if (response.ResponseStatus != RequestResult.Success)

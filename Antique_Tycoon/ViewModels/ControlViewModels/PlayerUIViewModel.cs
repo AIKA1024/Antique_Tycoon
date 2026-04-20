@@ -68,14 +68,14 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
 
     private void ReceivePlunderAntiqueAction(object recipient, PlunderAntiqueAction message)
     {
-        _actionQueueService.Enqueue(async () =>
+        _actionQueueService.Enqueue(new ActionTaskItem("掠夺古玩", async () =>
         {
             var vm = new PlunderAntiqueDialogViewModel(_gameManager.Players
                 .Where(p => message.PlayerUuids.Any(s => p.Uuid == s)).ToList());
 
             var antique = await _dialogService.ShowDialogAsync(vm);
             await _gameManager.SendToGameServerAsync(new PlunderAntiqueRequest(message.Id, antique?.Uuid ?? ""));
-        });
+        }));
     }
 
     private void ReceiveIHistoryRecord(object recipient, IHistoryRecord message)
@@ -108,13 +108,13 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
 
     private void ReceiveHireStaffAction(object recipient, HireStaffAction message)
     {
-        _actionQueueService.Enqueue(async () =>
+        _actionQueueService.Enqueue(new ActionTaskItem("雇佣伙计", async () =>
         {
             var itemStacks = message.Staffs.GroupBy(s => s.GetType())
                 .Select(group => new ItemStack<IStaff>(group.First(), group.Count())).ToArray();
             var selectStaff = await _dialogService.ShowDialogAsync(new HireStaffDialogViewModel(itemStacks));
             await _gameManager.SendToGameServerAsync(new HireStaffRequest(message.Id, selectStaff?.Uuid ?? ""));
-        });
+        }));
     }
 
     private void NotifyDialogViewModelChanged()
@@ -141,7 +141,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
 
     private void ReceiveBuyEstateAction(object recipient, BuyEstateAction message)
     {
-        _actionQueueService.Enqueue(async () =>
+        _actionQueueService.Enqueue(new ActionTaskItem("购买地产", async () =>
         {
             var estate = (Estate)_gameManager.SelectedMap.EntitiesDict[message.EstateUuid];
             bool isConfirm = await _dialogService.ShowDialogAsync(new MessageDialogViewModel
@@ -156,12 +156,12 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
                 buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
 
             await _gameManager.SendToGameServerAsync(buyEstateRequest);
-        });
+        }));
     }
 
     private void ReceiveSaleAntiqueAction(object recipient, SaleAntiqueAction message)
     {
-        _actionQueueService.Enqueue(async () =>
+        _actionQueueService.Enqueue(new ActionTaskItem("出售古玩", async () =>
         {
             var itemStacks = _gameManager.LocalPlayer.Antiques.GroupBy(a => a.Index)
                 .Select(group => new ItemStack<Antique>(group.First(), group.Count())).OrderBy(s => s.Item.Value)
@@ -176,26 +176,26 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
             else
                 await _gameManager.SendToGameServerAsync(new SaleAntiqueRequest(message.Id,
                     saleAntiqueDetermination.Antique.Uuid, saleAntiqueDetermination.NeedUpgrade));
-        });
+        }));
     }
 
     private void ReceiveAntiqueChanceResponse(object recipient, AntiqueChanceResponse message)
     {
-        _actionQueueService.Enqueue(() =>
+        _actionQueueService.Enqueue(new ActionTaskItem("再次投骰子获取古玩", () =>
         {
             ReminderText = "再次投骰子以获取古玩";
             return Task.CompletedTask;
-        });
+        }));
     }
 
     private void ReceiveRollDiceAction(object recipient, RollDiceAction message)
     {
-        _actionQueueService.Enqueue(() =>
+        _actionQueueService.Enqueue(new ActionTaskItem("投骰子", () =>
         {
             RollButtonEnable = true;
             _rollDiceActionId = message.Id;
             return Task.CompletedTask;
-        });
+        }));
     }
 
     private void ReceiveTurnStartMessage(object sender, TurnStartResponse message)
@@ -211,10 +211,10 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     [RelayCommand]
     private async Task RollDiceAsync()
     {
-        Debug.WriteLine("发起投骰子请求");
+        Console.WriteLine("发起投骰子请求");
         RollButtonEnable = false;
         await _gameManager.SendToGameServerAsync(new RollDiceRequest(_rollDiceActionId));
-        Debug.WriteLine("请求结束");
+        Console.WriteLine("请求结束");
     }
 
     [RelayCommand]
@@ -223,10 +223,10 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
         switch (segment.Type)
         {
             case InteractionType.PlayerName:
-                Debug.WriteLine($"查看玩家: {segment.Data}");
+                Console.WriteLine($"查看玩家: {segment.Data}");
                 break;
             case InteractionType.Antique:
-                Debug.WriteLine($"查看古玩: {segment.Data}");
+                Console.WriteLine($"查看古玩: {segment.Data}");
                 break;
             // ... 其他逻辑
         }

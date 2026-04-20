@@ -66,7 +66,7 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
     }
     catch (OperationCanceledException ex)
     {
-      Debug.WriteLine($"监听房间任务被取消： {ex.Message}");
+      Console.WriteLine($"监听房间任务被取消： {ex.Message}");
       await _dialogService.ShowDialogAsync(new MessageDialogViewModel { Title = "错误", Message = ex.Message });
       App.Current.Services.GetRequiredService<NavigationService>().Back();
     }

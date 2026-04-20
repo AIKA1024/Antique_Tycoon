@@ -1,0 +1,36 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Antique_Tycoon.ViewModels"
+        xmlns:i="clr-namespace:Antique_Tycoon.Behaviors"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Antique_Tycoon.Views.Windows.DebugWindow"
+        x:DataType="viewModels:DebugWindowViewModel"
+        Foreground="White"
+        Title="DebugWindow">
+    <Grid ColumnDefinitions="*,3*">
+        <ListBox ItemsSource="{Binding ActionQueueService.VisibleTasks}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding Name}"/>
+                        <TextBlock Text="{Binding Status}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding Logs}">
+            <ItemsControl.Template>
+                <ControlTemplate>
+                    <ScrollViewer>
+                        <Interaction.Behaviors>
+                            <i:ScrollViewerAutoScrollBehavior />
+                        </Interaction.Behaviors>
+                        <ItemsPresenter />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
+        </ItemsControl>
+    </Grid>
+</Window>

@@ -2,7 +2,9 @@
 using System;
 using System.Threading.Tasks;
 using Antique_Tycoon.Services;
+using Antique_Tycoon.Utilities;
 using Antique_Tycoon.ViewModels.DialogViewModels;
+using Antique_Tycoon.Views.Windows;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;

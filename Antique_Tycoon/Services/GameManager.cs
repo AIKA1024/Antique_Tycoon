@@ -32,291 +32,291 @@ namespace Antique_Tycoon.Services;
 /// </summary>
 public partial class GameManager : ObservableObject //todo 心跳超时逻辑应该在这里
 {
-  private readonly Lazy<NetServer> _netServerLazy; //如果依赖注入后，需要NetServer、NetClient的同时需要GameManager，只需要拿GameManager就行了
-  private readonly Lazy<NetClient> _netClientLazy;
+    private readonly Lazy<NetServer> _netServerLazy; //如果依赖注入后，需要NetServer、NetClient的同时需要GameManager，只需要拿GameManager就行了
+    private readonly Lazy<NetClient> _netClientLazy;
 
-  // private readonly GameRuleService _gameRuleService;
-  private readonly LibVLC _libVlc;
-  private readonly RoleStrategyFactory _strategyFactory;
-  private readonly ActionQueueService _actionQueue;
+    // private readonly GameRuleService _gameRuleService;
+    private readonly LibVLC _libVlc;
+    private readonly RoleStrategyFactory _strategyFactory;
+    private readonly ActionQueueService _actionQueue;
 
-  private readonly MapFileService _mapFileService;
+    private readonly MapFileService _mapFileService;
 
-  private readonly ObservableDictionary<string, Player> _playersByUuid = [];
+    private readonly ObservableDictionary<string, Player> _playersByUuid = [];
 
-  private string _localPlayerUuid;
-  private MediaPlayer sfxPlayer;
-  private Media _turnStartSfx;
+    private string _localPlayerUuid;
+    private MediaPlayer sfxPlayer;
+    private Media _turnStartSfx;
 
-  private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
+    private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
 
-  public List<Antique> Antiques { get; set; } = [];
-  public List<Antique> UnsoldAntiques { get; set; } = [];
-  public List<IStaff> Staffs { get; set; } = [];
+    public List<Antique> Antiques { get; set; } = [];
+    public List<Antique> UnsoldAntiques { get; set; } = [];
+    public List<IStaff> Staffs { get; set; } = [];
 
 
-  public NetServer NetServerInstance => _netServerLazy.Value;
-  public NetClient NetClientInstance => _netClientLazy.Value;
-  public Player LocalPlayer => _playersByUuid[_localPlayerUuid];
-  [ObservableProperty] public partial Map? SelectedMap { get; set; }
-  public string RoomOwnerUuid { get; set; } = "";
-  public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
-  public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
-  public int CurrentTurnPlayerIndex { get; set; }
-  [ObservableProperty] public partial int CurrentRound { get; set; }
+    public NetServer NetServerInstance => _netServerLazy.Value;
+    public NetClient NetClientInstance => _netClientLazy.Value;
+    public Player LocalPlayer => _playersByUuid[_localPlayerUuid];
+    [ObservableProperty] public partial Map? SelectedMap { get; set; }
+    public string RoomOwnerUuid { get; set; } = "";
+    public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;
+    public NotifyCollectionChangedSynchronizedViewList<Player> Players { get; }
+    public int CurrentTurnPlayerIndex { get; set; }
+    [ObservableProperty] public partial int CurrentRound { get; set; }
 
-  [ObservableProperty] public partial bool IsGameOver { get; set; }
+    [ObservableProperty] public partial bool IsGameOver { get; set; }
 
-  [ObservableProperty] public partial Player? Winner { get; set; }
-  public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家 
+    [ObservableProperty] public partial Player? Winner { get; set; }
+    public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家 
 
-  public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
-    LibVLC libVlc, RoleStrategyFactory strategyFactory, ActionQueueService actionQueue)
-  {
-    _netServerLazy = netServerLazy;
-    _netClientLazy = netClientLazy;
-    _mapFileService = mapFileService;
-    _libVlc = libVlc;
-    _strategyFactory = strategyFactory;
-    _actionQueue = actionQueue;
-    sfxPlayer = new MediaPlayer(libVlc);
-    _turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
-    WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
+    public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
+        LibVLC libVlc, RoleStrategyFactory strategyFactory, ActionQueueService actionQueue)
     {
-      if (message.PlayerUuid == LocalPlayer.Uuid)
-        _actionQueue.Enqueue(() =>
+        _netServerLazy = netServerLazy;
+        _netClientLazy = netClientLazy;
+        _mapFileService = mapFileService;
+        _libVlc = libVlc;
+        _strategyFactory = strategyFactory;
+        _actionQueue = actionQueue;
+        sfxPlayer = new MediaPlayer(libVlc);
+        _turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
+        WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
         {
-          sfxPlayer.Play(_turnStartSfx);
-          return Task.CompletedTask;
+            if (message.PlayerUuid == LocalPlayer.Uuid)
+                _actionQueue.Enqueue(new ActionTaskItem("播放回合开始音效", () =>
+                {
+                    sfxPlayer.Play(_turnStartSfx);
+                    return Task.CompletedTask;
+                }));
         });
-    });
-    Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
+        Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
 
-    WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
-    WeakReferenceMessenger.Default.Register<ExitRoomResponse>(this,
-      (_, request) => _playersByUuid.Remove(request.PlayerUuid));
-    //因为要更新其他玩家的信息，所以也要监听这个消息
-    WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
-    WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
-    WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
-    WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
-  }
-
-  private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
-  {
-    var player = GetPlayerByUuid(message.Player.Uuid);
-    player.Antiques = message.Player.Antiques;
-    player.Staffs = message.Player.Staffs;
-    player.Money = message.Player.Money;
-    player.Estates = message.Player.Estates;
-
-    if (player.Antiques.Count == 0)
-      return;
-
-    var imagePath = Path.Combine(SelectedMap!.FilePath, MapFileService.ImageFolderName);
-    foreach (var antique in player.Antiques)
-    {
-      antique.Image.Dispose();
-      antique.Image = new Bitmap(Path.Combine(imagePath, antique.ImageHash));
-    }
-  }
-
-  private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
-  {
-    if (!message.IsSuccess)
-      return;
-    var player = GetPlayerByUuid(message.PlayerUuid);
-    var antique = Antiques.First(a => a.Uuid == message.AntiqueUuid);
-    player.Antiques.Add(antique);
-    Antiques.Remove(antique);
-  }
-
-  private void ReceiveHireStaffResponse(object recipient, HireStaffResponse message)
-  {
-    if (!message.IsSuccess)
-      return;
-    var player = GetPlayerByUuid(message.PlayerUuid);
-    var staff = Staffs.First(s => s.Uuid == message.StaffUuid);
-    player.Staffs.Add(staff);
-    Staffs.Remove(staff);
-  }
-
-  public void Initialize()
-  {
-    SetupLocalPlayer();
-    SetDefaultMap();
-    _netServerLazy.Value.ClientDisConnected += ClientDisConnected;
-  }
-
-  /// <summary>
-  /// 服务器通过心跳发现玩家掉线
-  /// </summary>
-  /// <param name="client">掉线客户端</param>
-  private async void ClientDisConnected(TcpClient client)
-  {
-    var playerUuid = _clientToPlayerId[client];
-    _clientToPlayerId.Remove(client);
-    _playersByUuid.Remove(playerUuid);
-    var exitRoomResponse = new ExitRoomResponse(playerUuid);
-    await NetServerInstance.BroadcastExcept(exitRoomResponse, client);
-    WeakReferenceMessenger.Default.Send(exitRoomResponse);
-  }
-
-  private void ReceiveUpdateRoomResponse(object _, UpdateRoomResponse message)
-  {
-    _playersByUuid.Clear();
-    foreach (var player in message.Players)
-      _playersByUuid[player.Uuid] = player;
-  }
-
-  private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
-  {
-    _actionQueue.Enqueue(async () =>
-    {
-      Player player = GetPlayerByUuid(message.PlayerUuid);
-      string playerCurrentNodeUuid = player.CurrentNodeUuId;
-      NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
-      NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
-      currentModelmodel.PlayersHere.Remove(player);
-      var animationTask = WeakReferenceMessenger.Default.Send(
-        new StartPlayerMoveAnimation(
-          player,
-          message.Path
-        ));
-      player.CurrentNodeUuId = destinationModelmodel.Uuid;
-      await await animationTask.Response; // 等待动画播放完毕
-      destinationModelmodel.PlayersHere.Add(player);
-    });
-  }
-
-  private void SetupLocalPlayer()
-  {
-    var localPlayer = new Player();
-    _localPlayerUuid = localPlayer.Uuid;
-    RoomOwnerUuid = _localPlayerUuid;
-    _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
-  }
-
-  private void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
-
-  public TcpClient? GetClientByPlayerUuid(string uuid) =>
-    _clientToPlayerId.FirstOrDefault(variable => variable.Value == uuid).Key;
-
-  public string GetPlayerUuidByTcpClient(TcpClient client)
-  {
-    if (!IsRoomOwner)
-      throw new InvalidOperationException("客户端不能调用此方法");
-    return _clientToPlayerId[client];
-  }
-
-  public Player GetPlayerByTcpClient(TcpClient client)
-  {
-    return GetPlayerByUuid(GetPlayerUuidByTcpClient(client));
-  }
-
-  public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
-
-  public async Task SendToGameServerAsync(ITcpMessage message)
-  {
-    if (IsRoomOwner)
-    {
-      // 如果我是房主，直接通过回环接口把消息“塞”给服务器
-      NetServerInstance.ReceiveLocalMessage(message);
-      await Task.CompletedTask;
-    }
-    else
-    {
-      // 如果我是客户端，走网络发送
-      await NetClientInstance.SendRequestAsync(message);
-      // 注意：这里可能需要根据 message 类型调整调用，或者让 NetClient 支持通用 Send
-    }
-  }
-
-
-  public async Task StartGameAsync()
-  {
-    var startMessage = new StartGameResponse();
-    await NetServerInstance.Broadcast(startMessage, CancellationToken.None);
-    WeakReferenceMessenger.Default.Send(startMessage);
-    if (!IsRoomOwner)
-      return;
-    CurrentRound = 1;
-    IsGameOver = false;
-    Winner = null;
-    // 初始化所有玩家（从地图配置读取初始金额）
-    foreach (var player in Players)
-    {
-      player.Money = SelectedMap!.StartingCash;
-      player.CurrentNodeUuId = SelectedMap!.SpawnNodeUuid;
+        WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
+        WeakReferenceMessenger.Default.Register<ExitRoomResponse>(this,
+            (_, request) => _playersByUuid.Remove(request.PlayerUuid));
+        //因为要更新其他玩家的信息，所以也要监听这个消息
+        WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
+        WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
+        WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
+        WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
     }
 
-    CurrentTurnPlayerIndex = Random.Shared.Next(Players.Count);
-    // CurrentTurnPlayerIndex = 1;
-    var initGameResponse = new InitGameResponse(
-      Players,
-      CurrentTurnPlayerIndex
-    );
-    await NetServerInstance.Broadcast(initGameResponse);
-    WeakReferenceMessenger.Default.Send(initGameResponse);
-
-    //通知游戏开始
-    CurrentTurnPlayerIndex = (CurrentTurnPlayerIndex + 1) % Players.Count;
-    var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
-    await NetServerInstance.Broadcast(turnStartResponse);
-    WeakReferenceMessenger.Default.Send(turnStartResponse);
-
-    // await Task.Yield(); // 等待各监听事件绑定完成
-  }
-
-  public void ExitRoom()
-  {
-    var exitRoomRequest = new ExitRoomRequest { PlayerUuid = LocalPlayer.Uuid };
-    _ = NetClientInstance.SendRequestAsync(exitRoomRequest);
-  }
-
-  public async Task
-    ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client) //todo 不知道要不要把逻辑移动到JoinRoomHandler里
-  {
-    if (_playersByUuid.Count >= SelectedMap.MaxPlayer)
+    private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
     {
-      var response = new JoinRoomResponse(LocalPlayer.Uuid)
-      {
-        Id = request.Id,
-        Message = "房间已满",
-        ResponseStatus = RequestResult.Reject
-      };
-      await NetServerInstance.SendResponseAsync(response, client);
-    }
-    else
-    {
-      _playersByUuid.TryAdd(request.PlayerUuid, request.Player);
-      var joinRoomResponse = new JoinRoomResponse(LocalPlayer.Uuid) { Id = request.Id };
-      await NetServerInstance.SendResponseAsync(joinRoomResponse, client);
+        var player = GetPlayerByUuid(message.Player.Uuid);
+        player.Antiques = message.Player.Antiques;
+        player.Staffs = message.Player.Staffs;
+        player.Money = message.Player.Money;
+        player.Estates = message.Player.Estates;
 
-      var updateRoomResponse = new UpdateRoomResponse
-      {
-        Id = request.Id,
-        Players = Players
-      };
-      _clientToPlayerId.Add(client, request.PlayerUuid);
-      await NetServerInstance.Broadcast(updateRoomResponse);
-    }
-  }
+        if (player.Antiques.Count == 0)
+            return;
 
-  public async Task DownloadMap(DownloadMapRequest request, TcpClient client)
-  {
-    if (SelectedMap == null)
-    {
-      await NetServerInstance.SendResponseAsync(
-        new DownloadMapResponse { Id = request.Id, ResponseStatus = RequestResult.Error }, client);
-      return;
+        var imagePath = Path.Combine(SelectedMap!.FilePath, MapFileService.ImageFolderName);
+        foreach (var antique in player.Antiques)
+        {
+            antique.Image.Dispose();
+            antique.Image = new Bitmap(Path.Combine(imagePath, antique.ImageHash));
+        }
     }
-    
-    if (_mapFileService.GetMapByHash(SelectedMap.Hash) is { } map)
+
+    private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
     {
-      await NetServerInstance.SendFileAsync(_mapFileService.GetMapFileStream(map),
-        request.Id, $"{_mapFileService.GetMapFileHash(map)}.zip", TcpMessageType.DownloadMapResponse,
-        client);
+        if (!message.IsSuccess)
+            return;
+        var player = GetPlayerByUuid(message.PlayerUuid);
+        var antique = Antiques.First(a => a.Uuid == message.AntiqueUuid);
+        player.Antiques.Add(antique);
+        Antiques.Remove(antique);
     }
-  }
+
+    private void ReceiveHireStaffResponse(object recipient, HireStaffResponse message)
+    {
+        if (!message.IsSuccess)
+            return;
+        var player = GetPlayerByUuid(message.PlayerUuid);
+        var staff = Staffs.First(s => s.Uuid == message.StaffUuid);
+        player.Staffs.Add(staff);
+        Staffs.Remove(staff);
+    }
+
+    public void Initialize()
+    {
+        SetupLocalPlayer();
+        SetDefaultMap();
+        _netServerLazy.Value.ClientDisConnected += ClientDisConnected;
+    }
+
+    /// <summary>
+    /// 服务器通过心跳发现玩家掉线
+    /// </summary>
+    /// <param name="client">掉线客户端</param>
+    private async void ClientDisConnected(TcpClient client)
+    {
+        var playerUuid = _clientToPlayerId[client];
+        _clientToPlayerId.Remove(client);
+        _playersByUuid.Remove(playerUuid);
+        var exitRoomResponse = new ExitRoomResponse(playerUuid);
+        await NetServerInstance.BroadcastExcept(exitRoomResponse, client);
+        WeakReferenceMessenger.Default.Send(exitRoomResponse);
+    }
+
+    private void ReceiveUpdateRoomResponse(object _, UpdateRoomResponse message)
+    {
+        _playersByUuid.Clear();
+        foreach (var player in message.Players)
+            _playersByUuid[player.Uuid] = player;
+    }
+
+    private void ReceivePlayerMoveResponse(object recipient, PlayerMoveResponse message)
+    {
+        _actionQueue.Enqueue(new ActionTaskItem("播放玩家移动动画", async () =>
+        {
+            Player player = GetPlayerByUuid(message.PlayerUuid);
+            string playerCurrentNodeUuid = player.CurrentNodeUuId;
+            NodeModel currentModelmodel = (NodeModel)SelectedMap.EntitiesDict[playerCurrentNodeUuid];
+            NodeModel destinationModelmodel = (NodeModel)SelectedMap.EntitiesDict[message.Path[^1]];
+            currentModelmodel.PlayersHere.Remove(player);
+            var animationTask = WeakReferenceMessenger.Default.Send(
+                new StartPlayerMoveAnimation(
+                    player,
+                    message.Path
+                ));
+            player.CurrentNodeUuId = destinationModelmodel.Uuid;
+            await await animationTask.Response; // 等待动画播放完毕
+            destinationModelmodel.PlayersHere.Add(player);
+        }));
+    }
+
+    private void SetupLocalPlayer()
+    {
+        var localPlayer = new Player();
+        _localPlayerUuid = localPlayer.Uuid;
+        RoomOwnerUuid = _localPlayerUuid;
+        _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);
+    }
+
+    private void SetDefaultMap() => SelectedMap = _mapFileService.GetMaps().FirstOrDefault();
+
+    public TcpClient? GetClientByPlayerUuid(string uuid) =>
+        _clientToPlayerId.FirstOrDefault(variable => variable.Value == uuid).Key;
+
+    public string GetPlayerUuidByTcpClient(TcpClient client)
+    {
+        if (!IsRoomOwner)
+            throw new InvalidOperationException("客户端不能调用此方法");
+        return _clientToPlayerId[client];
+    }
+
+    public Player GetPlayerByTcpClient(TcpClient client)
+    {
+        return GetPlayerByUuid(GetPlayerUuidByTcpClient(client));
+    }
+
+    public Player GetPlayerByUuid(string uuid) => _playersByUuid[uuid];
+
+    public async Task SendToGameServerAsync(ITcpMessage message)
+    {
+        if (IsRoomOwner)
+        {
+            // 如果我是房主，直接通过回环接口把消息“塞”给服务器
+            NetServerInstance.ReceiveLocalMessage(message);
+            await Task.CompletedTask;
+        }
+        else
+        {
+            // 如果我是客户端，走网络发送
+            await NetClientInstance.SendRequestAsync(message);
+            // 注意：这里可能需要根据 message 类型调整调用，或者让 NetClient 支持通用 Send
+        }
+    }
+
+
+    public async Task StartGameAsync()
+    {
+        var startMessage = new StartGameResponse();
+        await NetServerInstance.Broadcast(startMessage, CancellationToken.None);
+        WeakReferenceMessenger.Default.Send(startMessage);
+        if (!IsRoomOwner)
+            return;
+        CurrentRound = 1;
+        IsGameOver = false;
+        Winner = null;
+        // 初始化所有玩家（从地图配置读取初始金额）
+        foreach (var player in Players)
+        {
+            player.Money = SelectedMap!.StartingCash;
+            player.CurrentNodeUuId = SelectedMap!.SpawnNodeUuid;
+        }
+
+        CurrentTurnPlayerIndex = Random.Shared.Next(Players.Count);
+        // CurrentTurnPlayerIndex = 1;
+        var initGameResponse = new InitGameResponse(
+            Players,
+            CurrentTurnPlayerIndex
+        );
+        await NetServerInstance.Broadcast(initGameResponse);
+        WeakReferenceMessenger.Default.Send(initGameResponse);
+
+        //通知游戏开始
+        CurrentTurnPlayerIndex = (CurrentTurnPlayerIndex + 1) % Players.Count;
+        var turnStartResponse = new TurnStartResponse { PlayerUuid = CurrentTurnPlayer.Uuid };
+        await NetServerInstance.Broadcast(turnStartResponse);
+        WeakReferenceMessenger.Default.Send(turnStartResponse);
+
+        // await Task.Yield(); // 等待各监听事件绑定完成
+    }
+
+    public void ExitRoom()
+    {
+        var exitRoomRequest = new ExitRoomRequest { PlayerUuid = LocalPlayer.Uuid };
+        _ = NetClientInstance.SendRequestAsync(exitRoomRequest);
+    }
+
+    public async Task
+        ReceiveJoinRoomRequest(JoinRoomRequest request, TcpClient client) //todo 不知道要不要把逻辑移动到JoinRoomHandler里
+    {
+        if (_playersByUuid.Count >= SelectedMap.MaxPlayer)
+        {
+            var response = new JoinRoomResponse(LocalPlayer.Uuid)
+            {
+                Id = request.Id,
+                Message = "房间已满",
+                ResponseStatus = RequestResult.Reject
+            };
+            await NetServerInstance.SendResponseAsync(response, client);
+        }
+        else
+        {
+            _playersByUuid.TryAdd(request.PlayerUuid, request.Player);
+            var joinRoomResponse = new JoinRoomResponse(LocalPlayer.Uuid) { Id = request.Id };
+            await NetServerInstance.SendResponseAsync(joinRoomResponse, client);
+
+            var updateRoomResponse = new UpdateRoomResponse
+            {
+                Id = request.Id,
+                Players = Players
+            };
+            _clientToPlayerId.Add(client, request.PlayerUuid);
+            await NetServerInstance.Broadcast(updateRoomResponse);
+        }
+    }
+
+    public async Task DownloadMap(DownloadMapRequest request, TcpClient client)
+    {
+        if (SelectedMap == null)
+        {
+            await NetServerInstance.SendResponseAsync(
+                new DownloadMapResponse { Id = request.Id, ResponseStatus = RequestResult.Error }, client);
+            return;
+        }
+
+        if (_mapFileService.GetMapByHash(SelectedMap.Hash) is { } map)
+        {
+            await NetServerInstance.SendFileAsync(_mapFileService.GetMapFileStream(map),
+                request.Id, $"{_mapFileService.GetMapFileHash(map)}.zip", TcpMessageType.DownloadMapResponse,
+                client);
+        }
+    }
 }

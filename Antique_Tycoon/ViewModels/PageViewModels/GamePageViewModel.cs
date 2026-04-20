@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
@@ -17,79 +18,80 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class GamePageViewModel : PageViewModelBase
 {
-  [ObservableProperty] private Map _map;
+    [ObservableProperty] private Map _map;
 
-  private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+    private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
 
-  private readonly ActionQueueService _actionQueue = App.Current.Services.GetRequiredService<ActionQueueService>();
+    private readonly ActionQueueService _actionQueue = App.Current.Services.GetRequiredService<ActionQueueService>();
 
-  // private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
-  private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
-  [ObservableProperty] private int _rollDiceValue;
+    // private readonly GameRuleService _gameRuleService = App.Current.Services.GetRequiredService<GameRuleService>();
+    private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
+    [ObservableProperty] private int _rollDiceValue;
 
-  public GamePageViewModel(Map map)
-  {
-    Map = map;
-    foreach (var player in _gameManager.Players)
-      Map.SpawnNode.PlayersHere.Add(player);
-
-    // WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
-    WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameMessage);
-    WeakReferenceMessenger.Default.Register<RollDiceResponse>(this, ReceiveRollDiceMessage);
-    WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
-    WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
-  }
-
-
-  private async void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
-  {
-    _actionQueue.Enqueue(async () =>
-      {
-        string selectedNodeUuid = await WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(message.Destinations,
-          Map)).Response; //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
-        await _gameManager.SendToGameServerAsync(new SelectDestinationRequest(message.Id, selectedNodeUuid));
-      });
-  }
-
-
-  private void ReceiveInitGameMessage(object sender, InitGameResponse message)
-  {
-    foreach (var localPlayerData in _gameManager.Players)
+    public GamePageViewModel(Map map)
     {
-      foreach (var remotePlayerData in message.Players)
-      {
-        if (localPlayerData.Uuid != remotePlayerData.Uuid) continue;
-        localPlayerData.CurrentNodeUuId = remotePlayerData.CurrentNodeUuId;
-        localPlayerData.Money = remotePlayerData.Money;
-      }
+        Map = map;
+        foreach (var player in _gameManager.Players)
+            Map.SpawnNode.PlayersHere.Add(player);
+
+        // WeakReferenceMessenger.Default.Register<NodeClickedMessage>(this, ReceiveNodeClicked);
+        WeakReferenceMessenger.Default.Register<InitGameResponse>(this, ReceiveInitGameMessage);
+        WeakReferenceMessenger.Default.Register<RollDiceResponse>(this, ReceiveRollDiceMessage);
+        WeakReferenceMessenger.Default.Register<UpdateEstateInfoResponse>(this, ReceiveUpdateEstateInfoMessage);
+        WeakReferenceMessenger.Default.Register<SelectDestinationAction>(this, ReceiveSelectDestinationAction);
     }
 
-    //其实应该也通过服务器发送的，但现在也能用
-    _gameManager.Antiques = _gameManager.SelectedMap.Antiques.ToList();
-    _gameManager.Staffs = _gameManager.SelectedMap.Staffs.ToList();
-  }
 
-  private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)
-  {
-    Debug.WriteLine("收到骰子消息");
-    if (message.ResponseStatus != RequestResult.Success)
+    private async void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
     {
-      await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-      {
-        Title = "错误",
-        Message = "投骰子失败，可能现在还没轮到你"
-      });
+        _actionQueue.Enqueue(new ActionTaskItem("选择目的地", async () =>
+        {
+            string selectedNodeUuid = await WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(
+                message.Destinations,
+                Map)).Response; //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
+            await _gameManager.SendToGameServerAsync(new SelectDestinationRequest(message.Id, selectedNodeUuid));
+        }));
     }
-    else
-      RollDiceValue = message.DiceValue;
-  }
 
-  private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoResponse message)
-  {
-    var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
-    estate.Owner = _gameManager.GetPlayerByUuid(message.OwnerUuid);
-    estate.CurrentLevel = message.Level;
-    if (estate.CurrentLevel == 1)
-      _gameManager.GetPlayerByUuid(message.OwnerUuid).Estates.Add(estate);
-  }
+
+    private void ReceiveInitGameMessage(object sender, InitGameResponse message)
+    {
+        foreach (var localPlayerData in _gameManager.Players)
+        {
+            foreach (var remotePlayerData in message.Players)
+            {
+                if (localPlayerData.Uuid != remotePlayerData.Uuid) continue;
+                localPlayerData.CurrentNodeUuId = remotePlayerData.CurrentNodeUuId;
+                localPlayerData.Money = remotePlayerData.Money;
+            }
+        }
+
+        //其实应该也通过服务器发送的，但现在也能用
+        _gameManager.Antiques = _gameManager.SelectedMap.Antiques.ToList();
+        _gameManager.Staffs = _gameManager.SelectedMap.Staffs.ToList();
+    }
+
+    private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)
+    {
+        Console.WriteLine("收到骰子消息");
+        if (message.ResponseStatus != RequestResult.Success)
+        {
+            await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+            {
+                Title = "错误",
+                Message = "投骰子失败，可能现在还没轮到你"
+            });
+        }
+        else
+            RollDiceValue = message.DiceValue;
+    }
+
+    private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoResponse message)
+    {
+        var estate = (Estate)Map.EntitiesDict[message.EstateUuid];
+        estate.Owner = _gameManager.GetPlayerByUuid(message.OwnerUuid);
+        estate.CurrentLevel = message.Level;
+        if (estate.CurrentLevel == 1)
+            _gameManager.GetPlayerByUuid(message.OwnerUuid).Estates.Add(estate);
+    }
 }

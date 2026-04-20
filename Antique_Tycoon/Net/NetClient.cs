@@ -120,7 +120,7 @@ public class NetClient : NetBase
     if (baseMsg is IHistoryRecord historyRecord)
     {
       WeakReferenceMessenger.Default.Send(historyRecord);
-      Debug.Print("收到IHistoryRecord");
+      Console.WriteLine("收到IHistoryRecord");
     }
 
     if (baseMsg == null)
