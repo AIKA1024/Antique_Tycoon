@@ -15,8 +15,13 @@
   </Design.PreviewWith>
 
   <DataTemplate x:Key="PlunderAntiqueDialogDataTemplate" x:DataType="dvm:PlunderAntiqueDialogViewModel">
-
-    <c:MasterDetailView ItemsSource="{Binding Players}"
+    <Grid RowDefinitions="Auto,*" RowSpacing="8">
+      <TextBlock Grid.Row="0"
+                 HorizontalAlignment="Center"
+                 Text="{Binding Title}"
+                 FontSize="24"/>
+      
+      <c:MasterDetailView Grid.Row="1" ItemsSource="{Binding Players}"
                         SelectedItem="{Binding SelectedPlayer,Mode=OneWayToSource}">
       <c:MasterDetailView.ListBoxItemTemplate>
         <DataTemplate x:DataType="models:Player">
@@ -131,6 +136,9 @@
         </Grid>
       </c:MasterDetailView.DetailFoot>
     </c:MasterDetailView>
+    </Grid>
+
+    
 
   </DataTemplate>
 </ResourceDictionary>

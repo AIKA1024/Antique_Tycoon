@@ -16,86 +16,93 @@
     </Design.PreviewWith>
 
     <DataTemplate x:Key="SaleAntiqueDialogDataTemplate" x:DataType="dvm:SaleAntiqueDialogViewModel">
+        <Grid RowDefinitions="Auto,*" RowSpacing="8">
+            <TextBlock Grid.Row="0"
+                       HorizontalAlignment="Center"
+                       Text="{Binding Title}"
+                       FontSize="24" />
 
-        <c:MasterDetailView ItemsSource="{Binding AntiqueStacks}"
-                            SelectedItem="{Binding SelectedStack,Mode=OneWayToSource}">
-            <c:MasterDetailView.ListBoxItemTemplate>
-                <DataTemplate>
-                    <DataTemplate.DataType>
-                        <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
-                    </DataTemplate.DataType>
-                    <StackPanel>
-                        <Panel>
-                            <Border
-                                Padding="32 16"
-                                Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}">
-                                <StackPanel Orientation="Horizontal" Spacing="32" TextElement.Foreground="White">
-                                    <Panel>
-                                        <Image Source="{Binding Item.Image}" Width="48" />
-                                        <TextBlock Text="{Binding Amount}"
-                                                   FontSize="24"
-                                                   HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                            <TextBlock.RenderTransform>
-                                                <TranslateTransform Y="4" />
-                                            </TextBlock.RenderTransform>
-                                            <TextBlock.Effect>
-                                                <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
-                                                                  OffsetY="2" />
-                                            </TextBlock.Effect>
-                                        </TextBlock>
-                                    </Panel>
+            <c:MasterDetailView Grid.Row="1" ItemsSource="{Binding AntiqueStacks}"
+                                SelectedItem="{Binding SelectedStack,Mode=OneWayToSource}">
+                <c:MasterDetailView.ListBoxItemTemplate>
+                    <DataTemplate>
+                        <DataTemplate.DataType>
+                            <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
+                        </DataTemplate.DataType>
+                        <StackPanel>
+                            <Panel>
+                                <Border
+                                    Padding="32 16"
+                                    Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="32" TextElement.Foreground="White">
+                                        <Panel>
+                                            <Image Source="{Binding Item.Image}" Width="48" />
+                                            <TextBlock Text="{Binding Amount}"
+                                                       FontSize="24"
+                                                       HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                <TextBlock.RenderTransform>
+                                                    <TranslateTransform Y="4" />
+                                                </TextBlock.RenderTransform>
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
+                                                                      OffsetY="2" />
+                                                </TextBlock.Effect>
+                                            </TextBlock>
+                                        </Panel>
 
-                                    <StackPanel Spacing="8">
-                                        <TextBlock Text="{Binding Item.Name}" FontWeight="Black" FontSize="16">
-                                            <TextBlock.Effect>
-                                                <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0"
-                                                                  OffsetY="0" />
-                                            </TextBlock.Effect>
-                                        </TextBlock>
-                                        <TextBlock Text="{Binding Item.Value}" FontWeight="Black" FontSize="12">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="{Binding Item.Name}" FontWeight="Black" FontSize="16">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
+                                                                      OffsetX="0"
+                                                                      OffsetY="0" />
+                                                </TextBlock.Effect>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Item.Value}" FontWeight="Black" FontSize="12">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1"
+                                                                      OffsetX="0"
+                                                                      OffsetY="0" />
+                                                </TextBlock.Effect>
+                                            </TextBlock>
+                                        </StackPanel>
+
+                                        <TextBlock Text="{Binding Item.FlavorText}">
                                             <TextBlock.Effect>
                                                 <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0"
                                                                   OffsetY="0" />
                                             </TextBlock.Effect>
                                         </TextBlock>
                                     </StackPanel>
+                                </Border>
+                            </Panel>
+                            <Panel>
+                                <Rectangle Classes="BottomRect"
+                                           VerticalAlignment="Bottom"
+                                           Fill="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}" />
+                                <Border Background="#80000000" />
+                            </Panel>
+                        </StackPanel>
 
-                                    <TextBlock Text="{Binding Item.FlavorText}">
-                                        <TextBlock.Effect>
-                                            <DropShadowEffect Color="Black" BlurRadius="2" Opacity="1" OffsetX="0"
-                                                              OffsetY="0" />
-                                        </TextBlock.Effect>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>
-                        </Panel>
-                        <Panel>
-                            <Rectangle Classes="BottomRect"
-                                       VerticalAlignment="Bottom"
-                                       Fill="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}" />
-                            <Border Background="#80000000" />
-                        </Panel>
-                    </StackPanel>
+                    </DataTemplate>
+                </c:MasterDetailView.ListBoxItemTemplate>
+                <c:MasterDetailView.DetailFoot>
+                    <Grid ColumnDefinitions="*,Auto" Margin="0 16 0 0"
+                          ColumnSpacing="16">
+                        <c:McButton Grid.Column="0"
+                                    Classes="Danger"
+                                    Content="不出售"
+                                    HorizontalAlignment="Left"
+                                    Command="{Binding CancelCommand}" />
 
-                </DataTemplate>
-            </c:MasterDetailView.ListBoxItemTemplate>
-            <c:MasterDetailView.DetailFoot>
-                <Grid ColumnDefinitions="*,Auto" Margin="0 16 0 0"
-                      ColumnSpacing="16">
-                    <c:McButton Grid.Column="0"
-                                Classes="Danger"
-                                Content="不出售"
-                                HorizontalAlignment="Left"
-                                Command="{Binding CancelCommand}"/>
-
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
-                        <c:McButton Content="以原价出售，升级地产" Command="{Binding SellAndUpgradeCommand}"
-                                    IsVisible="{Binding CanUpUpgradeEstate}"/>
-                        <c:McButton Classes="Confirm" Content="收取额外收益出售" Command="{Binding SellAndHarvestCommand}" />
-                    </StackPanel>
-                </Grid>
-            </c:MasterDetailView.DetailFoot>
-        </c:MasterDetailView>
-
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                            <c:McButton Content="以原价出售，升级地产" Command="{Binding SellAndUpgradeCommand}"
+                                        IsVisible="{Binding CanUpUpgradeEstate}" />
+                            <c:McButton Classes="Confirm" Content="收取额外收益出售" Command="{Binding SellAndHarvestCommand}" />
+                        </StackPanel>
+                    </Grid>
+                </c:MasterDetailView.DetailFoot>
+            </c:MasterDetailView>
+        </Grid>
     </DataTemplate>
 </ResourceDictionary>

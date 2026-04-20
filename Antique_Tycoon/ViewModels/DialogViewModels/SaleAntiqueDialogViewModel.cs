@@ -12,6 +12,7 @@ namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
 public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<SaleAntiqueDetermination?>
 {
+  public string Title { get; set; }
   private readonly SoundService _soundService = App.Current.Services.GetRequiredService<SoundService>();
   public List<ItemStack<Antique>> AntiqueStacks { get; }
   [ObservableProperty] public partial ItemStack<Antique>? SelectedStack { get; set; }
@@ -20,8 +21,9 @@ public partial class SaleAntiqueDialogViewModel : DialogViewModelBase<SaleAntiqu
 
   private bool CanSell() => SelectedStack != null;
   
-  public SaleAntiqueDialogViewModel(List<ItemStack<Antique>> antiqueStacks,bool canUpUpgradeEstate)
+  public SaleAntiqueDialogViewModel(string title,List<ItemStack<Antique>> antiqueStacks,bool canUpUpgradeEstate)
   {
+    Title = title;
     AntiqueStacks = antiqueStacks;
     HorizontalAlignment = HorizontalAlignment.Stretch;
     VerticalAlignment = VerticalAlignment.Stretch;

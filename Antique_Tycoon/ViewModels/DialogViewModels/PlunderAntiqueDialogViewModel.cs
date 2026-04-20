@@ -10,13 +10,15 @@ namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
 public partial class PlunderAntiqueDialogViewModel:DialogViewModelBase<Antique?>
 {
+  public string Title { get; set; }
   public List<Player> Players { get; }
   [ObservableProperty] public partial Player? SelectedPlayer { get; set; }
   [ObservableProperty] public partial List<ItemStack<Antique>> SelectedPlayerAntiqueStack { get; set; } = [];
   [ObservableProperty] public partial ItemStack<Antique>? SelectedStack { get; set; }
 
-  public PlunderAntiqueDialogViewModel(List<Player> players)
+  public PlunderAntiqueDialogViewModel(string title,List<Player> players)
   {
+    Title = title;
     Players = players;
     HorizontalAlignment = HorizontalAlignment.Stretch;
     VerticalAlignment = VerticalAlignment.Stretch;
