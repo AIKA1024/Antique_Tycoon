@@ -22,7 +22,7 @@ public class MapFileService
   public const string JsonFileName = "Map.json";
   public const string HashFileName = "Hash.txt";
   private Dictionary<string, Map>? _mapsDictionary;
-  private (string Hash, MemoryStream? Stream) _mapStream;
+  private (string Hash, byte[]? Data) _mapCache;
 
   public List<Map> GetMaps()
   {
@@ -74,7 +74,11 @@ public class MapFileService
 
   public void UnloadMap(Map map)
   {
-    //todo 卸载资源
+    map.Cover.Dispose();
+    foreach(var entity in map.Entities.OfType<NodeModel>())
+    {
+      entity.Image.Dispose();
+    }
   }
 
   //计算哈希是费时的操作，所以只在创建房间时计算对应地图文件的哈希值，json中图片使用了uuid命名，因此json的哈希值也有唯一性
@@ -86,7 +90,6 @@ public class MapFileService
 
   /// <summary>
   /// 获得地图文件的流
-  /// 返回的流由内部处理，不需要手动释放
   /// </summary>
   /// <param name="map">地图</param>
   /// <returns>内存流</returns>
@@ -94,22 +97,16 @@ public class MapFileService
   {
     var mapHash = GetMapFileHash(map);
 
-    // 检查缓存，如果哈希匹配，直接返回缓存的流
-    if (!string.IsNullOrEmpty(_mapStream.Hash) && _mapStream.Hash == mapHash)
+    if (_mapCache.Hash == mapHash && _mapCache.Data != null)
     {
-      // 确保流的位置重置为0，以便可以从头开始读取
-      _mapStream.Stream.Position = 0;
-      return _mapStream.Stream;
+      return new MemoryStream(_mapCache.Data); // 每次返回新流，但数据共用
     }
 
-    // 清理旧的流，确保资源被释放
-    _mapStream.Stream?.Dispose();
-
-    var memoryStream = new MemoryStream();
+    using var ms = new MemoryStream();
 
     // 使用 using 块确保 ZipArchive 被正确释放，
     // 这也会确保 MemoryStream 的内容被完全写入
-    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+    using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, true))
     {
       var folderPath = Path.Combine(App.Current.MapPath, map.Name);
       foreach (var filePath in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories))
@@ -119,13 +116,8 @@ public class MapFileService
       }
     }
 
-    // 更新缓存
-    _mapStream.Hash = mapHash;
-    _mapStream.Stream = memoryStream;
-
-    // 重置流的位置，以便调用者可以从头开始读取
-    memoryStream.Position = 0;
-    return memoryStream;
+    _mapCache = (mapHash, ms.ToArray()); // 缓存字节数组
+    return new MemoryStream(_mapCache.Data);
   }
 
   public void UpdateMapDictionary()
