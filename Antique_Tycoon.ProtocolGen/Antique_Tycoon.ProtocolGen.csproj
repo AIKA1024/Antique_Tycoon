@@ -10,6 +10,12 @@
         <PublishTrimmed>false</PublishTrimmed>
         <PublishAot>false</PublishAot>
         <IsAotCompatible>false</IsAotCompatible>
+        <Configurations>Debug;Release;Debug发布</Configurations>
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug发布' ">
+      <DefineConstants>TRACE DEBUG</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

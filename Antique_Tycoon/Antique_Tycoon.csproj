@@ -11,6 +11,8 @@
         <AssemblyName>Antique_Tycoon</AssemblyName>
         <ApplicationIcon>Assets\Image\Logo.ico</ApplicationIcon>
         <LangVersion>preview</LangVersion>
+        <Configurations>Debug;Release;Debug发布</Configurations>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -20,6 +22,10 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <PublishAot>true</PublishAot>
         <UseNativeAot>true</UseNativeAot>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug发布' ">
+      <DefineConstants>TRACE DEBUG</DefineConstants>
+      <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
     <PropertyGroup Label="Avalonia">
         <AvaloniaXamlVerboseExceptions>False</AvaloniaXamlVerboseExceptions>

@@ -25,100 +25,127 @@ public abstract class NetBase
         var stream = client.GetStream();
         var buffer = new byte[8192]; // 网络读缓冲
         var memory = new MemoryStream(); // 存储未处理数据
-
-        while (!cancellationToken.IsCancellationRequested)
+        try
         {
-            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
-            if (bytesRead == 0)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                Console.WriteLine("连接已关闭");
-                break;
-            }
-
-            // 写入 MemoryStream
-            memory.Position = memory.Length; // 移到末尾
-            memory.Write(buffer, 0, bytesRead);
-            memory.Position = 0; // 从头开始解析
-
-            while (true)
-            {
-                if (memory.Length - memory.Position < 4)
-                    break; // 长度不足，等待更多数据
-
-                // 读取包长（不包含外层4字节长度本身）
-                byte[] lenBytes = new byte[4];
-                await memory.ReadExactlyAsync(lenBytes, 0, 4, cancellationToken);
-                int messageLength = BitConverter.ToInt32(lenBytes, 0);
-
-                if (memory.Length - memory.Position < messageLength)
+                int bytesRead;
+                try
                 {
-                    // 包体不完整，回退4字节长度
-                    memory.Position -= 4;
+                    bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                }
+                catch (IOException)
+                {
+                    Console.WriteLine("读取流异常，连接可能已意外断开");
+                    break; // 退出循环，执行清理逻辑
+                }
+                catch (SocketException)
+                {
+                    Console.WriteLine("Socket异常，连接已断开");
                     break;
                 }
 
-                // 读取完整包体
-                byte[] messageBytes = new byte[messageLength];
-                await memory.ReadExactlyAsync(messageBytes, 0, messageLength, cancellationToken);
-
-                // 解析 type
-                TcpMessageType type = (TcpMessageType)BitConverter.ToUInt16(messageBytes, 0);
-
-                if (type != TcpMessageType.HeartbeatMessage)
-                    Console.WriteLine($"收到消息 type={type}");
-
-                switch (type)
+                if (bytesRead == 0)
                 {
-                    case TcpMessageType.DownloadMapResponse:
-                        // 文件块处理，顺序、乱序都可
-                        var header = FilePacketHeader.Deserialize(messageBytes, out var headerSize);
-
-                        var data = new byte[header.DataLength];
-                        Array.Copy(messageBytes, headerSize, data, 0, header.DataLength);
-
-                        // 调用虚方法，传递必要字段
-                        _ = ReceiveFileChunkAsync(
-                          header.Uuid,
-                          header.FileName,
-                          header.ChunkIndex,
-                          header.TotalChunks,
-                          data
-                        ).ContinueWith(t =>
-                        {
-                            if (t.Exception != null)
-                                Console.WriteLine($"ReceiveFileChunkAsync failed: {t.Exception}");
-                        }, TaskContinuationOptions.OnlyOnFaulted);
-
-                        break;
-
-                    default:
-                        // 普通 JSON 消息
-                        var json = Encoding.UTF8.GetString(messageBytes, 2, messageBytes.Length - 2);
-                        _ = ProcessMessageAsync(type, json, client).ContinueWith(t =>
-                        {
-                            if (t.Exception != null)
-                            {
-                                Console.WriteLine($"ProcessMessageAsync failed: {t.Exception}");
-                                throw t.Exception;
-                            }
-                        }, TaskContinuationOptions.OnlyOnFaulted);
-                        break;
+                    Console.WriteLine("客户端主动关闭了连接");
+                    break;
                 }
-            }
 
-            // 保存剩余未解析数据
-            if (memory.Position < memory.Length)
-            {
-                var leftover = memory.ToArray()[(int)memory.Position..];
-                memory.SetLength(0);
-                memory.Write(leftover, 0, leftover.Length);
-            }
-            else
-            {
-                memory.SetLength(0);
-            }
+                // 写入 MemoryStream
+                memory.Position = memory.Length; // 移到末尾
+                memory.Write(buffer, 0, bytesRead);
+                memory.Position = 0; // 从头开始解析
 
-            memory.Position = 0;
+                while (true)
+                {
+                    if (memory.Length - memory.Position < 4)
+                        break; // 长度不足，等待更多数据
+
+                    // 读取包长（不包含外层4字节长度本身）
+                    byte[] lenBytes = new byte[4];
+                    await memory.ReadExactlyAsync(lenBytes, 0, 4, cancellationToken);
+                    int messageLength = BitConverter.ToInt32(lenBytes, 0);
+
+                    if (memory.Length - memory.Position < messageLength)
+                    {
+                        // 包体不完整，回退4字节长度
+                        memory.Position -= 4;
+                        break;
+                    }
+
+                    // 读取完整包体
+                    byte[] messageBytes = new byte[messageLength];
+                    await memory.ReadExactlyAsync(messageBytes, 0, messageLength, cancellationToken);
+
+                    // 解析 type
+                    TcpMessageType type = (TcpMessageType)BitConverter.ToUInt16(messageBytes, 0);
+
+                    if (type != TcpMessageType.HeartbeatMessage)
+                        Console.WriteLine($"收到消息 type={type}");
+
+                    switch (type)
+                    {
+                        case TcpMessageType.DownloadMapResponse:
+                            // 文件块处理，顺序、乱序都可
+                            var header = FilePacketHeader.Deserialize(messageBytes, out var headerSize);
+
+                            var data = new byte[header.DataLength];
+                            Array.Copy(messageBytes, headerSize, data, 0, header.DataLength);
+
+                            // 调用虚方法，传递必要字段
+                            _ = ReceiveFileChunkAsync(
+                                header.Uuid,
+                                header.FileName,
+                                header.ChunkIndex,
+                                header.TotalChunks,
+                                data
+                            ).ContinueWith(t =>
+                            {
+                                if (t.Exception != null)
+                                    Console.WriteLine($"ReceiveFileChunkAsync failed: {t.Exception}");
+                            }, TaskContinuationOptions.OnlyOnFaulted);
+
+                            break;
+
+                        default:
+                            // 普通 JSON 消息
+                            var json = Encoding.UTF8.GetString(messageBytes, 2, messageBytes.Length - 2);
+                            _ = ProcessMessageAsync(type, json, client).ContinueWith(t =>
+                            {
+                                if (t.Exception != null)
+                                {
+                                    Console.WriteLine($"ProcessMessageAsync failed: {t.Exception}");
+                                    throw t.Exception;
+                                }
+                            }, TaskContinuationOptions.OnlyOnFaulted);
+                            break;
+                    }
+                }
+
+                // 保存剩余未解析数据
+                if (memory.Position < memory.Length)
+                {
+                    var leftover = memory.ToArray()[(int)memory.Position..];
+                    memory.SetLength(0);
+                    memory.Write(leftover, 0, leftover.Length);
+                }
+                else
+                {
+                    memory.SetLength(0);
+                }
+
+                memory.Position = 0;
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ReceiveLoop 发生严重错误: {ex}");
+        }
+        finally
+        {
+            // 触发断开事件，客户端可以在这里写自动重连逻辑，服务端可以在这里清理玩家
+            OnConnectionLost(client);
         }
     }
 
@@ -211,4 +238,8 @@ public abstract class NetBase
     }
 
     protected abstract Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client);
+    protected virtual void OnConnectionLost(TcpClient client) 
+    {
+        client.Close();
+    }
 }

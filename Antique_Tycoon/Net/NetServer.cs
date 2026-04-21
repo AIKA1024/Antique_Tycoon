@@ -40,7 +40,7 @@ public class NetServer : NetBase
   public TimeSpan DisconnectTimeout { get; set; } = TimeSpan.FromSeconds(15);
 #endif
 
-  public event Action<TcpClient> ClientDisConnected;
+  public event Action<TcpClient>? ClientDisConnected;
 
   /// <summary>
   /// 心跳包间隔
@@ -126,13 +126,22 @@ public class NetServer : NetBase
 
   private void CheckOutlineClient()
   {
+    var disconnectedClients = new List<TcpClient>();
+
     foreach (var kv in _clientLastActiveTimes)
     {
       long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-      if (!(now - kv.Value > DisconnectTimeout.TotalMilliseconds)) continue;
-      kv.Key.Close();
-      _clientLastActiveTimes.Remove(kv.Key);
-      ClientDisConnected?.Invoke(kv.Key);
+      if (now - kv.Value > DisconnectTimeout.TotalMilliseconds)
+      {
+        disconnectedClients.Add(kv.Key);
+      }
+    }
+
+    // 统一调用收口方法
+    foreach (var client in disconnectedClients)
+    {
+      Console.WriteLine("玩家心跳超时，准备踢出...");
+      OnConnectionLost(client);
     }
   }
 
@@ -271,21 +280,17 @@ public class NetServer : NetBase
       }
       catch (Exception e)
       {
-        switch (e)
+        if (e is SocketException or InvalidOperationException or IOException)
         {
-          case SocketException s:
-          case InvalidOperationException i:
-            Console.WriteLine(e);
-            Console.WriteLine("连接已断开");
-            _clientLastActiveTimes.Remove(client);
-            client.Close();
-            ClientDisConnected?.Invoke(client);
-            break;
-          default:
-            throw;
+          Console.WriteLine("广播时发现连接已断开");
+          // 统一交给收口方法处理
+          OnConnectionLost(client);
         }
+        else
+          throw;
       }
   }
+
 
   public async Task BroadcastExcept<T>(T message, TcpClient excluded, CancellationToken cancellationToken = default)
     where T : ResponseBase
@@ -333,5 +338,31 @@ public class NetServer : NetBase
       Console.WriteLine($"未定义{tcpMessageType}的处理方式");
 
     _clientLastActiveTimes[client] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+  }
+
+  protected override void OnConnectionLost(TcpClient client)
+  {
+    // 1. 加锁或使用并发字典的安全移除，防止多线程同时触发（比如读写同时报错）
+    if (!_clientLastActiveTimes.Remove(client, out _))
+    {
+      return; // 如果已经被清理过了，直接拦截，防止事件双重触发
+    }
+
+    try
+    {
+      // 2. 安全关闭连接
+      if (client.Connected)
+      {
+        client.Close();
+      }
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"关闭客户端时发生异常: {ex.Message}");
+    }
+
+    // 3. 触发外部事件，通知业务层（例如让玩家在房间里显示为“掉线”状态）
+    ClientDisConnected?.Invoke(client);
+    Console.WriteLine("客户端已彻底清理并断开。");
   }
 }

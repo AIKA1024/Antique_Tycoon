@@ -70,7 +70,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     {
         _actionQueueService.Enqueue(new ActionTaskItem("掠夺古玩", async () =>
         {
-            var vm = new PlunderAntiqueDialogViewModel("选择一个玩家,顺走他的古玩", _gameManager.Players
+            var vm = new PlunderAntiqueDialogViewModel("选择一个玩家古玩，尝试顺走他的古玩", _gameManager.Players
                 .Where(p => message.PlayerUuids.Any(s => p.Uuid == s)).ToList());
 
             var antique = await _dialogService.ShowDialogAsync(vm);
@@ -169,7 +169,7 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
             var estate = (Estate)_gameManager.SelectedMap.EntitiesDict[message.EstateUuid];
             string title = string.IsNullOrEmpty(message.BuyerUuid)
                 ? $"你路过了自己的{estate.Title},可以出售古玩"
-                : $"{_gameManager.GetPlayerByUuid(message.BuyerUuid)}路过了你的{estate.Title},可以出售古玩";
+                : $"{_gameManager.GetPlayerByUuid(message.BuyerUuid).Name}路过了你的{estate.Title},可以出售古玩";
             var saleAntiqueDialogViewModel =
                 new SaleAntiqueDialogViewModel(title,itemStacks, estate.CurrentLevel < estate.RevenueModifiers.Count)
                     { IsLightDismissEnabled = false };

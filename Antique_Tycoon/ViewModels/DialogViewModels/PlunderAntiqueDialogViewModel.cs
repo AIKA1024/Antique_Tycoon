@@ -29,7 +29,8 @@ public partial class PlunderAntiqueDialogViewModel:DialogViewModelBase<Antique?>
     if (value == null)
       return;
     SelectedPlayerAntiqueStack = value.Antiques.GroupBy(a => a.Index)
-      .Select(group => new ItemStack<Antique>(group.First(), group.Count())).ToList();
+      .Select(group => new ItemStack<Antique>(group.First(), group.Count()))
+      .OrderBy(stack=>stack.Item.Dice).ToList();
     if (SelectedPlayerAntiqueStack.Count >0)
       SelectedStack = SelectedPlayerAntiqueStack[0];
   }

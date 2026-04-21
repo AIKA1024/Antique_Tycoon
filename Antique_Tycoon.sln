@@ -8,15 +8,20 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug发布|Any CPU = Debug发布|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C555338F-3321-49BE-BCDB-03B3400BF599}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C555338F-3321-49BE-BCDB-03B3400BF599}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C555338F-3321-49BE-BCDB-03B3400BF599}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C555338F-3321-49BE-BCDB-03B3400BF599}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C555338F-3321-49BE-BCDB-03B3400BF599}.Debug发布|Any CPU.ActiveCfg = Debug发布|Any CPU
+		{C555338F-3321-49BE-BCDB-03B3400BF599}.Debug发布|Any CPU.Build.0 = Debug发布|Any CPU
 		{AE6FD782-B303-4EA6-A2FD-D1B4E93624DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE6FD782-B303-4EA6-A2FD-D1B4E93624DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE6FD782-B303-4EA6-A2FD-D1B4E93624DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE6FD782-B303-4EA6-A2FD-D1B4E93624DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE6FD782-B303-4EA6-A2FD-D1B4E93624DE}.Debug发布|Any CPU.ActiveCfg = Debug发布|Any CPU
+		{AE6FD782-B303-4EA6-A2FD-D1B4E93624DE}.Debug发布|Any CPU.Build.0 = Debug发布|Any CPU
 	EndGlobalSection
 EndGlobal
