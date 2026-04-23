@@ -371,6 +371,7 @@ public class GameRuleService : ObservableObject
             var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid)
               { Id = buyEstateRequest.Id };
             await Broadcast(message);
+            await Broadcast(new UpdatePlayerInfoResponse(player));
           }
         }
         catch (Exception e)
