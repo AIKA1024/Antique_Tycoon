@@ -22,7 +22,7 @@ public interface IStaff
   /// <summary>
   /// 雇佣价
   /// </summary>
-  public decimal HiringCost { get; }
+  public decimal HiringCost { get; set; }
   /// <summary>
   /// 额外的古董需求 key为自定义的古董的index
   /// </summary>
@@ -31,7 +31,7 @@ public interface IStaff
   /// <summary>
   /// 每回合要发放的薪水
   /// </summary>
-  public decimal Salary { get; }
+  public decimal Salary { get; set; }
   
   public string Description { get; }
 }
