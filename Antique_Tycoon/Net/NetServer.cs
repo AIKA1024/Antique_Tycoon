@@ -203,7 +203,7 @@ public class NetServer : NetBase
     where T : ITcpMessage
   {
     var data = PackMessage(message);
-    await client.GetStream().WriteAsync(data, cancellationToken);
+    await WriteStreamAsync(client,data, cancellationToken);
   }
 
   // public TaskCompletionSource<ITcpMessage> GetPendingRequestsTask(string id) => _pendingRequests[id];
@@ -274,21 +274,9 @@ public class NetServer : NetBase
   {
     var data = PackMessage(message);
     foreach (var client in _clientLastActiveTimes.Keys)
-      try
-      {
-        await client.GetStream().WriteAsync(data, cancellationToken);
-      }
-      catch (Exception e)
-      {
-        if (e is SocketException or InvalidOperationException or IOException)
-        {
-          Console.WriteLine("广播时发现连接已断开");
-          // 统一交给收口方法处理
-          OnConnectionLost(client);
-        }
-        else
-          throw;
-      }
+    {
+      await WriteStreamAsync(client, data, cancellationToken);
+    }
   }
 
 
@@ -301,7 +289,7 @@ public class NetServer : NetBase
       if (client == excluded)
         continue;
 
-      await client.GetStream().WriteAsync(data, cancellationToken);
+      await WriteStreamAsync(client, data, cancellationToken);
     }
   }
 

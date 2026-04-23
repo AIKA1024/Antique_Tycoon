@@ -77,80 +77,58 @@ public class NetClient : NetBase
   }
 
   #region 封装的发送和接收逻辑
+
   public async Task SendAsync<T>(T message, CancellationToken cancellationToken = default) where T : ITcpMessage
   {
     var data = PackMessage(message);
-    
-    try
-    {
-      if (_tcpClient is not { Connected: true })
-        return;
+    if (_tcpClient is not { Connected: true })
+      return;
 
-      // 仅仅写入网络流，不放进 _pendingRequests，也不等待回复
-      await _tcpClient.GetStream().WriteAsync(data, cancellationToken);
-    }
-    catch (IOException)
-    {
-      // 如果底层流报错，说明真断网了，交给统一出口处理
-      Console.WriteLine("发送单向消息失败，网络流已断开");
-      OnConnectionLost(_tcpClient); 
-    }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"SendAsync 发生异常: {ex.Message}");
-    }
+    // 仅仅写入网络流，不放进 _pendingRequests，也不等待回复
+    await WriteStreamAsync(_tcpClient, data, cancellationToken);
   }
-  
 
-  public async Task<ITcpMessage?> SendRequestAsync<T>(T message, CancellationToken cancellationToken = default)
+  public async Task<ITcpMessage> SendRequestAsync<T>(T message, CancellationToken cancellationToken = default)
     where T : ITcpMessage
   {
     var data = PackMessage(message);
     var tcs = new TaskCompletionSource<ITcpMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    _pendingRequests[message.Id] = tcs;
-
-    const int maxRetries = 3; // 最大重试次数
-
-    for (int i = 0; i < maxRetries; i++)
+    // 加入等待队列
+    if (!_pendingRequests.TryAdd(message.Id, tcs))
     {
-      try
-      {
-        if (_tcpClient is not { Connected: true })
-          throw new InvalidOperationException("客户端未连接");
-
-        // 发送数据
-        await _tcpClient.GetStream().WriteAsync(data, cancellationToken);
-
-        // 等待结果，增加超时限制防止死等
-        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeoutCts.CancelAfter(TimeSpan.FromSeconds(5)); // 5秒收不到回复算超时
-
-        return await tcs.Task.WaitAsync(timeoutCts.Token);
-      }
-      catch (OperationCanceledException)
-      {
-        Console.WriteLine($"请求 {message.GetType().Name} 等待超时，尝试重试 {i + 1}/{maxRetries}...");
-        if (i == maxRetries - 1)
-        {
-          tcs.TrySetCanceled(cancellationToken);
-          return null; // 超时失败返回 null，业务层根据 null 做UI提示
-        }
-      }
-      catch (IOException) // 捕获网络流异常
-      {
-        Console.WriteLine("网络波动导致发送失败...");
-        await Task.Delay(500, cancellationToken); // 等待半秒后重试
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine($"发送发生未知错误: {ex}");
-        break; // 严重错误直接跳出
-      }
+      throw new InvalidOperationException("消息ID重复");
     }
 
-    _pendingRequests.TryRemove(message.Id, out _);
-    return null; // 最终失败
+    try
+    {
+      // 真正判断连接是否可用（必须尝试发送才知道）
+      if (_tcpClient is not { Connected: true })
+        throw new InvalidOperationException("客户端未连接");
+
+      // 发送（内部会捕获异常并触发断线）
+      await WriteStreamAsync(_tcpClient, data, cancellationToken);
+
+      // 超时设置
+      using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+      timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
+
+      // 等待回复
+      await using var reg = timeoutCts.Token.Register(() =>
+        tcs.TrySetException(new TimeoutException("请求超时，服务端未回复")));
+
+      return await tcs.Task;
+    }
+    catch (Exception e)
+    {
+      tcs.TrySetException(e); // 异常时结束等待
+      throw;
+    }
+    finally
+    {
+      // 无论成功/失败/超时，最后才移除
+      _pendingRequests.TryRemove(message.Id, out _);
+    }
   }
 
   protected override Task ProcessMessageAsync(TcpMessageType tcpMessageType, string json, TcpClient client)
@@ -175,10 +153,9 @@ public class NetClient : NetBase
     return tcs.Task;
   }
 
-  protected override async Task ReceiveFileChunkAsync(string uuid, string fileName, int chunkIndex, int totalChunks,
-    byte[] data)
+  protected override void OnFileDownloadCompleted(string uuid, string fileName)
   {
-    await base.ReceiveFileChunkAsync(uuid, fileName, chunkIndex, totalChunks, data);
+    base.OnFileDownloadCompleted(uuid, fileName);
     if (_pendingRequests.TryGetValue(uuid, out var tcs))
     {
       tcs.SetResult(new DownloadMapResponse { Id = uuid, FileName = fileName });
@@ -216,4 +193,8 @@ public class NetClient : NetBase
   }
 
   #endregion
+
+#if DEBUG
+  public int PendingRequestsCount => _pendingRequests.Count;
+#endif
 }

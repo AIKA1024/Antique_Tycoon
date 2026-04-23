@@ -59,7 +59,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   private async Task UpdateRoomList(object? sender, ElapsedEventArgs e)
   {
     var roomNetInfo = await _gameManager.NetClientInstance.DiscoverRoomAsync();
-    if (RoomList.Any(r => Equals(r.Address, roomNetInfo.Address)))
+    if (RoomList.Any(r => r.Address == roomNetInfo.Address))
       return;
     RoomList.Add(roomNetInfo);
   }

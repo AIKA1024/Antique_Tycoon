@@ -13,7 +13,7 @@ namespace Antique_Tycoon.Models.Nodes;
 public partial class Estate : NodeModel
 {
   [ObservableProperty] public partial decimal Value { get; set; }
-  [ObservableProperty] public partial int CurrentLevel { get; set; } = 1;
+  [ObservableProperty] public partial int CurrentLevel { get; set; } = 0;
 
   /// <summary>
   /// 每回合要交的税
@@ -28,17 +28,16 @@ public partial class Estate : NodeModel
       if (!string.IsNullOrEmpty(field))
         return field;
 
-      // 把每一项生成好，放到列表里
-      var lines = new List<string>();
+      var lines = new List<string>(RevenueModifiers.Count + 1); // 预分配容量
       for (int i = 0; i < RevenueModifiers.Count; i++)
       {
         var modifier = RevenueModifiers[i];
-        var symbol = modifier.BonusType == BonusType.FlatAdd ? "+" : "*";
-        lines.Add($"等级: {i + 1}   {symbol} {modifier.EffectNum}");
+        var symbol = modifier.BonusType == BonusType.FlatAdd ? "+" : "×";
+        lines.Add($"等级: {i + 1}  收益： {symbol} {modifier.EffectNum}");
       }
-
-      field = string.Join("\r\n", lines);
-      return field;
+      lines.Add($"每回合税:{PropertyTax}");
+      
+      return string.Join(Environment.NewLine, lines);
     }
     set;
   }
@@ -48,9 +47,10 @@ public partial class Estate : NodeModel
   public decimal CalculateCurrentRevenue(decimal baseValue)
   {
     // 安全检查：防止 Level 超出数组范围
-    if (CurrentLevel - 1 >= RevenueModifiers.Count) return baseValue;
+    if (CurrentLevel >= RevenueModifiers.Count) return baseValue;
+    if (CurrentLevel == 0) return 0;
 
-    var effect = RevenueModifiers[CurrentLevel - 1];
+    var effect = RevenueModifiers[CurrentLevel];
 
     return effect.BonusType switch
     {
