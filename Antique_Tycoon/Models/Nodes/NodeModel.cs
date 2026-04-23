@@ -24,7 +24,7 @@ public abstract partial class NodeModel : CanvasItemModel
 
   [ObservableProperty] public partial string Title { get; set; } = "";
 
-  [ObservableProperty] public partial string? Tooltip { get; set; }
+  [ObservableProperty] public virtual partial string? Tooltip { get; set; }
   [ObservableProperty] public partial double? Width { get; set; } = DefaultWidth;
 
   [ObservableProperty] public partial double? Height { get; set; } = DefaultHeight;

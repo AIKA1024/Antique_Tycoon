@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
+using System.Text;
 using Antique_Tycoon.Models.Enums;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Models.Nodes;
@@ -16,6 +20,28 @@ public partial class Estate : NodeModel
   /// </summary>
   [ObservableProperty]
   public partial decimal PropertyTax { get; set; } = 50;
+
+  public override string? Tooltip
+  {
+    get
+    {
+      if (!string.IsNullOrEmpty(field))
+        return field;
+
+      // 把每一项生成好，放到列表里
+      var lines = new List<string>();
+      for (int i = 0; i < RevenueModifiers.Count; i++)
+      {
+        var modifier = RevenueModifiers[i];
+        var symbol = modifier.BonusType == BonusType.FlatAdd ? "+" : "*";
+        lines.Add($"等级: {i + 1}   {symbol} {modifier.EffectNum}");
+      }
+
+      field = string.Join("\r\n", lines);
+      return field;
+    }
+    set;
+  }
 
   public ObservableCollection<BonusEffect> RevenueModifiers { get; set; } = [];
 
