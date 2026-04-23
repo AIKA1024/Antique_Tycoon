@@ -28,6 +28,10 @@ public enum GameTriggerPoint
   /// </summary>
   OnCalculateTax,
   /// <summary>
+  /// 计算伙计薪水时
+  /// </summary>
+  OnCalculateSalary,
+  /// <summary>
   /// 建筑升级时
   /// </summary>
   OnBuildingUpgrade,    

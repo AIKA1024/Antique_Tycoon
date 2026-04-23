@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -119,7 +120,7 @@ public class GameRuleService : ObservableObject
       await Broadcast(playerMoveResponse);
 
       var spawnNodeUuid = _gameManager.SelectedMap.SpawnNode.Uuid;
-      if (selectPath[1..].Contains(spawnNodeUuid) && spawnNodeUuid!=selectPath[^1])//如果路过出生点，就踩一下先
+      if (selectPath[1..].Contains(spawnNodeUuid) && spawnNodeUuid != selectPath[^1]) //如果路过出生点，就踩一下先
       {
         await HandleStepOnNodeAsync(
           _gameManager.GetPlayerByUuid(currentTurnPlayerUuid),
@@ -267,10 +268,10 @@ public class GameRuleService : ObservableObject
           ]
         };
         await Broadcast(rollDiceResponse);
-        
+
         if (!isSuccess)
           return;
-        
+
         owner.Antiques.Remove(antique);
         player.Antiques.Add(antique);
         await Broadcast(new UpdatePlayerInfoResponse(owner) { Id = plunderRequest.Id });
@@ -336,8 +337,33 @@ public class GameRuleService : ObservableObject
                      staff.HiringAntiqueCost.All(cost =>
                        inventoryMap.TryGetValue(cost.Key, out int count) && count >= cost.Value);
 
+      if (canHire)
+      {
+        player.Money -= staff.HiringCost;
+        var antiqueList = player.Antiques.ToList();
+        
+        foreach (var cost in staff.HiringAntiqueCost)
+        {
+          int targetIndex = cost.Key; // 要删除的古董Index
+          int removeCount = cost.Value; // 要删除几个
+          
+          int removed = 0;
+          for (int i = antiqueList.Count - 1; i >= 0 && removed < removeCount; i--)
+          {
+            if (antiqueList[i].Index == targetIndex)
+            {
+              antiqueList.RemoveAt(i);
+              removed++;
+            }
+          }
+        }
+        player.Antiques = new ObservableCollection<Antique>(antiqueList);
+      }
+
       var hireStaffResponse = new HireStaffResponse(hireStaffRequest.Id, player.Uuid, staff.Uuid, canHire);
+      var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(player);
       await Broadcast(hireStaffResponse);
+      await Broadcast(updatePlayerInfoResponse);
     }
     catch (Exception e)
     {
@@ -555,7 +581,10 @@ public class GameRuleService : ObservableObject
     await ProcessEventAsync(GameTriggerPoint.OnPassStartPoint, new EconomyContext(player));
 
     var totalTax = player.Estates.Sum(estate => estate.PropertyTax);
-    await ProcessEventAsync(GameTriggerPoint.OnCalculateTax, new PaymentContext(player){Cost = totalTax});
+    await ProcessEventAsync(GameTriggerPoint.OnCalculateTax, new PaymentContext(player) { Cost = totalTax });
+    
+    var totalSalary = player.Staffs.Sum(estate => estate.Salary);
+    await ProcessEventAsync(GameTriggerPoint.OnCalculateSalary, new PaymentContext(player) { Cost = totalSalary });
   }
 
   private async Task HandleMineAsync(Player player, NodeModel node)
@@ -643,7 +672,7 @@ public class GameRuleService : ObservableObject
       await Broadcast(message);
     }
   }
-  
+
   public async Task ProcessEventAsync(GameTriggerPoint triggerPoint, GameContext context)
   {
     await TriggerGlobalStaffEffects(triggerPoint, context);
@@ -664,7 +693,7 @@ public class GameRuleService : ObservableObject
         if (paymentContext.Cost <= 0) break;
 
         context.Player.Money -= paymentContext.Cost;
-            
+
         if (paymentContext.Receiver != null)
         {
           // 钱付给玩家
@@ -688,10 +717,11 @@ public class GameRuleService : ObservableObject
             LogSegments =
             [
               new LogSegment { Type = InteractionType.PlayerName, Data = context.Player.Uuid },
-              new LogSegment { Text = $" 向银行缴纳了 {paymentContext.Cost}" }
+              new LogSegment { Text = $" 向银行/伙计缴纳了 {paymentContext.Cost}" }
             ]
           });
         }
+
         break;
     }
   }
