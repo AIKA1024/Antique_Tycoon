@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Timers;
+using Antique_Tycoon.Net;
 using Antique_Tycoon.Services;
 using Antique_Tycoon.Utilities;
 using Avalonia.Threading;
@@ -13,8 +15,14 @@ public partial class DebugWindowViewModel : ObservableObject
 {
     public ActionQueueService ActionQueueService { get; } =
         App.Current.Services.GetRequiredService<ActionQueueService>();
+    public NetClient NetClient { get; } =
+        App.Current.Services.GetRequiredService<NetClient>();
+    
+    private Timer _timer = new Timer(1000);
 
     public ObservableCollection<string> Logs { get; } = [];
+
+    public int PendingRequestsCount => NetClient.PendingRequestsCount;
 
     public DebugWindowViewModel()
     {
@@ -28,5 +36,10 @@ public partial class DebugWindowViewModel : ObservableObject
             });
         });
         Console.SetOut(writer);
+        _timer.Elapsed += (_, _) =>
+        {
+            OnPropertyChanged(nameof(PendingRequestsCount));
+        };
+        _timer.Start();
     }
 }

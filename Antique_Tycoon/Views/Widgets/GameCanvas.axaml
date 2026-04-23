@@ -35,6 +35,7 @@
         <DataTemplate DataType="nodes:NodeModel">
           <!-- 设置top和Left是为了触发CanvasItemDragBehavior的监听，因为和listboxItem的top和left绑定的是相同的对象，所以变相监听到了listboxItem的top和left -->
           <c:NodeLinkControl
+            utilities:DynamicStyleClass.UseDataContextTypeName="True"
             Canvas.Top="{Binding Top}"
             Canvas.Left="{Binding Left}"
             Focusable="True"

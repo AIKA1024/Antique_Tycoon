@@ -123,4 +123,9 @@
       </ControlTemplate>
     </Setter>
   </Style>
+  
+  <Style x:DataType="nodes:NodeModel" Selector="controls|NodeLinkControl.Mine">
+    <Setter Property="Background" Value="{StaticResource MineBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
 </Styles>

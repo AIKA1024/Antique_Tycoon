@@ -49,6 +49,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     private Media _turnStartSfx;
 
     private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
+    private readonly DialogService _dialogService;
 
     public List<Antique> Antiques { get; set; } = [];
     public List<Antique> UnsoldAntiques { get; set; } = [];
@@ -71,7 +72,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家 
 
     public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
-        LibVLC libVlc, RoleStrategyFactory strategyFactory, ActionQueueService actionQueue)
+        LibVLC libVlc, RoleStrategyFactory strategyFactory, ActionQueueService actionQueue,DialogService dialogService)
     {
         _netServerLazy = netServerLazy;
         _netClientLazy = netClientLazy;
@@ -79,8 +80,10 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         _libVlc = libVlc;
         _strategyFactory = strategyFactory;
         _actionQueue = actionQueue;
+        _dialogService =  dialogService;
         sfxPlayer = new MediaPlayer(libVlc);
         _turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
+        Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
         WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
         {
             if (message.PlayerUuid == LocalPlayer.Uuid)
@@ -90,8 +93,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
                     return Task.CompletedTask;
                 }));
         });
-        Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
-
         WeakReferenceMessenger.Default.Register<UpdateRoomResponse>(this, ReceiveUpdateRoomResponse);
         WeakReferenceMessenger.Default.Register<ExitRoomResponse>(this,
             (_, request) => _playersByUuid.Remove(request.PlayerUuid));
@@ -146,6 +147,14 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
         SetupLocalPlayer();
         SetDefaultMap();
         _netServerLazy.Value.ClientDisConnected += ClientDisConnected;
+        _netClientLazy.Value.DisconnectedFromServer += OnDisconnectedFromServer;
+    }
+
+    private async void OnDisconnectedFromServer()
+    {
+       await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+            { Title = "提醒", Message = "与服务器失去连接", IsLightDismissEnabled = false });
+       //todo 重连逻辑
     }
 
     /// <summary>
