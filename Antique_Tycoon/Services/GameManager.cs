@@ -9,6 +9,7 @@ using Antique_Tycoon.Behaviors;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Configs;
 using Antique_Tycoon.Models.Entities;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
@@ -39,6 +40,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   private readonly LibVLC _libVlc;
   private readonly RoleStrategyFactory _strategyFactory;
   private readonly ActionQueueService _actionQueue;
+  private readonly PersistenceService _persistenceService;
 
   private readonly MapFileService _mapFileService;
 
@@ -72,7 +74,8 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public Player CurrentTurnPlayer => Players[CurrentTurnPlayerIndex]; // 当前回合玩家 
 
   public GameManager(Lazy<NetServer> netServerLazy, Lazy<NetClient> netClientLazy, MapFileService mapFileService,
-    LibVLC libVlc, RoleStrategyFactory strategyFactory, ActionQueueService actionQueue, DialogService dialogService)
+    LibVLC libVlc, RoleStrategyFactory strategyFactory, ActionQueueService actionQueue, DialogService dialogService,
+    PersistenceService persistenceService)
   {
     _netServerLazy = netServerLazy;
     _netClientLazy = netClientLazy;
@@ -83,6 +86,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     _dialogService = dialogService;
     sfxPlayer = new MediaPlayer(libVlc);
     _turnStartSfx = new Media(libVlc, "Assets/SFX/GameStates/LevelUp.ogg");
+    _persistenceService = persistenceService;
     Players = _playersByUuid.ToNotifyCollectionChanged(x => x.Value);
     WeakReferenceMessenger.Default.Register<TurnStartResponse>(this, (_, message) =>
     {
@@ -204,7 +208,14 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   private void SetupLocalPlayer()
   {
+    var playerConfig = _persistenceService.GetConfig<PlayerConfig>();
     var localPlayer = new Player();
+    if (!string.IsNullOrEmpty(playerConfig.Name))
+    {
+      localPlayer.Name = playerConfig.Name;
+      localPlayer.Role = playerConfig.PlayerRole;
+    }
+
     _localPlayerUuid = localPlayer.Uuid;
     RoomOwnerUuid = _localPlayerUuid;
     _playersByUuid.TryAdd(localPlayer.Uuid, localPlayer);

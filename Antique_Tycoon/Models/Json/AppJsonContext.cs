@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Antique_Tycoon.Models.Configs;
 using Antique_Tycoon.Models.Connections;
 using Antique_Tycoon.Models.Net;
 using Antique_Tycoon.Models.Net.Tcp.Request;
@@ -47,9 +48,9 @@ namespace Antique_Tycoon.Models.Json;
 [JsonSerializable(typeof(AcknowledgementResponse))]
 
 [JsonSerializable(typeof(Map))]
-// [JsonSerializable(typeof(SpawnPoint))]
-// [JsonSerializable(typeof(Estate))]
-// [JsonSerializable(typeof(TeleportationPoint))]
 [JsonSerializable(typeof(Connection))]
+
+[JsonSerializable(typeof(PlayerConfig))]
+[JsonSerializable(typeof(MainWindowConfig))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
 public partial class AppJsonContext : JsonSerializerContext;

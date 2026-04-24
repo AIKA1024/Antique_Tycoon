@@ -27,15 +27,12 @@
                 BorderThickness="3"
                 BorderBrush="{StaticResource LightedBorderBrush}">
           <TextBlock Text="更衣室"
+                     HorizontalAlignment="Center"
                      FontSize="16"
                      FontWeight="Black" />
         </Border>
 
-        <StackPanel>
-          <TextBox Margin="16"
-                   Classes="MCTextbox"
-                   Watermark="名称"
-                   Text="{Binding Player.Name,Mode=TwoWay}" />
+        <StackPanel Background="#313233">
           <Image Margin="16"
                  Source="{Binding Player.Avatar}" Width="64" />
 
@@ -45,7 +42,7 @@
                 <Setter Property="Height" Value="32" />
                 <Setter Property="Cursor" Value="Hand" />
                 <Setter Property="utilities:Tap.Command" Value="{Binding ChangeRoleCommand}" />
-                <Setter Property="utilities:Tap.CommandParameter" Value="{Binding $self.Tag}"/>
+                <Setter Property="utilities:Tap.CommandParameter" Value="{Binding $self.Tag}" />
               </Style>
             </WrapPanel.Styles>
             <Image Source="../../Assets/Image/Avatar/Steve.png" Tag="{x:Static enums:PlayerRole.Steve}" />
@@ -55,7 +52,21 @@
             <Image Source="../../Assets/Image/Avatar/Villager.png" Tag="{x:Static enums:PlayerRole.Villager}" />
             <Image Source="../../Assets/Image/Avatar/Zombie.png" Tag="{x:Static enums:PlayerRole.Zombie}" />
           </WrapPanel>
+          <TextBox Margin="16"
+                   Classes="MCTextbox"
+                   Watermark="名称"
+                   Text="{Binding Player.Name,Mode=TwoWay}" />
         </StackPanel>
+
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="16" Margin="16">
+          <controls:McButton
+            Content="取消"
+            Command="{Binding CancelCommand}" />
+          <controls:McButton Classes="Confirm"
+                             Grid.Column="1"
+                             Content="确定"
+                             Command="{Binding SubmitCommand}" />
+        </Grid>
       </StackPanel>
     </Border>
   </DataTemplate>

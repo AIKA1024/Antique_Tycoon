@@ -17,7 +17,7 @@ public abstract partial class DialogViewModelBase : ObservableValidator
   public partial HorizontalAlignment HorizontalAlignment { get; set; } = HorizontalAlignment.Center;
 
   [ObservableProperty] public partial VerticalAlignment VerticalAlignment { get; set; } = VerticalAlignment.Center;
-  public bool IsLightDismissEnabled { get; set; } = true;
+  public virtual bool IsLightDismissEnabled { get; set; } = true;
 
   public event Action? RequestClose;
   public void CloseDialog()

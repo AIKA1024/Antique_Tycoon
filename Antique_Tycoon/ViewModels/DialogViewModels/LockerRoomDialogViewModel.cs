@@ -1,5 +1,6 @@
 using System;
 using Antique_Tycoon.Models;
+using Antique_Tycoon.Models.Configs;
 using Antique_Tycoon.Models.Enums;
 using Antique_Tycoon.Services;
 using Avalonia.Media.Imaging;
@@ -12,13 +13,25 @@ namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
 public partial class LockerRoomDialogViewModel : DialogViewModelBase<Player?>
 {
-  [ObservableProperty]
-  public partial Player Player { get; set; } = App.Current.Services.GetRequiredService<GameManager>().LocalPlayer;
+  private PersistenceService _persistenceService = App.Current.Services.GetRequiredService<PersistenceService>();
+
+  [ObservableProperty] public partial Player Player { get; set; } = new();
+
+  public LockerRoomDialogViewModel()
+  {
+    var localPlayer = App.Current.Services.GetRequiredService<GameManager>().LocalPlayer;
+    Player.Name = localPlayer.Name;
+    Player.Role = localPlayer.Role;
+  }
 
   [RelayCommand]
   private void Submit()
   {
     CloseDialog(Player);
+    var playerConfig = _persistenceService.GetConfig<PlayerConfig>();
+    playerConfig.Name = Player.Name;
+    playerConfig.PlayerRole = Player.Role;
+    _persistenceService.SaveConfig<PlayerConfig>();
   }
 
   [RelayCommand]

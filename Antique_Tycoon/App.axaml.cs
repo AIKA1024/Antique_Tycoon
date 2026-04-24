@@ -87,6 +87,7 @@ public partial class App : Application
     services.AddSingleton(sp => new Lazy<NetServer>(sp.GetRequiredService<NetServer>));
     services.AddSingleton<FilePickerService>();
     services.AddSingleton<ActionQueueService>();
+    services.AddSingleton(new PersistenceService(Path.Combine(AppContext.BaseDirectory,"..","Configs")));
     return services.BuildServiceProvider();
   }
 }
