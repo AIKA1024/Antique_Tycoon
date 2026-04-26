@@ -35,6 +35,11 @@ public abstract class NetBase
       OnConnectionLost(client); // 通知上层断线
       throw; // 必须抛出去，让上层知道失败
     }
+    catch (TaskCanceledException e)
+    {
+      Console.WriteLine("发送消息超时");
+      throw;
+    }
   }
 
   protected async Task ReceiveLoopAsync(TcpClient client, CancellationToken cancellationToken = default)

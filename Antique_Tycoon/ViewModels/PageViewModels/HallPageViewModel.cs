@@ -13,6 +13,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Antique_Tycoon.Models.Configs;
 using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
@@ -33,6 +34,9 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
   private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
   private readonly MapFileService _mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
 
+  private readonly PersistenceService _persistenceService =
+    App.Current.Services.GetRequiredService<PersistenceService>();
+
 
   [ObservableProperty]
   private Bitmap _noMapImage = new(AssetLoader.Open(new Uri("avares://Antique_Tycoon/Assets/Image/No_Map.png")));
@@ -41,6 +45,8 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 
   public HallPageViewModel()
   {
+    foreach (var serviceInfo in _persistenceService.GetConfig<ServicesConfig>().ServiceInfos)
+      RoomList.Add(serviceInfo);
     _timer.Elapsed += async (s, e) => { await UpdateRoomList(s, e); };
   }
 
@@ -71,6 +77,8 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     if (serviceInfo == null)
       return;
     RoomList.Add(serviceInfo);
+    _persistenceService.GetConfig<ServicesConfig>().ServiceInfos.Add(serviceInfo);
+    _persistenceService.SaveConfig<ServicesConfig>();
   }
 
   [RelayCommand]
@@ -126,7 +134,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
       });
       return;
     }
-    
+
     ClearFolder(App.Current.DownloadMapPath);
 
     var messageVm = new MessageDialogViewModel
@@ -138,12 +146,7 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
     };
     var result = await _dialogService.ShowDialogAsync(messageVm, DownloadMapAsync());
     if (result.ResponseStatus != RequestResult.Success)
-    {
-      messageVm.Title = "错误";
-      messageVm.Message = "地图下载失败";
-      messageVm.IsLightDismissEnabled = true;
       return;
-    }
 
     var mapDirPath = Path.Combine(App.Current.DownloadMapPath, Path.GetFileNameWithoutExtension(result.FileName));
     await ZipFile.ExtractToDirectoryAsync(Path.Combine(App.Current.DownloadMapPath, result.FileName), mapDirPath);
@@ -187,8 +190,34 @@ public partial class HallPageViewModel : PageViewModelBase, IDisposable
 
   private async Task<DownloadMapResponse> DownloadMapAsync(CancellationToken cancellation = default)
   {
-    var downloadMapRequest = new DownloadMapRequest();
-    return (DownloadMapResponse)await _gameManager.NetClientInstance.SendRequestAsync(downloadMapRequest, cancellation);
+    try
+    {
+      var downloadMapRequest = new DownloadMapRequest();
+      return (DownloadMapResponse)await _gameManager.NetClientInstance.SendRequestAsync(downloadMapRequest,
+        cancellation);
+    }
+    catch (TaskCanceledException e)
+    {
+      Console.WriteLine(e);
+      await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+      {
+        Title = "错误",
+        Message = "连接超时",
+        IsLightDismissEnabled = false
+      });
+      return new DownloadMapResponse { ResponseStatus = RequestResult.Error };
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e);
+      await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+      {
+        Title = "错误",
+        Message = $"{e.Message}{Environment.NewLine}{e.StackTrace}",
+        IsLightDismissEnabled = false
+      });
+      return new DownloadMapResponse { ResponseStatus = RequestResult.Error };
+    }
   }
 
   public void Dispose()

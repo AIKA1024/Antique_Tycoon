@@ -94,39 +94,40 @@ public class NetClient : NetBase
     var data = PackMessage(message);
     var tcs = new TaskCompletionSource<ITcpMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    // 加入等待队列
     if (!_pendingRequests.TryAdd(message.Id, tcs))
     {
       throw new InvalidOperationException("消息ID重复");
     }
 
+    // 创建一个安全的超时令牌
+    using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+    using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
     try
     {
-      // 真正判断连接是否可用（必须尝试发送才知道）
       if (_tcpClient is not { Connected: true })
         throw new InvalidOperationException("客户端未连接");
 
-      // 发送（内部会捕获异常并触发断线）
-      await WriteStreamAsync(_tcpClient, data, cancellationToken);
+      await WriteStreamAsync(_tcpClient, data, linkedCts.Token);
 
-      // 超时设置
-      using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-      timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
-
-      // 等待回复
-      await using var reg = timeoutCts.Token.Register(() =>
-        tcs.TrySetException(new TimeoutException("请求超时，服务端未回复")));
-
-      return await tcs.Task;
+      // 使用 cancellationToken 参数来传递超时，而不是依赖回调
+      try
+      {
+        return await tcs.Task.WaitAsync(linkedCts.Token);
+      }
+      catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+      {
+        throw new TimeoutException("请求超时，服务端未回复");
+      }
     }
     catch (Exception e)
     {
-      tcs.TrySetException(e); // 异常时结束等待
+      // 确保只尝试设置一次异常状态
+      tcs.TrySetException(e);
       throw;
     }
     finally
     {
-      // 无论成功/失败/超时，最后才移除
       _pendingRequests.TryRemove(message.Id, out _);
     }
   }

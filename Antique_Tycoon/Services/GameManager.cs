@@ -156,8 +156,6 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
 
   private async void OnDisconnectedFromServer()
   {
-    await _dialogService.ShowDialogAsync(new MessageDialogViewModel
-      { Title = "提醒", Message = "与服务器失去连接", IsLightDismissEnabled = false });
     //todo 重连逻辑
   }
 

@@ -52,5 +52,6 @@ namespace Antique_Tycoon.Models.Json;
 
 [JsonSerializable(typeof(PlayerConfig))]
 [JsonSerializable(typeof(MainWindowConfig))]
+[JsonSerializable(typeof(ServicesConfig))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
 public partial class AppJsonContext : JsonSerializerContext;
