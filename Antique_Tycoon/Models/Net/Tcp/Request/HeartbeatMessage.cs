@@ -4,7 +4,7 @@ using Antique_Tycoon.ProtocolGen;
 namespace Antique_Tycoon.Models.Net.Tcp.Request;
 
 [TcpMessage]
-public class HeartbeatMessage:RequestBase
+public class HeartbeatMessage(string playerUuid):RequestBase
 {
-  public required string PlayerUuid { get; set; }
+  public string PlayerUuid { get; set; } = playerUuid;
 }

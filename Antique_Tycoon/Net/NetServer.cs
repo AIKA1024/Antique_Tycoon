@@ -206,8 +206,6 @@ public class NetServer : NetBase
     await WriteStreamAsync(client,data, cancellationToken);
   }
 
-  // public TaskCompletionSource<ITcpMessage> GetPendingRequestsTask(string id) => _pendingRequests[id];
-
   /// <summary>
   /// 接收来自本地玩家的消息（模拟网络接收）
   /// 用于解开 SendRequestAsync 对本地请求的阻塞等待
