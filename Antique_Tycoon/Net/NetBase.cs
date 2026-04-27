@@ -5,12 +5,8 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
-using Antique_Tycoon.Models.Net.Tcp.Request;
-using Antique_Tycoon.Models.Net.Tcp.Response;
-using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 
 namespace Antique_Tycoon.Net;
 
@@ -20,6 +16,7 @@ public abstract class NetBase
     private const int ChunkSize = 64 * 1024;
     public string DownloadPath { get; set; } = Environment.CurrentDirectory;
     private readonly SemaphoreSlim _sendLock = new(1, 1);
+    public virtual TimeSpan DefaultTimeOuTimeSpan { get; set; } = TimeSpan.FromSeconds(30);
 
     protected async Task WriteStreamAsync(TcpClient client, byte[] data, CancellationToken cancellationToken)
     {
@@ -39,7 +36,6 @@ public abstract class NetBase
         }
         finally
         {
-            // 3. 写入完成后，千万记得释放锁，让下一个消息发送
             _sendLock.Release();
         }
     }
@@ -201,8 +197,6 @@ public abstract class NetBase
         int chunkIndex = 0;
         int totalChunks = (int)Math.Ceiling((double)fileStream.Length / ChunkSize);
 
-        var netStream = client.GetStream();
-
         while ((bytesRead = await fileStream.ReadAsync(buffer)) > 0)
         {
             var header = new FilePacketHeader
@@ -223,7 +217,8 @@ public abstract class NetBase
             headerBytes.CopyTo(packet, 4); // 包头
             Array.Copy(buffer, 0, packet, 4 + headerBytes.Length, bytesRead); // 数据
 
-            await netStream.WriteAsync(packet);
+            await WriteStreamAsync(client, packet, CancellationToken.None);
+            await Task.Yield();// 短暂地挂起当前发送文件的任务，给外面的心跳包和玩家操作去抢锁的机会。
 
             chunkIndex++;
         }

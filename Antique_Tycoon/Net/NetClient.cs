@@ -100,7 +100,7 @@ public class NetClient : NetBase
         }
 
         // 创建一个安全的超时令牌
-        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        using var timeoutCts = new CancellationTokenSource(DefaultTimeOuTimeSpan);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
         try
