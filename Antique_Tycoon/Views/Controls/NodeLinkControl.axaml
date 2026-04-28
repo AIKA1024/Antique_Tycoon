@@ -124,7 +124,7 @@
     </Setter>
   </Style>
   
-  <Style x:DataType="nodes:NodeModel" Selector="controls|NodeLinkControl.Mine">
+  <Style x:DataType="nodes:NodeModel" Selector="controls|NodeLinkControl.Mine,controls|NodeLinkControl.TeleportationPoint">
     <Setter Property="Background" Value="{StaticResource MineBrush}"/>
     <Setter Property="Foreground" Value="White"/>
   </Style>

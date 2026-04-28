@@ -13,33 +13,36 @@ namespace Antique_Tycoon.ViewModels;
 
 public partial class DebugWindowViewModel : ObservableObject
 {
-    public ActionQueueService ActionQueueService { get; } =
-        App.Current.Services.GetRequiredService<ActionQueueService>();
-    public NetClient NetClient { get; } =
-        App.Current.Services.GetRequiredService<NetClient>();
-    
-    private Timer _timer = new Timer(1000);
+  public ActionQueueService ActionQueueService { get; } =
+    App.Current.Services.GetRequiredService<ActionQueueService>();
 
-    public ObservableCollection<string> Logs { get; } = [];
+  public NetClient NetClient { get; } =
+    App.Current.Services.GetRequiredService<NetClient>();
 
-    public int PendingRequestsCount => NetClient.PendingRequestsCount;
+  private Timer _timer = new Timer(1000);
 
-    public DebugWindowViewModel()
+  public ObservableCollection<string> Logs { get; } = [];
+
+#if DEBUG
+  public int PendingRequestsCount => NetClient.PendingRequestsCount;
+
+#endif
+
+  public DebugWindowViewModel()
+  {
+#if DEBUG
+    var writer = new AvalonConsoleWriter(line =>
     {
-        var writer = new AvalonConsoleWriter(line =>
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                Logs.Add($"[{DateTime.Now:HH:mm:ss}] {line}");
-                // 限制日志行数，防止内存溢出
-                if (Logs.Count > 500) Logs.RemoveAt(0);
-            });
-        });
-        Console.SetOut(writer);
-        _timer.Elapsed += (_, _) =>
-        {
-            OnPropertyChanged(nameof(PendingRequestsCount));
-        };
-        _timer.Start();
-    }
+      Dispatcher.UIThread.Post(() =>
+      {
+        Logs.Add($"[{DateTime.Now:HH:mm:ss}] {line}");
+        // 限制日志行数，防止内存溢出
+        if (Logs.Count > 500) Logs.RemoveAt(0);
+      });
+    });
+    Console.SetOut(writer);
+    _timer.Elapsed += (_, _) => { OnPropertyChanged(nameof(PendingRequestsCount)); };
+    _timer.Start();
+#endif
+  }
 }

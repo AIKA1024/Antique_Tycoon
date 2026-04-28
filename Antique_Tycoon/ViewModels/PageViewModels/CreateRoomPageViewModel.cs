@@ -17,7 +17,6 @@ namespace Antique_Tycoon.ViewModels.PageViewModels;
 
 public partial class CreateRoomPageViewModel : PageViewModelBase
 {
-  private readonly CancellationTokenSource _cts = new();
   private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
   private readonly DialogService _dialogService = App.Current.Services.GetRequiredService<DialogService>();
   private readonly MapFileService _mapFileService = App.Current.Services.GetRequiredService<MapFileService>();
@@ -53,16 +52,16 @@ public partial class CreateRoomPageViewModel : PageViewModelBase
       return;
     }
 
-    _cts.TryReset();
+    using var cts = new CancellationTokenSource();
     var netServer = App.Current.Services.GetRequiredService<NetServer>();
     _navigationService.Navigation(new RoomPageViewModel(
       _gameManager.SelectedMap,
       _gameManager,
-      _cts));
+      cts));
     try
     {
       await netServer
-        .CreateRoomAndListenAsync(RoomName, _gameManager.SelectedMap, _cts.Token);
+        .CreateRoomAndListenAsync(RoomName, _gameManager.SelectedMap, cts.Token);
     }
     catch (OperationCanceledException ex)
     {

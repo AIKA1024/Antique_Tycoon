@@ -14,7 +14,7 @@
       <ControlTemplate>
         <Border
           Background="#E6E8EB"
-          BorderBrush="#B1B2B5" BorderThickness="0 0 0 2">
+          BorderBrush="#B1B2B5" BorderThickness="0 0 0 4">
           <Grid ColumnDefinitions="Auto,*,Auto">
             <c:McButton
               Grid.Column="0"

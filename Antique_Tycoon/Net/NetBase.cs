@@ -67,7 +67,7 @@ public abstract class NetBase
 
                 if (bytesRead == 0)
                 {
-                    Console.WriteLine("客户端主动关闭了连接");
+                    Console.WriteLine("对方主动关闭了连接");
                     break;
                 }
 

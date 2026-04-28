@@ -42,19 +42,6 @@ public class NetServer : NetBase
 
   public event Action<TcpClient>? ClientDisConnected;
 
-  /// <summary>
-  /// 心跳包间隔
-  /// </summary>
-  public TimeSpan CheckOutlineInterval
-  {
-    get;
-    set
-    {
-      field = value;
-      _timer.Interval = field.TotalMilliseconds;
-    }
-  } = TimeSpan.FromSeconds(5);
-
   public NetServer(IEnumerable<ITcpMessageHandler> messageHandlers, string downloadPath)
   {
     DownloadPath = downloadPath;
