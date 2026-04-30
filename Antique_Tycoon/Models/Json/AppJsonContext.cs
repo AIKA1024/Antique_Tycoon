@@ -46,6 +46,7 @@ namespace Antique_Tycoon.Models.Json;
 [JsonSerializable(typeof(PlunderAntiqueAction))]
 [JsonSerializable(typeof(PlunderAntiqueRequest))]
 [JsonSerializable(typeof(AcknowledgementResponse))]
+[JsonSerializable(typeof(UpdateSystemInfoResponse))]
 
 [JsonSerializable(typeof(Map))]
 [JsonSerializable(typeof(Connection))]

@@ -552,7 +552,10 @@ public class GameRuleService : ObservableObject
 
       seller.Antiques.Remove(antique);
       if (string.IsNullOrEmpty(buyer?.Uuid))
-        _gameManager.Antiques.Add(antique);
+      {
+        _gameManager.Antiques.Add(antique); //todo 客户端没同步
+        await Broadcast(new UpdateSystemInfoResponse { AntiquesInventory = _gameManager.Antiques },false);
+      }
       else
       {
         buyer.Antiques.Add(antique);
@@ -655,7 +658,6 @@ public class GameRuleService : ObservableObject
         ];
       }
 
-      WeakReferenceMessenger.Default.Send(getAntiqueResultResponse, node.Uuid);
       await Broadcast(getAntiqueResultResponse);
     }
     else
@@ -769,12 +771,15 @@ public class GameRuleService : ObservableObject
     }
   }
 
-  private async Task Broadcast<T>(T response) where T : ResponseBase
+  private async Task Broadcast<T>(T response, bool includeLocal = true) where T : ResponseBase
   {
     await _gameManager.NetServerInstance.Broadcast(response);
-    // 此时 T 是具体类型（如 UpdateEstateInfoResponse），Messenger 能正确识别
-    WeakReferenceMessenger.Default.Send(response);
-    if (response is IHistoryRecord historyRecord)
-      WeakReferenceMessenger.Default.Send(historyRecord);
+
+    if (includeLocal)
+    {
+      WeakReferenceMessenger.Default.Send(response);
+      if (response is IHistoryRecord historyRecord)
+        WeakReferenceMessenger.Default.Send(historyRecord);
+    }
   }
 }

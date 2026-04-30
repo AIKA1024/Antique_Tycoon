@@ -19,7 +19,7 @@ public partial class DebugWindowViewModel : ObservableObject
   public NetClient NetClient { get; } =
     App.Current.Services.GetRequiredService<NetClient>();
 
-  private Timer _timer = new Timer(1000);
+  private readonly Timer _timer = new(1000);
 
   public ObservableCollection<string> Logs { get; } = [];
 

@@ -32,6 +32,11 @@
             </ScrollViewer>
           </ControlTemplate>
         </ItemsControl.Template>
+        <ItemsControl.Styles>
+          <Style Selector="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+          </Style>
+        </ItemsControl.Styles>
       </ItemsControl>
     </Grid>
     <TextBlock Grid.Row="1" Text="{Binding PendingRequestsCount,StringFormat=等待服务器回应任务：{0}}" />

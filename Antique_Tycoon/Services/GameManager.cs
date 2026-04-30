@@ -105,6 +105,13 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
     WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
     WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
     WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
+    WeakReferenceMessenger.Default.Register<UpdateSystemInfoResponse>(this, ReceiveUpdateSystemInfoResponse);
+    
+  }
+
+  private void ReceiveUpdateSystemInfoResponse(object recipient, UpdateSystemInfoResponse message)
+  {
+    Antiques = message.AntiquesInventory;
   }
 
   private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
