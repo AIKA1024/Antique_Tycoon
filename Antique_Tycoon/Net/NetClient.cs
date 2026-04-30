@@ -91,6 +91,7 @@ public class NetClient : NetBase
     public async Task<ITcpMessage> SendRequestAsync<T>(T message, CancellationToken cancellationToken = default)
         where T : ITcpMessage
     {
+        Console.WriteLine($"打包 {message.GetType().Name}");
         var data = PackMessage(message);
         var tcs = new TaskCompletionSource<ITcpMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -102,6 +103,7 @@ public class NetClient : NetBase
         // 创建一个安全的超时令牌
         using var timeoutCts = new CancellationTokenSource(DefaultTimeOuTimeSpan);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+        
 
         try
         {

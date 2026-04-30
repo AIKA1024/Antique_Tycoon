@@ -152,11 +152,9 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
         Title = "是否购买该资产", Message = $"购买{estate.Title}需要{estate.Value}", IsShowCancelButton = true,
         IsLightDismissEnabled = false
       });
-      BuyEstateRequest buyEstateRequest;
-      if (isConfirm)
-        buyEstateRequest = new BuyEstateRequest(message.Id, _gameManager.LocalPlayer.Uuid, estate.Uuid);
-      else
-        buyEstateRequest = new BuyEstateRequest { Id = message.Id, IsConfirm = false };
+      var buyEstateRequest = isConfirm
+        ? new BuyEstateRequest(message.Id, _gameManager.LocalPlayer.Uuid, estate.Uuid)
+        : new BuyEstateRequest { Id = message.Id, IsConfirm = false };
 
       await _gameManager.SendToGameServerAsync(buyEstateRequest);
     }));
@@ -217,10 +215,8 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
   [RelayCommand]
   private async Task RollDiceAsync()
   {
-    Console.WriteLine("发起投骰子请求");
     RollButtonEnable = false;
     await _gameManager.SendToGameServerAsync(new RollDiceRequest(_rollDiceActionId));
-    Console.WriteLine("请求结束");
   }
 
   [RelayCommand]

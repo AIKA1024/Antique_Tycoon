@@ -35,8 +35,9 @@ public partial class Estate : NodeModel
         var symbol = modifier.BonusType == BonusType.FlatAdd ? "+" : "×";
         lines.Add($"等级: {i + 1}  收益： {symbol} {modifier.EffectNum}");
       }
+
       lines.Add($"每回合税:{PropertyTax}");
-      
+
       return string.Join(Environment.NewLine, lines);
     }
     set;
@@ -47,8 +48,9 @@ public partial class Estate : NodeModel
   public decimal CalculateCurrentRevenue(decimal baseValue)
   {
     // 安全检查：防止 Level 超出数组范围
-    if (CurrentLevel >= RevenueModifiers.Count) return baseValue;
-    if (CurrentLevel == 0) return 0;
+    var index = CurrentLevel - 1;
+
+    if (index >= RevenueModifiers.Count || index < 0) return baseValue;
 
     var effect = RevenueModifiers[CurrentLevel];
 

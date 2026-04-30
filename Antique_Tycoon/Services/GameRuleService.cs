@@ -341,12 +341,12 @@ public class GameRuleService : ObservableObject
       {
         player.Money -= staff.HiringCost;
         var antiqueList = player.Antiques.ToList();
-        
+
         foreach (var cost in staff.HiringAntiqueCost)
         {
           int targetIndex = cost.Key; // 要删除的古董Index
           int removeCount = cost.Value; // 要删除几个
-          
+
           int removed = 0;
           for (int i = antiqueList.Count - 1; i >= 0 && removed < removeCount; i--)
           {
@@ -357,6 +357,7 @@ public class GameRuleService : ObservableObject
             }
           }
         }
+
         player.Antiques = new ObservableCollection<Antique>(antiqueList);
       }
 
@@ -379,6 +380,7 @@ public class GameRuleService : ObservableObject
   /// <param name="estate">地产</param>
   private async Task HandleEstateAsync(Player player, Estate estate) //todo 踩到别人的地也没ui提醒
   {
+    Console.WriteLine($"服务器认为 {player.Name} {player.Uuid}要买地");
     var passEstateClient = _gameManager.GetClientByPlayerUuid(player.Uuid);
     if (estate.Owner == null) //踩到还没人买的地
     {
@@ -398,6 +400,12 @@ public class GameRuleService : ObservableObject
               { Id = buyEstateRequest.Id };
             await Broadcast(message);
             await Broadcast(new UpdatePlayerInfoResponse(player));
+          }
+          else
+          {
+            if (passEstateClient != null)
+              await _gameManager.NetServerInstance.SendResponseAsync(new AcknowledgementResponse(buyEstateRequest.Id),
+                passEstateClient);
           }
         }
         catch (Exception e)
@@ -582,7 +590,7 @@ public class GameRuleService : ObservableObject
 
     var totalTax = player.Estates.Sum(estate => estate.PropertyTax);
     await ProcessEventAsync(GameTriggerPoint.OnCalculateTax, new PaymentContext(player) { Cost = totalTax });
-    
+
     var totalSalary = player.Staffs.Sum(estate => estate.Salary);
     await ProcessEventAsync(GameTriggerPoint.OnCalculateSalary, new PaymentContext(player) { Cost = totalSalary });
   }

@@ -189,8 +189,9 @@ public class NetServer : NetBase
   public async Task SendResponseAsync<T>(T message, TcpClient client, CancellationToken cancellationToken = default)
     where T : ITcpMessage
   {
+    Console.WriteLine($"服务器单独发送消息： {typeof(T).Name}");
     var data = PackMessage(message);
-    await WriteStreamAsync(client,data, cancellationToken);
+    await WriteStreamAsync(client, data, cancellationToken);
   }
 
   /// <summary>
@@ -230,7 +231,10 @@ public class NetServer : NetBase
     {
       // 发送消息
       if (client == null)
+      {
         WeakReferenceMessenger.Default.Send(message);
+        Console.WriteLine($"服务器本地信使通知 {message.GetType().Name}");
+      }
       else
         await SendResponseAsync(message, client);
 
@@ -258,6 +262,7 @@ public class NetServer : NetBase
   public async Task Broadcast<T>(T message, CancellationToken cancellationToken = default) where T : ResponseBase
   {
     var data = PackMessage(message);
+    Console.WriteLine($"服务器广播发送消息： {typeof(T).Name}");
     foreach (var client in _clientLastActiveTimes.Keys)
     {
       await WriteStreamAsync(client, data, cancellationToken);
@@ -269,6 +274,7 @@ public class NetServer : NetBase
     where T : ResponseBase
   {
     var data = PackMessage(message);
+    Console.WriteLine($"服务器广播发送消息： {typeof(T).Name}");
     foreach (var client in _clientLastActiveTimes.Keys)
     {
       if (client == excluded)

@@ -16,6 +16,6 @@ public class TaxLord:IStaff
   public Bitmap Image => ImageHelper.GetBitmap("avares://Antique_Tycoon/Assets/Image/Staff/Trump.png");
   public decimal HiringCost { get; set; } = 2000;
   public Dictionary<int, int> HiringAntiqueCost => [];
-  public decimal Salary { get; set; } = 500;
+  public decimal Salary { get; set; } = 200;
   public string Description => "统统加税！";
 }

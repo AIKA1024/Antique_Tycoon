@@ -12,175 +12,175 @@
              x:Class="Antique_Tycoon.Views.Widgets.PlayerUI"
              x:DataType="controlViewModels:PlayerUiViewModel"
              x:Name="Me">
-    <Design.DataContext>
-        <controlViewModels:PlayerUiViewModel />
-    </Design.DataContext>
-    <Grid RowDefinitions="4*,*">
-        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
-            <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
-                       FontSize="32" FontWeight="Black"
-                       Margin="0 32 0 0"
-                       Text="{Binding ReminderText}"
-                       Tag="{Binding IsShowReminderText,Mode=OneWay}">
-                <TextBlock.Transitions>
-                    <Transitions>
-                        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
-                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
-                    </Transitions>
-                </TextBlock.Transitions>
-                <TextBlock.Styles>
-                    <Style Selector="TextBlock[Tag=True]">
-                        <Setter Property="Opacity" Value="1" />
-                        <Setter Property="RenderTransform" Value="translateY(100px)" />
-                    </Style>
-                    <Style Selector="TextBlock[Tag=False]">
-                        <Setter Property="Opacity" Value="0" />
-                        <Setter Property="RenderTransform" Value="translateY(-20px)" />
-                    </Style>
-                </TextBlock.Styles>
-            </TextBlock>
+  <Design.DataContext>
+    <controlViewModels:PlayerUiViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="4*,*">
+    <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+      <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
+                 FontSize="32" FontWeight="Black"
+                 Margin="0 32 0 0"
+                 Text="{Binding ReminderText}"
+                 Tag="{Binding IsShowReminderText,Mode=OneWay}">
+        <TextBlock.Transitions>
+          <Transitions>
+            <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
+          </Transitions>
+        </TextBlock.Transitions>
+        <TextBlock.Styles>
+          <Style Selector="TextBlock[Tag=True]">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="RenderTransform" Value="translateY(100px)" />
+          </Style>
+          <Style Selector="TextBlock[Tag=False]">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="RenderTransform" Value="translateY(-20px)" />
+          </Style>
+        </TextBlock.Styles>
+      </TextBlock>
 
-            <c:McContentControl Grid.Column="2">
-                <ItemsControl Height="200"
-                              ItemsSource="{Binding HistoryLogs}">
-                    <ItemsControl.Template>
-                        <ControlTemplate>
-                            <ScrollViewer>
-                                <Interaction.Behaviors>
-                                    <i:ScrollViewerAutoScrollBehavior />
-                                </Interaction.Behaviors>
-                                <ItemsPresenter />
-                            </ScrollViewer>
-                        </ControlTemplate>
-                    </ItemsControl.Template>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock utilities:RichTextHelper.LogSegments="{Binding LogSegments}"
-                                       TextWrapping="Wrap"
-                                       Margin="0,0,0,4" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </c:McContentControl>
-        </Grid>
+      <c:McContentControl Grid.Column="2">
+        <ItemsControl Height="200"
+                      ItemsSource="{Binding HistoryLogs}">
+          <ItemsControl.Template>
+            <ControlTemplate>
+              <ScrollViewer>
+                <Interaction.Behaviors>
+                  <i:ScrollViewerAutoScrollBehavior />
+                </Interaction.Behaviors>
+                <ItemsPresenter />
+              </ScrollViewer>
+            </ControlTemplate>
+          </ItemsControl.Template>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock utilities:RichTextHelper.LogSegments="{Binding LogSegments}"
+                         TextWrapping="Wrap"
+                         Margin="0,0,0,4" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </c:McContentControl>
+    </Grid>
 
-        <Grid Row="1">
+    <Grid Row="1">
 
-            <Grid ColumnDefinitions="*,3*,*">
-                <Border Grid.Column="0" Background="#A3703A"
-                        Padding="16"
-                        HorizontalAlignment="Stretch"
-                        BorderBrush="#694826" BorderThickness="2"
-                        CornerRadius="0 8 0 0">
-                    <Grid ColumnDefinitions="Auto,*">
-                        <StackPanel Spacing="8" utilities:HoverEffect.BrightnessFactor="-0.3">
-                            <Image Source="{Binding LocalPlayer.Avatar}" HorizontalAlignment="Left" />
-                            <TextBlock Text="{Binding LocalPlayer.Name}" HorizontalAlignment="Center" />
-                        </StackPanel>
-                        <Grid Grid.Column="1" RowDefinitions="*,*,*" Margin="32 0 0 0"
-                              utilities:HoverEffect.BrightnessFactor="-0.3">
-                            <TextBlock Grid.Row="0" Text="{Binding LocalPlayer.Money,StringFormat=💰 {0}}" />
-                            <ItemsControl Grid.Row="1" HorizontalAlignment="Left"
-                                          ItemsSource="{Binding LocalPlayer.AntiqueStacks}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <!--todo 正好可以放6个 后面看看怎么改吧 -->
-                                        <WrapPanel ItemSpacing="2" LineSpacing="2" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <!-- 这简直是审美灾难 -->
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <DataTemplate.DataType>
-                                            <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
-                                        </DataTemplate.DataType>
-                                        <Border
-                                            Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}"
-                                            BorderBrush="#e67e22" BorderThickness="2"
-                                            BoxShadow="inset 0 0 12 2 #40000000">
-                                            <ToolTip.Tip>
-                                                <MultiBinding StringFormat="{}{0}&#x0a;点数：{1}&#x0a;价格：{2}">
-                                                    <Binding Path="Item.Name" />
-                                                    <Binding Path="Item.Dice" />
-                                                    <Binding Path="Item.Value" />
-                                                </MultiBinding>
-                                            </ToolTip.Tip>
-                                            <Panel>
-                                                <Image Margin="4"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       Stretch="Uniform"
-                                                       Source="{Binding Item.Image}" />
-                                                <TextBlock Text="{Binding Amount}"
-                                                           FontSize="24"
-                                                           HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                                    <TextBlock.RenderTransform>
-                                                        <TranslateTransform Y="2" X="-2" />
-                                                    </TextBlock.RenderTransform>
-                                                    <TextBlock.Effect>
-                                                        <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
-                                                                          OffsetY="2" />
-                                                    </TextBlock.Effect>
-                                                </TextBlock>
-                                            </Panel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <ItemsControl Grid.Row="2" ItemsSource="{Binding LocalPlayer.Staffs}" />
-                        </Grid>
-                    </Grid>
-                </Border>
-
-
-                <c:McButton Grid.Column="2"
-                            Classes="Confirm"
-                            Padding="0"
-                            Command="{Binding RollDiceCommand}"
-                            HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                            IsEnabled="{Binding RollButtonEnable}">
-                    <Image Source="../../Assets/Image/GameUI/Dice.png" />
-                </c:McButton>
+      <Grid ColumnDefinitions="*,3*,*">
+        <Border Grid.Column="0" Background="#A3703A"
+                Padding="16"
+                HorizontalAlignment="Stretch"
+                BorderBrush="#694826" BorderThickness="2"
+                CornerRadius="0 8 0 0">
+          <Grid ColumnDefinitions="Auto,*">
+            <StackPanel Spacing="8" utilities:HoverEffect.BrightnessFactor="-0.3">
+              <Image Source="{Binding LocalPlayer.Avatar}" HorizontalAlignment="Left" />
+              <TextBlock Text="{Binding LocalPlayer.Name}" HorizontalAlignment="Center" />
+            </StackPanel>
+            <Grid Grid.Column="1" RowDefinitions="*,*,*" Margin="32 0 0 0"
+                  utilities:HoverEffect.BrightnessFactor="-0.3">
+              <TextBlock Grid.Row="0" Text="{Binding LocalPlayer.Money,StringFormat=💰 {0}}" />
+              <ItemsControl Grid.Row="1" HorizontalAlignment="Left"
+                            ItemsSource="{Binding LocalPlayer.AntiqueStacks}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <!--todo 正好可以放6个 后面看看怎么改吧 -->
+                    <WrapPanel ItemSpacing="2" LineSpacing="2" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <!-- 这简直是审美灾难 -->
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <DataTemplate.DataType>
+                      <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
+                    </DataTemplate.DataType>
+                    <Border
+                      Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}"
+                      BorderBrush="#e67e22" BorderThickness="2"
+                      BoxShadow="inset 0 0 12 2 #40000000">
+                      <ToolTip.Tip>
+                        <MultiBinding StringFormat="{}{0}&#x0a;点数：{1}&#x0a;价格：{2}">
+                          <Binding Path="Item.Name" />
+                          <Binding Path="Item.Dice" />
+                          <Binding Path="Item.Value" />
+                        </MultiBinding>
+                      </ToolTip.Tip>
+                      <Panel>
+                        <Image Margin="4"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Stretch="Uniform"
+                               Source="{Binding Item.Image}" />
+                        <TextBlock Text="{Binding Amount}"
+                                   FontSize="24"
+                                   HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                          <TextBlock.RenderTransform>
+                            <TranslateTransform Y="2" X="-2" />
+                          </TextBlock.RenderTransform>
+                          <TextBlock.Effect>
+                            <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
+                                              OffsetY="2" />
+                          </TextBlock.Effect>
+                        </TextBlock>
+                      </Panel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <ItemsControl Grid.Row="2" ItemsSource="{Binding LocalPlayer.Staffs}" />
             </Grid>
-        </Grid>
-
-
-        <Border x:Name="Mask"
-                Grid.Row="0" Grid.RowSpan="2"
-                Background="#80000000"
-                Classes.Invisible="{Binding MaskInvisible}">
-            <Border.Transitions>
-                <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
-                </Transitions>
-            </Border.Transitions>
-            <Border.Styles>
-                <Style Selector="Border#Mask.Invisible">
-                    <Setter Property="Opacity" Value="0" />
-                    <Setter Property="IsHitTestVisible" Value="False" />
-                </Style>
-            </Border.Styles>
-            <Border
-                HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
-                VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
-                <Border.MaxWidth>
-                    <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-                        <Binding Path="DialogViewModel.MaxWidthPercent" />
-                        <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
-                    </MultiBinding>
-                </Border.MaxWidth>
-                <Border.MaxHeight>
-                    <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
-                        <Binding Path="DialogViewModel.MaxHeightPercent" />
-                        <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
-                    </MultiBinding>
-                </Border.MaxHeight>
-                <ContentControl Content="{Binding DialogViewModel}"
-                                Background="Transparent">
-                </ContentControl>
-            </Border>
+          </Grid>
         </Border>
 
 
+        <c:McButton Grid.Column="2"
+                    Classes="Confirm"
+                    Padding="0"
+                    Command="{Binding RollDiceCommand}"
+                    HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                    IsEnabled="{Binding RollButtonEnable}">
+          <Image Source="../../Assets/Image/GameUI/Dice.png" />
+        </c:McButton>
+      </Grid>
     </Grid>
+
+
+    <Border x:Name="Mask"
+            Grid.Row="0" Grid.RowSpan="2"
+            Background="#80000000"
+            Classes.Invisible="{Binding MaskInvisible}">
+      <Border.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+        </Transitions>
+      </Border.Transitions>
+      <Border.Styles>
+        <Style Selector="Border#Mask.Invisible">
+          <Setter Property="Opacity" Value="0" />
+          <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
+      </Border.Styles>
+      <Border
+        HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
+        VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
+        <Border.MaxWidth>
+          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+            <Binding Path="DialogViewModel.MaxWidthPercent" />
+            <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
+          </MultiBinding>
+        </Border.MaxWidth>
+        <Border.MaxHeight>
+          <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+            <Binding Path="DialogViewModel.MaxHeightPercent" />
+            <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
+          </MultiBinding>
+        </Border.MaxHeight>
+        <ContentControl Content="{Binding DialogViewModel}"
+                        Background="Transparent">
+        </ContentControl>
+      </Border>
+    </Border>
+
+
+  </Grid>
 </UserControl>
