@@ -16,7 +16,55 @@
   <Design.DataContext>
     <controlViewModels:PlayerUiViewModel />
   </Design.DataContext>
-  <Grid RowDefinitions="4*,2*,1.5*">
+
+  <UserControl.Styles>
+    <Style Selector="ItemsControl.AntiqueListView">
+      <Setter Property="ItemsPanel">
+        <ItemsPanelTemplate>
+          <WrapPanel ItemSpacing="2" LineSpacing="2" />
+        </ItemsPanelTemplate>
+      </Setter>
+      <Setter Property="ItemTemplate">
+        <DataTemplate>
+          <DataTemplate.DataType>
+            <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
+          </DataTemplate.DataType>
+          <Border
+            Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}"
+            BorderBrush="#e67e22" BorderThickness="2"
+            BoxShadow="inset 0 0 12 2 #40000000">
+            <ToolTip.Tip>
+              <MultiBinding StringFormat="{}{0}&#x0a;点数：{1}&#x0a;价格：{2}">
+                <Binding Path="Item.Name" />
+                <Binding Path="Item.Dice" />
+                <Binding Path="Item.Value" />
+              </MultiBinding>
+            </ToolTip.Tip>
+            <Panel>
+              <Image Margin="4"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     Stretch="Uniform"
+                     Source="{Binding Item.Image}" />
+              <TextBlock Text="{Binding Amount}"
+                         FontSize="24"
+                         HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <TextBlock.RenderTransform>
+                  <TranslateTransform Y="2" X="-2" />
+                </TextBlock.RenderTransform>
+                <TextBlock.Effect>
+                  <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
+                                    OffsetY="2" />
+                </TextBlock.Effect>
+              </TextBlock>
+            </Panel>
+          </Border>
+        </DataTemplate>
+      </Setter>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="*,*">
     <Grid Grid.Row="0" RowSpan="2"
           ColumnDefinitions="*,*,*">
       <TextBlock Grid.Column="1" HorizontalAlignment="Center" IsHitTestVisible="False"
@@ -42,7 +90,9 @@
         </TextBlock.Styles>
       </TextBlock>
 
-      <c:McContentControl Grid.Column="2">
+      <!-- 游戏日志 -->
+      <c:McContentControl
+        Grid.Row="0" Grid.Column="2">
         <ItemsControl Height="200"
                       ItemsSource="{Binding HistoryLogs}">
           <ItemsControl.Template>
@@ -66,106 +116,74 @@
       </c:McContentControl>
     </Grid>
 
-    <!-- 其他玩家UI -->
-    <ItemsControl Grid.Row="1"
-                  Margin="0 0 0 32"
-                  ItemsSource="{Binding OtherPlayers}"
-                  HorizontalAlignment="Left" VerticalAlignment="Center">
-      <ItemsControl.DataTemplates>
-        <DataTemplate x:DataType="models:Player">
-          <Border CornerRadius="32" Background="#A3703A"
-                  BorderBrush="#694826" BorderThickness="2"
-                  ClipToBounds="True"
-                  Padding="0 0 8 0">
-            <StackPanel Orientation="Horizontal" Spacing="32">
-              <Border CornerRadius="32" Cursor="Hand" ClipToBounds="True">
-                <Image Width="32" Height="32" Source="{Binding Avatar}" />
-              </Border>
-              <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-            </StackPanel>
-          </Border>
-        </DataTemplate>
-      </ItemsControl.DataTemplates>
-    </ItemsControl>
 
-    <Grid Row="2">
+    <Grid Row="1"
+          RowDefinitions="1.5*,*"
+          ColumnDefinitions="*,3*,*">
+      <!-- 其他玩家UI -->
+      <ItemsControl
+        ItemsSource="{Binding OtherPlayers}"
+        HorizontalAlignment="Left" VerticalAlignment="Center">
+        <ItemsControl.DataTemplates>
+          <DataTemplate x:DataType="models:Player">
+            <Border CornerRadius="32" Background="#A3703A"
+                    BorderBrush="#694826" BorderThickness="2"
+                    ClipToBounds="True"
+                    Padding="0 0 32 0"
+                    ToolTip.Tip="查看玩家资产">
+              <Grid ColumnDefinitions="*,3.5*" ColumnSpacing="32">
+                <Border CornerRadius="32" Cursor="Hand" ClipToBounds="True"
+                        ToolTip.Tip="定位玩家">
+                  <Image Source="{Binding Avatar}" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="4">
+                  <TextBlock Text="{Binding Name}" />
+                  <ItemsControl Classes="AntiqueListView"
+                                ItemsSource="{Binding AntiqueStacks}" />
+                </StackPanel>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.DataTemplates>
+      </ItemsControl>
 
-      <Grid ColumnDefinitions="*,3*,*">
-        <Border Grid.Column="0" Background="#A3703A"
-                Padding="16"
-                HorizontalAlignment="Stretch"
-                BorderBrush="#694826" BorderThickness="2"
-                CornerRadius="0 8 0 0">
-          <Grid ColumnDefinitions="Auto,*">
-            <StackPanel Spacing="8" utilities:HoverEffect.BrightnessFactor="-0.3">
-              <Image Source="{Binding LocalPlayer.Avatar}" HorizontalAlignment="Left" />
-              <TextBlock Text="{Binding LocalPlayer.Name}" HorizontalAlignment="Center" />
-            </StackPanel>
-            <Grid Grid.Column="1" RowDefinitions="*,*,*" Margin="32 0 0 0"
-                  utilities:HoverEffect.BrightnessFactor="-0.3">
-              <TextBlock Grid.Row="0" Text="{Binding LocalPlayer.Money,StringFormat=💰 {0}}" />
-              <ItemsControl Grid.Row="1" HorizontalAlignment="Left"
-                            ItemsSource="{Binding LocalPlayer.AntiqueStacks}">
-                <ItemsControl.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <!--todo 正好可以放6个 后面看看怎么改吧 -->
-                    <WrapPanel ItemSpacing="2" LineSpacing="2" />
-                  </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <!-- 这简直是审美灾难 -->
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <DataTemplate.DataType>
-                      <x:Type TypeName="entities:ItemStack" x:TypeArguments="entities:Antique" />
-                    </DataTemplate.DataType>
-                    <Border
-                      Background="{Binding Item.Dice,Converter={x:Static cv:RarityColorConverter.DiceToBrush}}"
-                      BorderBrush="#e67e22" BorderThickness="2"
-                      BoxShadow="inset 0 0 12 2 #40000000">
-                      <ToolTip.Tip>
-                        <MultiBinding StringFormat="{}{0}&#x0a;点数：{1}&#x0a;价格：{2}">
-                          <Binding Path="Item.Name" />
-                          <Binding Path="Item.Dice" />
-                          <Binding Path="Item.Value" />
-                        </MultiBinding>
-                      </ToolTip.Tip>
-                      <Panel>
-                        <Image Margin="4"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Stretch="Uniform"
-                               Source="{Binding Item.Image}" />
-                        <TextBlock Text="{Binding Amount}"
-                                   FontSize="24"
-                                   HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                          <TextBlock.RenderTransform>
-                            <TranslateTransform Y="2" X="-2" />
-                          </TextBlock.RenderTransform>
-                          <TextBlock.Effect>
-                            <DropShadowEffect Color="#404040" BlurRadius="0" OffsetX="2.5"
-                                              OffsetY="2" />
-                          </TextBlock.Effect>
-                        </TextBlock>
-                      </Panel>
-                    </Border>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <ItemsControl Grid.Row="2" ItemsSource="{Binding LocalPlayer.Staffs}" />
-            </Grid>
+
+      <!-- 本地玩家ui -->
+      <Border
+        Grid.Row="1" Grid.Column="0" 
+        Background="#A3703A"
+              Padding="16"
+              HorizontalAlignment="Stretch"
+              BorderBrush="#694826" BorderThickness="2"
+              CornerRadius="0 8 0 0">
+        <Grid ColumnDefinitions="Auto,*">
+          <StackPanel Spacing="8" utilities:HoverEffect.BrightnessFactor="-0.3"
+                      Cursor="Hand">
+            <Image Source="{Binding LocalPlayer.Avatar}" HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding LocalPlayer.Name}" HorizontalAlignment="Center" />
+          </StackPanel>
+          <Grid Grid.Column="1" RowDefinitions="*,*,*" Margin="32 0 0 0"
+                utilities:HoverEffect.BrightnessFactor="-0.3">
+            <TextBlock Grid.Row="0" Text="{Binding LocalPlayer.Money,StringFormat=💰 {0}}" />
+            <ItemsControl Grid.Row="1"
+                          Classes="AntiqueListView"
+                          HorizontalAlignment="Left"
+                          ItemsSource="{Binding LocalPlayer.AntiqueStacks}">
+            </ItemsControl>
+            <ItemsControl Grid.Row="2" ItemsSource="{Binding LocalPlayer.Staffs}" />
           </Grid>
-        </Border>
+        </Grid>
+      </Border>
 
-
-        <c:McButton Grid.Column="2"
-                    Classes="Confirm"
-                    Padding="0"
-                    Command="{Binding RollDiceCommand}"
-                    HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                    IsEnabled="{Binding RollButtonEnable}">
-          <Image Source="../../Assets/Image/GameUI/Dice.png" />
-        </c:McButton>
-      </Grid>
+      <!-- 骰子 -->
+      <c:McButton Grid.Row="1" Grid.Column="2"
+                  Classes="Confirm"
+                  Padding="0"
+                  Command="{Binding RollDiceCommand}"
+                  HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                  IsEnabled="{Binding RollButtonEnable}">
+        <Image Source="../../Assets/Image/GameUI/Dice.png" />
+      </c:McButton>
     </Grid>
 
 

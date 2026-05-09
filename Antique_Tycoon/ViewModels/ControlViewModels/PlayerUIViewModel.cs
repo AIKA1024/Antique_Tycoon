@@ -44,8 +44,8 @@ public partial class PlayerUiViewModel : PageViewModelBase, IDisposable
     //PlayerUI自己的dialog服务，以实现按tab透明功能
     private readonly DialogService _dialogService = new();
 
-    [ObservableProperty]
-    public partial ObservableCollection<Player> OtherPlayers { get; set; } = [];
+    [ObservableProperty]//本地调试添加一些默认值
+    public partial ObservableCollection<Player> OtherPlayers { get; set; } = [new Player{Name = "lbw"},new Player{Name = "lbw"},new Player{Name = "lbw"}];
 
     [ObservableProperty] public partial ObservableCollection<IHistoryRecord> HistoryLogs { get; set; } = [];
 
