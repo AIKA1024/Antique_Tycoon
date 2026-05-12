@@ -14,6 +14,8 @@ public partial class HireStaffDialogViewModel : DialogViewModelBase<IStaff?>
   public IList<ItemStack<IStaff>> Staffs { get; set; }
   [ObservableProperty] public partial ItemStack<IStaff>? SelectedStaff { get; set; }
 
+  public override bool IsLightDismissEnabled { get; set; } =false;
+
   public HireStaffDialogViewModel(IList<ItemStack<IStaff>> staffs)
   {
     Staffs = staffs;

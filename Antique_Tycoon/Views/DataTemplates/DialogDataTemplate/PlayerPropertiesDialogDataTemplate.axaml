@@ -1,0 +1,51 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dialogViewModels="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
+                    xmlns:models="clr-namespace:Antique_Tycoon.Models"
+                    xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+                    xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls">
+  <Design.PreviewWith>
+    <ContentControl>
+      <ContentControl.DataTemplates>
+        <StaticResource ResourceKey="PlayerPropertiesDialogDataTemplate" />
+      </ContentControl.DataTemplates>
+      <dialogViewModels:PlayerPropertiesDialogViewModel>
+        <x:Arguments>
+          <models:Player />
+        </x:Arguments>
+      </dialogViewModels:PlayerPropertiesDialogViewModel>
+    </ContentControl>
+  </Design.PreviewWith>
+
+  <DataTemplate x:Key="PlayerPropertiesDialogDataTemplate"
+                x:DataType="dialogViewModels:PlayerPropertiesDialogViewModel">
+    <Border Background="#FF434343" Padding="24">
+      <Grid ColumnDefinitions="*,5*" ColumnSpacing="24">
+        <UniformGrid Grid.Column="0" Columns="1"
+                     VerticalAlignment="Center">
+          <Image Source="{Binding Player.Avatar}"
+                 Width="{Binding $parent.Bounds.Width, 
+                            Converter={x:Static cv:MultiplyConverter.Multiply}, 
+                            ConverterParameter=0.5}"
+                 HorizontalAlignment="Center" />
+          <TextBlock Text="{Binding Player.Name}"
+                     HorizontalAlignment="Center" />
+          <TextBlock Text="{Binding Player.Money,StringFormat=现金:{0}}"
+                     HorizontalAlignment="Center" />
+        </UniformGrid>
+
+        <Grid Column="1" RowDefinitions="*,6*">
+          <UniformGrid Rows="1" ColumnSpacing="32">
+            <controls:McButton Content="地产" />
+            <controls:McButton Content="古玩" />
+            <controls:McButton Content="伙计" />
+          </UniformGrid>
+          
+          <Border Grid.Row="1">
+            
+          </Border>
+        </Grid>
+      </Grid>
+    </Border>
+  </DataTemplate>
+</ResourceDictionary>

@@ -130,7 +130,9 @@
                     BorderBrush="#694826" BorderThickness="2"
                     ClipToBounds="True"
                     Padding="0 0 32 0"
-                    ToolTip.Tip="查看玩家资产">
+                    ToolTip.Tip="查看玩家资产"
+                    utilities:Tap.Command="{Binding $parent.((controlViewModels:PlayerUiViewModel)DataContext).ShowPlayerPropertiesDialogCommand}"
+                    utilities:Tap.CommandParameter="{Binding}">
               <Grid ColumnDefinitions="*,3.5*" ColumnSpacing="32">
                 <Border CornerRadius="32" Cursor="Hand" ClipToBounds="True"
                         ToolTip.Tip="定位玩家">
@@ -150,12 +152,12 @@
 
       <!-- 本地玩家ui -->
       <Border
-        Grid.Row="1" Grid.Column="0" 
+        Grid.Row="1" Grid.Column="0"
         Background="#A3703A"
-              Padding="16"
-              HorizontalAlignment="Stretch"
-              BorderBrush="#694826" BorderThickness="2"
-              CornerRadius="0 8 0 0">
+        Padding="16"
+        HorizontalAlignment="Stretch"
+        BorderBrush="#694826" BorderThickness="2"
+        CornerRadius="0 8 0 0">
         <Grid ColumnDefinitions="Auto,*">
           <StackPanel Spacing="8" utilities:HoverEffect.BrightnessFactor="-0.3"
                       Cursor="Hand">
@@ -163,7 +165,9 @@
             <TextBlock Text="{Binding LocalPlayer.Name}" HorizontalAlignment="Center" />
           </StackPanel>
           <Grid Grid.Column="1" RowDefinitions="*,*,*" Margin="32 0 0 0"
-                utilities:HoverEffect.BrightnessFactor="-0.3">
+                utilities:HoverEffect.BrightnessFactor="-0.3"
+                utilities:Tap.Command="{Binding ShowPlayerPropertiesDialogCommand}"
+                utilities:Tap.CommandParameter="{Binding LocalPlayer}">
             <TextBlock Grid.Row="0" Text="{Binding LocalPlayer.Money,StringFormat=💰 {0}}" />
             <ItemsControl Grid.Row="1"
                           Classes="AntiqueListView"
@@ -190,7 +194,8 @@
     <Border x:Name="Mask"
             Grid.Row="0" Grid.RowSpan="2"
             Background="#80000000"
-            Classes.Invisible="{Binding MaskInvisible}">
+            Classes.Invisible="{Binding MaskInvisible}"
+            utilities:Tap.Command="{Binding CloseDialogByMaskTapCommand}">
       <Border.Transitions>
         <Transitions>
           <DoubleTransition Property="Opacity" Duration="0:0:0.2" />

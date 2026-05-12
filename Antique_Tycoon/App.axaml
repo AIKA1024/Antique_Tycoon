@@ -62,5 +62,6 @@
     <StaticResource ResourceKey="HireStaffDialogDataTemplate"/>
     <StaticResource ResourceKey="PlunderAntiqueDialogDataTemplate"/>
     <StaticResource ResourceKey="AddServiceDialogDataTemplate"/>
+    <StaticResource ResourceKey="PlayerPropertiesDialogDataTemplate"/>
   </Application.DataTemplates>
 </Application>
