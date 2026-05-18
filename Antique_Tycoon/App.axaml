@@ -10,6 +10,7 @@
         <MergeResourceInclude Source="Views/Controls/MasterDetailView.axaml"/>
         <MergeResourceInclude Source="/Views/DataTemplates/AllPageDataTemplate.axaml" />
         <MergeResourceInclude Source="Themes/Colors.axaml"/>
+        <MergeResourceInclude Source="Views/Themes/TabItemTheme.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>

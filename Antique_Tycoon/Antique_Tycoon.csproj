@@ -110,6 +110,7 @@
         <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\MapListPageDataTemplate.axaml"/>
         <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\RoomPageDataTemplate.axaml"/>
         <AdditionalFiles Include="Views\DataTemplates\PagesDataTemplate\StartPageDataTemplate.axaml"/>
+        <AdditionalFiles Include="Views\Themes\TabItemTheme.axaml" />
     </ItemGroup>
 
     <ItemGroup>

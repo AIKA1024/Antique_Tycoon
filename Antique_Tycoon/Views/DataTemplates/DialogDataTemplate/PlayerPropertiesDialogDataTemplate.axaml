@@ -34,17 +34,9 @@
                      HorizontalAlignment="Center" />
         </UniformGrid>
 
-        <Grid Column="1" RowDefinitions="*,6*">
-          <UniformGrid Rows="1" ColumnSpacing="32">
-            <controls:McButton Content="地产" />
-            <controls:McButton Content="古玩" />
-            <controls:McButton Content="伙计" />
-          </UniformGrid>
-          
-          <Border Grid.Row="1">
-            
-          </Border>
-        </Grid>
+        <TabControl Grid.Column="1">
+          <TabControl.></TabControl.>
+        </TabControl>
       </Grid>
     </Border>
   </DataTemplate>
