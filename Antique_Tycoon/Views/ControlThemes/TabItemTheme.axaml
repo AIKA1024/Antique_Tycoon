@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <ControlTheme x:Key="{x:Type TabItem}" TargetType="TabItem">
+  <ControlTheme x:Key="McTabItem" TargetType="TabItem">
+    <Setter Property="Foreground" Value="Black"/>
     <Setter Property="Padding" Value="48 12" />
     <Setter Property="Background" Value="#D0D1D4" />
     <Setter Property="BorderBrush" Value="#E3E3E5" />
@@ -14,11 +15,10 @@
             <Grid RowDefinitions="Auto, Auto,Auto">
               <Panel Grid.Row="1">
                 <Border x:Name="Border"
-                      
                         Padding="{TemplateBinding Padding}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2">
-                  <ContentPresenter Content="{TemplateBinding Content}" />
+                  <ContentPresenter Content="{TemplateBinding Header}" />
                 </Border>
                 
                 <Grid ColumnDefinitions="*,*,*"

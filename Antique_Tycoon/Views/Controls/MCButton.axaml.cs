@@ -8,7 +8,7 @@ using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Views.Controls;
 
-public partial class McButton : Button
+public partial class McButton : Button//todo 不需要写一个新的button类，应该使用附加属性来实现播放声音
 {
   [GeneratedDirectProperty(true)]
   public partial bool IsPlaySound { get; set; }

@@ -10,7 +10,7 @@
         <MergeResourceInclude Source="Views/Controls/MasterDetailView.axaml"/>
         <MergeResourceInclude Source="/Views/DataTemplates/AllPageDataTemplate.axaml" />
         <MergeResourceInclude Source="Themes/Colors.axaml"/>
-        <MergeResourceInclude Source="Views/Themes/TabItemTheme.axaml"/>
+        <MergeResourceInclude Source="Views/ControlThemes/TabItemTheme.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>
@@ -23,6 +23,7 @@
     <StyleInclude Source="Views/Controls/Connector.axaml" />
     <StyleInclude Source="Views/Controls/NodeLinkControl.axaml" />
     <StyleInclude Source="Views/Styles/TextBox.axaml" />
+    <StyleInclude Source="Views/Styles/TabControl.axaml" />
     <StyleInclude Source="Views/Styles/Animation.axaml" />
     <!-- <StyleInclude Source="Views/Styles/MenuFlyoutPresenter.axaml" /> -->
     <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />

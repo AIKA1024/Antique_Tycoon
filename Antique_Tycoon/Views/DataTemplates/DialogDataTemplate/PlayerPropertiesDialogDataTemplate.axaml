@@ -34,8 +34,10 @@
                      HorizontalAlignment="Center" />
         </UniformGrid>
 
-        <TabControl Grid.Column="1">
-          <TabControl.></TabControl.>
+        <TabControl Grid.Column="1" Classes="MCTabControl">
+          <TabItem Header="地产" />
+          <TabItem Header="古玩"/>
+          <TabItem Header="伙计"/>
         </TabControl>
       </Grid>
     </Border>
