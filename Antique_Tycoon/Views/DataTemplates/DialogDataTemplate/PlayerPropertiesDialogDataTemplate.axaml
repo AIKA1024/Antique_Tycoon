@@ -3,6 +3,7 @@
                     xmlns:dialogViewModels="clr-namespace:Antique_Tycoon.ViewModels.DialogViewModels"
                     xmlns:models="clr-namespace:Antique_Tycoon.Models"
                     xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
+                    xmlns:u="using:Antique_Tycoon.Utilities"
                     xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls">
   <Design.PreviewWith>
     <ContentControl>
@@ -35,7 +36,15 @@
         </UniformGrid>
 
         <TabControl Grid.Column="1" Classes="MCTabControl">
-          <TabItem Header="地产" />
+          <TabControl.Styles>
+            <Style Selector="TabItem">
+              <Setter Property="u:SoundAction.ClickSound" Value="Assets/SFX/MCButtonPressed.mp3"/>
+              <Setter Property="u:SoundAction.IsSoundEnabled" Value="{Binding !IsSelected, RelativeSource={RelativeSource Self}}"/>
+              <Setter Property="u:SoundAction.TriggerType" Value="PointerPressed"/>
+            </Style>
+          </TabControl.Styles>
+          
+          <TabItem Header="地产"/>
           <TabItem Header="古玩"/>
           <TabItem Header="伙计"/>
         </TabControl>
