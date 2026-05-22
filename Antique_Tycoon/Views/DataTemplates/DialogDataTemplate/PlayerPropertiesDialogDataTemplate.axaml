@@ -5,50 +5,56 @@
                     xmlns:cv="clr-namespace:Antique_Tycoon.Converters"
                     xmlns:u="using:Antique_Tycoon.Utilities"
                     xmlns:controls="clr-namespace:Antique_Tycoon.Views.Controls">
-  <Design.PreviewWith>
-    <ContentControl>
-      <ContentControl.DataTemplates>
-        <StaticResource ResourceKey="PlayerPropertiesDialogDataTemplate" />
-      </ContentControl.DataTemplates>
-      <dialogViewModels:PlayerPropertiesDialogViewModel>
-        <x:Arguments>
-          <models:Player />
-        </x:Arguments>
-      </dialogViewModels:PlayerPropertiesDialogViewModel>
-    </ContentControl>
-  </Design.PreviewWith>
+    <Design.PreviewWith>
+        <ContentControl>
+            <ContentControl.DataTemplates>
+                <StaticResource ResourceKey="PlayerPropertiesDialogDataTemplate" />
+            </ContentControl.DataTemplates>
+            <dialogViewModels:PlayerPropertiesDialogViewModel>
+                <x:Arguments>
+                    <models:Player />
+                </x:Arguments>
+            </dialogViewModels:PlayerPropertiesDialogViewModel>
+        </ContentControl>
+    </Design.PreviewWith>
 
-  <DataTemplate x:Key="PlayerPropertiesDialogDataTemplate"
-                x:DataType="dialogViewModels:PlayerPropertiesDialogViewModel">
-    <Border Background="#FF434343" Padding="24">
-      <Grid ColumnDefinitions="*,5*" ColumnSpacing="24">
-        <UniformGrid Grid.Column="0" Columns="1"
-                     VerticalAlignment="Center">
-          <Image Source="{Binding Player.Avatar}"
-                 Width="{Binding $parent.Bounds.Width, 
+    <DataTemplate x:Key="PlayerPropertiesDialogDataTemplate"
+                  x:DataType="dialogViewModels:PlayerPropertiesDialogViewModel">
+        <Border Background="#FF434343" Padding="24">
+            <Grid ColumnDefinitions="*,5*" ColumnSpacing="24">
+                <UniformGrid Grid.Column="0" Columns="1"
+                             VerticalAlignment="Center">
+                    <Image Source="{Binding Player.Avatar}"
+                           Width="{Binding $parent.Bounds.Width, 
                             Converter={x:Static cv:MultiplyConverter.Multiply}, 
                             ConverterParameter=0.5}"
-                 HorizontalAlignment="Center" />
-          <TextBlock Text="{Binding Player.Name}"
-                     HorizontalAlignment="Center" />
-          <TextBlock Text="{Binding Player.Money,StringFormat=现金:{0}}"
-                     HorizontalAlignment="Center" />
-        </UniformGrid>
+                           HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding Player.Name}"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding Player.Money,StringFormat=现金:{0}}"
+                               HorizontalAlignment="Center" />
+                </UniformGrid>
 
-        <TabControl Grid.Column="1" Classes="MCTabControl">
-          <TabControl.Styles>
-            <Style Selector="TabItem">
-              <Setter Property="u:SoundAction.ClickSound" Value="Assets/SFX/MCButtonPressed.mp3"/>
-              <Setter Property="u:SoundAction.IsSoundEnabled" Value="{Binding !IsSelected, RelativeSource={RelativeSource Self}}"/>
-              <Setter Property="u:SoundAction.TriggerType" Value="PointerPressed"/>
-            </Style>
-          </TabControl.Styles>
-          
-          <TabItem Header="地产"/>
-          <TabItem Header="古玩"/>
-          <TabItem Header="伙计"/>
-        </TabControl>
-      </Grid>
-    </Border>
-  </DataTemplate>
+                <TabControl Grid.Column="1" Classes="MCTabControl">
+                    <TabControl.Styles>
+                        <Style Selector="TabItem">
+                            <Setter Property="u:SoundAction.ClickSound" Value="Assets/SFX/MCButtonPressed.mp3" />
+                            <Setter Property="u:SoundAction.IsSoundEnabled"
+                                    Value="{Binding !IsSelected, RelativeSource={RelativeSource Self}}" />
+                            <Setter Property="u:SoundAction.TriggerType" Value="PointerPressed" />
+                        </Style>
+                    </TabControl.Styles>
+
+                    <TabItem Header="地产">
+                        <ItemsControl ItemsSource="{Binding Player.Estates}" />
+                    </TabItem>
+                    <TabItem Header="古玩">
+                        <ItemsControl ItemsSource="{Binding Player.AntiqueStacks}"
+                                      ItemTemplate="{StaticResource AntiqueItemTemplate}" />
+                    </TabItem>
+                    <TabItem Header="伙计" />
+                </TabControl>
+            </Grid>
+        </Border>
+    </DataTemplate>
 </ResourceDictionary>
