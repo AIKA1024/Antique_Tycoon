@@ -13,6 +13,9 @@ public abstract partial class DialogViewModelBase : ObservableValidator
   [ObservableProperty] public partial double MaxWidthPercent { get; set; } = .8f; // 0~1
   [ObservableProperty] public partial double MaxHeightPercent { get; set; } = .8f; // 0~1
 
+  [ObservableProperty] public virtual partial double MinWidthPercent { get; set; } = double.NaN;
+  [ObservableProperty] public virtual partial double MinHeightPercent { get; set; } = double.NaN;
+
   [ObservableProperty]
   public partial HorizontalAlignment HorizontalAlignment { get; set; } = HorizontalAlignment.Center;
 

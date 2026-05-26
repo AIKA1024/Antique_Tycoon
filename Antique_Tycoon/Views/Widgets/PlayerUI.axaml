@@ -207,38 +207,55 @@
                 Background="#80000000"
                 Classes.Invisible="{Binding MaskInvisible}"
                 utilities:Tap.Command="{Binding CloseDialogByMaskTapCommand}">
+
             <Border.Transitions>
                 <Transitions>
                     <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
                 </Transitions>
             </Border.Transitions>
+
             <Border.Styles>
                 <Style Selector="Border#Mask.Invisible">
                     <Setter Property="Opacity" Value="0" />
                     <Setter Property="IsHitTestVisible" Value="False" />
                 </Style>
             </Border.Styles>
-            <Border
-                HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
-                VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
+
+            <Border HorizontalAlignment="{Binding DialogViewModel.HorizontalAlignment}"
+                    VerticalAlignment="{Binding DialogViewModel.VerticalAlignment}">
+
+                <Border.MinWidth>
+                    <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+                        <Binding Path="DialogViewModel.MinWidthPercent" />
+                        <Binding Path="Bounds.Width" ElementName="Mask" />
+                    </MultiBinding>
+                </Border.MinWidth>
+
+                <Border.MinHeight>
+                    <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
+                        <Binding Path="DialogViewModel.MinHeightPercent" />
+                        <Binding Path="Bounds.Height" ElementName="Mask" />
+                    </MultiBinding>
+                </Border.MinHeight>
+
                 <Border.MaxWidth>
                     <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
                         <Binding Path="DialogViewModel.MaxWidthPercent" />
-                        <Binding Path="Bounds.Width" RelativeSource="{RelativeSource AncestorType=Border}" />
+                        <Binding Path="Bounds.Width" ElementName="Mask" />
                     </MultiBinding>
                 </Border.MaxWidth>
+
                 <Border.MaxHeight>
                     <MultiBinding Converter="{x:Static cv:MultiplyValuesConverter.Multiply}">
                         <Binding Path="DialogViewModel.MaxHeightPercent" />
-                        <Binding Path="Bounds.Height" RelativeSource="{RelativeSource AncestorType=Border}" />
+                        <Binding Path="Bounds.Height" ElementName="Mask" />
                     </MultiBinding>
                 </Border.MaxHeight>
+
                 <ContentControl Content="{Binding DialogViewModel}"
-                                Background="Transparent">
-                </ContentControl>
+                                Background="Transparent" />
             </Border>
         </Border>
-
 
     </Grid>
 </UserControl>

@@ -3,8 +3,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.ViewModels.DialogViewModels;
 
-public partial class PlayerPropertiesDialogViewModel(Player player):DialogViewModelBase
+public partial class PlayerPropertiesDialogViewModel(Player player) : DialogViewModelBase
 {
     [ObservableProperty] public partial Player Player { get; set; } = player;
-    
+
+    public override double MinHeightPercent { get; set; } = .8;
+    public override double MinWidthPercent { get; set; } = .8;
 }

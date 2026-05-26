@@ -43,6 +43,14 @@
                                     Value="{Binding !IsSelected, RelativeSource={RelativeSource Self}}" />
                             <Setter Property="u:SoundAction.TriggerType" Value="PointerPressed" />
                         </Style>
+
+                        <Style Selector="TabControl /template/ ItemsPresenter>WrapPanel">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                        <Style Selector="TabControl /template/ Panel">
+                            <Setter Property="Margin" Value="0 12 0 0"/>
+                            <Setter Property="Background" Value="#FF313233" />
+                        </Style>
                     </TabControl.Styles>
 
                     <TabItem Header="地产">
