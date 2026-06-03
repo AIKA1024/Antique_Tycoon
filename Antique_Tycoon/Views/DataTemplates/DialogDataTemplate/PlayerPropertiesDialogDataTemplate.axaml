@@ -20,49 +20,59 @@
 
     <DataTemplate x:Key="PlayerPropertiesDialogDataTemplate"
                   x:DataType="dialogViewModels:PlayerPropertiesDialogViewModel">
-        <Border Background="#FF434343" Padding="24">
-            <Grid ColumnDefinitions="*,5*" ColumnSpacing="24">
-                <UniformGrid Grid.Column="0" Columns="1"
-                             VerticalAlignment="Center">
-                    <Image Source="{Binding Player.Avatar}"
-                           Width="{Binding $parent.Bounds.Width, 
+        <Border BorderBrush="#1C1C1D" BorderThickness="4">
+            <Border BorderBrush="#DFDFE1" BorderThickness="4"
+                    Padding="24"
+                    Background="#CACBCE">
+                <Border BorderBrush="Black" BorderThickness="4"
+                        Padding="16"
+                        Background="#FF434343">
+                    <Grid ColumnDefinitions="*,5*" ColumnSpacing="24">
+                        <UniformGrid Grid.Column="0" Columns="1"
+                                     VerticalAlignment="Center">
+                            <Image Source="{Binding Player.Avatar}"
+                                   Width="{Binding $parent.Bounds.Width, 
                             Converter={x:Static cv:MultiplyConverter.Multiply}, 
                             ConverterParameter=0.5}"
-                           HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding Player.Name}"
-                               HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding Player.Money,StringFormat=现金:{0}}"
-                               HorizontalAlignment="Center" />
-                </UniformGrid>
+                                   HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding Player.Name}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding Player.Money,StringFormat=现金:{0}}"
+                                       HorizontalAlignment="Center" />
+                        </UniformGrid>
 
-                <TabControl Grid.Column="1" Classes="MCTabControl">
-                    <TabControl.Styles>
-                        <Style Selector="TabItem">
-                            <Setter Property="u:SoundAction.ClickSound" Value="Assets/SFX/MCButtonPressed.mp3" />
-                            <Setter Property="u:SoundAction.IsSoundEnabled"
-                                    Value="{Binding !IsSelected, RelativeSource={RelativeSource Self}}" />
-                            <Setter Property="u:SoundAction.TriggerType" Value="PointerPressed" />
-                        </Style>
+                        <TabControl Grid.Column="1" Classes="MCTabControl">
+                            <TabControl.Styles>
+                                <Style Selector="TabItem">
+                                    <Setter Property="u:SoundAction.ClickSound" Value="Assets/SFX/MCButtonPressed.mp3" />
+                                    <Setter Property="u:SoundAction.IsSoundEnabled"
+                                            Value="{Binding !IsSelected, RelativeSource={RelativeSource Self}}" />
+                                    <Setter Property="u:SoundAction.TriggerType" Value="PointerPressed" />
+                                </Style>
 
-                        <Style Selector="TabControl /template/ ItemsPresenter>WrapPanel">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                        </Style>
-                        <Style Selector="TabControl /template/ Panel">
-                            <Setter Property="Margin" Value="0 12 0 0"/>
-                            <Setter Property="Background" Value="#FF313233" />
-                        </Style>
-                    </TabControl.Styles>
+                                <Style Selector="TabControl /template/ ItemsPresenter>WrapPanel">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                </Style>
+                                <Style Selector="TabControl /template/ Panel">
+                                    <Setter Property="Margin" Value="0 12 0 0" />
+                                    <Setter Property="Background" Value="#FF313233" />
+                                </Style>
+                            </TabControl.Styles>
 
-                    <TabItem Header="地产">
-                        <ItemsControl ItemsSource="{Binding Player.Estates}" />
-                    </TabItem>
-                    <TabItem Header="古玩">
-                        <ItemsControl ItemsSource="{Binding Player.AntiqueStacks}"
-                                      ItemTemplate="{StaticResource AntiqueItemTemplate}" />
-                    </TabItem>
-                    <TabItem Header="伙计" />
-                </TabControl>
-            </Grid>
+                            <TabItem Header="地产">
+                                <ItemsControl ItemsSource="{Binding Player.Estates}" />
+                            </TabItem>
+                            <TabItem Header="古玩">
+                                <ItemsControl ItemsSource="{Binding Player.AntiqueStacks}"
+                                              ItemTemplate="{StaticResource AntiqueItemTemplate}" />
+                            </TabItem>
+                            <TabItem Header="伙计" />
+                        </TabControl>
+                    </Grid>
+                </Border>
+
+            </Border>
+
         </Border>
     </DataTemplate>
 </ResourceDictionary>

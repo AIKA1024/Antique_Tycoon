@@ -395,6 +395,7 @@ public class GameRuleService : ObservableObject
           if (buyEstateRequest.IsConfirm)
           {
             player.Money -= estate.Value;
+            player.Estates.Add(estate);
             estate.Owner = player;
             var message = new UpdateEstateInfoResponse(player.Uuid, estate.Uuid)
               { Id = buyEstateRequest.Id };
@@ -404,7 +405,8 @@ public class GameRuleService : ObservableObject
           else
           {
             if (passEstateClient != null)
-              await _gameManager.NetServerInstance.SendResponseAsync(new AcknowledgementResponse(buyEstateRequest.Id),
+              await _gameManager.NetServerInstance.SendResponseAsync(
+                new AcknowledgementResponse(buyEstateRequest.Id),
                 passEstateClient);
           }
         }
@@ -554,7 +556,7 @@ public class GameRuleService : ObservableObject
       if (string.IsNullOrEmpty(buyer?.Uuid))
       {
         _gameManager.Antiques.Add(antique); //todo 客户端没同步
-        await Broadcast(new UpdateSystemInfoResponse { AntiquesInventory = _gameManager.Antiques },false);
+        await Broadcast(new UpdateSystemInfoResponse { AntiquesInventory = _gameManager.Antiques }, false);
       }
       else
       {
