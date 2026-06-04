@@ -69,14 +69,13 @@
             <controls:MasterDetailView.DetailFoot>
                 <Grid ColumnDefinitions="*,Auto" Margin="0 16 0 0"
                       ColumnSpacing="16">
-                    <controls:McButton Grid.Column="0"
-                                       Classes="Danger"
+                    <Button Classes="MCButton Danger" Grid.Column="0"
                                        Content="不雇佣"
                                        HorizontalAlignment="Left"
                                        Command="{Binding CancelCommand}" />
 
 
-                    <controls:McButton Grid.Column="1" Classes="Confirm" Content="雇佣"
+                    <Button Classes="MCButton Confirm" Grid.Column="1" Content="雇佣"
                                        Command="{Binding HireCommand}" />
                 </Grid>
             </controls:MasterDetailView.DetailFoot>

@@ -1,12 +1,20 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:c="using:Antique_Tycoon.Views.Controls">
+        xmlns:u="using:Antique_Tycoon.Utilities">
   <Design.PreviewWith>
-    <c:McButton Classes="Confirm" Content="Button" />
+    <Button Classes="MCButton Confirm" Content="Button" />
   </Design.PreviewWith>
 
-  <Style Selector="c|McButton">
-    <Setter Property="IsPlaySound" Value="True" />
+  <!-- ==========================================
+       MCButton 样式
+       为普通 Button 提供项目特有的像素风格样式
+       使用方式: <Button Classes="MCButton" ... />
+                <Button Classes="MCButton Confirm" ... />
+       ========================================== -->
+  <Style Selector="Button.MCButton">
+    <!-- 默认音效 -->
+    <Setter Property="u:SoundAction.ClickSound" Value="Assets/SFX/MCButtonPressed.mp3" />
+
     <Setter Property="Padding" Value="64 16" />
     <Setter Property="CornerRadius" Value="0" />
     <Setter Property="Background" Value="#C6C6C6" />
@@ -52,118 +60,134 @@
         </Grid>
       </ControlTemplate>
     </Setter>
-    
+
+    <!-- 默认状态下底部色条 -->
     <Style Selector="^>Grid>Border>DockPanel>Rectangle">
-      <Setter Property="Fill" Value="#1D4D13" />
+      <Setter Property="Fill" Value="#58585A" />
     </Style>
+
+    <!-- 按压态 -->
     <Style Selector="^:pressed>Grid>Rectangle">
       <Setter Property="Height" Value="5" />
     </Style>
     <Style Selector="^:pressed>Grid>Border>DockPanel>Rectangle">
       <Setter Property="Height" Value="0" />
     </Style>
+
+    <!-- 悬停态 -->
     <Style Selector="^:pointerover">
       <Setter Property="BorderBrush" Value="#FFFFFF" />
       <Setter Property="Background" Value="#E6218306" />
       <Setter Property="Foreground" Value="#FFFFFF" />
     </Style>
-  </Style>
 
-  <Style Selector="c|McButton.Confirm">
-    <Setter Property="Foreground" Value="White" />
-    <Setter Property="Background" Value="#3C8527" />
-    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-    <Style Selector="^>Grid>Border>DockPanel>Rectangle">
-      <Setter Property="Fill" Value="#1D4D13"/>
-    </Style>
-    <Style Selector="^:pointerover">
-      <Setter Property="Background" Value="#2A641C" />
-      <Style Selector="^>StackPanel>Border>DockPanel>Border">
-        <Setter Property="BorderBrush" Value="#7FA277" />
+    <!-- ==========================================
+         变体：Confirm（确认 / 绿色）
+         ========================================== -->
+    <Style Selector="^.Confirm">
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Background" Value="#3C8527" />
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+      <Style Selector="^>Grid>Border>DockPanel>Rectangle">
+        <Setter Property="Fill" Value="#1D4D13" />
+      </Style>
+      <Style Selector="^:pointerover">
+        <Setter Property="Background" Value="#2A641C" />
+        <Style Selector="^>StackPanel>Border>DockPanel>Border">
+          <Setter Property="BorderBrush" Value="#7FA277" />
+        </Style>
+      </Style>
+      <Style Selector="^:pressed">
+        <Setter Property="Background" Value="#1D4D13" />
+        <Style Selector="^>StackPanel>Border>DockPanel>Border">
+          <Setter Property="BorderBrush" Value="#779471" />
+        </Style>
       </Style>
     </Style>
-    <Style Selector="^:pressed">
-      <Setter Property="Background" Value="#1D4D13"/>
-      <Style Selector="^>StackPanel>Border>DockPanel>Border">
-        <Setter Property="BorderBrush" Value="#779471" />
-      </Style>
-    </Style>
-  </Style>
-  
-  <Style Selector="c|McButton.Danger">
-    <Setter Property="Foreground" Value="White" />
-    <Setter Property="Background" Value="#CA3636" />
-    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-    <Style Selector="^>Grid>Border>DockPanel>Rectangle">
-      <Setter Property="Fill" Value="#AD1D1D"/>
-    </Style>
-    <Style Selector="^:pointerover">
-      <Setter Property="Background" Value="#C02D2D" />
-      <Style Selector="^>StackPanel>Border>DockPanel>Border">
-        <Setter Property="BorderBrush" Value="#DF9696" />
-      </Style>
-    </Style>
-    <Style Selector="^:pressed">
-      <Setter Property="Background" Value="#AD1D1D"/>
-      <Style Selector="^>StackPanel>Border>DockPanel>Border">
-        <Setter Property="BorderBrush" Value="#D68E8E" />
-      </Style>
-    </Style>
-  </Style>
-  
-  <Style Selector="c|McButton.Accent">
-    <Setter Property="Foreground" Value="White" />
-    <Setter Property="Background" Value="#7345E5" />
-    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-    <Style Selector="^>Grid>Border>DockPanel>Rectangle">
-      <Setter Property="Fill" Value="#4A1CAC"/>
-    </Style>
-    <Style Selector="^:pointerover">
-      <Setter Property="Background" Value="#5D2CC6" />
-    </Style>
-    <Style Selector="^:pressed">
-      <Setter Property="Background" Value="#4A1CAC"/>
-      <Style Selector="^>StackPanel>Border>DockPanel>Border">
-        <Setter Property="BorderBrush" Value="#8B3CD8" />
-      </Style>
-    </Style>
-  </Style>
 
-  <Style Selector="c|McButton.Back">
-    <Setter Property="Foreground" Value="Black" />
-    <Setter Property="Padding" Value="14 14 18 18" />
-    <Setter Property="Template">
-      <ControlTemplate>
-        <Panel>
-          <Path Fill="{TemplateBinding Foreground}"
-                Margin="{TemplateBinding Padding}"
-                Stretch="None">
-            <Path.Data>
-              <GeometryGroup>
-                <RectangleGeometry Rect="10,0,2,2" />
-                <RectangleGeometry Rect="8,2,2,2" />
-                <RectangleGeometry Rect="6,4,2,2" />
-                <RectangleGeometry Rect="4,6,2,2" />
-                <RectangleGeometry Rect="2,8,2,2" />
-                <RectangleGeometry Rect="4,10,2,2" />
-                <RectangleGeometry Rect="6,12,2,2" />
-                <RectangleGeometry Rect="8,14,2,2" />
-                <RectangleGeometry Rect="10,16,2,2" />
-              </GeometryGroup>
-            </Path.Data>
-          </Path>
-          <Border x:Name="Border" Background="White" Opacity="0" />
-        </Panel>
-      </ControlTemplate>
-    </Setter>
-    <Style Selector="^:pointerover Border#Border">
-      <Setter Property="Opacity" Value="0.3" />
+    <!-- ==========================================
+         变体：Danger（危险 / 红色）
+         ========================================== -->
+    <Style Selector="^.Danger">
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Background" Value="#CA3636" />
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+      <Style Selector="^>Grid>Border>DockPanel>Rectangle">
+        <Setter Property="Fill" Value="#AD1D1D" />
+      </Style>
+      <Style Selector="^:pointerover">
+        <Setter Property="Background" Value="#C02D2D" />
+        <Style Selector="^>StackPanel>Border>DockPanel>Border">
+          <Setter Property="BorderBrush" Value="#DF9696" />
+        </Style>
+      </Style>
+      <Style Selector="^:pressed">
+        <Setter Property="Background" Value="#AD1D1D" />
+        <Style Selector="^>StackPanel>Border>DockPanel>Border">
+          <Setter Property="BorderBrush" Value="#D68E8E" />
+        </Style>
+      </Style>
     </Style>
-    <Style Selector="^:pressed Border#Border">
-      <Setter Property="Background" Value="Black" />
-      <Setter Property="Opacity" Value="0.1" />
+
+    <!-- ==========================================
+         变体：Accent（强调 / 紫色）
+         ========================================== -->
+    <Style Selector="^.Accent">
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Background" Value="#7345E5" />
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+      <Style Selector="^>Grid>Border>DockPanel>Rectangle">
+        <Setter Property="Fill" Value="#4A1CAC" />
+      </Style>
+      <Style Selector="^:pointerover">
+        <Setter Property="Background" Value="#5D2CC6" />
+      </Style>
+      <Style Selector="^:pressed">
+        <Setter Property="Background" Value="#4A1CAC" />
+        <Style Selector="^>StackPanel>Border>DockPanel>Border">
+          <Setter Property="BorderBrush" Value="#8B3CD8" />
+        </Style>
+      </Style>
+    </Style>
+
+    <!-- ==========================================
+         变体：Back（返回箭头按钮）
+         ========================================== -->
+    <Style Selector="^.Back">
+      <Setter Property="Foreground" Value="Black" />
+      <Setter Property="Padding" Value="14 14 18 18" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Panel>
+            <Path Fill="{TemplateBinding Foreground}"
+                  Margin="{TemplateBinding Padding}"
+                  Stretch="None">
+              <Path.Data>
+                <GeometryGroup>
+                  <RectangleGeometry Rect="10,0,2,2" />
+                  <RectangleGeometry Rect="8,2,2,2" />
+                  <RectangleGeometry Rect="6,4,2,2" />
+                  <RectangleGeometry Rect="4,6,2,2" />
+                  <RectangleGeometry Rect="2,8,2,2" />
+                  <RectangleGeometry Rect="4,10,2,2" />
+                  <RectangleGeometry Rect="6,12,2,2" />
+                  <RectangleGeometry Rect="8,14,2,2" />
+                  <RectangleGeometry Rect="10,16,2,2" />
+                </GeometryGroup>
+              </Path.Data>
+            </Path>
+            <Border x:Name="Border" Background="White" Opacity="0" />
+          </Panel>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:pointerover Border#Border">
+        <Setter Property="Opacity" Value="0.3" />
+      </Style>
+      <Style Selector="^:pressed Border#Border">
+        <Setter Property="Background" Value="Black" />
+        <Setter Property="Opacity" Value="0.1" />
+      </Style>
     </Style>
   </Style>
-
 
 </Styles>

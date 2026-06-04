@@ -59,10 +59,10 @@
         </StackPanel>
 
         <Grid ColumnDefinitions="*,*" ColumnSpacing="16" Margin="16">
-          <controls:McButton
+          <Button Classes="MCButton"
             Content="取消"
             Command="{Binding CancelCommand}" />
-          <controls:McButton Classes="Confirm"
+          <Button Classes="MCButton Confirm"
                              Grid.Column="1"
                              Content="确定"
                              Command="{Binding SubmitCommand}" />

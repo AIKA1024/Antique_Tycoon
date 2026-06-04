@@ -27,11 +27,11 @@
                     Stretch="Fill"
                     Source="{Binding SelectedMap.Cover}" />
                 </Border>
-                <c:McButton
+                <Button
                   Grid.Row="1"
                   FontSize="26"
                   Content="创建"
-                  Classes="Confirm"
+                  Classes="MCButton Confirm"
                   Padding="0"
                   VerticalAlignment="Stretch"
                   Command="{Binding CreateRoomAndNavigateToRoomPageCommand}" />
@@ -69,7 +69,7 @@
           <Border Classes="Item">
             <StackPanel Spacing="8">
               <TextBlock Text="地图" FontWeight="Black" />
-              <c:McButton Content="选择地图" Classes="Confirm" Command="{Binding ShowSelectMapDialogCommand}"/>
+              <Button Content="选择地图" Classes="MCButton Confirm" Command="{Binding ShowSelectMapDialogCommand}"/>
             </StackPanel>
           </Border>
         </StackPanel>

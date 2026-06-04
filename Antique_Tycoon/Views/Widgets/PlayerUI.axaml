@@ -191,14 +191,14 @@
             </Border>
 
             <!-- 骰子 -->
-            <c:McButton Grid.Row="1" Grid.Column="2"
-                        Classes="Confirm"
+            <Button Grid.Row="1" Grid.Column="2"
+                        Classes="MCButton Confirm"
                         Padding="0"
                         Command="{Binding RollDiceCommand}"
                         HorizontalAlignment="Right" VerticalAlignment="Stretch"
                         IsEnabled="{Binding RollButtonEnable}">
                 <Image Source="../../Assets/Image/GameUI/Dice.png" />
-            </c:McButton>
+            </Button>
         </Grid>
 
 

@@ -74,7 +74,7 @@
               </DataTemplate>
             </ItemsControl.DataTemplates>
           </ItemsControl>
-          <c:McButton Content="添加等级" Margin="16" Padding="12 8"
+          <Button Classes="MCButton" Content="添加等级" Margin="16" Padding="12 8"
                       Command="{Binding AddLevelCommand}" />
         </StackPanel>
 

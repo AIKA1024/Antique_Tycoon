@@ -25,7 +25,8 @@ public partial class DebugWindowViewModel : ObservableObject
 
 #if DEBUG
   public int PendingRequestsCount => NetClient.PendingRequestsCount;
-
+#else
+  public int PendingRequestsCount => 0;
 #endif
 
   public DebugWindowViewModel()

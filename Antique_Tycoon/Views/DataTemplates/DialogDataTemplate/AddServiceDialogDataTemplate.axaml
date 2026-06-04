@@ -29,10 +29,10 @@
         </c:McContentControl>
         <c:McContentControl>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-            <c:McButton Grid.Column="0" Content="取消"
+            <Button Classes="MCButton" Grid.Column="0" Content="取消"
                         Command="{Binding CancelCommand}"/>
-            <c:McButton Grid.Column="1"
-                        Classes="Confirm"
+            <Button Grid.Column="1"
+                        Classes="MCButton Confirm"
                         Content="添加服务器"
                         Command="{Binding ConfirmCommand}"/>
           </Grid>

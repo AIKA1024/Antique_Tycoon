@@ -34,10 +34,10 @@
                    Text="{Binding MapName}" />
           <StackPanel Spacing="8">
             <Rectangle Height="3" Fill="{StaticResource LightedBorderBrush}" />
-            <c:McButton Margin="16 0"
-                        Content="取消" 
+            <Button Classes="MCButton" Margin="16 0"
+                        Content="取消"
                         Command="{Binding CancelCommand}"/>
-            <c:McButton Margin="16 0" Classes="Confirm" Content="创建" 
+            <Button Classes="MCButton Confirm" Margin="16 0" Content="创建" 
                         Command="{Binding SubmitCommand}"/>
             <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" />
           </StackPanel>

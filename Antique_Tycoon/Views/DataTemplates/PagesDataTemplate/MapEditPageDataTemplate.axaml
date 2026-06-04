@@ -23,11 +23,11 @@
         Title="地图编辑器"
         Grid.Row="0"
         ZIndex="1">
-        <c:McButton
+        <Button
           Margin="0,0,8,0"
           Padding="8,4"
           VerticalAlignment="Center"
-          Classes="Confirm"
+          Classes="MCButton Confirm"
           Content="保存"
           Command="{Binding SaveMapCommand}"
           FontSize="12"/>
@@ -138,7 +138,7 @@
                     </c:McContentControl>
                     <c:McContentControl Header="图片">
                       <StackPanel Orientation="Horizontal" Spacing="16">
-                        <c:McButton Content="选择图片" Classes="Confirm" Padding="12 8"
+                        <Button Content="选择图片" Classes="MCButton Confirm" Padding="12 8"
                                     Command="{Binding ChangeNodeImageCommand}"
                                     CommandParameter="{Binding SelectedMapEntity}" />
                         <ComboBox ItemsSource="{e:EnumItems {x:Type Stretch}}"
@@ -231,7 +231,7 @@
                           </DataTemplate>
                         </ItemsControl.DataTemplates>
                       </ItemsControl>
-                      <c:McButton Content="添加新古玩" Margin="16" Padding="12 8"
+                      <Button Classes="MCButton" Content="添加新古玩" Margin="16" Padding="12 8"
                                   Command="{Binding AddNewAntiqueCommand}" />
                     </StackPanel>
                   </c:McContentControl>
