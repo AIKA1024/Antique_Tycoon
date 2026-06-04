@@ -34,6 +34,7 @@
                   Classes="MCButton Confirm"
                   Padding="0"
                   VerticalAlignment="Stretch"
+                  HorizontalAlignment="Stretch"
                   Command="{Binding CreateRoomAndNavigateToRoomPageCommand}" />
               </Grid>
             </Border>
@@ -69,7 +70,10 @@
           <Border Classes="Item">
             <StackPanel Spacing="8">
               <TextBlock Text="地图" FontWeight="Black" />
-              <Button Content="选择地图" Classes="MCButton Confirm" Command="{Binding ShowSelectMapDialogCommand}"/>
+              <Button Classes="MCButton Confirm"
+                      Content="选择地图"
+                      Command="{Binding ShowSelectMapDialogCommand}"
+                      HorizontalAlignment="Stretch" />
             </StackPanel>
           </Border>
         </StackPanel>
