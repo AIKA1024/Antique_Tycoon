@@ -12,7 +12,9 @@ namespace Antique_Tycoon.Converters;
 
 public class OwnerToBackgroundConverter : MarkupExtension, IValueConverter
 {
-    private readonly GameManager _gameManager = App.Current.Services.GetRequiredService<GameManager>();
+    private GameManager? _gameManager;
+    private GameManager GameManager => _gameManager ??= App.Current.Services.GetRequiredService<GameManager>();
+
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -20,7 +22,7 @@ public class OwnerToBackgroundConverter : MarkupExtension, IValueConverter
         var player = value as Player;
         if (player == null)
             return (SolidColorBrush)App.Current.FindResource("UnownedEstateBrush");
-        if (player.Uuid == _gameManager.LocalPlayer.Uuid)
+        if (player.Uuid == GameManager.LocalPlayer.Uuid)
             return (SolidColorBrush)App.Current.FindResource("MyEstateBrush");
         return (SolidColorBrush)App.Current.FindResource("OpponentEstateBrush");
     }

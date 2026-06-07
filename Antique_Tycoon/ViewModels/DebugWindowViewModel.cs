@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon.ViewModels;
 
-public partial class DebugWindowViewModel : ObservableObject
+public partial class DebugWindowViewModel : ObservableObject, IDisposable
 {
   public ActionQueueService ActionQueueService { get; } =
     App.Current.Services.GetRequiredService<ActionQueueService>();
@@ -45,5 +45,11 @@ public partial class DebugWindowViewModel : ObservableObject
     _timer.Elapsed += (_, _) => { OnPropertyChanged(nameof(PendingRequestsCount)); };
     _timer.Start();
 #endif
+  }
+
+  public void Dispose()
+  {
+    _timer.Stop();
+    _timer.Dispose();
   }
 }

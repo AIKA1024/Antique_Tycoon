@@ -31,7 +31,7 @@ namespace Antique_Tycoon.Services;
 /// <summary>
 /// 游戏数据核心服务，封装基本业务操作
 /// </summary>
-public partial class GameManager : ObservableObject //todo 心跳超时逻辑应该在这里
+public partial class GameManager : ObservableObject, ILocalPlayerInfo //todo 心跳超时逻辑应该在这里
 {
   private readonly Lazy<NetServer> _netServerLazy; //如果依赖注入后，需要NetServer、NetClient的同时需要GameManager，只需要拿GameManager就行了
   private readonly Lazy<NetClient> _netClientLazy;
@@ -61,6 +61,7 @@ public partial class GameManager : ObservableObject //todo 心跳超时逻辑应
   public NetServer NetServerInstance => _netServerLazy.Value;
   public NetClient NetClientInstance => _netClientLazy.Value;
   public Player LocalPlayer => _playersByUuid[_localPlayerUuid];
+  string ILocalPlayerInfo.Uuid => _localPlayerUuid;
   [ObservableProperty] public partial Map? SelectedMap { get; set; }
   public string RoomOwnerUuid { get; set; } = "";
   public bool IsRoomOwner => RoomOwnerUuid == LocalPlayer.Uuid;

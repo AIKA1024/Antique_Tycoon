@@ -9,11 +9,17 @@ namespace Antique_Tycoon.Views.Windows;
 
 public partial class MainWindow : Window
 {
+#if DEBUG
+  private readonly DebugWindow _debugWindow;
+#endif
+
   public MainWindow()
   {
     InitializeComponent();
 #if DEBUG
-    new DebugWindow().Show();
+    _debugWindow = new DebugWindow();
+    _debugWindow.Show();
+    Closing += (_, _) => _debugWindow.Close();
 #endif
   }
 }

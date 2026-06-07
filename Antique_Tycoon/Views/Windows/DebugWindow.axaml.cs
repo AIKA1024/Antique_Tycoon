@@ -13,5 +13,6 @@ public partial class DebugWindow : Window
     {
         InitializeComponent();
         DataContext = new DebugWindowViewModel();
+        Closing += (_, _) => (DataContext as IDisposable)?.Dispose();
     }
 }

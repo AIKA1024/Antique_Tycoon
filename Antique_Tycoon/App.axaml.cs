@@ -80,7 +80,8 @@ public partial class App : Application
     services.AddTransient<ITcpMessageHandler, ExitRoomHandler>();
     services.AddTransient<ITcpMessageHandler, DownloadMapHandler>();
     services.AddTransient<ITcpMessageHandler, PlayerMoveHandler>();
-    services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<GameManager>(), DownloadMapPath));
+    services.AddSingleton<ILocalPlayerInfo>(sp => sp.GetRequiredService<GameManager>());
+    services.AddSingleton<NetClient>(sp => new NetClient(sp.GetRequiredService<ILocalPlayerInfo>(), DownloadMapPath));
     services.AddSingleton(sp => new Lazy<NetClient>(sp.GetRequiredService<NetClient>));
     services.AddSingleton<NetServer>(sp =>
       new NetServer(sp.GetServices<ITcpMessageHandler>(), DownloadMapPath)); // 这样注册才合理，NetClient不规范

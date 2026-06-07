@@ -12,7 +12,7 @@ using Antique_Tycoon.Models.Net.Tcp;
 using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Udp;
-using Antique_Tycoon.Services;
+using Antique_Tycoon.Models;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Antique_Tycoon.Net;
@@ -22,13 +22,13 @@ public class NetClient : NetBase
     private readonly UdpClient _udpClient = new();
     private TcpClient? _tcpClient;
     private readonly ConcurrentDictionary<string, TaskCompletionSource<ITcpMessage>> _pendingRequests = new();
-    private readonly GameManager _gameManager;
+    private readonly ILocalPlayerInfo _localPlayerInfo;
     public event Action? DisconnectedFromServer;
     public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(3);
 
-    public NetClient(GameManager gameManagerLazy, string downloadPath)
+    public NetClient(ILocalPlayerInfo localPlayerInfo, string downloadPath)
     {
-        _gameManager = gameManagerLazy;
+        _localPlayerInfo = localPlayerInfo;
         DownloadPath = downloadPath;
     }
 
@@ -53,7 +53,7 @@ public class NetClient : NetBase
                 using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
                 cts.CancelAfter(TimeSpan.FromSeconds(2));
 
-                await SendAsync(new HeartbeatMessage(_gameManager.LocalPlayer.Uuid), cts.Token).ConfigureAwait(false);
+                await SendAsync(new HeartbeatMessage(_localPlayerInfo.Uuid), cts.Token).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
