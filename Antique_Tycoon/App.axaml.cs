@@ -69,7 +69,7 @@ public partial class App : Application
       { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
     services.AddSingleton(new LibVLC("--no-video"));
     services.AddSingleton<MainWindowViewModel>();
-    services.AddSingleton<NavigationService>(sp => new NavigationService(sp.GetRequiredService<MainWindowViewModel>()));
+    services.AddSingleton<NavigationService>();
     services.AddSingleton<MapFileService>();
     services.AddSingleton<DialogService>();
     services.AddSingleton<GameManager>();

@@ -13,7 +13,16 @@ namespace Antique_Tycoon.ViewModels;
 
 public partial class MainWindowViewModel : PageViewModelBase
 {
-  [ObservableProperty] private PageViewModelBase _currentPageViewModel = new StartPageViewModel();
+  public NavigationService NavigationService { get; } =
+    App.Current.Services.GetRequiredService<NavigationService>();
+
+  /// <summary>透传 NavigationService.CurrentPageViewModel，供 XAML 绑定</summary>
+  public PageViewModelBase CurrentPageViewModel
+  {
+    get => NavigationService.CurrentPageViewModel;
+    set => NavigationService.CurrentPageViewModel = value;
+  }
+
   public DialogViewModelBase? DialogViewModel => DialogService.CurrentDialogViewModel;
 
   public DialogService DialogService { get; } =
@@ -22,6 +31,11 @@ public partial class MainWindowViewModel : PageViewModelBase
   public MainWindowViewModel()
   {
     DialogService.DialogCollectionChanged += NotifyDialogViewModelChanged;
+    NavigationService.PropertyChanged += (_, e) =>
+    {
+      if (e.PropertyName == nameof(NavigationService.CurrentPageViewModel))
+        OnPropertyChanged(nameof(CurrentPageViewModel));
+    };
   }
 
   private void NotifyDialogViewModelChanged()
@@ -49,23 +63,18 @@ public partial class MainWindowViewModel : PageViewModelBase
 
   private bool IsDerivedFromGenericDialogViewModelBase(Type type)
   {
-    // 递归检查继承链
     var currentType = type;
     while (currentType != null && currentType != typeof(object))
     {
-      // 检查当前类型是否是泛型类型，且泛型定义是 DialogViewModelBase<>
       if (currentType.IsGenericType &&
           currentType.GetGenericTypeDefinition() == typeof(DialogViewModelBase<>))
       {
         return true;
       }
 
-      // 继续检查父类
       currentType = currentType.BaseType;
     }
 
     return false;
   }
-
-
 }

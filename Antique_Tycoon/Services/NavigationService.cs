@@ -1,25 +1,24 @@
 using System;
 using System.Collections.Generic;
-using Antique_Tycoon.ViewModels;
 using Antique_Tycoon.ViewModels.PageViewModels;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antique_Tycoon.Services;
 
-public class NavigationService
+public partial class NavigationService : ObservableObject
 {
-  private readonly MainWindowViewModel _mainWindowViewModel;
   private readonly List<PageViewModelBase> _navigationHistory = [];
 
-  public NavigationService(MainWindowViewModel viewModel)
-  {
-    _mainWindowViewModel = viewModel;
-  }
+  [ObservableProperty] private bool _isTransitionReversed;
+
+  [ObservableProperty] private PageViewModelBase _currentPageViewModel = new StartPageViewModel();
 
   public void Navigation(PageViewModelBase vm)
   {
-    _navigationHistory.Add(_mainWindowViewModel.CurrentPageViewModel);
-    _mainWindowViewModel.CurrentPageViewModel.OnNavigatingFrom();
-    _mainWindowViewModel.CurrentPageViewModel = vm;
+    IsTransitionReversed = false;
+    _navigationHistory.Add(CurrentPageViewModel);
+    CurrentPageViewModel.OnNavigatingFrom();
+    CurrentPageViewModel = vm;
     vm.OnNavigatedTo();
   }
 
@@ -30,11 +29,12 @@ public class NavigationService
 
   public void Back()
   {
-    if (_mainWindowViewModel.CurrentPageViewModel is IDisposable needDisposeObj)
+    IsTransitionReversed = true;
+    if (CurrentPageViewModel is IDisposable needDisposeObj)
       needDisposeObj.Dispose();
-    _mainWindowViewModel.CurrentPageViewModel.OnNavigatingFrom();
-    _mainWindowViewModel.CurrentPageViewModel = _navigationHistory[^1];
-    _mainWindowViewModel.CurrentPageViewModel.OnNavigatedTo();
+    CurrentPageViewModel.OnNavigatingFrom();
+    CurrentPageViewModel = _navigationHistory[^1];
+    CurrentPageViewModel.OnNavigatedTo();
     _navigationHistory.RemoveAt(_navigationHistory.Count - 1);
   }
 }

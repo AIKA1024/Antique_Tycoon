@@ -21,12 +21,13 @@
 
     <Panel>
         <TransitioningContentControl
+            IsTransitionReversed="{Binding NavigationService.IsTransitionReversed}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Content="{Binding CurrentPageViewModel}">
             <TransitioningContentControl.PageTransition>
                 <CompositePageTransition>
-                    <PageSlide Orientation="Horizontal" Duration="0:0:0.35" />
+                    <PageSlide Orientation="Horizontal" Duration="0:0:0.35"  />
                     <CrossFade Duration="0:0:0.2" />
                 </CompositePageTransition>
             </TransitioningContentControl.PageTransition>
