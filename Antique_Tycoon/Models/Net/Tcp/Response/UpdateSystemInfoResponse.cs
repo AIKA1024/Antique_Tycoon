@@ -8,4 +8,5 @@ namespace Antique_Tycoon.Models.Net.Tcp.Response;
 public class UpdateSystemInfoResponse:ResponseBase
 {
   public List<Antique> AntiquesInventory { get; set; } = [];
+  public List<IStaff> StaffsInventory { get; set; } = [];
 }

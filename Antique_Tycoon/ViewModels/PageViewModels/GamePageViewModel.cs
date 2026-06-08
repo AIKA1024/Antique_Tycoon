@@ -75,8 +75,8 @@ public partial class GamePageViewModel : PageViewModelBase
         }
 
         //其实应该也通过服务器发送的，但现在也能用
-        _gameManager.Antiques = _gameManager.SelectedMap.Antiques.ToList();
-        _gameManager.Staffs = _gameManager.SelectedMap.Staffs.ToList();
+        _gameManager.AntiquesInventory = _gameManager.SelectedMap.Antiques.ToList();
+        _gameManager.StaffsInventory = _gameManager.SelectedMap.Staffs.ToList();
     }
 
     private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)

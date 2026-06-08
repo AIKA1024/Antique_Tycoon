@@ -121,11 +121,8 @@ public class GameRuleService : ObservableObject
 
       var spawnNodeUuid = _gameManager.SelectedMap.SpawnNode.Uuid;
       if (selectPath[1..].Contains(spawnNodeUuid) && spawnNodeUuid != selectPath[^1]) //如果路过出生点，就踩一下先
-      {
-        await HandleStepOnNodeAsync(
-          _gameManager.GetPlayerByUuid(currentTurnPlayerUuid),
-          _gameManager.SelectedMap.SpawnNode);
-      }
+        await HandleSpawnPointAsync(_gameManager.GetPlayerByUuid(currentTurnPlayerUuid));
+
 
       await HandleStepOnNodeAsync(
         _gameManager.GetPlayerByUuid(currentTurnPlayerUuid),
@@ -190,7 +187,7 @@ public class GameRuleService : ObservableObject
     var index = Random.Shared.Next(0, player.Staffs.Count);
     var staff = player.Staffs[index];
     player.Staffs.RemoveAt(index);
-    _gameManager.Staffs.Add(staff);
+    _gameManager.StaffsInventory.Add(staff);
     await Broadcast(new UpdatePlayerInfoResponse(player)
     {
       LogSegments =
@@ -214,6 +211,11 @@ public class GameRuleService : ObservableObject
           Text = " 离职了"
         }
       ]
+    });
+    await Broadcast(new UpdateSystemInfoResponse
+    {
+      AntiquesInventory = _gameManager.AntiquesInventory,
+      StaffsInventory = _gameManager.StaffsInventory
     });
   }
 
@@ -316,11 +318,11 @@ public class GameRuleService : ObservableObject
   private async Task HandleTalentMarketAsync(Player player, NodeModel node)
   {
     var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
-    if (_gameManager.Staffs.Count == 0 ||
-        player.Money < _gameManager.Staffs.Min(s => s.HiringCost)) //todo 要判断是否至少有一个员工可以被雇佣，而不是直接判断金钱
+    if (_gameManager.StaffsInventory.Count == 0 ||
+        player.Money < _gameManager.StaffsInventory.Min(s => s.HiringCost)) //todo 要判断是否至少有一个员工可以被雇佣，而不是直接判断金钱
       return;
 
-    var hireStaffActionMessage = new HireStaffAction(_gameManager.Staffs);
+    var hireStaffActionMessage = new HireStaffAction(_gameManager.StaffsInventory);
     try
     {
       var hireStaffRequest =
@@ -329,7 +331,7 @@ public class GameRuleService : ObservableObject
       if (string.IsNullOrEmpty(hireStaffRequest.StaffUuid))
         return;
 
-      var staff = _gameManager.Staffs.First(s => s.Uuid == hireStaffRequest.StaffUuid);
+      var staff = _gameManager.StaffsInventory.First(s => s.Uuid == hireStaffRequest.StaffUuid);
 
       var inventoryMap = player.Antiques.GroupBy(a => a.Index)
         .ToDictionary(g => g.Key, g => g.Count());
@@ -359,12 +361,20 @@ public class GameRuleService : ObservableObject
         }
 
         player.Antiques = new ObservableCollection<Antique>(antiqueList);
+        _gameManager.StaffsInventory.Remove(staff);
+        player.Staffs.Add(staff);
       }
 
       var hireStaffResponse = new HireStaffResponse(hireStaffRequest.Id, player.Uuid, staff.Uuid, canHire);
       var updatePlayerInfoResponse = new UpdatePlayerInfoResponse(player);
+      var updateSystemInfoResponse = new UpdateSystemInfoResponse
+      {
+        AntiquesInventory = _gameManager.AntiquesInventory,
+        StaffsInventory = _gameManager.StaffsInventory
+      };
       await Broadcast(hireStaffResponse);
       await Broadcast(updatePlayerInfoResponse);
+      await Broadcast(updateSystemInfoResponse);
     }
     catch (Exception e)
     {
@@ -555,8 +565,12 @@ public class GameRuleService : ObservableObject
       seller.Antiques.Remove(antique);
       if (string.IsNullOrEmpty(buyer?.Uuid))
       {
-        _gameManager.Antiques.Add(antique); //todo 客户端没同步
-        await Broadcast(new UpdateSystemInfoResponse { AntiquesInventory = _gameManager.Antiques }, false);
+        _gameManager.AntiquesInventory.Add(antique); //todo 客户端没同步
+        await Broadcast(new UpdateSystemInfoResponse
+        {
+          AntiquesInventory = _gameManager.AntiquesInventory,
+          StaffsInventory = _gameManager.StaffsInventory
+        }, false);
       }
       else
       {
@@ -602,10 +616,10 @@ public class GameRuleService : ObservableObject
 
   private async Task HandleMineAsync(Player player, NodeModel node)
   {
-    if (_gameManager.Antiques.Count > 0)
+    if (_gameManager.AntiquesInventory.Count > 0)
     {
-      var randomIndex = Random.Shared.Next(0, _gameManager.Antiques.Count);
-      var antique = _gameManager.Antiques[randomIndex];
+      var randomIndex = Random.Shared.Next(0, _gameManager.AntiquesInventory.Count);
+      var antique = _gameManager.AntiquesInventory[randomIndex];
       var antiqueChangeResponse = new AntiqueChanceResponse(antique.Uuid, player.Uuid, node.Uuid);
       var client = _gameManager.GetClientByPlayerUuid(player.Uuid);
       WeakReferenceMessenger.Default.Send(antiqueChangeResponse, node.Uuid);
@@ -620,6 +634,8 @@ public class GameRuleService : ObservableObject
         new GetAntiqueResultResponse(antique.Uuid, player.Uuid, node.Uuid, isSucceed);
       if (isSucceed)
       {
+        _gameManager.AntiquesInventory.Remove(antique);
+        player.Antiques.Add(antique);
         getAntiqueResultResponse.LogSegments =
         [
           new LogSegment
@@ -640,7 +656,7 @@ public class GameRuleService : ObservableObject
       }
       else
       {
-        _gameManager.UnsoldAntiques.Add(antique);
+        _gameManager.UnsoldAntiquesInventory.Add(antique);//todo 现在还没办法获得失落的古董
         getAntiqueResultResponse.LogSegments =
         [
           new LogSegment
@@ -661,6 +677,12 @@ public class GameRuleService : ObservableObject
       }
 
       await Broadcast(getAntiqueResultResponse);
+      await Broadcast(new UpdatePlayerInfoResponse(player));
+      await Broadcast(new UpdateSystemInfoResponse
+      {
+        AntiquesInventory = _gameManager.AntiquesInventory,
+        StaffsInventory = _gameManager.StaffsInventory
+      });
     }
     else
     {

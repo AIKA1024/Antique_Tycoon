@@ -53,9 +53,9 @@ public partial class GameManager : ObservableObject, ILocalPlayerInfo //todo 心
   private readonly Dictionary<TcpClient, string> _clientToPlayerId = []; //服务器专用
   private readonly DialogService _dialogService;
 
-  public List<Antique> Antiques { get; set; } = [];
-  public List<Antique> UnsoldAntiques { get; set; } = [];
-  public List<IStaff> Staffs { get; set; } = [];
+  public List<Antique> AntiquesInventory { get; set; } = [];
+  public List<Antique> UnsoldAntiquesInventory { get; set; } = [];
+  public List<IStaff> StaffsInventory { get; set; } = [];
 
 
   public NetServer NetServerInstance => _netServerLazy.Value;
@@ -103,16 +103,15 @@ public partial class GameManager : ObservableObject, ILocalPlayerInfo //todo 心
       (_, request) => _playersByUuid.Remove(request.PlayerUuid));
     //因为要更新其他玩家的信息，所以也要监听这个消息
     WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMoveResponse);
-    WeakReferenceMessenger.Default.Register<HireStaffResponse>(this, ReceiveHireStaffResponse);
     WeakReferenceMessenger.Default.Register<UpdatePlayerInfoResponse>(this, ReceiveUpdatePlayerInfoResponse);
-    WeakReferenceMessenger.Default.Register<GetAntiqueResultResponse>(this, ReceiveGetAntiqueResultResponse);
     WeakReferenceMessenger.Default.Register<UpdateSystemInfoResponse>(this, ReceiveUpdateSystemInfoResponse);
     
   }
 
   private void ReceiveUpdateSystemInfoResponse(object recipient, UpdateSystemInfoResponse message)
   {
-    Antiques = message.AntiquesInventory;
+    AntiquesInventory = message.AntiquesInventory;
+    StaffsInventory = message.StaffsInventory;
   }
 
   private void ReceiveUpdatePlayerInfoResponse(object recipient, UpdatePlayerInfoResponse message)
@@ -132,26 +131,6 @@ public partial class GameManager : ObservableObject, ILocalPlayerInfo //todo 心
       antique.Image.Dispose();
       antique.Image = new Bitmap(Path.Combine(imagePath, antique.ImageHash));
     }
-  }
-
-  private void ReceiveGetAntiqueResultResponse(object recipient, GetAntiqueResultResponse message)
-  {
-    if (!message.IsSuccess)
-      return;
-    var player = GetPlayerByUuid(message.PlayerUuid);
-    var antique = Antiques.First(a => a.Uuid == message.AntiqueUuid);
-    player.Antiques.Add(antique);
-    Antiques.Remove(antique);
-  }
-
-  private void ReceiveHireStaffResponse(object recipient, HireStaffResponse message)
-  {
-    if (!message.IsSuccess)
-      return;
-    var player = GetPlayerByUuid(message.PlayerUuid);
-    var staff = Staffs.First(s => s.Uuid == message.StaffUuid);
-    player.Staffs.Add(staff);
-    Staffs.Remove(staff);
   }
 
   public void Initialize()
