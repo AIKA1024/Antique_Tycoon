@@ -153,7 +153,7 @@ public class GameRuleService : ObservableObject
 
       case SpawnPoint:
         await HandleSpawnPointAsync(player);
-        // 出生点：处理完后回合结束（你可根据需求修改为 false，比如路过出生点可再投骰子）
+        await HandleTalentMarketAsync(player, node);
         return true;
 
       case Mine:
