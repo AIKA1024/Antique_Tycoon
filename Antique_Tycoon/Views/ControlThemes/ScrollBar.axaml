@@ -1,0 +1,144 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ControlTheme x:Key="{x:Type ScrollBar}" TargetType="ScrollBar">
+        <Setter Property="Background" Value="#58585A" />
+        <Setter Property="Margin" Value="0 10 1 10" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel Margin="{TemplateBinding Margin}"
+                       Width="{TemplateBinding Width}">
+                    <Rectangle Fill="{TemplateBinding Background}"
+                               Margin="5 0" />
+
+                    <Track Name="PART_Track"
+                           Minimum="{TemplateBinding Minimum}"
+                           Maximum="{TemplateBinding Maximum}"
+                           Value="{TemplateBinding Value, Mode=TwoWay}"
+                           ViewportSize="{TemplateBinding ViewportSize}"
+                           Orientation="{TemplateBinding Orientation}"
+                           IsDirectionReversed="True">
+
+                        <Track.DecreaseButton>
+                            <RepeatButton Name="PART_PageUpButton"
+                                          Focusable="False"
+                                          Theme="{x:Null}"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch">
+                                <RepeatButton.Template>
+                                    <ControlTemplate>
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.DecreaseButton>
+
+                        <Track.IncreaseButton>
+                            <RepeatButton Name="PART_PageDownButton"
+                                          Focusable="False"
+                                          Theme="{x:Null}"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch">
+                                <RepeatButton.Template>
+                                    <ControlTemplate>
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.IncreaseButton>
+
+                        <Thumb Name="thumb"
+                               ClipToBounds="False">
+                            <Thumb.Template>
+                                <ControlTemplate>
+                                    <Grid ClipToBounds="False">
+
+                                        <Rectangle Height="4"
+                                                   Fill="#66000000"
+                                                   VerticalAlignment="Bottom"
+                                                   Margin="0,0,0,-4" />
+
+                                        <Border BorderBrush="Black" BorderThickness="3">
+                                            <Border x:Name="ThumbInner"
+                                                    MinWidth="12"
+                                                    BorderBrush="#58585A" BorderThickness="0 0 0 6"
+                                                    Background="#E6E8EB">
+                                            </Border>
+                                        </Border>
+
+                                    </Grid>
+
+                                </ControlTemplate>
+                            </Thumb.Template>
+                        </Thumb>
+
+                    </Track>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^ /template/ Thumb:pointerover Border#ThumbInner">
+            <Setter Property="Background" Value="#E0E0E0" />
+        </Style>
+        <Style Selector="^ /template/ Thumb:pressed Border#ThumbInner">
+            <Setter Property="Background" Value="#A0A0A0" />
+        </Style>
+
+        <Style Selector="^:horizontal">
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="14" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="#1A1A1A"
+                            BorderThickness="0,1,0,0">
+                        <Track Name="PART_Track"
+                               Minimum="{TemplateBinding Minimum}"
+                               Maximum="{TemplateBinding Maximum}"
+                               Value="{TemplateBinding Value, Mode=TwoWay}"
+                               ViewportSize="{TemplateBinding ViewportSize}"
+                               Orientation="{TemplateBinding Orientation}">
+                            <Track.DecreaseButton>
+                                <RepeatButton Name="PART_PageUpButton"
+                                              Focusable="False"
+                                              Theme="{x:Null}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate>
+                                            <Border Background="Transparent" />
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.DecreaseButton>
+
+                            <Track.IncreaseButton>
+                                <RepeatButton Name="PART_PageDownButton"
+                                              Focusable="False"
+                                              Theme="{x:Null}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate>
+                                            <Border Background="Transparent" />
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.IncreaseButton>
+                            <Thumb Name="thumb">
+                                <Thumb.Template>
+                                    <ControlTemplate>
+                                        <Border Background="#1A1A1A" Padding="1">
+                                            <Border Background="#C6C6C6" x:Name="ThumbInner" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>
