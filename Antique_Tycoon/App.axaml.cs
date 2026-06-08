@@ -54,6 +54,14 @@ public partial class App : Application
     gameManager.Initialize();
     Services.GetRequiredService<GameRuleService>(); // 启动gameRule todo 后面有多种规则后，需要按需实例化
 
+    // 全局捕获 UI 线程上 async void / event handler 等抛出的未处理异常
+    Dispatcher.UIThread.UnhandledException += (sender, e) =>
+    {
+      e.Handled = true; // 阻止应用崩溃
+      Services.GetRequiredService<ExceptionHandlingService>()
+        .HandleException(e.Exception, "UI线程");
+    };
+
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
     {
       desktop.MainWindow = Services.GetRequiredService<MainWindow>();
@@ -88,6 +96,7 @@ public partial class App : Application
     services.AddSingleton(sp => new Lazy<NetServer>(sp.GetRequiredService<NetServer>));
     services.AddSingleton<FilePickerService>();
     services.AddSingleton<ActionQueueService>();
+    services.AddSingleton<ExceptionHandlingService>();
     services.AddSingleton(new PersistenceService(Path.Combine(AppContext.BaseDirectory,"..","Configs")));
     return services.BuildServiceProvider();
   }

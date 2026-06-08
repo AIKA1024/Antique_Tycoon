@@ -1,89 +1,51 @@
-﻿using Avalonia;
+using Avalonia;
 using System;
 using System.Threading.Tasks;
 using Antique_Tycoon.Services;
-using Antique_Tycoon.Utilities;
-using Antique_Tycoon.ViewModels.DialogViewModels;
-using Antique_Tycoon.Views.Windows;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Antique_Tycoon;
 
 sealed class Program
 {
-  // Initialization code. Don't use any Avalonia, third-party APIs or any
-  // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-  // yet and stuff might break.
   [STAThread]
   public static void Main(string[] args)
   {
-    AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
+    // 1. 最终兜底：未被任何 try-catch 捕获的异常（应用即将崩溃）
+    AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
     {
       var ex = (Exception)e.ExceptionObject;
-      if (App.Current.Services.GetService<DialogService>() is { } dialogService)//在应用启动前，Current是可能为null的
+      if (App.Current?.Services?.GetService(typeof(ExceptionHandlingService)) is ExceptionHandlingService exceptionService)
       {
-        await dialogService.ShowDialogAsync(new MessageDialogViewModel
-          { Title = "严重错误", Message = ex.Message, IsLightDismissEnabled = false });
+        exceptionService.HandleException(ex, "未处理异常");
       }
       else
+      {
         Console.WriteLine($"Critical Error before App Init: {ex}");
-#if DEBUG
-      throw ex;
-#endif
-      ExitApplication();
-      // 此时应用通常即将崩溃，这里适合做最后的日志记录
+      }
     };
-    // 2. 任务调度异常（未 await 的 Task）
-    TaskScheduler.UnobservedTaskException += async (sender, e) =>
+
+    // 2. 任务调度异常（未 await 的 Task 被 GC 时触发）
+    TaskScheduler.UnobservedTaskException += (sender, e) =>
     {
       e.SetObserved(); // 标记为已观察，防止进程崩溃
-      await App.Current.Services.GetRequiredService<DialogService>().ShowDialogAsync(new MessageDialogViewModel
-        { Title = "严重错误，程序即将关闭", Message = $"{e.Exception.Message}\r\n{e.Exception.InnerException?.StackTrace}",IsLightDismissEnabled = false });
-#if DEBUG
-      throw e.Exception;
-#endif
-      ExitApplication();
+      if (App.Current?.Services?.GetService(typeof(ExceptionHandlingService)) is ExceptionHandlingService exceptionService)
+      {
+        exceptionService.HandleException(e.Exception, "未观察任务异常");
+      }
+      else
+      {
+        Console.WriteLine($"UnobservedTaskException before App Init: {e.Exception}");
+      }
     };
+
     BuildAvaloniaApp()
       .StartWithClassicDesktopLifetime(args);
-  } 
+  }
 
-  // Avalonia configuration, don't remove; also used by visual designer.
   public static AppBuilder BuildAvaloniaApp()
     => AppBuilder.Configure<App>()
       .UsePlatformDetect()
       .WithInterFont()
       .LogToTrace();
-  
-  private static void ExitApplication(int exitCode = 0)
-  {
-    // 获取当前应用的生命周期实例（跨平台通用）
-    var appLifetime = Application.Current?.ApplicationLifetime;
-    
-    if (appLifetime == null)
-    {
-      // 兜底：生命周期未初始化时，强制终止进程
-      Environment.Exit(exitCode);
-      return;
-    }
-
-    // 桌面端（Windows/macOS/Linux）
-    if (appLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-    {
-      desktopLifetime.Shutdown(exitCode);
-    }
-    // 移动端/单窗口应用（如Android/iOS）
-    else if (appLifetime is ISingleViewApplicationLifetime singleViewLifetime)
-    {
-      // 移动端通过终止进程实现退出（符合移动端行为）
-      Environment.Exit(exitCode);
-    }
-    // 其他未知生命周期：兜底退出
-    else
-    {
-      Environment.Exit(exitCode);
-    }
-  }
 }

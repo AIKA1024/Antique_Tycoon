@@ -129,7 +129,7 @@ public abstract class NetBase
                             {
                                 if (t.Exception != null)
                                     Console.WriteLine($"ReceiveFileChunkAsync failed: {t.Exception}");
-                            }, TaskContinuationOptions.OnlyOnFaulted);
+                            }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
 
                             break;
 
@@ -140,10 +140,9 @@ public abstract class NetBase
                             {
                                 if (t.Exception != null)
                                 {
-                                    Console.WriteLine($"ProcessMessageAsync failed: {t.Exception}");
-                                    throw t.Exception;
+                                    Console.WriteLine($"ProcessMessageAsync failed: {t.Exception.GetBaseException()}");
                                 }
-                            }, TaskContinuationOptions.OnlyOnFaulted);
+                            }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
                             break;
                     }
                 }

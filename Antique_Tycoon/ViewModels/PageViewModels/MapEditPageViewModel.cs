@@ -114,6 +114,8 @@ public partial class MapEditPageViewModel : PageViewModelBase
     {
         Dispatcher.UIThread.Post(async void () =>
         {
+            try
+            {
             NodeModel? model = null;
             switch (type)
             {
@@ -198,6 +200,12 @@ public partial class MapEditPageViewModel : PageViewModelBase
             {
                 CurrentMap.Entities.Add(model);
                 NodeDetailViewModels.Add(model, CreateViewModelForEntity(model));
+            }
+            }
+            catch (Exception ex)
+            {
+                App.Current.Services.GetRequiredService<ExceptionHandlingService>()
+                    .HandleException(ex, "MapEditPage.CreateEntity");
             }
         }, DispatcherPriority.Render);
     }

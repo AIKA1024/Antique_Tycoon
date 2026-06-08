@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Antique_Tycoon.Extensions;
 using Antique_Tycoon.Messages;
+using Antique_Tycoon.Services;
 using Antique_Tycoon.Utilities;
 using Antique_Tycoon.Views.Controls;
 using Antique_Tycoon.Views.Widgets;
@@ -15,6 +16,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using PropertyGenerator.Avalonia;
 
 namespace Antique_Tycoon.Behaviors;
@@ -54,27 +56,35 @@ public partial class ListenSelectNodeBehavior : Behavior<GameCanvas>
 
     private async void ReceiveGameMaskShowMessage(object recipient, GameMaskShowMessage message)
     {
-        _targetMaskBorder.IsVisible = true;
-        foreach (var item in message.SelectableNodes)
-            // item.ZIndex = 4;
-            item.IsHeightLight = true;
-        // 2. 【核心修改】直接把 Task 扔给 Reply，不要在这里 await
-        var clickTask = AwaitNodeClickAsync();
-        message.Reply(clickTask);
-
-        // 3. 处理后续的清理工作（遮罩隐藏等）
-        // 由于我们不能在当前方法 await（会导致报错），
-        // 我们需要在这个 Task 完成后异步执行清理
-        await clickTask.ContinueWith(t =>
+        try
         {
-            // 必须切回 UI 线程操作
-            Dispatcher.UIThread.Post(() =>
+            _targetMaskBorder.IsVisible = true;
+            foreach (var item in message.SelectableNodes)
+                // item.ZIndex = 4;
+                item.IsHeightLight = true;
+            // 2. 【核心修改】直接把 Task 扔给 Reply，不要在这里 await
+            var clickTask = AwaitNodeClickAsync();
+            message.Reply(clickTask);
+
+            // 3. 处理后续的清理工作（遮罩隐藏等）
+            // 由于我们不能在当前方法 await（会导致报错），
+            // 我们需要在这个 Task 完成后异步执行清理
+            await clickTask.ContinueWith(t =>
             {
-                foreach (var item in message.SelectableNodes)
-                    item.IsHeightLight = false;
-                _targetMaskBorder.IsVisible = false;
-            });
-        }, TaskScheduler.Current);
+                // 必须切回 UI 线程操作
+                Dispatcher.UIThread.Post(() =>
+                {
+                    foreach (var item in message.SelectableNodes)
+                        item.IsHeightLight = false;
+                    _targetMaskBorder.IsVisible = false;
+                });
+            }, TaskScheduler.Current);
+        }
+        catch (Exception ex)
+        {
+            App.Current.Services.GetRequiredService<ExceptionHandlingService>()
+                .HandleException(ex, "ListenSelectNodeBehavior.ReceiveGameMaskShowMessage");
+        }
     }
     
     private void ReceiveNodeClicked(object sender, NodeClickedMessage message)

@@ -44,13 +44,21 @@ public partial class GamePageViewModel : PageViewModelBase
 
     private async void ReceiveSelectDestinationAction(object recipient, SelectDestinationAction message)
     {
-        _actionQueue.Enqueue(new ActionTaskItem("选择目的地", async () =>
+        try
         {
-            string selectedNodeUuid = await WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(
-                message.Destinations,
-                Map)).Response; //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
-            await _gameManager.SendToGameServerAsync(new SelectDestinationRequest(message.Id, selectedNodeUuid));
-        }));
+            _actionQueue.Enqueue(new ActionTaskItem("选择目的地", async () =>
+            {
+                string selectedNodeUuid = await WeakReferenceMessenger.Default.Send(new GameMaskShowMessage(
+                    message.Destinations,
+                    Map)).Response; //转发一下消息，因为GameMaskShowMessage是可等待的消息，SelectDestinationAction已经继承了其他类型
+                await _gameManager.SendToGameServerAsync(new SelectDestinationRequest(message.Id, selectedNodeUuid));
+            }));
+        }
+        catch (Exception ex)
+        {
+            App.Current.Services.GetRequiredService<ExceptionHandlingService>()
+                .HandleException(ex, "GamePage.ReceiveSelectDestinationAction");
+        }
     }
 
 
@@ -73,16 +81,24 @@ public partial class GamePageViewModel : PageViewModelBase
 
     private async void ReceiveRollDiceMessage(object sender, RollDiceResponse message)
     {
-        if (message.ResponseStatus != RequestResult.Success)
+        try
         {
-            await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+            if (message.ResponseStatus != RequestResult.Success)
             {
-                Title = "错误",
-                Message = "投骰子失败，可能现在还没轮到你"
-            });
+                await _dialogService.ShowDialogAsync(new MessageDialogViewModel
+                {
+                    Title = "错误",
+                    Message = "投骰子失败，可能现在还没轮到你"
+                });
+            }
+            else
+                RollDiceValue = message.DiceValue;
         }
-        else
-            RollDiceValue = message.DiceValue;
+        catch (Exception ex)
+        {
+            App.Current.Services.GetRequiredService<ExceptionHandlingService>()
+                .HandleException(ex, "GamePage.ReceiveRollDiceMessage");
+        }
     }
 
     private void ReceiveUpdateEstateInfoMessage(object sender, UpdateEstateInfoResponse message)

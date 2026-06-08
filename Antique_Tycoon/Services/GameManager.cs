@@ -164,7 +164,15 @@ public partial class GameManager : ObservableObject, ILocalPlayerInfo //todo 心
 
   private async void OnDisconnectedFromServer()
   {
-    //todo 重连逻辑
+    try
+    {
+      //todo 重连逻辑
+    }
+    catch (Exception ex)
+    {
+      App.Current.Services.GetRequiredService<ExceptionHandlingService>()
+        .HandleException(ex, "GameManager.OnDisconnectedFromServer");
+    }
   }
 
   /// <summary>
@@ -173,15 +181,23 @@ public partial class GameManager : ObservableObject, ILocalPlayerInfo //todo 心
   /// <param name="client">掉线客户端</param>
   private async void ClientDisConnected(TcpClient client)
   {
-    if (_clientToPlayerId.ContainsKey(client))
+    try
     {
-      client.Close();
-      var playerUuid = _clientToPlayerId[client];
-      _clientToPlayerId.Remove(client);
-      _playersByUuid.Remove(playerUuid);
-      var exitRoomResponse = new ExitRoomResponse(playerUuid);
-      await NetServerInstance.BroadcastExcept(exitRoomResponse, client);
-      WeakReferenceMessenger.Default.Send(exitRoomResponse);
+      if (_clientToPlayerId.ContainsKey(client))
+      {
+        client.Close();
+        var playerUuid = _clientToPlayerId[client];
+        _clientToPlayerId.Remove(client);
+        _playersByUuid.Remove(playerUuid);
+        var exitRoomResponse = new ExitRoomResponse(playerUuid);
+        await NetServerInstance.BroadcastExcept(exitRoomResponse, client);
+        WeakReferenceMessenger.Default.Send(exitRoomResponse);
+      }
+    }
+    catch (Exception ex)
+    {
+      App.Current.Services.GetRequiredService<ExceptionHandlingService>()
+        .HandleException(ex, "GameManager.ClientDisConnected");
     }
   }
 
