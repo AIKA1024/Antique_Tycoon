@@ -16,7 +16,7 @@
             BorderThickness="3"
             Background="{StaticResource BorderBackgroundBrush}">
       <Border.KeyBindings>
-        <KeyBinding Gesture="Enter" Command="{Binding SubmitCommand}"/>
+        <KeyBinding Gesture="Enter" Command="{Binding SubmitCommand}" />
       </Border.KeyBindings>
       <StackPanel>
         <Border Padding="128 16"
@@ -35,10 +35,12 @@
           <StackPanel Spacing="8">
             <Rectangle Height="3" Fill="{StaticResource LightedBorderBrush}" />
             <Button Classes="MCButton" Margin="16 0"
-                        Content="取消"
-                        Command="{Binding CancelCommand}"/>
-            <Button Classes="MCButton Confirm" Margin="16 0" Content="创建" 
-                        Command="{Binding SubmitCommand}"/>
+                    Content="取消"
+                    Command="{Binding CancelCommand}"
+                    HorizontalAlignment="Stretch" />
+            <Button Classes="MCButton Confirm" Margin="16 0" Content="创建"
+                    Command="{Binding SubmitCommand}"
+                    HorizontalAlignment="Stretch" />
             <Rectangle Height="3" Fill="{StaticResource BorderBottomBrush}" />
           </StackPanel>
         </StackPanel>
