@@ -13,6 +13,7 @@ using Antique_Tycoon.Models.Net.Tcp.Request;
 using Antique_Tycoon.Models.Net.Tcp.Response;
 using Antique_Tycoon.Models.Net.Tcp.Response.GameAction;
 using Antique_Tycoon.Models.Nodes;
+using Antique_Tycoon.Messages;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibVLCSharp.Shared;
@@ -37,11 +38,23 @@ public class GameRuleService : ObservableObject
     _gameManager = gameManager;
     // WeakReferenceMessenger.Default.Register<PlayerMoveResponse>(this, ReceivePlayerMove); //不是viewmodel就别再用信使通信了
     WeakReferenceMessenger.Default.Register<StartGameResponse>(this, async (_, _) => await StartGameRule());
+    WeakReferenceMessenger.Default.Register<PlayerMoneyChangedMessage>(this, OnPlayerMoneyChanged);
   }
 
   public async Task AdvanceToNextPlayerTurnAsync()
   {
-    _gameManager.CurrentTurnPlayerIndex = (_gameManager.CurrentTurnPlayerIndex + 1) % _gameManager.Players.Count;
+    int playerCount = _gameManager.Players.Count;
+    int attempts = 0;
+    do
+    {
+      _gameManager.CurrentTurnPlayerIndex = (_gameManager.CurrentTurnPlayerIndex + 1) % playerCount;
+      attempts++;
+    } while (_gameManager.CurrentTurnPlayer.IsBankrupt && attempts < playerCount);
+
+    // 所有存活玩家都破产了（理论上不应该到这一步，只剩1人存活时游戏已结束）
+    if (_gameManager.CurrentTurnPlayer.IsBankrupt)
+      return;
+
     var turnStartResponse = new TurnStartResponse { PlayerUuid = _gameManager.CurrentTurnPlayer.Uuid };
     await _gameManager.NetServerInstance.Broadcast(turnStartResponse);
     WeakReferenceMessenger.Default.Send(turnStartResponse);
@@ -742,6 +755,8 @@ public class GameRuleService : ObservableObject
               new LogSegment { Text = $" 支付了 {paymentContext.Cost}" }
             ]
           });
+          // 同步收款方的金钱变更到所有客户端
+          await Broadcast(new UpdatePlayerInfoResponse(paymentContext.Receiver));
         }
         else
         {
@@ -804,6 +819,64 @@ public class GameRuleService : ObservableObject
       WeakReferenceMessenger.Default.Send(response);
       if (response is IHistoryRecord historyRecord)
         WeakReferenceMessenger.Default.Send(historyRecord);
+    }
+  }
+
+  private async void OnPlayerMoneyChanged(object recipient, PlayerMoneyChangedMessage message)
+  {
+    if (!_gameManager.IsRoomOwner || _gameManager.IsGameOver)
+      return;
+
+    var player = message.Value;
+    var map = _gameManager.SelectedMap;
+    if (map == null) return;
+
+    // 破产判断：金钱 <= 0
+    if (message.NewValue <= 0)
+    {
+      player.IsBankrupt = true;
+      var activePlayers = _gameManager.Players.Count(p => !p.IsBankrupt);
+
+      await Broadcast(new UpdatePlayerInfoResponse(player)
+      {
+        LogSegments =
+        [
+          new LogSegment { Type = InteractionType.PlayerName, Data = player.Uuid },
+          new LogSegment { Text = " 破产了！" }
+        ]
+      });
+
+      // 只剩 1 个活跃玩家 → 该玩家获胜
+      if (activePlayers == 1)
+      {
+        _gameManager.IsGameOver = true;
+        _gameManager.Winner = _gameManager.Players.First(p => !p.IsBankrupt);
+        await Broadcast(new UpdatePlayerInfoResponse(_gameManager.Winner)
+        {
+          LogSegments =
+          [
+            new LogSegment { Type = InteractionType.PlayerName, Data = _gameManager.Winner.Uuid },
+            new LogSegment { Text = " 获得了胜利！所有对手都已破产。" }
+          ]
+        });
+      }
+
+      return;
+    }
+
+    // 胜利判断（仅当阈值 > 0 时生效）
+    if (map.VictoryMoneyThreshold > 0 && message.NewValue >= map.VictoryMoneyThreshold)
+    {
+      _gameManager.IsGameOver = true;
+      _gameManager.Winner = player;
+      await Broadcast(new UpdatePlayerInfoResponse(player)
+      {
+        LogSegments =
+        [
+          new LogSegment { Type = InteractionType.PlayerName, Data = player.Uuid },
+          new LogSegment { Text = $" 达成了胜利条件！金钱达到 {map.VictoryMoneyThreshold}" }
+        ]
+      });
     }
   }
 }

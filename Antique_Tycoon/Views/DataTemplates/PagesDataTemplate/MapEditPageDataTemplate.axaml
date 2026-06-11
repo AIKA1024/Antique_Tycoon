@@ -166,6 +166,9 @@
                   <c:McContentControl Header="初始金额">
                     <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.StartingCash,Mode=TwoWay}" />
                   </c:McContentControl>
+                  <c:McContentControl Header="获胜金额">
+                    <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.VictoryMoneyThreshold,Mode=TwoWay}" />
+                  </c:McContentControl>
                   <c:McContentControl Header="画布宽度">
                     <TextBox Classes="MCTextbox" Text="{Binding CurrentMap.CanvasWidth,Mode=TwoWay}" />
                   </c:McContentControl>

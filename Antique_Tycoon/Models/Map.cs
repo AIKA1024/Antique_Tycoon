@@ -36,6 +36,8 @@ public partial class Map : ObservableObject
 
   [ObservableProperty] public partial int SpawnPointCashReward { get; set; } = 2000;
 
+  [ObservableProperty] public partial int VictoryMoneyThreshold { get; set; } = 25000;
+
   [ObservableProperty]
   [JsonIgnore] // 这个值通过另外的Hash文件读取
   public partial string Hash { get; set; } = "";

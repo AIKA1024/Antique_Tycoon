@@ -12,7 +12,9 @@ using Antique_Tycoon.Utilities;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Antique_Tycoon.Messages;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using ObservableCollections;
 
 namespace Antique_Tycoon.Models;
@@ -24,6 +26,8 @@ public partial class Player : ObservableObject, IDisposable
   [ObservableProperty] public partial string Name { get; set; } = "史蒂夫";
 
   [ObservableProperty] public partial decimal Money { get; set; }
+
+  [ObservableProperty] public partial bool IsBankrupt { get; set; }
 
   public string CurrentNodeUuId { get; set; } = "";
 
@@ -88,5 +92,10 @@ public partial class Player : ObservableObject, IDisposable
     return Staffs
       .SelectMany(s => s.Effects.Select(e => (staff: s, effect: e)))
       .Where(t => t.effect.TriggerPoint == point);
+  }
+
+  partial void OnMoneyChanged(decimal value)
+  {
+    WeakReferenceMessenger.Default.Send(new PlayerMoneyChangedMessage(this, value));
   }
 }

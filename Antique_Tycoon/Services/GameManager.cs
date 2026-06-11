@@ -120,6 +120,7 @@ public partial class GameManager : ObservableObject, ILocalPlayerInfo //todo 心
     player.Antiques = message.Player.Antiques;
     player.Staffs = message.Player.Staffs;
     player.Money = message.Player.Money;
+    player.IsBankrupt = message.Player.IsBankrupt;
     player.Estates = message.Player.Estates;
 
     if (player.Antiques.Count == 0)
